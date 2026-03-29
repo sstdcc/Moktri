@@ -591,7 +591,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_contact_clicks: {
+        Args: { p_listing_id: string }
+        Returns: undefined
+      }
+      increment_listing_views: {
+        Args: { p_listing_id: string }
+        Returns: undefined
+      }
+      increment_whatsapp_clicks: {
+        Args: { p_listing_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       allowed_for_type: "family" | "bachelors" | "students" | "all"
