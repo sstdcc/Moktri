@@ -2,6 +2,7 @@ import { Heart, BedDouble, MapPin, Clock, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MiftahBadge } from './MiftahBadge';
 import { cn } from '@/lib/utils';
+import { formatPrice as fmtPrice, timeAgo } from '@/lib/format';
 
 const categoryLabels: Record<string, string> = {
   room: 'غرفة', apartment: 'شقة', house: 'منزل', floor: 'دور', shop: 'محل',
@@ -10,17 +11,6 @@ const categoryLabels: Record<string, string> = {
 
 const furnishingLabels: Record<string, string> = {
   furnished: 'مفروش', semi_furnished: 'شبه مفروش', unfurnished: 'غير مفروش',
-};
-
-const formatPrice = (price: number) => price.toLocaleString('ar-YE');
-
-const getTimeAgo = (date: string) => {
-  const diff = Date.now() - new Date(date).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return 'اليوم';
-  if (days === 1) return 'منذ يوم';
-  if (days <= 10) return `منذ ${days} أيام`;
-  return `منذ ${days} يوم`;
 };
 
 const getDaysSincePublished = (date: string) => {
