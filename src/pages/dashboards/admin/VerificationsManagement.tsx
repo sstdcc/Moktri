@@ -22,6 +22,21 @@ const tabList: { label: string; status: TabStatus }[] = [
 
 const roleLabel: Record<string, string> = { owner: 'مالك عقار', broker: 'دلال عقارات' };
 
+/** Generate a short-lived signed URL for a private verification document */
+const getSignedUrl = async (path: string): Promise<string | null> => {
+  if (!path) return null;
+  // If path is already an absolute URL (legacy public URL), return as-is
+  if (path.startsWith('http')) return path;
+  const { data, error } = await supabase.storage
+    .from('verifications')
+    .createSignedUrl(path, 300); // 5 min expiry
+  if (error) {
+    console.error('Signed URL error:', error.message);
+    return null;
+  }
+  return data.signedUrl;
+};
+
 const VerificationsManagement = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabStatus>('pending');
@@ -42,6 +57,15 @@ const VerificationsManagement = () => {
   }, [activeTab]);
 
   useEffect(() => { fetchApps(); }, [fetchApps]);
+
+  const openDocument = async (path: string) => {
+    const url = await getSignedUrl(path);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      toast.error('تعذر فتح الملف');
+    }
+  };
 
   const approve = async (app: any) => {
     await supabase.from('profiles').update({ is_verified: true, verification_badge: 'verified' as any }).eq('id', app.applicant_id);
@@ -116,18 +140,14 @@ const VerificationsManagement = () => {
               </p>
               <div className="flex gap-2 mt-2 flex-wrap">
                 {a.id_document_url && (
-                  <a href={a.id_document_url} target="_blank" rel="noreferrer">
-                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
-                      <ExternalLink className="h-3 w-3" /> صورة الهوية
-                    </Button>
-                  </a>
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.id_document_url)}>
+                    <ExternalLink className="h-3 w-3" /> صورة الهوية
+                  </Button>
                 )}
                 {a.business_document_url && (
-                  <a href={a.business_document_url} target="_blank" rel="noreferrer">
-                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
-                      <ExternalLink className="h-3 w-3" /> وثيقة إضافية
-                    </Button>
-                  </a>
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.business_document_url)}>
+                    <ExternalLink className="h-3 w-3" /> وثيقة إضافية
+                  </Button>
                 )}
               </div>
               {a.notes && <p className="text-sm text-muted-foreground mt-2">{a.notes}</p>}

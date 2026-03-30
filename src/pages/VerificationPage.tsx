@@ -92,19 +92,18 @@ const VerificationPage = () => {
       }
       setUploadProgress(75);
 
-      const { data: idUrl } = supabase.storage.from('verifications').getPublicUrl(idPath);
-      const bizUrl = bizPath ? supabase.storage.from('verifications').getPublicUrl(bizPath).data.publicUrl : null;
-
+      // Store private storage paths only — NOT public URLs
       const { error: insertErr } = await supabase.from('verification_applications').insert({
         applicant_id: user.id,
         role,
-        id_document_url: idUrl.publicUrl,
-        business_document_url: bizUrl,
+        id_document_url: idPath,
+        business_document_url: bizPath,
         notes: notes.trim() || null,
       });
       if (insertErr) throw insertErr;
 
-      await supabase.from('profiles').update({ verification_badge: 'pending' }).eq('id', user.id);
+      // Do NOT update profiles.verification_badge directly from client.
+      // The DB trigger on_verification_application_insert handles this safely.
 
       setUploadProgress(100);
       toast.success('تم إرسال طلب التوثيق بنجاح');
@@ -117,10 +116,14 @@ const VerificationPage = () => {
     }
   };
 
+  // Derive effective verification state from latest application + profile badge
   const badge = profile?.verification_badge;
-  const isPending = badge === 'pending' || existingApp?.status === 'pending';
+  const latestAppStatus = existingApp?.status;
+
   const isVerified = badge === 'verified';
-  const isRejected = badge === 'rejected' || existingApp?.status === 'rejected';
+  const isPending = !isVerified && (latestAppStatus === 'pending');
+  const isRejected = !isVerified && !isPending && (latestAppStatus === 'rejected');
+  const showForm = !isVerified && !isPending;
 
   return (
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
@@ -156,7 +159,7 @@ const VerificationPage = () => {
               </Card>
             )}
 
-            {isPending && !isVerified && (
+            {isPending && (
               <Card className="border-accent/30 bg-accent/5 mb-6">
                 <CardContent className="flex items-center gap-4 p-6">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
@@ -191,7 +194,7 @@ const VerificationPage = () => {
               </Card>
             )}
 
-            {!isVerified && !isPending && (
+            {showForm && (
               <>
                 {!isRejected && badge === 'none' && (
                   <Card className="mb-6">
