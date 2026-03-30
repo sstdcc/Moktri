@@ -2,24 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { signInWithOtp, verifyOtp } from '@/lib/auth';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Phone, KeyRound, UserPlus, Loader2, ArrowRight, RefreshCw } from 'lucide-react';
+import { Phone, KeyRound, Loader2, ArrowRight, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 
 const RESEND_COOLDOWN = 60;
 
-type Step = 'phone' | 'otp' | 'profile-setup';
-
-const roleOptions = [
-  { value: 'renter', label: 'أبحث عن سكن' },
-  { value: 'owner', label: 'لدي عقار للإيجار' },
-  { value: 'broker', label: 'دلال عقارات' },
-] as const;
+type Step = 'phone' | 'otp' | 'onboarding';
 
 const AuthPage = () => {
   const [phone, setPhone] = useState('');
