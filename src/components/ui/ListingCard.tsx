@@ -86,7 +86,7 @@ export const ListingCard = ({
       {/* BODY */}
       <div className="p-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-xl font-black text-accent font-tajawal">{formatPrice(price)}</span>
+          <span className="text-xl font-black text-accent font-tajawal">{fmtPrice(price)}</span>
           <span className="text-xs text-muted-foreground font-tajawal">ر.ي/شهري</span>
         </div>
 
