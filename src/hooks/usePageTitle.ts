@@ -15,6 +15,7 @@ const pageTitles: Record<string, string> = {
   '/dashboard/broker': 'لوحة الدلال | مفتاح',
   '/dashboard/renter': 'لوحة المستأجر | مفتاح',
   '/dashboard/admin': 'لوحة الإدارة | مفتاح',
+  '/requests/new': 'طلب سكن جديد | مفتاح',
 };
 
 export const usePageTitle = () => {

@@ -45,7 +45,7 @@ const furnishingOptions = [
 ];
 
 const CreateRequestPage = () => {
-  usePageTitle('طلب سكن جديد');
+  usePageTitle();
   const { user } = useAuth();
   const { districts } = useDistricts();
   const navigate = useNavigate();

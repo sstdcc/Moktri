@@ -88,6 +88,7 @@ const App = () => (
 
                 <Route path="/listings/new" element={<AuthGuard><CreateListingPage /></AuthGuard>} />
                 <Route path="/listings/:id/edit" element={<AuthGuard><EditListingPage /></AuthGuard>} />
+                <Route path="/requests/new" element={<AuthGuard><CreateRequestPage /></AuthGuard>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
