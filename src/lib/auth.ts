@@ -4,16 +4,16 @@ export const signInWithOtp = async (phone: string) => {
   const { data, error } = await supabase.functions.invoke('send-otp', {
     body: { phone },
   });
-  if (error) throw error;
+  if (error) throw new Error('تعذر إكمال العملية، حاول مرة أخرى');
   if (data?.error) throw new Error(data.error);
-  return data;
+  return { success: true };
 };
 
 export const verifyOtp = async (phone: string, token: string) => {
   const { data, error } = await supabase.functions.invoke('verify-otp', {
     body: { phone, code: token },
   });
-  if (error) throw error;
+  if (error) throw new Error('تعذر إكمال العملية، حاول مرة أخرى');
   if (data?.error) throw new Error(data.error);
 
   // Set the session from the response
@@ -24,7 +24,7 @@ export const verifyOtp = async (phone: string, token: string) => {
     });
   }
 
-  return data;
+  return { success: true, isNew: data?.isNew };
 };
 
 export const signOut = async () => {
