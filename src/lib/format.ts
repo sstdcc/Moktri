@@ -41,8 +41,7 @@ export const timeAgo = (date: string | Date): string => {
   if (diffDay === 1) return 'منذ يوم';
   if (diffDay === 2) return 'منذ يومين';
   if (diffDay < 11) return `منذ ${diffDay} أيام`;
-  if (diffDay < 7) return `منذ ${diffDay} يوم`;
-  if (diffWeek === 1) return 'منذ أسبوع';
+  if (diffWeek < 2) return 'منذ أسبوع';
   if (diffWeek === 2) return 'منذ أسبوعين';
   if (diffWeek < 5) return `منذ ${diffWeek} أسابيع`;
   return `منذ ${diffDay} يوم`;
