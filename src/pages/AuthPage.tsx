@@ -21,11 +21,6 @@ const AuthPage = () => {
   const [cooldown, setCooldown] = useState(0);
   const [isNewUser, setIsNewUser] = useState(false);
 
-  // Profile setup
-  const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string>('renter');
-  const [whatsapp, setWhatsapp] = useState('');
-
   const cooldownRef = useRef<ReturnType<typeof setInterval>>();
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
@@ -36,11 +31,9 @@ const AuthPage = () => {
     return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
   }, []);
 
-  // After auth completes and profile loads, check if profile setup needed
   useEffect(() => {
-    if (step === 'profile-setup' || step === 'phone') return;
+    if (step === 'onboarding' || step === 'phone') return;
     if (user && profile && !isNewUser) {
-      // Existing user with profile — redirect
       const returnUrl = searchParams.get('returnUrl') || '/';
       navigate(returnUrl, { replace: true });
     }
@@ -138,8 +131,8 @@ const AuthPage = () => {
       const result = await verifyOtp(phone, otpCode);
       if (result.isNew) {
         setIsNewUser(true);
-        setStep('profile-setup');
-        toast.success('تم التحقق بنجاح! أكمل ملفك الشخصي');
+        setStep('onboarding');
+        toast.success('تم التحقق بنجاح!');
       } else {
         toast.success('تم تسجيل الدخول بنجاح');
         retryProfile();
@@ -153,50 +146,24 @@ const AuthPage = () => {
     }
   };
 
-  const handleProfileSetup = async () => {
-    if (!fullName.trim()) { toast.error('أدخل اسمك الكامل'); return; }
-    setLoading(true);
-    try {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) throw new Error('لم يتم العثور على المستخدم');
-
-      const { error } = await supabase.from('profiles').upsert({
-        id: currentUser.id,
-        full_name: fullName.trim(),
-        phone: currentUser.phone || currentUser.email || '',
-        role: selectedRole as any,
-        whatsapp_number: whatsapp.trim() || null,
-      }, { onConflict: 'id' });
-
-      if (error) throw error;
-      toast.success('مرحباً بك في مفتاح!');
-      retryProfile();
-      const returnUrl = searchParams.get('returnUrl') || '/';
-      navigate(returnUrl, { replace: true });
-    } catch {
-      toast.error('تعذر حفظ البيانات، حاول مرة أخرى');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg">
-            <span className="text-2xl font-black text-primary-foreground">م</span>
+        {/* Logo — hidden during onboarding */}
+        {step !== 'onboarding' && (
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg">
+              <span className="text-2xl font-black text-primary-foreground">م</span>
+            </div>
+            <h1 className="text-3xl font-black text-primary">مفتاح</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {step === 'phone' && 'سجّل دخولك عبر رقم الهاتف'}
+              {step === 'otp' && 'أدخل رمز التحقق المرسل'}
+            </p>
           </div>
-          <h1 className="text-3xl font-black text-primary">مفتاح</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {step === 'phone' && 'سجّل دخولك عبر رقم الهاتف'}
-            {step === 'otp' && 'أدخل رمز التحقق المرسل'}
-            {step === 'profile-setup' && 'أكمل ملفك الشخصي'}
-          </p>
-        </div>
+        )}
 
-        {/* ─── STEP 1: Phone Input ─── */}
+        {/* ─── Phone Input ─── */}
         {step === 'phone' && (
           <div className="space-y-4">
             <div className="relative">
@@ -223,7 +190,7 @@ const AuthPage = () => {
           </div>
         )}
 
-        {/* ─── STEP 2: OTP Input ─── */}
+        {/* ─── OTP Input ─── */}
         {step === 'otp' && (
           <div className="space-y-5">
             <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-2">
@@ -232,8 +199,6 @@ const AuthPage = () => {
                 تم إرسال الرمز إلى <span className="font-semibold text-foreground ltr inline-block" dir="ltr">{phone}</span>
               </p>
             </div>
-
-            {/* OTP Boxes */}
             <div className="flex gap-2 justify-center" dir="ltr" onPaste={handleOtpPaste}>
               {otp.map((digit, i) => (
                 <input
@@ -254,11 +219,9 @@ const AuthPage = () => {
                 />
               ))}
             </div>
-
             <Button onClick={handleVerify} disabled={loading || otpCode.length < 6} className="w-full h-12 text-base">
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'تأكيد'}
             </Button>
-
             <div className="flex items-center justify-between pt-1">
               <button
                 onClick={() => { setStep('phone'); setOtp(Array(6).fill('')); }}
@@ -279,62 +242,8 @@ const AuthPage = () => {
           </div>
         )}
 
-        {/* ─── STEP 3: Profile Setup ─── */}
-        {step === 'profile-setup' && (
-          <div className="space-y-5">
-            <div className="flex items-center gap-2 rounded-xl bg-success/10 px-3 py-2">
-              <UserPlus className="h-4 w-4 text-success shrink-0" />
-              <p className="text-xs text-success font-medium">مرحباً! أكمل بياناتك للبدء</p>
-            </div>
-
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">
-                الاسم الكامل <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                placeholder="مثال: أحمد محمد"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                aria-label="الاسم الكامل"
-              />
-            </div>
-
-            <div>
-              <Label className="text-sm font-semibold mb-3 block">ما الذي تبحث عنه؟</Label>
-              <RadioGroup value={selectedRole} onValueChange={setSelectedRole} className="space-y-2">
-                {roleOptions.map((opt) => (
-                  <label
-                    key={opt.value}
-                    className={cn(
-                      'flex items-center gap-3 rounded-xl border-2 p-3 cursor-pointer transition-all',
-                      selectedRole === opt.value ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/30'
-                    )}
-                  >
-                    <RadioGroupItem value={opt.value} id={`role-${opt.value}`} />
-                    <span className="text-sm font-medium">{opt.label}</span>
-                  </label>
-                ))}
-              </RadioGroup>
-            </div>
-
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">رقم واتساب (اختياري)</Label>
-              <Input
-                type="tel"
-                placeholder="مثال: 772123456"
-                value={whatsapp}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                dir="ltr"
-                className="text-left"
-                aria-label="رقم واتساب"
-              />
-            </div>
-
-            <Button onClick={handleProfileSetup} disabled={loading || !fullName.trim()} className="w-full h-12 text-base">
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'ابدأ الآن'}
-            </Button>
-          </div>
-        )}
+        {/* ─── Onboarding Flow ─── */}
+        {step === 'onboarding' && <OnboardingFlow />}
       </div>
     </div>
   );
