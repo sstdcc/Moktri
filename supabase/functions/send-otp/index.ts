@@ -26,8 +26,8 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
     const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
     if (!TWILIO_API_KEY) throw new Error("TWILIO_API_KEY not configured");
-    const TWILIO_PHONE = Deno.env.get("TWILIO_PHONE_NUMBER");
-    if (!TWILIO_PHONE) throw new Error("TWILIO_PHONE_NUMBER not configured");
+    const TWILIO_MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
+    if (!TWILIO_MESSAGING_SERVICE_SID) throw new Error("TWILIO_MESSAGING_SERVICE_SID not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       },
       body: new URLSearchParams({
         To: phone,
-        From: TWILIO_PHONE,
+        MessagingServiceSid: TWILIO_MESSAGING_SERVICE_SID,
         Body: `رمز التحقق الخاص بك في مفتاح: ${code}`,
       }),
     });
