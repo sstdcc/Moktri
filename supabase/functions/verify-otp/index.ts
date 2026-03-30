@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check code
+    // Check code validity
     const { data: otpRecord, error: fetchErr } = await supabase
       .from("otp_codes")
       .select("*")
@@ -45,79 +45,69 @@ Deno.serve(async (req) => {
     }
 
     // Mark as verified
-    await supabase
-      .from("otp_codes")
-      .update({ verified: true })
-      .eq("id", otpRecord.id);
+    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+
+    // Derive a deterministic email from phone for Supabase auth
+    const email = `${phone.replace("+", "")}@phone.miftah.app`;
+    const password = `miftah_phone_${phone}_secret_key_2026`;
 
     // Check if user exists
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find(
-      (u) => u.phone === phone
-    );
+    const existingUser = existingUsers?.users?.find((u) => u.phone === phone);
 
-    let session;
-    if (existingUser) {
-      // Generate a magic link / session for existing user
-      const { data, error } = await supabase.auth.admin.generateLink({
-        type: "magiclink",
-        email: existingUser.email || `${phone.replace("+", "")}@phone.miftah.app`,
-      });
-      if (error) throw error;
-
-      // Sign in with the token
-      const { data: signInData, error: signInErr } =
-        await supabase.auth.admin.generateLink({
-          type: "magiclink",
-          email: existingUser.email || `${phone.replace("+", "")}@phone.miftah.app`,
-        });
-
-      // Use admin to create session
-      const { data: sessionData, error: sessionErr } = await supabase.auth.signInWithPassword({
+    if (!existingUser) {
+      // Create new user
+      const { error: createErr } = await supabase.auth.admin.createUser({
+        email,
+        password,
         phone,
-        password: "_unused_",
-      }).catch(() => ({ data: null, error: null }));
-
-      // Fallback: return user info for client-side handling
-      session = { user: existingUser };
-    } else {
-      // Create new user with phone
-      const email = `${phone.replace("+", "")}@phone.miftah.app`;
-      const password = crypto.randomUUID();
-
-      const { data: newUser, error: createErr } =
-        await supabase.auth.admin.createUser({
-          phone,
-          email,
-          password,
-          phone_confirm: true,
-          email_confirm: true,
-          user_metadata: { phone, full_name: "" },
-        });
+        phone_confirm: true,
+        email_confirm: true,
+        user_metadata: { phone, full_name: "" },
+      });
       if (createErr) throw createErr;
-      session = { user: newUser.user, isNew: true };
     }
 
-    // Generate access token for the user
-    const userId = session.user?.id;
-    if (!userId) throw new Error("No user ID");
+    // Sign in to get a real session
+    // We use the deterministic password approach
+    if (!existingUser) {
+      // New user - sign in with the password we just set
+      const { data: session, error: signErr } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signErr) throw signErr;
 
-    // Use admin API to generate a session
-    const { data: tokenData, error: tokenErr } = await supabase.auth.admin.generateLink({
-      type: "magiclink",
-      email: session.user.email || `${phone.replace("+", "")}@phone.miftah.app`,
-    });
+      return new Response(
+        JSON.stringify({
+          success: true,
+          session: session.session,
+          user: session.user,
+          isNew: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } else {
+      // Existing user - use admin to generate link and extract token
+      // Update password to our deterministic one so we can sign in
+      await supabase.auth.admin.updateUserById(existingUser.id, { password });
+      
+      const { data: session, error: signErr } = await supabase.auth.signInWithPassword({
+        email: existingUser.email || email,
+        password,
+      });
+      if (signErr) throw signErr;
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        token_hash: tokenData?.properties?.hashed_token,
-        verification_url: tokenData?.properties?.verification_type,
-        email: session.user.email || `${phone.replace("+", "")}@phone.miftah.app`,
-        isNew: !existingUser,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+      return new Response(
+        JSON.stringify({
+          success: true,
+          session: session.session,
+          user: session.user,
+          isNew: false,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
   } catch (error) {
     console.error("verify-otp error:", error);
     const msg = error instanceof Error ? error.message : "Unknown error";
