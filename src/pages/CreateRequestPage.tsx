@@ -46,7 +46,7 @@ const furnishingOptions = [
 
 const CreateRequestPage = () => {
   usePageTitle();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { districts } = useDistricts();
   const navigate = useNavigate();
 

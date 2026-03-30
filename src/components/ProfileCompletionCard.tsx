@@ -1,13 +1,32 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Circle, User } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { calculateProfileCompletion } from '@/lib/profileCompletion';
 
 const ProfileCompletionCard = () => {
   const navigate = useNavigate();
-  const { profile } = useAuth();
-  const { percent, missingFields, completedFields } = calculateProfileCompletion(profile);
+  const { profile, user } = useAuth();
+  const [activityData, setActivityData] = useState<{ hasListings: boolean; hasRequests: boolean }>({ hasListings: false, hasRequests: false });
+
+  useEffect(() => {
+    if (!user) return;
+    const check = async () => {
+      const isOwner = profile?.role === 'owner' || profile?.role === 'broker';
+      if (isOwner) {
+        const { count } = await supabase.from('listings').select('id', { count: 'exact', head: true }).eq('owner_id', user.id).limit(1);
+        setActivityData(prev => ({ ...prev, hasListings: (count ?? 0) > 0 }));
+      } else {
+        const { count } = await supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('requester_id', user.id).limit(1);
+        setActivityData(prev => ({ ...prev, hasRequests: (count ?? 0) > 0 }));
+      }
+    };
+    check();
+  }, [user, profile?.role]);
+
+  const { percent, missingFields, completedFields } = calculateProfileCompletion(profile, activityData);
 
   if (percent >= 100) return null;
 
@@ -24,15 +43,15 @@ const ProfileCompletionCard = () => {
       <Progress value={percent} className="h-2 bg-muted" />
 
       <div className="space-y-1.5">
-        {completedFields.map((f) => (
-          <div key={f.key} className="flex items-center gap-2 text-xs text-success">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            <span>{f.label}</span>
-          </div>
-        ))}
         {missingFields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 text-xs text-muted-foreground">
             <Circle className="h-3.5 w-3.5" />
+            <span>{f.label}</span>
+          </div>
+        ))}
+        {completedFields.map((f) => (
+          <div key={f.key} className="flex items-center gap-2 text-xs text-success">
+            <CheckCircle2 className="h-3.5 w-3.5" />
             <span>{f.label}</span>
           </div>
         ))}
