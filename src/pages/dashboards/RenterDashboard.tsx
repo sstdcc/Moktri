@@ -97,7 +97,7 @@ const RenterDashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold">طلباتي</h2>
-            <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => navigate('/requests')}>
+            <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => navigate('/requests/new')}>
               <Plus className="h-3.5 w-3.5" /> طلب جديد
             </Button>
           </div>
