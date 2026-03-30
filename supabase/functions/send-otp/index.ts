@@ -37,7 +37,8 @@ Deno.serve(async (req) => {
     const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
     if (!TWILIO_API_KEY) throw new Error("Missing server config");
     const TWILIO_MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
-    if (!TWILIO_MESSAGING_SERVICE_SID) throw new Error("Missing server config");
+    const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER");
+    if (!TWILIO_MESSAGING_SERVICE_SID && !TWILIO_PHONE_NUMBER) throw new Error("Missing server config");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
