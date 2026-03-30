@@ -62,7 +62,7 @@ interface RequestRow {
 }
 
 const RequestsManagement = () => {
-  usePageTitle('إدارة طلبات السكن');
+  usePageTitle();
   const { districts } = useDistricts();
   const [tab, setTab] = useState<TabValue>('active');
   const [requests, setRequests] = useState<RequestRow[]>([]);
