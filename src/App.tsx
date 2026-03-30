@@ -27,6 +27,7 @@ const ListingsModeration = lazy(() => import("./pages/dashboards/admin/ListingsM
 const ReportsManagement = lazy(() => import("./pages/dashboards/admin/ReportsManagement"));
 const UsersManagement = lazy(() => import("./pages/dashboards/admin/UsersManagement"));
 const VerificationsManagement = lazy(() => import("./pages/dashboards/admin/VerificationsManagement"));
+const RequestsManagement = lazy(() => import("./pages/dashboards/admin/RequestsManagement"));
 const DistrictsManagement = lazy(() => import("./pages/dashboards/admin/DistrictsManagement"));
 const CreateListingPage = lazy(() => import("./pages/CreateListingPage"));
 const EditListingPage = lazy(() => import("./pages/EditListingPage"));
@@ -81,6 +82,7 @@ const App = () => (
                 <Route path="/dashboard/admin/reports" element={<AdminGuard><ReportsManagement /></AdminGuard>} />
                 <Route path="/dashboard/admin/users" element={<AdminGuard><UsersManagement /></AdminGuard>} />
                 <Route path="/dashboard/admin/verifications" element={<AdminGuard><VerificationsManagement /></AdminGuard>} />
+                <Route path="/dashboard/admin/requests" element={<AdminGuard><RequestsManagement /></AdminGuard>} />
                 <Route path="/dashboard/admin/districts" element={<AdminGuard><DistrictsManagement /></AdminGuard>} />
 
                 <Route path="/listings/new" element={<AuthGuard><CreateListingPage /></AuthGuard>} />
