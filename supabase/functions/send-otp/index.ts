@@ -103,6 +103,24 @@ Deno.serve(async (req) => {
     if (!smsRes.ok) {
       const errorBody = await smsRes.text();
       console.error("SMS send failed with status:", smsRes.status, "body:", errorBody);
+      
+      // Parse Twilio error for user-friendly messages
+      try {
+        const twilioErr = JSON.parse(errorBody);
+        if (twilioErr.code === 21211 || twilioErr.code === 21614) {
+          return new Response(
+            JSON.stringify({ error: "رقم الهاتف غير صالح، تأكد من الرقم وحاول مرة أخرى" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (twilioErr.code === 21608) {
+          return new Response(
+            JSON.stringify({ error: "الرقم غير مدعوم حالياً، حاول برقم آخر" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } catch { /* ignore parse errors */ }
+      
       throw new Error("فشل إرسال الرسالة");
     }
 
