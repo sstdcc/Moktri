@@ -8,6 +8,7 @@ import { usePageTitle } from '@/hooks/usePageTitle';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { SectionTitle } from '@/components/ui/SectionTitle';
+import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 import type { Listing } from '@/types/database';
 
 const categoryChips = [
@@ -143,6 +144,13 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* SMART NUDGES */}
+      {user && (
+        <section className="px-4 pt-4">
+          <SmartNudgeBanner />
+        </section>
+      )}
 
       {/* DISTRICTS */}
       <section className="px-4 py-6">
