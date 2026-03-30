@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, CheckCircle, Eye, Phone, Plus, MoreVertical, AlertTriangle, Heart, Clock, Shield } from 'lucide-react';
+import ProfileCompletionCard from '@/components/ProfileCompletionCard';
+import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
