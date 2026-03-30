@@ -105,6 +105,17 @@ const ListingsPage = () => {
     fetchListings(0);
   }, [searchParams, sortBy]);
 
+  // Auto-search on debounced input change
+  useEffect(() => {
+    const currentQ = searchParams.get('q') || '';
+    if (debouncedSearch.trim() !== currentQ) {
+      const params = new URLSearchParams(searchParams);
+      if (debouncedSearch.trim()) params.set('q', debouncedSearch.trim());
+      else params.delete('q');
+      setSearchParams(params, { replace: true });
+    }
+  }, [debouncedSearch]);
+
   const loadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
