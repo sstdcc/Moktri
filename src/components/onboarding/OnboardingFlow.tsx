@@ -82,7 +82,8 @@ const OnboardingFlow = () => {
       } else {
         navigate('/dashboard', { replace: true });
       }
-    } catch {
+    } catch (err) {
+      console.error('Onboarding error:', err);
       toast.error('تعذر حفظ البيانات، حاول مرة أخرى');
     } finally {
       setLoading(false);
