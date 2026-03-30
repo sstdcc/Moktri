@@ -16,6 +16,8 @@ import { formatPrice, timeAgo } from '@/lib/format';
 import {
   Search, Heart, MessageSquare, Bell, Plus, MapPin, Eye, FileText,
 } from 'lucide-react';
+import ProfileCompletionCard from '@/components/ProfileCompletionCard';
+import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 
 const categoryLabels: Record<string, string> = {
   room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
