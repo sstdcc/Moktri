@@ -145,6 +145,13 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* SMART NUDGES */}
+      {user && (
+        <section className="px-4 pt-4">
+          <SmartNudgeBanner />
+        </section>
+      )}
+
       {/* DISTRICTS */}
       <section className="px-4 py-6">
         <SectionTitle title="تصفح حسب الحي" />

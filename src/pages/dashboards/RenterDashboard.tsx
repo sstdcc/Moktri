@@ -81,6 +81,9 @@ const RenterDashboard = () => {
           <p className="text-xs text-muted-foreground mt-1">{today}</p>
         </div>
 
+        <SmartNudgeBanner />
+        <ProfileCompletionCard />
+
         {/* Quick links */}
         <div className="grid grid-cols-2 gap-3">
           {quickLinks.map((link) => (

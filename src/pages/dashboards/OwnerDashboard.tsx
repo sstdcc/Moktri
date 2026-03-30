@@ -117,6 +117,9 @@ const OwnerDashboard = () => {
         <h1 className="text-2xl font-black text-foreground">مرحباً، {profile?.full_name}</h1>
         <p className="text-xs text-muted-foreground mt-1">{today}</p>
 
+        <SmartNudgeBanner />
+        <ProfileCompletionCard />
+
         {/* Verification banner */}
         {!profile?.is_verified && (
           <button onClick={() => navigate('/verify')}
