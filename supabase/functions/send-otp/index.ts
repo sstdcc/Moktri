@@ -79,7 +79,17 @@ Deno.serve(async (req) => {
       .insert({ phone, code: "***", otp_hash: otpHash, expires_at: expiresAt });
     if (insertErr) throw insertErr;
 
-    // Send SMS via Twilio gateway
+    // Build SMS params — prefer MessagingServiceSid, fall back to From number
+    const smsParams: Record<string, string> = {
+      To: phone,
+      Body: `رمز التحقق الخاص بك في مفتاح: ${code}`,
+    };
+    if (TWILIO_MESSAGING_SERVICE_SID) {
+      smsParams.MessagingServiceSid = TWILIO_MESSAGING_SERVICE_SID;
+    } else if (TWILIO_PHONE_NUMBER) {
+      smsParams.From = TWILIO_PHONE_NUMBER;
+    }
+
     const smsRes = await fetch(`${GATEWAY_URL}/Messages.json`, {
       method: "POST",
       headers: {
@@ -87,11 +97,7 @@ Deno.serve(async (req) => {
         "X-Connection-Api-Key": TWILIO_API_KEY,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
-        To: phone,
-        MessagingServiceSid: TWILIO_MESSAGING_SERVICE_SID,
-        Body: `رمز التحقق الخاص بك في مفتاح: ${code}`,
-      }),
+      body: new URLSearchParams(smsParams),
     });
 
     if (!smsRes.ok) {
