@@ -1,0 +1,1 @@
+UPDATE profiles SET role = 'admin', is_verified = true, is_active = true, verification_badge = 'verified' WHERE id = 'f3c76f6f-699a-4281-a51b-9a816fc0e0de';
