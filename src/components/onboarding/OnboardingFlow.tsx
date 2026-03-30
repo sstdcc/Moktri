@@ -53,15 +53,23 @@ const OnboardingFlow = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('لم يتم العثور على المستخدم');
 
-      const { error } = await supabase.from('profiles').upsert({
-        id: user.id,
+      const updateData: Record<string, unknown> = {
         full_name: fullName.trim(),
-        phone: user.phone || user.email || '',
-        role: selectedRole as any,
-        whatsapp_number: whatsapp.trim() || null,
-      }, { onConflict: 'id' });
+        role: selectedRole,
+      };
+      if (whatsapp.trim()) {
+        updateData.whatsapp_number = whatsapp.trim();
+      }
 
-      if (error) throw error;
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Profile save error:', JSON.stringify(error));
+        throw error;
+      }
 
       toast.success('مرحباً بك في مفتاح!');
       retryProfile();
