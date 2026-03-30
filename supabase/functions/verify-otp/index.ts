@@ -51,47 +51,51 @@ Deno.serve(async (req) => {
     const email = `${phone.replace("+", "")}@phone.miftah.app`;
     const password = `miftah_phone_${phone}_secret_key_2026`;
 
-    // Check if user exists
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find((u) => u.phone === phone);
+    // Try to sign in first (existing user)
+    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (!existingUser) {
-      // Create new user
-      const { error: createErr } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        phone,
-        phone_confirm: true,
-        email_confirm: true,
-        user_metadata: { phone, full_name: "" },
-      });
-      if (createErr) throw createErr;
-    }
-
-    // Sign in to get a real session
-    // We use the deterministic password approach
-    if (!existingUser) {
-      // New user - sign in with the password we just set
-      const { data: session, error: signErr } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (signErr) throw signErr;
-
+    if (!signInErr && signInData?.session) {
       return new Response(
         JSON.stringify({
           success: true,
-          session: session.session,
-          user: session.user,
-          isNew: true,
+          session: signInData.session,
+          user: signInData.user,
+          isNew: false,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    } else {
-      // Existing user - use admin to generate link and extract token
-      // Update password to our deterministic one so we can sign in
+    }
+
+    // If sign-in failed, check if user exists but with wrong password
+    // Try to find user by email using admin API
+    const { data: userByEmail } = await supabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+
+    // Search through all users for matching email or phone
+    let existingUser = null;
+    let page = 1;
+    while (true) {
+      const { data: usersPage } = await supabase.auth.admin.listUsers({
+        page,
+        perPage: 100,
+      });
+      if (!usersPage?.users?.length) break;
+      existingUser = usersPage.users.find(
+        (u) => u.email === email || u.phone === phone
+      );
+      if (existingUser) break;
+      if (usersPage.users.length < 100) break;
+      page++;
+    }
+
+    if (existingUser) {
+      // Update password and sign in
       await supabase.auth.admin.updateUserById(existingUser.id, { password });
-      
       const { data: session, error: signErr } = await supabase.auth.signInWithPassword({
         email: existingUser.email || email,
         password,
@@ -108,6 +112,33 @@ Deno.serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Create new user
+    const { error: createErr } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      phone,
+      phone_confirm: true,
+      email_confirm: true,
+      user_metadata: { phone, full_name: "" },
+    });
+    if (createErr) throw createErr;
+
+    const { data: newSession, error: newSignErr } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (newSignErr) throw newSignErr;
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        session: newSession.session,
+        user: newSession.user,
+        isNew: true,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.error("verify-otp error:", error);
     const msg = error instanceof Error ? error.message : "Unknown error";
