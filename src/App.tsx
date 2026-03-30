@@ -27,6 +27,7 @@ const ListingsModeration = lazy(() => import("./pages/dashboards/admin/ListingsM
 const ReportsManagement = lazy(() => import("./pages/dashboards/admin/ReportsManagement"));
 const UsersManagement = lazy(() => import("./pages/dashboards/admin/UsersManagement"));
 const VerificationsManagement = lazy(() => import("./pages/dashboards/admin/VerificationsManagement"));
+const RequestsManagement = lazy(() => import("./pages/dashboards/admin/RequestsManagement"));
 const DistrictsManagement = lazy(() => import("./pages/dashboards/admin/DistrictsManagement"));
 const CreateListingPage = lazy(() => import("./pages/CreateListingPage"));
 const EditListingPage = lazy(() => import("./pages/EditListingPage"));
