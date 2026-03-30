@@ -16,7 +16,12 @@ import DashboardRedirect from "./pages/DashboardRedirect";
 import RenterDashboard from "./pages/dashboards/RenterDashboard";
 import OwnerDashboard from "./pages/dashboards/OwnerDashboard";
 import BrokerDashboard from "./pages/dashboards/BrokerDashboard";
-import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import AdminDashboardPage from "./pages/dashboards/admin/AdminDashboardPage";
+import ListingsModeration from "./pages/dashboards/admin/ListingsModeration";
+import ReportsManagement from "./pages/dashboards/admin/ReportsManagement";
+import UsersManagement from "./pages/dashboards/admin/UsersManagement";
+import VerificationsManagement from "./pages/dashboards/admin/VerificationsManagement";
+import DistrictsManagement from "./pages/dashboards/admin/DistrictsManagement";
 import CreateListingPage from "./pages/CreateListingPage";
 import EditListingPage from "./pages/EditListingPage";
 import PublicProfilePage from "./pages/PublicProfilePage";
@@ -52,7 +57,15 @@ const App = () => (
             <Route path="/dashboard/renter" element={<AuthGuard><RenterDashboard /></AuthGuard>} />
             <Route path="/dashboard/owner" element={<AuthGuard><OwnerDashboard /></AuthGuard>} />
             <Route path="/dashboard/broker" element={<AuthGuard><BrokerDashboard /></AuthGuard>} />
-            <Route path="/dashboard/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+
+            {/* Admin routes */}
+            <Route path="/dashboard/admin" element={<AdminGuard><AdminDashboardPage /></AdminGuard>} />
+            <Route path="/dashboard/admin/listings" element={<AdminGuard><ListingsModeration /></AdminGuard>} />
+            <Route path="/dashboard/admin/reports" element={<AdminGuard><ReportsManagement /></AdminGuard>} />
+            <Route path="/dashboard/admin/users" element={<AdminGuard><UsersManagement /></AdminGuard>} />
+            <Route path="/dashboard/admin/verifications" element={<AdminGuard><VerificationsManagement /></AdminGuard>} />
+            <Route path="/dashboard/admin/districts" element={<AdminGuard><DistrictsManagement /></AdminGuard>} />
+
             <Route path="/listings/new" element={<AuthGuard><CreateListingPage /></AuthGuard>} />
             <Route path="/listings/:id/edit" element={<AuthGuard><EditListingPage /></AuthGuard>} />
 
