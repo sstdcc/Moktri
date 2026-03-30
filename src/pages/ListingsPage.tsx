@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { BottomNav } from '@/components/ui/BottomNav';
@@ -30,6 +32,7 @@ const categoryLabels: Record<string, string> = {
 
 const ListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  usePageTitle();
   const [listings, setListings] = useState<ListingWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -39,6 +42,7 @@ const ListingsPage = () => {
   const [showSortMenu, setShowSortMenu] = useState(false);
 
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
+  const debouncedSearch = useDebounce(searchInput, 380);
 
   const getFiltersFromParams = useCallback((): FilterValues => ({
     category: searchParams.get('category') || undefined,
@@ -100,6 +104,17 @@ const ListingsPage = () => {
     setPage(0);
     fetchListings(0);
   }, [searchParams, sortBy]);
+
+  // Auto-search on debounced input change
+  useEffect(() => {
+    const currentQ = searchParams.get('q') || '';
+    if (debouncedSearch.trim() !== currentQ) {
+      const params = new URLSearchParams(searchParams);
+      if (debouncedSearch.trim()) params.set('q', debouncedSearch.trim());
+      else params.delete('q');
+      setSearchParams(params, { replace: true });
+    }
+  }, [debouncedSearch]);
 
   const loadMore = () => {
     const nextPage = page + 1;

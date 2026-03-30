@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Home, Building2, DoorOpen, Layers, Store, Briefcase, MapPin, Phone, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDistricts } from '@/contexts/DistrictsContext';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { SectionTitle } from '@/components/ui/SectionTitle';
-import type { District, Listing } from '@/types/database';
+import type { Listing } from '@/types/database';
 
 const categoryChips = [
   { value: 'house', label: 'بيت', icon: Home },
@@ -31,29 +33,18 @@ interface ListingWithImage extends Listing {
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { districts, loading: districtsLoading } = useDistricts();
+  usePageTitle();
   const [searchQuery, setSearchQuery] = useState('');
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [districtsLoading, setDistrictsLoading] = useState(true);
   const [featuredListings, setFeaturedListings] = useState<ListingWithImage[]>([]);
   const [latestListings, setLatestListings] = useState<ListingWithImage[]>([]);
   const [urgentListings, setUrgentListings] = useState<ListingWithImage[]>([]);
 
   useEffect(() => {
-    fetchDistricts();
     fetchFeaturedListings();
     fetchLatestListings();
     fetchUrgentListings();
   }, []);
-
-  const fetchDistricts = async () => {
-    const { data } = await supabase
-      .from('districts')
-      .select('*')
-      .eq('is_active', true)
-      .order('name_ar');
-    if (data) setDistricts(data);
-    setDistrictsLoading(false);
-  };
 
   const fetchFeaturedListings = async () => {
     const { data } = await supabase

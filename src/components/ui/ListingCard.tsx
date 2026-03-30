@@ -48,7 +48,7 @@ export const ListingCard = ({
       {/* IMAGE */}
       <div className="relative h-44 w-full">
         {imageUrl ? (
-          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          <img src={imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
             <Building2 className="h-12 w-12 text-primary/30" />
