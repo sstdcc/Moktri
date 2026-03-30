@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Home, Building2, DoorOpen, Layers, Store, Briefcase, MapPin, Phone, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDistricts } from '@/contexts/DistrictsContext';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { SectionTitle } from '@/components/ui/SectionTitle';
-import type { District, Listing } from '@/types/database';
+import type { Listing } from '@/types/database';
 
 const categoryChips = [
   { value: 'house', label: 'بيت', icon: Home },
