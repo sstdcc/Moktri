@@ -7,6 +7,7 @@ export const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }
 
   if (loading) return <LoadingSpinner />;
   if (!user) return <Navigate to="/auth" replace />;
-  if (profile?.role !== 'admin') return <Navigate to="/" replace />;
+  if (!profile) return <LoadingSpinner />;
+  if (profile.role !== 'admin' && profile.role !== 'moderator') return <Navigate to="/" replace />;
   return <>{children}</>;
 };
