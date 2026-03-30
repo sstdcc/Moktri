@@ -1,8 +1,218 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { PageHeader } from '@/components/ui/PageHeader';
-const PublicProfilePage = () => (
-  <div className="min-h-screen bg-background font-tajawal">
-    <PageHeader title="الملف الشخصي" showBack />
-    <div className="p-4"><p className="text-center text-muted-foreground">الملف الشخصي</p></div>
-  </div>
-);
+import { BottomNav } from '@/components/ui/BottomNav';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ListingCard } from '@/components/ui/ListingCard';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  User, BadgeCheck, Building2, MessageSquare, Calendar,
+  RefreshCw, Star,
+} from 'lucide-react';
+
+const roleLabels: Record<string, string> = {
+  renter: 'مستأجر',
+  owner: 'مالك',
+  broker: 'دلال',
+  admin: 'مدير',
+  moderator: 'مشرف',
+};
+
+const PublicProfilePage = () => {
+  const { id } = useParams<{ id: string }>();
+  const [profile, setProfile] = useState<any>(null);
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    if (!id) return;
+    setError(false);
+    setLoading(true);
+    try {
+      const [profileRes, listingsRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', id).single(),
+        supabase
+          .from('listings')
+          .select('*, district:districts(name_ar), listing_images(url, is_primary)')
+          .eq('owner_id', id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false }),
+      ]);
+      if (profileRes.error) throw profileRes.error;
+      setProfile(profileRes.data);
+      setListings(listingsRes.data ?? []);
+    } catch {
+      setError(true);
+    }
+    setLoading(false);
+  }, [id]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const getInitials = (name: string) => {
+    return name?.split(' ').map((w) => w[0]).join('').slice(0, 2) || '؟';
+  };
+
+  const memberSince = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('ar-YE', { year: 'numeric', month: 'long' })
+    : '';
+
+  const displayedListings = showAll ? listings : listings.slice(0, 6);
+
+  const getPrimaryImage = (listing: any) => {
+    const primary = listing.listing_images?.find((img: any) => img.is_primary);
+    return primary?.url || listing.listing_images?.[0]?.url;
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
+      <PageHeader title="الملف الشخصي" showBack />
+
+      <div className="p-4 max-w-lg mx-auto">
+        {loading ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-20 w-20 rounded-full" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <div className="grid grid-cols-2 gap-3">
+              <Skeleton className="h-40 rounded-xl" />
+              <Skeleton className="h-40 rounded-xl" />
+            </div>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-4">
+            <p className="text-destructive text-sm">تعذر تحميل الملف الشخصي</p>
+            <Button variant="outline" size="sm" onClick={fetchData}>
+              <RefreshCw className="h-4 w-4 ml-2" />
+              إعادة المحاولة
+            </Button>
+          </div>
+        ) : profile ? (
+          <>
+            <Card className="mb-4">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.full_name}
+                      className="h-20 w-20 rounded-full object-cover border-2 border-border"
+                    />
+                  ) : (
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary border-2 border-primary/20">
+                      {getInitials(profile.full_name)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-lg font-bold truncate">{profile.full_name || 'مستخدم مفتاح'}</h2>
+                      {profile.verification_badge === 'verified' && (
+                        <BadgeCheck className="h-5 w-5 text-success shrink-0" />
+                      )}
+                    </div>
+                    <Badge variant="secondary" className="mt-1 text-xs">
+                      {roleLabels[profile.role] || profile.role}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      عضو منذ {memberSince}
+                    </p>
+                  </div>
+                </div>
+
+                {profile.bio && (
+                  <p className="text-sm text-muted-foreground mt-4 leading-relaxed">{profile.bio}</p>
+                )}
+
+                <div className="flex gap-4 mt-4 pt-4 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-accent" />
+                    <span className="text-sm font-semibold">{profile.total_listings ?? 0}</span>
+                    <span className="text-xs text-muted-foreground">إعلان</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-accent" />
+                    <span className="text-sm font-semibold">{profile.total_responses ?? 0}</span>
+                    <span className="text-xs text-muted-foreground">رد</span>
+                  </div>
+                </div>
+
+                {profile.whatsapp_number && (
+                  <a
+                    href={`https://wa.me/${profile.whatsapp_number.replace('+', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    aria-label="تواصل عبر واتساب"
+                  >
+                    واتساب
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="mb-4">
+              <h3 className="text-base font-bold mb-3">الإعلانات النشطة</h3>
+              {listings.length === 0 ? (
+                <EmptyState
+                  icon={Building2}
+                  title="لا توجد إعلانات"
+                  subtitle="لم ينشر هذا المستخدم أي إعلان بعد"
+                />
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {displayedListings.map((listing: any) => (
+                      <ListingCard
+                        key={listing.id}
+                        id={listing.id}
+                        imageUrl={getPrimaryImage(listing)}
+                        category={listing.category}
+                        price={listing.price}
+                        district={listing.district?.name_ar}
+                        bedrooms={listing.bedrooms}
+                        furnishing={listing.furnishing}
+                        createdAt={listing.created_at}
+                        isVerifiedOwner={profile.verification_badge === 'verified'}
+                      />
+                    ))}
+                  </div>
+                  {listings.length > 6 && !showAll && (
+                    <Button variant="outline" className="w-full mt-3" onClick={() => setShowAll(true)}>
+                      عرض الكل ({listings.length})
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+
+            <Card>
+              <CardContent className="flex flex-col items-center py-8 gap-2">
+                <Star className="h-8 w-8 text-muted-foreground/40" />
+                <p className="text-sm font-semibold text-muted-foreground">التقييمات</p>
+                <p className="text-xs text-muted-foreground">قريباً</p>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <EmptyState icon={User} title="المستخدم غير موجود" />
+        )}
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+};
+
 export default PublicProfilePage;
