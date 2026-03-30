@@ -32,6 +32,7 @@ const categoryLabels: Record<string, string> = {
 
 const ListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  usePageTitle();
   const [listings, setListings] = useState<ListingWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -41,6 +42,7 @@ const ListingsPage = () => {
   const [showSortMenu, setShowSortMenu] = useState(false);
 
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
+  const debouncedSearch = useDebounce(searchInput, 380);
 
   const getFiltersFromParams = useCallback((): FilterValues => ({
     category: searchParams.get('category') || undefined,
