@@ -8,6 +8,16 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
 
+// --- Hashing utility ---
+async function hashOtp(code: string, phone: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`otp:${phone}:${code}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -52,17 +62,20 @@ Deno.serve(async (req) => {
     const code = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
-    // Invalidate old codes
+    // Hash the code — raw code is NEVER stored
+    const otpHash = await hashOtp(code, phone);
+
+    // Invalidate old pending codes for this phone
     await supabase
       .from("otp_codes")
       .update({ verified: true })
       .eq("phone", phone)
       .eq("verified", false);
 
-    // Store new code
+    // Store hashed code only — `code` column set to placeholder
     const { error: insertErr } = await supabase
       .from("otp_codes")
-      .insert({ phone, code, expires_at: expiresAt });
+      .insert({ phone, code: "***", otp_hash: otpHash, expires_at: expiresAt });
     if (insertErr) throw insertErr;
 
     // Send SMS via Twilio gateway
@@ -81,7 +94,6 @@ Deno.serve(async (req) => {
     });
 
     if (!smsRes.ok) {
-      // Log minimal info server-side only, no payload details
       console.error("SMS send failed with status:", smsRes.status);
       throw new Error("فشل إرسال الرسالة");
     }
@@ -91,7 +103,6 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    // Server-side log without leaking secrets
     console.error("send-otp error");
     return new Response(
       JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),

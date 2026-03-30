@@ -6,6 +6,18 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const MAX_VERIFY_ATTEMPTS = 5;
+
+// --- Hashing utility (must match send-otp) ---
+async function hashOtp(code: string, phone: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`otp:${phone}:${code}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -20,7 +32,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate phone format
     if (!/^\+\d{9,15}$/.test(phone)) {
       return new Response(
         JSON.stringify({ error: "رقم هاتف غير صالح" }),
@@ -28,7 +39,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate code format (6 digits)
     if (!/^\d{6}$/.test(code)) {
       return new Response(
         JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
@@ -40,12 +50,14 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check code validity
+    // Hash the submitted code and compare against stored hash
+    const submittedHash = await hashOtp(code, phone);
+
+    // Find the latest unverified, non-expired OTP for this phone
     const { data: otpRecord, error: fetchErr } = await supabase
       .from("otp_codes")
-      .select("id")
+      .select("id, otp_hash, attempts")
       .eq("phone", phone)
-      .eq("code", code)
       .eq("verified", false)
       .gte("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
@@ -53,40 +65,66 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (fetchErr) throw fetchErr;
+
     if (!otpRecord) {
+      // Generic error — do not reveal whether phone exists
       return new Response(
         JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Mark as verified
-    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
-
-    // Derive a deterministic email from phone for Supabase auth
-    const email = `${phone.replace("+", "")}@phone.miftah.app`;
-    const password = `miftah_phone_${phone}_${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")?.slice(-8)}`;
-
-    // Try to sign in first (existing user)
-    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (!signInErr && signInData?.session) {
+    // Check max verification attempts
+    if (otpRecord.attempts >= MAX_VERIFY_ATTEMPTS) {
+      // Burn the code
+      await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
       return new Response(
-        JSON.stringify({
-          success: true,
-          session: signInData.session,
-          isNew: false,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "تم تجاوز عدد المحاولات، أعد إرسال الرمز" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Look for existing user by email or phone
+    // Increment attempts
+    await supabase
+      .from("otp_codes")
+      .update({ attempts: otpRecord.attempts + 1 })
+      .eq("id", otpRecord.id);
+
+    // Compare hashes
+    if (otpRecord.otp_hash !== submittedHash) {
+      return new Response(
+        JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // OTP verified — mark as used
+    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+
+    // ──────────────────────────────────────────────────────────
+    // TEMPORARY AUTH BRIDGE
+    // This section bridges custom OTP verification with Supabase Auth.
+    // It uses a deterministic email + admin API magic link to create
+    // sessions without storing or deriving passwords.
+    //
+    // TODO: Replace with native Supabase phone auth or a dedicated
+    // auth provider when the project migrates to production phone auth.
+    // ──────────────────────────────────────────────────────────
+
+    const email = `${phone.replace("+", "")}@phone.miftah.app`;
+
+    // Check if user already exists
+    const { data: existingUsers } = await supabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+
+    // Search for existing user by email
     let existingUser = null;
     let page = 1;
+    // NOTE: Paginated scan is needed because Supabase admin API does not
+    // support filtering by email directly. This should be replaced when
+    // a native phone auth flow is adopted.
     while (true) {
       const { data: usersPage } = await supabase.auth.admin.listUsers({
         page,
@@ -101,52 +139,58 @@ Deno.serve(async (req) => {
       page++;
     }
 
-    if (existingUser) {
-      // Update password and sign in
-      await supabase.auth.admin.updateUserById(existingUser.id, { password });
-      const { data: session, error: signErr } = await supabase.auth.signInWithPassword({
-        email: existingUser.email || email,
-        password,
-      });
-      if (signErr) throw signErr;
+    let userId: string;
+    let isNew = false;
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          session: session.session,
-          isNew: false,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (existingUser) {
+      userId = existingUser.id;
+    } else {
+      // Create new user with no password — auth via magic link only
+      const randomPassword = crypto.randomUUID() + crypto.randomUUID();
+      const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
+        email,
+        password: randomPassword,
+        phone,
+        phone_confirm: true,
+        email_confirm: true,
+        user_metadata: { phone, full_name: "" },
+      });
+      if (createErr) throw createErr;
+      userId = newUser.user.id;
+      isNew = true;
     }
 
-    // Create new user
-    const { error: createErr } = await supabase.auth.admin.createUser({
+    // Generate a magic link and extract the token to create a session
+    // This avoids storing or deriving any password from secrets.
+    const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+      type: "magiclink",
       email,
-      password,
-      phone,
-      phone_confirm: true,
-      email_confirm: true,
-      user_metadata: { phone, full_name: "" },
     });
-    if (createErr) throw createErr;
 
-    const { data: newSession, error: newSignErr } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    if (linkErr || !linkData?.properties?.hashed_token) {
+      throw new Error("Session generation failed");
+    }
+
+    // Verify the magic link token server-side to get a session
+    const { data: sessionData, error: verifyErr } = await supabase.auth.verifyOtp({
+      token_hash: linkData.properties.hashed_token,
+      type: "magiclink",
     });
-    if (newSignErr) throw newSignErr;
+
+    if (verifyErr || !sessionData?.session) {
+      throw new Error("Session verification failed");
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        session: newSession.session,
-        isNew: true,
+        session: sessionData.session,
+        isNew,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    // Server-side only, no details leaked
+    // Server-side only — no details leaked to client
     console.error("verify-otp error");
     return new Response(
       JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),
