@@ -33,29 +33,18 @@ interface ListingWithImage extends Listing {
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { districts, loading: districtsLoading } = useDistricts();
+  usePageTitle();
   const [searchQuery, setSearchQuery] = useState('');
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [districtsLoading, setDistrictsLoading] = useState(true);
   const [featuredListings, setFeaturedListings] = useState<ListingWithImage[]>([]);
   const [latestListings, setLatestListings] = useState<ListingWithImage[]>([]);
   const [urgentListings, setUrgentListings] = useState<ListingWithImage[]>([]);
 
   useEffect(() => {
-    fetchDistricts();
     fetchFeaturedListings();
     fetchLatestListings();
     fetchUrgentListings();
   }, []);
-
-  const fetchDistricts = async () => {
-    const { data } = await supabase
-      .from('districts')
-      .select('*')
-      .eq('is_active', true)
-      .order('name_ar');
-    if (data) setDistricts(data);
-    setDistrictsLoading(false);
-  };
 
   const fetchFeaturedListings = async () => {
     const { data } = await supabase
