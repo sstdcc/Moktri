@@ -168,11 +168,13 @@ const AuthPage = () => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) throw new Error('لم يتم العثور على المستخدم');
 
-      const { error } = await supabase.from('profiles').update({
+      const { error } = await supabase.from('profiles').upsert({
+        id: currentUser.id,
         full_name: fullName.trim(),
+        phone: currentUser.phone || currentUser.email || '',
         role: selectedRole as any,
         whatsapp_number: whatsapp.trim() || null,
-      }).eq('id', currentUser.id);
+      }, { onConflict: 'id' });
 
       if (error) throw error;
       toast.success('مرحباً بك في مفتاح!');
