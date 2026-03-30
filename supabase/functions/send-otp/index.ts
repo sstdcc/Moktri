@@ -23,19 +23,34 @@ Deno.serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!LOVABLE_API_KEY) throw new Error("Missing server config");
     const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
-    if (!TWILIO_API_KEY) throw new Error("TWILIO_API_KEY not configured");
+    if (!TWILIO_API_KEY) throw new Error("Missing server config");
     const TWILIO_MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
-    if (!TWILIO_MESSAGING_SERVICE_SID) throw new Error("TWILIO_MESSAGING_SERVICE_SID not configured");
+    if (!TWILIO_MESSAGING_SERVICE_SID) throw new Error("Missing server config");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    // Rate limit: max 3 OTPs per phone in 10 minutes
+    const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const { count } = await supabase
+      .from("otp_codes")
+      .select("id", { count: "exact", head: true })
+      .eq("phone", phone)
+      .gte("created_at", tenMinAgo);
+
+    if ((count ?? 0) >= 3) {
+      return new Response(
+        JSON.stringify({ error: "تم تجاوز الحد المسموح، حاول بعد قليل" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Generate 6-digit code
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Invalidate old codes
     await supabase
@@ -65,9 +80,10 @@ Deno.serve(async (req) => {
       }),
     });
 
-    const smsData = await smsRes.json();
     if (!smsRes.ok) {
-      throw new Error(`Twilio error [${smsRes.status}]: ${JSON.stringify(smsData)}`);
+      // Log minimal info server-side only, no payload details
+      console.error("SMS send failed with status:", smsRes.status);
+      throw new Error("فشل إرسال الرسالة");
     }
 
     return new Response(
@@ -75,10 +91,10 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("send-otp error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
+    // Server-side log without leaking secrets
+    console.error("send-otp error");
     return new Response(
-      JSON.stringify({ error: msg }),
+      JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

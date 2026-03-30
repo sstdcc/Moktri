@@ -8,7 +8,9 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  profileError: boolean;
   signOut: () => Promise<void>;
+  retryProfile: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,7 +18,9 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
+  profileError: false,
   signOut: async () => {},
+  retryProfile: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -26,14 +30,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState(false);
 
   const fetchProfile = async (userId: string) => {
+    setProfileError(false);
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
-    if (!error && data) setProfile(data);
+    if (error || !data) {
+      setProfileError(true);
+      setProfile(null);
+    } else {
+      setProfile(data);
+    }
+  };
+
+  const retryProfile = () => {
+    if (user) {
+      setLoading(true);
+      fetchProfile(user.id).finally(() => setLoading(false));
+    }
   };
 
   useEffect(() => {
@@ -45,7 +63,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Defer profile fetch to avoid Supabase auth deadlock
           setTimeout(() => {
             if (mounted) {
               fetchProfile(session.user.id).finally(() => {
@@ -55,6 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
         } else {
           setProfile(null);
+          setProfileError(false);
           setLoading(false);
         }
       }
@@ -84,10 +102,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setSession(null);
     setProfile(null);
+    setProfileError(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut: handleSignOut }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, profileError, signOut: handleSignOut, retryProfile }}>
       {children}
     </AuthContext.Provider>
   );

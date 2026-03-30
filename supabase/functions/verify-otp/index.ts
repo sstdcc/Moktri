@@ -13,9 +13,25 @@ Deno.serve(async (req) => {
 
   try {
     const { phone, code } = await req.json();
-    if (!phone || !code) {
+    if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
       return new Response(
         JSON.stringify({ error: "رقم الهاتف والرمز مطلوبان" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate phone format
+    if (!/^\+\d{9,15}$/.test(phone)) {
+      return new Response(
+        JSON.stringify({ error: "رقم هاتف غير صالح" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate code format (6 digits)
+    if (!/^\d{6}$/.test(code)) {
+      return new Response(
+        JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -27,7 +43,7 @@ Deno.serve(async (req) => {
     // Check code validity
     const { data: otpRecord, error: fetchErr } = await supabase
       .from("otp_codes")
-      .select("*")
+      .select("id")
       .eq("phone", phone)
       .eq("code", code)
       .eq("verified", false)
@@ -39,7 +55,7 @@ Deno.serve(async (req) => {
     if (fetchErr) throw fetchErr;
     if (!otpRecord) {
       return new Response(
-        JSON.stringify({ error: "رمز التحقق غير صحيح أو منتهي الصلاحية" }),
+        JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -49,7 +65,7 @@ Deno.serve(async (req) => {
 
     // Derive a deterministic email from phone for Supabase auth
     const email = `${phone.replace("+", "")}@phone.miftah.app`;
-    const password = `miftah_phone_${phone}_secret_key_2026`;
+    const password = `miftah_phone_${phone}_${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")?.slice(-8)}`;
 
     // Try to sign in first (existing user)
     const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
@@ -62,21 +78,13 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           session: signInData.session,
-          user: signInData.user,
           isNew: false,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // If sign-in failed, check if user exists but with wrong password
-    // Try to find user by email using admin API
-    const { data: userByEmail } = await supabase.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-    });
-
-    // Search through all users for matching email or phone
+    // Look for existing user by email or phone
     let existingUser = null;
     let page = 1;
     while (true) {
@@ -106,7 +114,6 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           session: session.session,
-          user: session.user,
           isNew: false,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -134,16 +141,15 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         session: newSession.session,
-        user: newSession.user,
         isNew: true,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("verify-otp error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
+    // Server-side only, no details leaked
+    console.error("verify-otp error");
     return new Response(
-      JSON.stringify({ error: msg }),
+      JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
