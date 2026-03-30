@@ -25,6 +25,8 @@ Deno.serve(async (req) => {
 
   try {
     const { phone, code } = await req.json();
+    console.log("[verify-otp] request received");
+
     if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
       return new Response(
         JSON.stringify({ error: "رقم الهاتف والرمز مطلوبان" }),
@@ -67,7 +69,7 @@ Deno.serve(async (req) => {
     if (fetchErr) throw fetchErr;
 
     if (!otpRecord) {
-      // Generic error — do not reveal whether phone exists
+      console.log("[verify-otp] no valid OTP record found");
       return new Response(
         JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -76,7 +78,6 @@ Deno.serve(async (req) => {
 
     // Check max verification attempts
     if (otpRecord.attempts >= MAX_VERIFY_ATTEMPTS) {
-      // Burn the code
       await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
       return new Response(
         JSON.stringify({ error: "تم تجاوز عدد المحاولات، أعد إرسال الرمز" }),
@@ -100,76 +101,63 @@ Deno.serve(async (req) => {
 
     // OTP verified — mark as used
     await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+    console.log("[verify-otp] OTP hash matched, proceeding to auth bridge");
 
     // ──────────────────────────────────────────────────────────
     // TEMPORARY AUTH BRIDGE
-    // This section bridges custom OTP verification with Supabase Auth.
-    // It uses a deterministic email + admin API magic link to create
-    // sessions without storing or deriving passwords.
-    //
-    // TODO: Replace with native Supabase phone auth or a dedicated
-    // auth provider when the project migrates to production phone auth.
+    // Uses deterministic email + admin API to create sessions.
+    // Avoids listUsers (which crashes on NULL email_change columns).
     // ──────────────────────────────────────────────────────────
 
     const email = `${phone.replace("+", "")}@phone.miftah.app`;
-
-    // Check if user already exists
-    const { data: existingUsers } = await supabase.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-    });
-
-    // Search for existing user by email
-    let existingUser = null;
-    let page = 1;
-    // NOTE: Paginated scan is needed because Supabase admin API does not
-    // support filtering by email directly. This should be replaced when
-    // a native phone auth flow is adopted.
-    while (true) {
-      const { data: usersPage } = await supabase.auth.admin.listUsers({
-        page,
-        perPage: 100,
-      });
-      if (!usersPage?.users?.length) break;
-      existingUser = usersPage.users.find(
-        (u) => u.email === email || u.phone === phone
-      );
-      if (existingUser) break;
-      if (usersPage.users.length < 100) break;
-      page++;
-    }
-
-    let userId: string;
     let isNew = false;
 
-    if (existingUser) {
-      userId = existingUser.id;
+    // Strategy: try createUser first. If user already exists (422),
+    // we know it's an existing user and skip to session generation.
+    // This avoids the broken listUsers paginated scan entirely.
+    const randomPassword = crypto.randomUUID() + crypto.randomUUID();
+    const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
+      email,
+      password: randomPassword,
+      phone,
+      phone_confirm: true,
+      email_confirm: true,
+      user_metadata: { phone, full_name: "" },
+    });
+
+    if (createErr) {
+      // Check if user already exists
+      const errMsg = createErr.message || "";
+      if (errMsg.includes("already been registered") || errMsg.includes("already exists")) {
+        console.log("[verify-otp] existing user detected via createUser 422");
+        // User exists — proceed to generate session below
+      } else {
+        console.error("[verify-otp] VERIFY_STEP_CREATE_USER_FAILED:", errMsg);
+        throw createErr;
+      }
     } else {
-      // Create new user with no password — auth via magic link only
-      const randomPassword = crypto.randomUUID() + crypto.randomUUID();
-      const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
-        email,
-        password: randomPassword,
-        phone,
-        phone_confirm: true,
-        email_confirm: true,
-        user_metadata: { phone, full_name: "" },
-      });
-      if (createErr) throw createErr;
-      userId = newUser.user.id;
+      console.log("[verify-otp] new user created");
       isNew = true;
     }
 
     // Generate a magic link and extract the token to create a session
-    // This avoids storing or deriving any password from secrets.
+    console.log("[verify-otp] generating magic link for:", email);
     const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email,
     });
 
-    if (linkErr || !linkData?.properties?.hashed_token) {
-      throw new Error("Session generation failed");
+    if (linkErr) {
+      console.error("[verify-otp] VERIFY_STEP_GENERATE_LINK_FAILED:", linkErr.message);
+      throw linkErr;
     }
+
+    if (!linkData?.properties?.hashed_token) {
+      console.error("[verify-otp] VERIFY_STEP_GENERATE_LINK_NO_TOKEN");
+      throw new Error("Session generation failed — no hashed_token");
+    }
+
+    console.log("[verify-otp] magic link generated, verifying token");
 
     // Verify the magic link token server-side to get a session
     const { data: sessionData, error: verifyErr } = await supabase.auth.verifyOtp({
@@ -177,9 +165,17 @@ Deno.serve(async (req) => {
       type: "magiclink",
     });
 
-    if (verifyErr || !sessionData?.session) {
-      throw new Error("Session verification failed");
+    if (verifyErr) {
+      console.error("[verify-otp] VERIFY_STEP_VERIFY_MAGICLINK_FAILED:", verifyErr.message);
+      throw verifyErr;
     }
+
+    if (!sessionData?.session) {
+      console.error("[verify-otp] VERIFY_STEP_NO_SESSION_RETURNED");
+      throw new Error("Session verification failed — no session");
+    }
+
+    console.log("[verify-otp] session created successfully, isNew:", isNew);
 
     return new Response(
       JSON.stringify({
@@ -190,8 +186,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    // Server-side only — no details leaked to client
-    console.error("verify-otp error");
+    console.error("[verify-otp] unhandled error:", error instanceof Error ? error.message : String(error));
     return new Response(
       JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
