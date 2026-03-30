@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { usePageTitle } from '@/hooks/usePageTitle';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { BottomNav } from '@/components/ui/BottomNav';
