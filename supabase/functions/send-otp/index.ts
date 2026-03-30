@@ -94,7 +94,8 @@ Deno.serve(async (req) => {
     });
 
     if (!smsRes.ok) {
-      console.error("SMS send failed with status:", smsRes.status);
+      const errorBody = await smsRes.text();
+      console.error("SMS send failed with status:", smsRes.status, "body:", errorBody);
       throw new Error("فشل إرسال الرسالة");
     }
 
