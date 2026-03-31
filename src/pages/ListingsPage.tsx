@@ -281,7 +281,7 @@ const ListingsPage = () => {
         )}
       </div>
 
-      <BottomNav />
+      
     </div>
   );
 };
