@@ -46,11 +46,19 @@ const DistrictsManagement = () => {
 
   const saveEdit = async () => {
     if (!editModal.district || !editName.trim()) return;
-    await supabase.from('districts').update({ name_ar: editName.trim() }).eq('id', editModal.district.id);
+    await supabase.from('districts').update({ name_ar: editName.trim(), city: editCity.trim() || 'تعز' }).eq('id', editModal.district.id);
     toast.success('تم التحديث');
     setEditModal({ open: false, district: null });
     fetchDistricts();
   };
+
+  // Group districts by city
+  const groupedDistricts = districts.reduce<Record<string, any[]>>((acc, d) => {
+    const city = d.city || 'أخرى';
+    if (!acc[city]) acc[city] = [];
+    acc[city].push(d);
+    return acc;
+  }, {});
 
   return (
     <AdminLayout>
