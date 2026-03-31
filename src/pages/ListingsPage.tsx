@@ -65,7 +65,7 @@ const ListingsPage = () => {
     setLoading(true);
     let q = supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)', { count: 'exact' })
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)', { count: 'exact' })
       .eq('status', 'active');
 
     if (query) q = q.ilike('title', `%${query}%`);
