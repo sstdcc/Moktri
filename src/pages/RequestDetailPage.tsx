@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
@@ -155,7 +155,7 @@ const RequestDetailPage = () => {
             </Button>
           )}
         </div>
-        <BottomNav />
+        
       </div>
     );
   }
@@ -337,7 +337,6 @@ const RequestDetailPage = () => {
         )}
       </div>
 
-      <BottomNav />
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { ListingCard } from '@/components/ui/ListingCard';
 import { SectionTitle } from '@/components/ui/SectionTitle';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
@@ -88,7 +88,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 font-tajawal">
+    <div className="min-h-screen bg-background font-tajawal">
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary to-[hsl(207,60%,22%)] px-4 pb-8 pt-10">
         {/* Pattern overlay */}
@@ -320,7 +320,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <BottomNav />
+      
     </div>
   );
 };

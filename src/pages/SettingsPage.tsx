@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -159,7 +159,7 @@ const SettingsPage = () => {
           <Skeleton className="h-48 w-full rounded-xl" />
           <Skeleton className="h-32 w-full rounded-xl" />
         </div>
-        <BottomNav />
+        
       </div>
     );
   }
@@ -336,11 +336,11 @@ const SettingsPage = () => {
             </div>
             <Separator />
             <div className="space-y-2">
-              <button className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
+              <button onClick={() => navigate('/terms')} className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
                 <FileText className="h-4 w-4" />
                 الشروط والأحكام
               </button>
-              <button className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
+              <button onClick={() => navigate('/privacy')} className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
                 <Shield className="h-4 w-4" />
                 سياسة الخصوصية
               </button>
@@ -349,7 +349,6 @@ const SettingsPage = () => {
         </Card>
       </div>
 
-      <BottomNav />
     </div>
   );
 };

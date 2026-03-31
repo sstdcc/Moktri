@@ -4,7 +4,7 @@ import { Building2, CheckCircle, Eye, Phone, MessageSquare, Plus, MoreVertical, 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -252,7 +252,7 @@ const BrokerDashboard = () => {
         إضافة إعلان
       </button>
 
-      <BottomNav />
+      
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { usePageTitle } from '@/hooks/usePageTitle';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { ListingCard } from '@/components/ui/ListingCard';
 import { FilterSheet, type FilterValues } from '@/components/ui/FilterSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -23,6 +23,7 @@ const sortOptions = [
   { value: 'price_asc', label: 'الأقل سعراً' },
   { value: 'price_desc', label: 'الأعلى سعراً' },
   { value: 'views', label: 'الأكثر مشاهدة' },
+  { value: 'favorites', label: 'الأكثر تفضيلاً' },
 ];
 
 const categoryLabels: Record<string, string> = {
@@ -68,7 +69,7 @@ const ListingsPage = () => {
       .select('*, listing_images(url, is_primary), districts(name_ar, city)', { count: 'exact' })
       .eq('status', 'active');
 
-    if (query) q = q.ilike('title', `%${query}%`);
+    if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%,neighborhood.ilike.%${query}%`);
     if (filters.category) q = q.eq('category', filters.category as any);
     if (filters.district) q = q.eq('district_id', filters.district);
     if (filters.minPrice) q = q.gte('price', filters.minPrice);
@@ -86,6 +87,7 @@ const ListingsPage = () => {
       case 'price_asc': q = q.order('price', { ascending: true }); break;
       case 'price_desc': q = q.order('price', { ascending: false }); break;
       case 'views': q = q.order('views_count', { ascending: false }); break;
+      case 'favorites': q = q.order('favorites_count', { ascending: false }); break;
       default: q = q.order('published_at', { ascending: false, nullsFirst: false });
     }
 
@@ -279,7 +281,7 @@ const ListingsPage = () => {
         )}
       </div>
 
-      <BottomNav />
+      
     </div>
   );
 };

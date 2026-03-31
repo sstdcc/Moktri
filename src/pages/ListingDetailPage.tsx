@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users } from 'lucide-react';
+import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -209,9 +209,20 @@ const ListingDetailPage = () => {
         title="تفاصيل العرض"
         showBack
         action={
-          <button onClick={toggleFavorite} className="p-2">
-            <Heart className={cn('h-5 w-5', isFavorited ? 'fill-danger text-danger' : 'text-foreground')} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={async () => {
+              const url = `${window.location.origin}/listings/${id}`;
+              if (navigator.share) {
+                try { await navigator.share({ title: listing.title, url }); } catch {}
+              } else {
+                await navigator.clipboard.writeText(url);
+                toast.success('تم نسخ الرابط');
+              }
+            }} className="p-2"><Share2 className="h-5 w-5 text-foreground" /></button>
+            <button onClick={toggleFavorite} className="p-2">
+              <Heart className={cn('h-5 w-5', isFavorited ? 'fill-danger text-danger' : 'text-foreground')} />
+            </button>
+          </div>
         }
       />
 
@@ -340,8 +351,12 @@ const ListingDetailPage = () => {
             onClick={() => navigate(`/profile/${owner.id}`)}
             className="mt-5 flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-4"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              {owner.full_name?.charAt(0) || '؟'}
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 overflow-hidden shrink-0">
+              {owner.avatar_url ? (
+                <img src={owner.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold text-primary">{owner.full_name?.charAt(0) || '؟'}</span>
+              )}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
