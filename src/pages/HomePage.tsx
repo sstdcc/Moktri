@@ -28,7 +28,7 @@ const steps = [
 
 interface ListingWithImage extends Listing {
   listing_images: { url: string; is_primary: boolean | null }[];
-  districts: { name_ar: string } | null;
+  districts: { name_ar: string; city: string | null } | null;
 }
 
 const HomePage = () => {
