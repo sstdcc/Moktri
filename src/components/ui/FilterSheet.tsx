@@ -30,6 +30,7 @@ const allowedForOptions = [
 ];
 
 export interface FilterValues {
+  city?: string;
   category?: string;
   district?: string;
   minPrice?: number;
