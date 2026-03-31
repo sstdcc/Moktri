@@ -224,6 +224,7 @@ const HomePage = () => {
                 imageUrl={getPrimaryImage(listing)}
                 category={listing.category}
                 price={Number(listing.price)}
+                city={listing.districts?.city ?? undefined}
                 district={listing.districts?.name_ar}
                 bedrooms={listing.bedrooms}
                 furnishing={listing.furnishing}
