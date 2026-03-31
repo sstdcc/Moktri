@@ -209,9 +209,20 @@ const ListingDetailPage = () => {
         title="تفاصيل العرض"
         showBack
         action={
-          <button onClick={toggleFavorite} className="p-2">
-            <Heart className={cn('h-5 w-5', isFavorited ? 'fill-danger text-danger' : 'text-foreground')} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={async () => {
+              const url = `${window.location.origin}/listings/${id}`;
+              if (navigator.share) {
+                try { await navigator.share({ title: listing.title, url }); } catch {}
+              } else {
+                await navigator.clipboard.writeText(url);
+                toast.success('تم نسخ الرابط');
+              }
+            }} className="p-2"><Share2 className="h-5 w-5 text-foreground" /></button>
+            <button onClick={toggleFavorite} className="p-2">
+              <Heart className={cn('h-5 w-5', isFavorited ? 'fill-danger text-danger' : 'text-foreground')} />
+            </button>
+          </div>
         }
       />
 
