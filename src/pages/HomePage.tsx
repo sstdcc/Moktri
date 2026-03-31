@@ -60,7 +60,7 @@ const HomePage = () => {
   const fetchLatestListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('status', 'active')
       .order('published_at', { ascending: false })
       .limit(6);
