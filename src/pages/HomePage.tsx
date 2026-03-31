@@ -70,7 +70,7 @@ const HomePage = () => {
   const fetchUrgentListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('is_urgent', true)
       .eq('status', 'active')
       .limit(4);
