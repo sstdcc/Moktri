@@ -14,8 +14,10 @@ const DistrictsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [newNameAr, setNewNameAr] = useState('');
   const [newNameEn, setNewNameEn] = useState('');
+  const [newCity, setNewCity] = useState('تعز');
   const [editModal, setEditModal] = useState<{ open: boolean; district: any | null }>({ open: false, district: null });
   const [editName, setEditName] = useState('');
+  const [editCity, setEditCity] = useState('');
 
   const fetchDistricts = useCallback(async () => {
     setLoading(true);
