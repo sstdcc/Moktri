@@ -104,7 +104,7 @@ const ListingDetailPage = () => {
     if (!districtId) return;
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('district_id', districtId)
       .eq('category', category as any)
       .eq('status', 'active')
