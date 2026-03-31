@@ -30,10 +30,11 @@ const DistrictsManagement = () => {
 
   const addDistrict = async () => {
     if (!newNameAr.trim()) return;
-    await supabase.from('districts').insert({ name_ar: newNameAr.trim(), name_en: newNameEn.trim() || null });
+    await supabase.from('districts').insert({ name_ar: newNameAr.trim(), name_en: newNameEn.trim() || null, city: newCity.trim() || 'تعز' });
     toast.success('تم إضافة الحي');
     setNewNameAr('');
     setNewNameEn('');
+    setNewCity('تعز');
     fetchDistricts();
   };
 
