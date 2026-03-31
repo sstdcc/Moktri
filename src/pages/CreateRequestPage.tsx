@@ -51,6 +51,7 @@ const CreateRequestPage = () => {
   const navigate = useNavigate();
 
   const [category, setCategory] = useState<ListingCategory | ''>('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [districtId, setDistrictId] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [minPrice, setMinPrice] = useState('');
