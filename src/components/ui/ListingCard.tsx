@@ -22,6 +22,7 @@ interface ListingCardProps {
   imageUrl?: string;
   category: string;
   price: number;
+  city?: string;
   district?: string;
   bedrooms?: number | null;
   furnishing?: string | null;
