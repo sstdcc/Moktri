@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { ListingCard } from '@/components/ui/ListingCard';
 import { SectionTitle } from '@/components/ui/SectionTitle';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
