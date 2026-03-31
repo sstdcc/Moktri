@@ -70,13 +70,19 @@ const DistrictsManagement = () => {
           placeholder="اسم الحي بالعربي"
           value={newNameAr}
           onChange={(e) => setNewNameAr(e.target.value)}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[120px]"
         />
         <Input
           placeholder="اسم بالإنجليزي (اختياري)"
           value={newNameEn}
           onChange={(e) => setNewNameEn(e.target.value)}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[120px]"
+        />
+        <Input
+          placeholder="المدينة"
+          value={newCity}
+          onChange={(e) => setNewCity(e.target.value)}
+          className="w-[100px]"
         />
         <Button onClick={addDistrict} disabled={!newNameAr.trim()}>
           <Plus className="h-4 w-4" /> إضافة حي
