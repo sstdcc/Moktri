@@ -92,25 +92,32 @@ const DistrictsManagement = () => {
       {loading ? (
         <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" /></div>
       ) : (
-        <div className="space-y-2">
-          {districts.map((d) => (
-            <div key={d.id} className="bg-card border border-border rounded-2xl p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-foreground text-sm">{d.name_ar}</span>
-                {d.name_en && <span className="text-xs text-muted-foreground">({d.name_en})</span>}
-                <Badge variant="secondary" className="text-[10px]">{d.listing_count ?? 0} إعلان</Badge>
-                {!d.is_active && <Badge variant="outline" className="text-[10px] text-red-500">معطل</Badge>}
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={d.is_active ?? true} onCheckedChange={() => toggleActive(d)} />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8"
-                  onClick={() => { setEditModal({ open: true, district: d }); setEditName(d.name_ar); }}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+        <div className="space-y-4">
+          {Object.entries(groupedDistricts).map(([city, cityDistricts]) => (
+            <div key={city}>
+              <h2 className="text-sm font-bold text-accent mb-2">{city}</h2>
+              <div className="space-y-2">
+                {cityDistricts.map((d: any) => (
+                  <div key={d.id} className="bg-card border border-border rounded-2xl p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-foreground text-sm">{d.name_ar}</span>
+                      {d.name_en && <span className="text-xs text-muted-foreground">({d.name_en})</span>}
+                      <Badge variant="secondary" className="text-[10px]">{d.listing_count ?? 0} إعلان</Badge>
+                      {!d.is_active && <Badge variant="outline" className="text-[10px] text-red-500">معطل</Badge>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch checked={d.is_active ?? true} onCheckedChange={() => toggleActive(d)} />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => { setEditModal({ open: true, district: d }); setEditName(d.name_ar); setEditCity(d.city || ''); }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
