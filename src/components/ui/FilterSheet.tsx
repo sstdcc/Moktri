@@ -59,6 +59,12 @@ export const FilterSheet = ({ onApply, initialValues }: FilterSheetProps) => {
       .then(({ data }) => { if (data) setDistricts(data); });
   }, []);
 
+  // Derive unique cities from districts
+  const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
+  const filteredDistricts = filters.city
+    ? districts.filter(d => d.city === filters.city)
+    : districts;
+
   useEffect(() => {
     if (initialValues) setFilters(initialValues);
   }, [initialValues]);
