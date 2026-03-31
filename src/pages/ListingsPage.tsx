@@ -23,6 +23,7 @@ const sortOptions = [
   { value: 'price_asc', label: 'الأقل سعراً' },
   { value: 'price_desc', label: 'الأعلى سعراً' },
   { value: 'views', label: 'الأكثر مشاهدة' },
+  { value: 'favorites', label: 'الأكثر تفضيلاً' },
 ];
 
 const categoryLabels: Record<string, string> = {
