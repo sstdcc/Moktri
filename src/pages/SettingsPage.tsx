@@ -349,7 +349,6 @@ const SettingsPage = () => {
         </Card>
       </div>
 
-      <BottomNav />
     </div>
   );
 };
