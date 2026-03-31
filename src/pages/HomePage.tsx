@@ -320,7 +320,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <BottomNav />
+      
     </div>
   );
 };
