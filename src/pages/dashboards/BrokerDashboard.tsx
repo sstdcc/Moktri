@@ -252,7 +252,7 @@ const BrokerDashboard = () => {
         إضافة إعلان
       </button>
 
-      <BottomNav />
+      
     </div>
   );
 };

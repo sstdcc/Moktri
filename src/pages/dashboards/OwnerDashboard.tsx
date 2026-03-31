@@ -227,7 +227,7 @@ const OwnerDashboard = () => {
         </button>
       )}
 
-      <BottomNav />
+      
     </div>
   );
 };

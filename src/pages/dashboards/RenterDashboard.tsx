@@ -152,7 +152,7 @@ const RenterDashboard = () => {
         </div>
       </div>
 
-      <BottomNav />
+      
     </div>
   );
 };

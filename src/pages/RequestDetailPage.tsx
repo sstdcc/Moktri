@@ -155,7 +155,7 @@ const RequestDetailPage = () => {
             </Button>
           )}
         </div>
-        <BottomNav />
+        
       </div>
     );
   }
