@@ -21,7 +21,7 @@ const DistrictsManagement = () => {
 
   const fetchDistricts = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('districts').select('*').order('name_ar');
+    const { data } = await supabase.from('districts').select('*').order('city').order('name_ar');
     setDistricts(data ?? []);
     setLoading(false);
   }, []);
