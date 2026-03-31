@@ -13,7 +13,7 @@ import type { Listing } from '@/types/database';
 
 interface ListingWithRelations extends Listing {
   listing_images: { url: string; is_primary: boolean | null }[];
-  districts: { name_ar: string } | null;
+  districts: { name_ar: string; city: string | null } | null;
 }
 
 const PAGE_SIZE = 12;
