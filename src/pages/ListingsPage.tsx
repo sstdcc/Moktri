@@ -87,6 +87,7 @@ const ListingsPage = () => {
       case 'price_asc': q = q.order('price', { ascending: true }); break;
       case 'price_desc': q = q.order('price', { ascending: false }); break;
       case 'views': q = q.order('views_count', { ascending: false }); break;
+      case 'favorites': q = q.order('favorites_count', { ascending: false }); break;
       default: q = q.order('published_at', { ascending: false, nullsFirst: false });
     }
 
