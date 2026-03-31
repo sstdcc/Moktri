@@ -336,11 +336,11 @@ const SettingsPage = () => {
             </div>
             <Separator />
             <div className="space-y-2">
-              <button className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
+              <button onClick={() => navigate('/terms')} className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
                 <FileText className="h-4 w-4" />
                 الشروط والأحكام
               </button>
-              <button className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
+              <button onClick={() => navigate('/privacy')} className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
                 <Shield className="h-4 w-4" />
                 سياسة الخصوصية
               </button>
