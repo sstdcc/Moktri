@@ -159,7 +159,7 @@ const SettingsPage = () => {
           <Skeleton className="h-48 w-full rounded-xl" />
           <Skeleton className="h-32 w-full rounded-xl" />
         </div>
-        <BottomNav />
+        <BottomNavPlaceholder />
       </div>
     );
   }

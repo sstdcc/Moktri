@@ -351,8 +351,13 @@ const ListingDetailPage = () => {
             onClick={() => navigate(`/profile/${owner.id}`)}
             className="mt-5 flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-4"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              {owner.full_name?.charAt(0) || '؟'}
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
+              {owner.avatar_url ? (
+                <img src={owner.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold text-primary">{owner.full_name?.charAt(0) || '؟'}</span>
+              )}
+            </div>
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
