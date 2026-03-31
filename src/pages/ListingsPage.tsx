@@ -69,7 +69,7 @@ const ListingsPage = () => {
       .select('*, listing_images(url, is_primary), districts(name_ar, city)', { count: 'exact' })
       .eq('status', 'active');
 
-    if (query) q = q.ilike('title', `%${query}%`);
+    if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%,neighborhood.ilike.%${query}%`);
     if (filters.category) q = q.eq('category', filters.category as any);
     if (filters.district) q = q.eq('district_id', filters.district);
     if (filters.minPrice) q = q.gte('price', filters.minPrice);
