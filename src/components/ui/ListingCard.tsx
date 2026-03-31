@@ -35,7 +35,7 @@ interface ListingCardProps {
 }
 
 export const ListingCard = ({
-  id, imageUrl, category, price, district, bedrooms, furnishing,
+  id, imageUrl, category, price, city, district, bedrooms, furnishing,
   createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, onFavoriteToggle,
 }: ListingCardProps) => {
   const navigate = useNavigate();
