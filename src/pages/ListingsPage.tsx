@@ -4,7 +4,7 @@ import { usePageTitle } from '@/hooks/usePageTitle';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 import { ListingCard } from '@/components/ui/ListingCard';
 import { FilterSheet, type FilterValues } from '@/components/ui/FilterSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
