@@ -126,8 +126,11 @@ const DistrictsManagement = () => {
 
       <Dialog open={editModal.open} onOpenChange={(o) => !o && setEditModal({ open: false, district: null })}>
         <DialogContent>
-          <DialogHeader><DialogTitle>تعديل اسم الحي</DialogTitle></DialogHeader>
-          <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+          <DialogHeader><DialogTitle>تعديل الحي</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="اسم الحي" />
+            <Input value={editCity} onChange={(e) => setEditCity(e.target.value)} placeholder="المدينة" />
+          </div>
           <DialogFooter>
             <Button onClick={saveEdit}>حفظ</Button>
           </DialogFooter>
