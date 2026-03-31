@@ -121,6 +121,21 @@ export const FilterSheet = ({ onApply, initialValues }: FilterSheetProps) => {
             <ChipSelect options={categories} value={filters.category} onChange={v => setFilters(f => ({ ...f, category: v }))} />
           </div>
 
+          {/* City */}
+          {cities.length > 1 && (
+            <div>
+              <p className="mb-2 text-sm font-medium">المدينة</p>
+              <select
+                value={filters.city || ''}
+                onChange={(e) => setFilters(f => ({ ...f, city: e.target.value || undefined, district: undefined }))}
+                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground"
+              >
+                <option value="">كل المدن</option>
+                {cities.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          )}
+
           {/* District */}
           <div>
             <p className="mb-2 text-sm font-medium">الحي</p>
@@ -130,7 +145,7 @@ export const FilterSheet = ({ onApply, initialValues }: FilterSheetProps) => {
               className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground"
             >
               <option value="">كل الأحياء</option>
-              {districts.map(d => <option key={d.id} value={d.id}>{d.name_ar}</option>)}
+              {filteredDistricts.map(d => <option key={d.id} value={d.id}>{d.name_ar}</option>)}
             </select>
           </div>
 

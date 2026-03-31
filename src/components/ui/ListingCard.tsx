@@ -91,10 +91,12 @@ export const ListingCard = ({
           <span className="text-xs text-muted-foreground font-tajawal">ر.ي/شهري</span>
         </div>
 
-        {district && (
+        {(city || district) && (
           <div className="mt-1.5 flex items-center gap-1">
             <MapPin className="h-3 w-3 text-accent shrink-0" />
-            <span className="text-xs text-muted-foreground font-tajawal">{district}</span>
+            <span className="text-xs text-muted-foreground font-tajawal">
+              {city && district ? `${city} • ${district}` : city || district}
+            </span>
           </div>
         )}
 
