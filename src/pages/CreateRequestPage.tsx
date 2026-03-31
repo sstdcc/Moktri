@@ -51,6 +51,7 @@ const CreateRequestPage = () => {
   const navigate = useNavigate();
 
   const [category, setCategory] = useState<ListingCategory | ''>('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [districtId, setDistrictId] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [minPrice, setMinPrice] = useState('');
@@ -124,18 +125,39 @@ const CreateRequestPage = () => {
           </div>
         </div>
 
-        {/* District */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">الحي المفضل *</Label>
-          <Select value={districtId} onValueChange={setDistrictId}>
-            <SelectTrigger><SelectValue placeholder="اختر الحي" /></SelectTrigger>
-            <SelectContent>
-              {districts.map(d => (
-                <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* City */}
+        {(() => {
+          const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
+          const filteredDistricts = selectedCity ? districts.filter(d => d.city === selectedCity) : districts;
+          return (
+            <>
+              {cities.length > 1 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">المدينة *</Label>
+                  <Select value={selectedCity} onValueChange={(v) => { setSelectedCity(v); setDistrictId(''); }}>
+                    <SelectTrigger><SelectValue placeholder="اختر المدينة" /></SelectTrigger>
+                    <SelectContent>
+                      {cities.map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">الحي المفضل *</Label>
+                <Select value={districtId} onValueChange={setDistrictId}>
+                  <SelectTrigger><SelectValue placeholder="اختر الحي" /></SelectTrigger>
+                  <SelectContent>
+                    {filteredDistricts.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          );
+        })()}
 
         {/* Neighborhood */}
         <div className="space-y-2">

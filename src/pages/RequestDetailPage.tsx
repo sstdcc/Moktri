@@ -207,7 +207,7 @@ const RequestDetailPage = () => {
             {districtName(request.district_id) && (
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-accent" />
-                <span>{districtName(request.district_id)}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
+                <span>{(() => { const d = districts.find(d => d.id === request.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
               </div>
             )}
             {budget && (

@@ -22,6 +22,7 @@ interface ListingCardProps {
   imageUrl?: string;
   category: string;
   price: number;
+  city?: string;
   district?: string;
   bedrooms?: number | null;
   furnishing?: string | null;
@@ -34,7 +35,7 @@ interface ListingCardProps {
 }
 
 export const ListingCard = ({
-  id, imageUrl, category, price, district, bedrooms, furnishing,
+  id, imageUrl, category, price, city, district, bedrooms, furnishing,
   createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, onFavoriteToggle,
 }: ListingCardProps) => {
   const navigate = useNavigate();
@@ -90,10 +91,12 @@ export const ListingCard = ({
           <span className="text-xs text-muted-foreground font-tajawal">ر.ي/شهري</span>
         </div>
 
-        {district && (
+        {(city || district) && (
           <div className="mt-1.5 flex items-center gap-1">
             <MapPin className="h-3 w-3 text-accent shrink-0" />
-            <span className="text-xs text-muted-foreground font-tajawal">{district}</span>
+            <span className="text-xs text-muted-foreground font-tajawal">
+              {city && district ? `${city} • ${district}` : city || district}
+            </span>
           </div>
         )}
 

@@ -104,7 +104,7 @@ const ListingDetailPage = () => {
     if (!districtId) return;
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('district_id', districtId)
       .eq('category', category as any)
       .eq('status', 'active')
@@ -281,7 +281,7 @@ const ListingDetailPage = () => {
         {/* Location & stats */}
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           {listing.districts && (
-            <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {listing.districts.name_ar}{listing.neighborhood ? ` - ${listing.neighborhood}` : ''}</span>
+            <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {listing.districts.city ? `${listing.districts.city} • ` : ''}{listing.districts.name_ar}{listing.neighborhood ? ` — ${listing.neighborhood}` : ''}</span>
           )}
           {listing.published_at && (
             <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {getTimeAgo(listing.published_at)}</span>

@@ -14,12 +14,14 @@ const DistrictsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [newNameAr, setNewNameAr] = useState('');
   const [newNameEn, setNewNameEn] = useState('');
+  const [newCity, setNewCity] = useState('تعز');
   const [editModal, setEditModal] = useState<{ open: boolean; district: any | null }>({ open: false, district: null });
   const [editName, setEditName] = useState('');
+  const [editCity, setEditCity] = useState('');
 
   const fetchDistricts = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('districts').select('*').order('name_ar');
+    const { data } = await supabase.from('districts').select('*').order('city').order('name_ar');
     setDistricts(data ?? []);
     setLoading(false);
   }, []);
@@ -28,10 +30,11 @@ const DistrictsManagement = () => {
 
   const addDistrict = async () => {
     if (!newNameAr.trim()) return;
-    await supabase.from('districts').insert({ name_ar: newNameAr.trim(), name_en: newNameEn.trim() || null });
+    await supabase.from('districts').insert({ name_ar: newNameAr.trim(), name_en: newNameEn.trim() || null, city: newCity.trim() || 'تعز' });
     toast.success('تم إضافة الحي');
     setNewNameAr('');
     setNewNameEn('');
+    setNewCity('تعز');
     fetchDistricts();
   };
 
@@ -43,11 +46,19 @@ const DistrictsManagement = () => {
 
   const saveEdit = async () => {
     if (!editModal.district || !editName.trim()) return;
-    await supabase.from('districts').update({ name_ar: editName.trim() }).eq('id', editModal.district.id);
+    await supabase.from('districts').update({ name_ar: editName.trim(), city: editCity.trim() || 'تعز' }).eq('id', editModal.district.id);
     toast.success('تم التحديث');
     setEditModal({ open: false, district: null });
     fetchDistricts();
   };
+
+  // Group districts by city
+  const groupedDistricts = districts.reduce<Record<string, any[]>>((acc, d) => {
+    const city = d.city || 'أخرى';
+    if (!acc[city]) acc[city] = [];
+    acc[city].push(d);
+    return acc;
+  }, {});
 
   return (
     <AdminLayout>
@@ -59,13 +70,19 @@ const DistrictsManagement = () => {
           placeholder="اسم الحي بالعربي"
           value={newNameAr}
           onChange={(e) => setNewNameAr(e.target.value)}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[120px]"
         />
         <Input
           placeholder="اسم بالإنجليزي (اختياري)"
           value={newNameEn}
           onChange={(e) => setNewNameEn(e.target.value)}
-          className="flex-1 min-w-[140px]"
+          className="flex-1 min-w-[120px]"
+        />
+        <Input
+          placeholder="المدينة"
+          value={newCity}
+          onChange={(e) => setNewCity(e.target.value)}
+          className="w-[100px]"
         />
         <Button onClick={addDistrict} disabled={!newNameAr.trim()}>
           <Plus className="h-4 w-4" /> إضافة حي
@@ -75,25 +92,32 @@ const DistrictsManagement = () => {
       {loading ? (
         <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" /></div>
       ) : (
-        <div className="space-y-2">
-          {districts.map((d) => (
-            <div key={d.id} className="bg-card border border-border rounded-2xl p-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-foreground text-sm">{d.name_ar}</span>
-                {d.name_en && <span className="text-xs text-muted-foreground">({d.name_en})</span>}
-                <Badge variant="secondary" className="text-[10px]">{d.listing_count ?? 0} إعلان</Badge>
-                {!d.is_active && <Badge variant="outline" className="text-[10px] text-red-500">معطل</Badge>}
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={d.is_active ?? true} onCheckedChange={() => toggleActive(d)} />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8"
-                  onClick={() => { setEditModal({ open: true, district: d }); setEditName(d.name_ar); }}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+        <div className="space-y-4">
+          {Object.entries(groupedDistricts).map(([city, cityDistricts]) => (
+            <div key={city}>
+              <h2 className="text-sm font-bold text-accent mb-2">{city}</h2>
+              <div className="space-y-2">
+                {cityDistricts.map((d: any) => (
+                  <div key={d.id} className="bg-card border border-border rounded-2xl p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-foreground text-sm">{d.name_ar}</span>
+                      {d.name_en && <span className="text-xs text-muted-foreground">({d.name_en})</span>}
+                      <Badge variant="secondary" className="text-[10px]">{d.listing_count ?? 0} إعلان</Badge>
+                      {!d.is_active && <Badge variant="outline" className="text-[10px] text-red-500">معطل</Badge>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch checked={d.is_active ?? true} onCheckedChange={() => toggleActive(d)} />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => { setEditModal({ open: true, district: d }); setEditName(d.name_ar); setEditCity(d.city || ''); }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -102,8 +126,11 @@ const DistrictsManagement = () => {
 
       <Dialog open={editModal.open} onOpenChange={(o) => !o && setEditModal({ open: false, district: null })}>
         <DialogContent>
-          <DialogHeader><DialogTitle>تعديل اسم الحي</DialogTitle></DialogHeader>
-          <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+          <DialogHeader><DialogTitle>تعديل الحي</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="اسم الحي" />
+            <Input value={editCity} onChange={(e) => setEditCity(e.target.value)} placeholder="المدينة" />
+          </div>
           <DialogFooter>
             <Button onClick={saveEdit}>حفظ</Button>
           </DialogFooter>

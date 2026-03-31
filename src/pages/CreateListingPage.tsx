@@ -159,7 +159,19 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
 
   const update = <K extends keyof FormState>(key: K, val: FormState[K]) => setForm(f => ({ ...f, [key]: val }));
 
-  const filteredDistricts = districts.filter(d => !districtSearch || d.name_ar.includes(districtSearch));
+  // City selector state
+  const [selectedCity, setSelectedCity] = useState<string>(() => {
+    if (initialData?.district_id) {
+      const d = districts.find(d => d.id === initialData.district_id);
+      return d?.city || '';
+    }
+    return '';
+  });
+  const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
+  const cityFilteredDistricts = selectedCity
+    ? districts.filter(d => d.city === selectedCity)
+    : districts;
+  const filteredDistricts = cityFilteredDistricts.filter(d => !districtSearch || d.name_ar.includes(districtSearch));
 
   const canProceedStep0 = form.category && form.title.length >= 10 && form.district_id;
   const canProceedStep1 = form.price && Number(form.price) > 0 && form.furnishing;
@@ -344,6 +356,21 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                 <p className="text-xs text-danger font-tajawal">يجب أن يكون العنوان 10 أحرف على الأقل</p>
               )}
             </div>
+
+            {/* City */}
+            {cities.length > 1 && (
+              <div>
+                <Label className="text-sm font-bold mb-2 block font-tajawal">المدينة *</Label>
+                <select
+                  value={selectedCity}
+                  onChange={(e) => { setSelectedCity(e.target.value); update('district_id', ''); }}
+                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground font-tajawal"
+                >
+                  <option value="">اختر المدينة</option>
+                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            )}
 
             <div>
               <Label className="text-sm font-bold mb-2 block font-tajawal">الحي *</Label>

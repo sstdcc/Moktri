@@ -133,7 +133,7 @@ const HousingRequestsPage = () => {
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     {districtName(r.district_id) && (
                       <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {districtName(r.district_id)}{r.neighborhood ? ` — ${r.neighborhood}` : ''}
+                        <MapPin className="h-3 w-3" /> {(() => { const d = districts.find(d => d.id === r.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{r.neighborhood ? ` — ${r.neighborhood}` : ''}
                       </span>
                     )}
                     {budget && <span>💰 {budget}</span>}

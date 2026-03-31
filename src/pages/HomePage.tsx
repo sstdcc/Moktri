@@ -28,7 +28,7 @@ const steps = [
 
 interface ListingWithImage extends Listing {
   listing_images: { url: string; is_primary: boolean | null }[];
-  districts: { name_ar: string } | null;
+  districts: { name_ar: string; city: string | null } | null;
 }
 
 const HomePage = () => {
@@ -50,7 +50,7 @@ const HomePage = () => {
   const fetchFeaturedListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('is_featured', true)
       .eq('status', 'active')
       .limit(6);
@@ -60,7 +60,7 @@ const HomePage = () => {
   const fetchLatestListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('status', 'active')
       .order('published_at', { ascending: false })
       .limit(6);
@@ -70,7 +70,7 @@ const HomePage = () => {
   const fetchUrgentListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)')
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
       .eq('is_urgent', true)
       .eq('status', 'active')
       .limit(4);
@@ -196,6 +196,7 @@ const HomePage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
+                  city={listing.districts?.city ?? undefined}
                   district={listing.districts?.name_ar}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
@@ -223,6 +224,7 @@ const HomePage = () => {
                 imageUrl={getPrimaryImage(listing)}
                 category={listing.category}
                 price={Number(listing.price)}
+                city={listing.districts?.city ?? undefined}
                 district={listing.districts?.name_ar}
                 bedrooms={listing.bedrooms}
                 furnishing={listing.furnishing}
@@ -249,6 +251,7 @@ const HomePage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
+                  city={listing.districts?.city ?? undefined}
                   district={listing.districts?.name_ar}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}

@@ -31,13 +31,15 @@ const AuthPage = () => {
     return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
   }, []);
 
+  // Redirect already-authenticated users ONLY on initial phone step.
+  // NEVER redirect during OTP or onboarding — only handleVerify should navigate.
   useEffect(() => {
-    if (step === 'onboarding' || step === 'phone') return;
-    if (user && profile && !isNewUser) {
+    if (step !== 'phone') return;
+    if (user && profile) {
       const returnUrl = searchParams.get('returnUrl') || '/';
       navigate(returnUrl, { replace: true });
     }
-  }, [user, profile, step, isNewUser]);
+  }, [user, profile, step]);
 
   const startCooldown = () => {
     setCooldown(RESEND_COOLDOWN);

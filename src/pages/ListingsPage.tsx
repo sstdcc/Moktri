@@ -13,7 +13,7 @@ import type { Listing } from '@/types/database';
 
 interface ListingWithRelations extends Listing {
   listing_images: { url: string; is_primary: boolean | null }[];
-  districts: { name_ar: string } | null;
+  districts: { name_ar: string; city: string | null } | null;
 }
 
 const PAGE_SIZE = 12;
@@ -65,7 +65,7 @@ const ListingsPage = () => {
     setLoading(true);
     let q = supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar)', { count: 'exact' })
+      .select('*, listing_images(url, is_primary), districts(name_ar, city)', { count: 'exact' })
       .eq('status', 'active');
 
     if (query) q = q.ilike('title', `%${query}%`);
@@ -256,6 +256,7 @@ const ListingsPage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
+                  city={listing.districts?.city ?? undefined}
                   district={listing.districts?.name_ar}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
