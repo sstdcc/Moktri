@@ -90,19 +90,20 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background font-tajawal">
       {/* HERO — animated premium */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-[hsl(207,55%,25%)] to-[hsl(207,60%,15%)] px-4 pb-10 pt-12">
-        {/* Animated floating circles */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-[hsl(207,55%,22%)] to-[hsl(207,60%,12%)] px-4 pb-10 pt-12">
+        {/* Animated floating circles — high visibility */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-accent/10 blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
-          <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-primary-foreground/5 blur-2xl animate-[pulse_8s_ease-in-out_infinite_1s]" />
-          <div className="absolute top-1/2 right-1/3 w-32 h-32 rounded-full bg-accent/5 blur-xl animate-[pulse_5s_ease-in-out_infinite_2s]" />
+          <div className="absolute -top-10 -right-10 w-80 h-80 rounded-full bg-accent/30 blur-3xl animate-[pulse_5s_ease-in-out_infinite]" />
+          <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-white/10 blur-2xl animate-[pulse_7s_ease-in-out_infinite_1.5s]" />
+          <div className="absolute top-1/3 left-1/4 w-40 h-40 rounded-full bg-accent/15 blur-2xl animate-[pulse_4s_ease-in-out_infinite_0.5s]" />
+          <div className="absolute bottom-1/4 right-1/4 w-28 h-28 rounded-full bg-white/8 blur-xl animate-[pulse_6s_ease-in-out_infinite_2s]" />
         </div>
         {/* Dot pattern */}
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
+            backgroundSize: '24px 24px',
           }}
         />
         <div className="relative z-10">
