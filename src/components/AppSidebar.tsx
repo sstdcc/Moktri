@@ -4,7 +4,7 @@ import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
-  Building2, FileText, Shield, LogOut, BadgeCheck, ChevronLeft,
+  Building2, FileText, Shield, LogOut, BadgeCheck, ChevronLeft, MessageSquare,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -26,6 +26,7 @@ const mainNav = [
   { title: 'الرئيسية', url: '/', icon: Home },
   { title: 'تصفح الإعلانات', url: '/listings', icon: Search },
   { title: 'طلبات السكن', url: '/requests', icon: FileText },
+  { title: 'المحادثات', url: '/chat', icon: MessageSquare },
   { title: 'المفضلة', url: '/favorites', icon: Heart },
   { title: 'الإشعارات', url: '/notifications', icon: Bell },
 ];
