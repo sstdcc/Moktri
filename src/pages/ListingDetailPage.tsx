@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2 } from 'lucide-react';
+import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Listing, Profile, District } from '@/types/database';
+import { ChatModal } from '@/components/chat/ChatModal';
 
 interface FullListing extends Listing {
   listing_images: { id: string; url: string; is_primary: boolean | null; sort_order: number | null }[];
@@ -65,6 +66,7 @@ const ListingDetailPage = () => {
   const [reportReason, setReportReason] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [similarListings, setSimilarListings] = useState<any[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -164,12 +166,43 @@ const ListingDetailPage = () => {
 
   const scrollGallery = (dir: 'next' | 'prev') => {
     if (!galleryRef.current || !listing) return;
+    const total = listing.listing_images.length;
     const newIndex = dir === 'next'
-      ? Math.min(currentImageIndex + 1, listing.listing_images.length - 1)
+      ? Math.min(currentImageIndex + 1, total - 1)
       : Math.max(currentImageIndex - 1, 0);
     setCurrentImageIndex(newIndex);
     const el = galleryRef.current;
-    el.scrollTo({ left: newIndex * el.clientWidth, behavior: 'smooth' });
+    // RTL: scrollLeft is negative in RTL, use scrollTo with element width
+    const child = el.children[newIndex] as HTMLElement;
+    if (child) child.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  };
+
+  // Sync currentImageIndex with scroll position
+  useEffect(() => {
+    const el = galleryRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const scrollPos = el.scrollLeft;
+      const width = el.clientWidth;
+      // For RTL, scrollLeft can be negative
+      const index = Math.round(Math.abs(scrollPos) / width);
+      setCurrentImageIndex(index);
+    };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [listing]);
+
+  const handleOpenChat = () => {
+    if (!user) {
+      toast.info('سجل دخولك للتواصل مع المالك');
+      navigate(`/auth?returnUrl=/listings/${id}`);
+      return;
+    }
+    if (user.id === listing?.owner_id) {
+      toast.info('لا يمكنك مراسلة نفسك');
+      return;
+    }
+    setChatOpen(true);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -401,23 +434,26 @@ const ListingDetailPage = () => {
 
       {/* Sticky contact bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card p-3 pb-safe">
-        <div className="flex gap-2">
-          <button
-            onClick={handleWhatsApp}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-sm font-bold text-primary-foreground"
-            style={{ backgroundColor: '#25D366' }}
-          >
-            💬 واتساب
-          </button>
-          <button
-            onClick={handleCall}
-            disabled={!owner?.phone}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
-          >
-            {owner?.phone ? '📞 اتصال مباشر' : 'غير متاح'}
-          </button>
-        </div>
+        <button
+          onClick={handleOpenChat}
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent/90"
+        >
+          <MessageCircle className="h-5 w-5" />
+          مراسلة
+        </button>
       </div>
+
+      {/* Chat modal */}
+      {listing && owner && (
+        <ChatModal
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          listingId={listing.id}
+          ownerId={listing.owner_id}
+          listingTitle={listing.title}
+          ownerName={owner.full_name || 'المالك'}
+        />
+      )}
 
       {/* Report sheet */}
       <Sheet open={reportOpen} onOpenChange={setReportOpen}>

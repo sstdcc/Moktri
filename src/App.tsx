@@ -40,6 +40,8 @@ const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
 const VerificationPage = lazy(() => import("./pages/VerificationPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const ConversationPage = lazy(() => import("./pages/ConversationPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -78,6 +80,8 @@ const App = () => (
                 <Route path="/verify" element={<MainLayout><VerificationPage /></MainLayout>} />
                 <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
                 <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
+                <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
+                <Route path="/chat/:id" element={<MainLayout><AuthGuard><ConversationPage /></AuthGuard></MainLayout>} />
 
                 {/* Protected routes */}
                 <Route path="/dashboard" element={<MainLayout><AuthGuard><DashboardRedirect /></AuthGuard></MainLayout>} />
