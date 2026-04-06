@@ -47,10 +47,20 @@ const HomePage = () => {
   const [latestListings, setLatestListings] = useState<ListingWithImage[]>([]);
   const [urgentListings, setUrgentListings] = useState<ListingWithImage[]>([]);
 
+  const [heroIndex, setHeroIndex] = useState(0);
+
   useEffect(() => {
     fetchFeaturedListings();
     fetchLatestListings();
     fetchUrgentListings();
+  }, []);
+
+  // Hero auto-play
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchFeaturedListings = async () => {
