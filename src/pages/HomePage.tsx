@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Home, Building2, DoorOpen, Layers, Store, Briefcase, MapPin, Phone, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
+
+import heroImg1 from '@/assets/hero-1.jpg';
+import heroImg2 from '@/assets/hero-2.jpg';
+import heroImg3 from '@/assets/hero-3.jpg';
+
+const heroImages = [heroImg1, heroImg2, heroImg3];
 
 import { ListingCard } from '@/components/ui/ListingCard';
 import { SectionTitle } from '@/components/ui/SectionTitle';
@@ -41,10 +47,20 @@ const HomePage = () => {
   const [latestListings, setLatestListings] = useState<ListingWithImage[]>([]);
   const [urgentListings, setUrgentListings] = useState<ListingWithImage[]>([]);
 
+  const [heroIndex, setHeroIndex] = useState(0);
+
   useEffect(() => {
     fetchFeaturedListings();
     fetchLatestListings();
     fetchUrgentListings();
+  }, []);
+
+  // Hero auto-play
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchFeaturedListings = async () => {
@@ -89,23 +105,26 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background font-tajawal">
-      {/* HERO — animated premium */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-[hsl(207,55%,22%)] to-[hsl(207,60%,12%)] px-4 pb-10 pt-12">
-        {/* Animated floating circles — high visibility */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-10 -right-10 w-80 h-80 rounded-full bg-accent/30 blur-3xl animate-[pulse_5s_ease-in-out_infinite]" />
-          <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-white/10 blur-2xl animate-[pulse_7s_ease-in-out_infinite_1.5s]" />
-          <div className="absolute top-1/3 left-1/4 w-40 h-40 rounded-full bg-accent/15 blur-2xl animate-[pulse_4s_ease-in-out_infinite_0.5s]" />
-          <div className="absolute bottom-1/4 right-1/4 w-28 h-28 rounded-full bg-white/8 blur-xl animate-[pulse_6s_ease-in-out_infinite_2s]" />
-        </div>
-        {/* Dot pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
+      {/* HERO — background image slider */}
+      <section className="relative overflow-hidden min-h-[340px] px-4 pb-10 pt-12">
+        {/* Background images with fade */}
+        {heroImages.map((img, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
+            style={{ opacity: heroIndex === i ? 1 : 0 }}
+          >
+            <img
+              src={img}
+              alt=""
+              className="w-full h-full object-cover"
+              {...(i === 0 ? {} : { loading: 'lazy' as const })}
+            />
+          </div>
+        ))}
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-primary/75" />
+
         <div className="relative z-10">
           <div className="animate-fade-in">
             <h1 className="text-5xl font-black text-primary-foreground tracking-tight drop-shadow-lg">مفتاح</h1>
@@ -124,7 +143,7 @@ const HomePage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث بالحي أو اسم المنطقة..."
-              className="flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none px-1"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none px-1"
             />
             <button
               type="submit"
@@ -150,6 +169,18 @@ const HomePage = () => {
                 </button>
               );
             })}
+          </div>
+
+          {/* Dots indicator */}
+          <div className="mt-4 flex justify-center gap-2">
+            {heroImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setHeroIndex(i)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${heroIndex === i ? 'bg-accent w-5' : 'bg-white/40'}`}
+                aria-label={`صورة ${i + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
