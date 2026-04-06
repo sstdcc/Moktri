@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, React.ElementType> = {
   new_response: MessageSquare,
+  new_message: MessageSquare,
   listing_expiring: Clock3,
   listing_approved: CheckCircle2,
   listing_rejected: XCircle,

@@ -89,26 +89,34 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background font-tajawal">
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary to-[hsl(207,60%,22%)] px-4 pb-8 pt-10">
-        {/* Pattern overlay */}
+      {/* HERO — animated premium */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-[hsl(207,55%,25%)] to-[hsl(207,60%,15%)] px-4 pb-10 pt-12">
+        {/* Animated floating circles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-accent/10 blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
+          <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-primary-foreground/5 blur-2xl animate-[pulse_8s_ease-in-out_infinite_1s]" />
+          <div className="absolute top-1/2 right-1/3 w-32 h-32 rounded-full bg-accent/5 blur-xl animate-[pulse_5s_ease-in-out_infinite_2s]" />
+        </div>
+        {/* Dot pattern */}
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
+            backgroundSize: '28px 28px',
           }}
         />
         <div className="relative z-10">
-          <h1 className="text-4xl font-black text-primary-foreground tracking-tight">مفتاح</h1>
-          <span className="mt-2 inline-block rounded-full bg-accent/20 text-accent text-xs px-3 py-1 font-medium">
-            تعز • اليمن
-          </span>
-          <p className="mt-2 text-lg font-medium text-primary-foreground/90">ابحث عن سكنك في تعز</p>
-          <p className="mt-0.5 text-sm text-primary-foreground/60">آلاف الإعلانات من الملاك والدلالين</p>
+          <div className="animate-fade-in">
+            <h1 className="text-5xl font-black text-primary-foreground tracking-tight drop-shadow-lg">مفتاح</h1>
+            <span className="mt-3 inline-block rounded-full bg-accent/20 backdrop-blur-sm text-accent text-xs px-4 py-1.5 font-semibold border border-accent/20">
+              تعز • اليمن
+            </span>
+            <p className="mt-3 text-xl font-bold text-primary-foreground/95">ابحث عن سكنك في تعز</p>
+            <p className="mt-1 text-sm text-primary-foreground/50">آلاف الإعلانات من الملاك والدلالين</p>
+          </div>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="mt-6 flex items-center gap-2 rounded-2xl bg-white p-2 shadow-xl">
+          <form onSubmit={handleSearch} className="mt-7 flex items-center gap-2 rounded-2xl bg-white/95 backdrop-blur-md p-2.5 shadow-2xl shadow-black/20 border border-white/20 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <Search className="h-5 w-5 text-accent mr-1 shrink-0" />
             <input
               type="text"
@@ -119,7 +127,7 @@ const HomePage = () => {
             />
             <button
               type="submit"
-              className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-white flex items-center gap-2 transition-all duration-200 hover:bg-accent/90 shrink-0"
+              className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-white flex items-center gap-2 transition-all duration-200 hover:bg-accent/90 hover:shadow-lg shrink-0"
             >
               <Search className="h-4 w-4" />
               بحث
@@ -127,14 +135,14 @@ const HomePage = () => {
           </form>
 
           {/* Category chips */}
-          <div className="mt-4 flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="mt-5 flex gap-3 overflow-x-auto pb-1 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {categoryChips.map((chip) => {
               const Icon = chip.icon;
               return (
                 <button
                   key={chip.value}
                   onClick={() => navigate(`/listings?category=${chip.value}`)}
-                  className="flex shrink-0 items-center gap-2 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 px-4 py-2.5 text-xs font-medium text-white transition-all duration-200 hover:bg-accent hover:border-accent"
+                  className="flex shrink-0 items-center gap-2 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-2.5 text-xs font-medium text-white/90 transition-all duration-200 hover:bg-accent hover:border-accent hover:text-white hover:shadow-lg"
                 >
                   <Icon className="h-4 w-4" />
                   <span>{chip.label}</span>
