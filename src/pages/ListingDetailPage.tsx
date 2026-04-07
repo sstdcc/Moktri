@@ -68,7 +68,7 @@ const ListingDetailPage = () => {
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [similarListings, setSimilarListings] = useState<any[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
-  const galleryRef = useRef<HTMLDivElement>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ direction: 'rtl', loop: true });
 
   useEffect(() => {
     if (!id) return;
