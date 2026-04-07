@@ -55,7 +55,7 @@ const OnboardingFlow = () => {
 
       const updateData: { full_name: string; role: 'renter' | 'owner' | 'broker' | 'admin' | 'moderator'; whatsapp_number?: string } = {
         full_name: fullName.trim(),
-        role: selectedRole,
+        role: selectedRole as 'renter' | 'owner' | 'broker' | 'admin' | 'moderator',
       };
       if (whatsapp.trim()) {
         updateData.whatsapp_number = whatsapp.trim();
