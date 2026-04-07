@@ -165,33 +165,16 @@ const ListingDetailPage = () => {
     toast.success('تم إرسال البلاغ بنجاح');
   };
 
-  const scrollGallery = (dir: 'next' | 'prev') => {
-    if (!galleryRef.current || !listing) return;
-    const total = listing.listing_images.length;
-    const newIndex = dir === 'next'
-      ? Math.min(currentImageIndex + 1, total - 1)
-      : Math.max(currentImageIndex - 1, 0);
-    setCurrentImageIndex(newIndex);
-    const el = galleryRef.current;
-    // RTL: scrollLeft is negative in RTL, use scrollTo with element width
-    const child = el.children[newIndex] as HTMLElement;
-    if (child) child.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  };
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
-  // Sync currentImageIndex with scroll position
   useEffect(() => {
-    const el = galleryRef.current;
-    if (!el) return;
-    const handleScroll = () => {
-      const scrollPos = el.scrollLeft;
-      const width = el.clientWidth;
-      // For RTL, scrollLeft can be negative
-      const index = Math.round(Math.abs(scrollPos) / width);
-      setCurrentImageIndex(index);
-    };
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, [listing]);
+    if (!emblaApi) return;
+    const onSelect = () => setCurrentImageIndex(emblaApi.selectedScrollSnap());
+    emblaApi.on('select', onSelect);
+    onSelect();
+    return () => { emblaApi.off('select', onSelect); };
+  }, [emblaApi]);
 
   const handleOpenChat = () => {
     if (!user) {
