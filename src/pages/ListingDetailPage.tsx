@@ -220,7 +220,7 @@ const ListingDetailPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 font-tajawal">
+    <div className="min-h-screen bg-background pb-24 font-tajawal overflow-x-hidden">
       {/* Header with favorite */}
       <PageHeader
         title="تفاصيل العرض"
@@ -252,7 +252,7 @@ const ListingDetailPage = () => {
       )}
 
       {/* Image Gallery */}
-      <div className="relative">
+      <div className="relative overflow-hidden">
         {images.length > 0 ? (
           <>
             <div ref={emblaRef} className="overflow-hidden">

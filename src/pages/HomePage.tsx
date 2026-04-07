@@ -104,7 +104,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background font-tajawal">
+    <div className="min-h-screen bg-background font-tajawal overflow-x-hidden">
       {/* HERO — background image slider */}
       <section className="relative overflow-hidden min-h-[340px] px-4 pb-10 pt-12">
         {/* Background images with fade */}
