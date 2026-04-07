@@ -53,7 +53,7 @@ const OnboardingFlow = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('لم يتم العثور على المستخدم');
 
-      const updateData: Record<string, unknown> = {
+      const updateData: { full_name: string; role: string; whatsapp_number?: string } = {
         full_name: fullName.trim(),
         role: selectedRole,
       };
