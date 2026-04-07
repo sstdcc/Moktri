@@ -255,25 +255,30 @@ const ListingDetailPage = () => {
       <div className="relative">
         {images.length > 0 ? (
           <>
-            <div ref={galleryRef} className="flex snap-x snap-mandatory overflow-x-auto scrollbar-hide">
-              {images.map((img, i) => (
-                <div key={img.id} className="w-full shrink-0 snap-center">
-                  <img src={img.url} alt="" className="aspect-[4/3] w-full object-cover" />
-                </div>
-              ))}
+            <div ref={emblaRef} className="overflow-hidden">
+              <div className="flex">
+                {images.map((img) => (
+                  <div key={img.id} className="min-w-0 shrink-0 grow-0 basis-full">
+                    <img src={img.url} alt="" className="aspect-[4/3] w-full object-cover" />
+                  </div>
+                ))}
+              </div>
             </div>
             {images.length > 1 && (
               <>
-                <button onClick={() => scrollGallery('prev')} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-card/80 p-1.5 backdrop-blur-sm">
-                  <ChevronLeft className="h-5 w-5 text-foreground" />
+                <button onClick={scrollPrev} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 backdrop-blur-sm transition-colors hover:bg-black/60">
+                  <ChevronLeft className="h-5 w-5 text-white" />
                 </button>
-                <button onClick={() => scrollGallery('next')} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-card/80 p-1.5 backdrop-blur-sm">
-                  <ChevronRight className="h-5 w-5 text-foreground" />
+                <button onClick={scrollNext} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 backdrop-blur-sm transition-colors hover:bg-black/60">
+                  <ChevronRight className="h-5 w-5 text-white" />
                 </button>
                 <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
                   {images.map((_, i) => (
-                    <div key={i} className={cn('h-1.5 rounded-full transition-all', i === currentImageIndex ? 'w-4 bg-accent' : 'w-1.5 bg-card/60')} />
+                    <button key={i} onClick={() => emblaApi?.scrollTo(i)} className={cn('h-2 rounded-full transition-all', i === currentImageIndex ? 'w-5 bg-accent' : 'w-2 bg-white/50')} />
                   ))}
+                </div>
+                <div className="absolute top-3 left-3 rounded-full bg-black/50 px-2.5 py-1 text-xs text-white backdrop-blur-sm">
+                  {currentImageIndex + 1} / {images.length}
                 </div>
               </>
             )}
