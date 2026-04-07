@@ -20,7 +20,7 @@ export const PageHeader = ({ title, showBack = false, action }: PageHeaderProps)
         )}
       </div>
       <h1 className="text-base font-bold text-foreground font-tajawal">{title}</h1>
-      <div className="w-10 flex justify-start">{action}</div>
+      <div className="flex shrink-0 justify-start">{action}</div>
     </header>
   );
 };
