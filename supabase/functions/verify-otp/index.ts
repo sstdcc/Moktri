@@ -52,56 +52,64 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Hash the submitted code and compare against stored hash
-    const submittedHash = await hashOtp(code, phone);
+    // ── Dev bypass: skip OTP validation for test phone ──
+    const DEV_BYPASS = Deno.env.get("DEV_BYPASS_ENABLED");
+    const isDevBypass = DEV_BYPASS === "true" && phone === "+967772867128" && code === "000000";
 
-    // Find the latest unverified, non-expired OTP for this phone
-    const { data: otpRecord, error: fetchErr } = await supabase
-      .from("otp_codes")
-      .select("id, otp_hash, attempts")
-      .eq("phone", phone)
-      .eq("verified", false)
-      .gte("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    if (!isDevBypass) {
+      // Hash the submitted code and compare against stored hash
+      const submittedHash = await hashOtp(code, phone);
 
-    if (fetchErr) throw fetchErr;
+      // Find the latest unverified, non-expired OTP for this phone
+      const { data: otpRecord, error: fetchErr } = await supabase
+        .from("otp_codes")
+        .select("id, otp_hash, attempts")
+        .eq("phone", phone)
+        .eq("verified", false)
+        .gte("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (!otpRecord) {
-      console.log("[verify-otp] no valid OTP record found");
-      return new Response(
-        JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+      if (fetchErr) throw fetchErr;
 
-    // Check max verification attempts
-    if (otpRecord.attempts >= MAX_VERIFY_ATTEMPTS) {
+      if (!otpRecord) {
+        console.log("[verify-otp] no valid OTP record found");
+        return new Response(
+          JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Check max verification attempts
+      if (otpRecord.attempts >= MAX_VERIFY_ATTEMPTS) {
+        await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+        return new Response(
+          JSON.stringify({ error: "تم تجاوز عدد المحاولات، أعد إرسال الرمز" }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Increment attempts
+      await supabase
+        .from("otp_codes")
+        .update({ attempts: otpRecord.attempts + 1 })
+        .eq("id", otpRecord.id);
+
+      // Compare hashes
+      if (otpRecord.otp_hash !== submittedHash) {
+        return new Response(
+          JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // OTP verified — mark as used
       await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
-      return new Response(
-        JSON.stringify({ error: "تم تجاوز عدد المحاولات، أعد إرسال الرمز" }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.log("[verify-otp] OTP hash matched, proceeding to auth bridge");
+    } else {
+      console.log("[verify-otp] DEV BYPASS active for test phone");
     }
-
-    // Increment attempts
-    await supabase
-      .from("otp_codes")
-      .update({ attempts: otpRecord.attempts + 1 })
-      .eq("id", otpRecord.id);
-
-    // Compare hashes
-    if (otpRecord.otp_hash !== submittedHash) {
-      return new Response(
-        JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // OTP verified — mark as used
-    await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
-    console.log("[verify-otp] OTP hash matched, proceeding to auth bridge");
 
     // ──────────────────────────────────────────────────────────
     // TEMPORARY AUTH BRIDGE
