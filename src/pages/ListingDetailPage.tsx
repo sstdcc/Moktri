@@ -383,7 +383,7 @@ const ListingDetailPage = () => {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-bold text-foreground">{owner.full_name}</p>
-                {owner.is_verified && <MiftahBadge variant="verified" />}
+                {owner.is_verified && <VerifiedBadge size="sm" />}
               </div>
               <p className="text-[10px] text-muted-foreground">
                 عضو منذ {new Date(owner.created_at || '').getFullYear()} • {owner.total_listings || 0} إعلان

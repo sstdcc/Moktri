@@ -122,7 +122,7 @@ const UsersManagement = () => {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-foreground text-sm">{u.full_name}</span>
                   <Badge variant="outline" className="text-[10px]">{roleMap[u.role] ?? u.role}</Badge>
-                  {u.is_verified && <Badge className="bg-success/10 text-success text-[10px]">موثق</Badge>}
+                  {u.is_verified && <VerifiedBadge size="sm" />}
                 </div>
                 <p className="text-xs text-muted-foreground">{u.phone}</p>
                 <div className="flex items-center gap-2 mt-0.5">

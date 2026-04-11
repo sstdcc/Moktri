@@ -117,9 +117,7 @@ const PublicProfilePage = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-lg font-bold truncate">{profile.full_name || 'مستخدم مفتاح'}</h2>
-                      {profile.verification_badge === 'verified' && (
-                        <BadgeCheck className="h-5 w-5 text-success shrink-0" />
-                      )}
+                      {profile.verification_badge === 'verified' && <VerifiedBadge size="lg" />}
                     </div>
                     <Badge variant="secondary" className="mt-1 text-xs">
                       {roleLabels[profile.role] || profile.role}
