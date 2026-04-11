@@ -76,17 +76,10 @@ const AuthPage = () => {
       setLoading(true);
       try {
         const result = await verifyOtp(normalized, '000000');
-        if (result.isNew) {
-          setIsNewUser(true);
-          setPhone(normalized);
-          setStep('onboarding');
-          toast.success('(Dev) تم التحقق تلقائياً');
-        } else {
-          toast.success('(Dev) تم تسجيل الدخول');
-          retryProfile();
-          const returnUrl = searchParams.get('returnUrl') || '/';
-          navigate(returnUrl, { replace: true });
-        }
+        toast.success('تم تسجيل الدخول');
+        retryProfile();
+        const returnUrl = searchParams.get('returnUrl') || '/';
+        navigate(returnUrl, { replace: true });
       } catch {
         toast.error('تعذر تسجيل الدخول التجريبي');
       } finally {
