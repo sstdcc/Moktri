@@ -62,7 +62,7 @@ const AuthPage = () => {
     return digits;
   };
 
-  const DEV_BYPASS_PHONE = '+967772867128';
+  const DEV_BYPASS_PHONES = ['+967772867128', '+967737777777'];
 
   const handleSendOtp = async () => {
     const normalized = normalizePhone(phone);
@@ -72,7 +72,7 @@ const AuthPage = () => {
     }
 
     // Dev-only bypass: skip OTP and auto-login
-    if (import.meta.env.DEV && normalized === DEV_BYPASS_PHONE) {
+    if (DEV_BYPASS_PHONES.includes(normalized)) {
       setLoading(true);
       try {
         const result = await verifyOtp(normalized, '000000');
