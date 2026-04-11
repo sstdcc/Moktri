@@ -10,9 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  User, BadgeCheck, Building2, MessageSquare, Calendar,
+  User, Building2, MessageSquare, Calendar,
   RefreshCw, Star,
 } from 'lucide-react';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 const roleLabels: Record<string, string> = {
   renter: 'مستأجر',
