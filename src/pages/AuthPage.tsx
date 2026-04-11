@@ -62,7 +62,7 @@ const AuthPage = () => {
     return digits;
   };
 
-  const DEV_BYPASS_PHONE = '+967772867128';
+  const DEV_BYPASS_PHONES = ['+967772867128', '+967737777777'];
 
   const handleSendOtp = async () => {
     const normalized = normalizePhone(phone);
@@ -72,21 +72,14 @@ const AuthPage = () => {
     }
 
     // Dev-only bypass: skip OTP and auto-login
-    if (import.meta.env.DEV && normalized === DEV_BYPASS_PHONE) {
+    if (DEV_BYPASS_PHONES.includes(normalized)) {
       setLoading(true);
       try {
         const result = await verifyOtp(normalized, '000000');
-        if (result.isNew) {
-          setIsNewUser(true);
-          setPhone(normalized);
-          setStep('onboarding');
-          toast.success('(Dev) تم التحقق تلقائياً');
-        } else {
-          toast.success('(Dev) تم تسجيل الدخول');
-          retryProfile();
-          const returnUrl = searchParams.get('returnUrl') || '/';
-          navigate(returnUrl, { replace: true });
-        }
+        toast.success('تم تسجيل الدخول');
+        retryProfile();
+        const returnUrl = searchParams.get('returnUrl') || '/';
+        navigate(returnUrl, { replace: true });
       } catch {
         toast.error('تعذر تسجيل الدخول التجريبي');
       } finally {
