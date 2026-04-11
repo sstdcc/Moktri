@@ -45,12 +45,14 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
     <div className="min-h-screen bg-background font-tajawal flex" dir="rtl">
       {/* ── Desktop Sidebar ── */}
       {!isMobile && (
-        <aside className="w-[260px] shrink-0 fixed top-0 right-0 h-screen bg-card border-l border-border/60 flex flex-col z-40">
+        <aside className="w-[260px] shrink-0 fixed top-0 right-0 h-screen bg-card/95 backdrop-blur-xl border-l border-border/40 flex flex-col z-40"
+          style={{ boxShadow: '-4px 0 24px -8px rgba(0,0,0,0.06)' }}
+        >
           {/* Header */}
-          <div className="p-5 border-b border-border/60">
+          <div className="p-5 border-b border-border/40">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/15 ring-offset-2 ring-offset-card">
-                <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+              <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/10 ring-offset-2 ring-offset-card shadow-sm">
+                <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary font-bold text-sm">
                   {profile?.full_name?.charAt(0) || '؟'}
                 </AvatarFallback>
               </Avatar>
@@ -59,18 +61,20 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
                   {profile?.full_name}
                 </p>
                 <span className={cn(
-                  'inline-block text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-md',
-                  profile?.role === 'admin' ? 'bg-destructive/10 text-destructive' : 'bg-accent/10 text-accent'
+                  'inline-block text-[10px] font-semibold mt-1.5 px-2.5 py-0.5 rounded-lg border',
+                  profile?.role === 'admin'
+                    ? 'bg-destructive/10 text-destructive border-destructive/20'
+                    : 'bg-accent/10 text-accent border-accent/20'
                 )}>
                   {profile?.role === 'admin' ? 'مدير' : 'مشرف'}
                 </span>
               </div>
             </div>
-            <p className="text-xs font-semibold text-primary/70 mt-3">مفتاح — لوحة التحكم</p>
+            <p className="text-[11px] font-semibold text-primary/60 mt-3 tracking-wide">مفتاح — لوحة التحكم</p>
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 p-3 space-y-1 overflow-auto">
+          <nav className="flex-1 p-3 space-y-0.5 overflow-auto">
             {adminNavItems.map((item) => {
               const active = isActive(item.path);
               return (
@@ -80,11 +84,14 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200',
                     active
-                      ? 'bg-primary/10 text-primary font-semibold shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                      ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                      : 'text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground'
                   )}
                 >
-                  <item.icon className={cn('h-[18px] w-[18px]', active && 'stroke-[2.5px]')} />
+                  <item.icon className={cn(
+                    'h-[18px] w-[18px] transition-all',
+                    active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                  )} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -92,12 +99,12 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
           </nav>
 
           {/* Footer */}
-          <div className="p-3 border-t border-border/60">
+          <div className="p-3 border-t border-border/40">
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-destructive/80 hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
+              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
             >
-              <LogOut className="h-[18px] w-[18px]" />
+              <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
               تسجيل الخروج
             </button>
           </div>
@@ -108,7 +115,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
       <main
         className={cn(
           'flex-1 overflow-auto',
-          !isMobile ? 'mr-[260px]' : 'pb-20'
+          !isMobile ? 'mr-[260px]' : 'pb-24'
         )}
       >
         <div className="p-4">{children}</div>
@@ -117,41 +124,52 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
       {/* ── Mobile Bottom Nav ── */}
       {isMobile && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-2xl border-t border-border/40 pb-safe"
-          style={{ boxShadow: '0 -4px 24px -4px rgba(0,0,0,0.08)' }}
+          className="fixed bottom-3 left-3 right-3 z-50 pb-safe"
         >
-          <div className="flex h-[62px] items-end justify-around px-1">
-            {adminNavItems.slice(0, 5).map((item) => {
-              const active = isActive(item.path);
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  className={cn(
-                    'relative flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all duration-300 min-w-[48px]',
-                    active
-                      ? 'text-primary'
-                      : 'text-muted-foreground/70 active:scale-95'
-                  )}
-                >
-                  {active && (
-                    <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-full bg-primary" />
-                  )}
-                  <div className={cn(
-                    'flex items-center justify-center w-10 h-8 rounded-xl transition-all duration-300',
-                    active ? 'bg-primary/10' : ''
-                  )}>
-                    <item.icon className={cn('h-[21px] w-[21px] transition-all', active && 'stroke-[2.5px]')} />
-                  </div>
-                  <span className={cn(
-                    'text-[9px] font-tajawal leading-tight truncate max-w-[52px] transition-all',
-                    active ? 'font-bold text-primary' : 'font-medium'
-                  )}>
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
+          <div
+            className="mx-auto rounded-2xl border border-border/30 bg-card/75 backdrop-blur-xl backdrop-saturate-150"
+            style={{
+              boxShadow: '0 8px 32px -8px rgba(0,0,0,0.12), 0 2px 8px -2px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div className="flex h-[64px] items-center justify-around px-1">
+              {adminNavItems.slice(0, 5).map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
+                    className={cn(
+                      'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
+                      active
+                        ? 'text-primary'
+                        : 'text-muted-foreground/60 active:scale-95'
+                    )}
+                  >
+                    <div className={cn(
+                      'flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
+                      active
+                        ? 'bg-primary/12 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.25)]'
+                        : 'hover:bg-muted/40'
+                    )}>
+                      <item.icon className={cn(
+                        'h-[20px] w-[20px] transition-all duration-300',
+                        active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                      )} />
+                    </div>
+                    <span className={cn(
+                      'text-[9px] font-tajawal leading-tight truncate max-w-[52px] transition-all duration-300',
+                      active ? 'font-bold text-primary' : 'font-medium'
+                    )}>
+                      {item.label}
+                    </span>
+                    {active && (
+                      <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </nav>
       )}
