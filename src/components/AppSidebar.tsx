@@ -64,11 +64,11 @@ const roleLabels: Record<string, string> = {
 };
 
 const roleBadgeColors: Record<string, string> = {
-  admin: 'bg-destructive/10 text-destructive',
-  moderator: 'bg-accent/10 text-accent',
-  owner: 'bg-primary/10 text-primary',
-  broker: 'bg-success/10 text-success',
-  renter: 'bg-muted text-muted-foreground',
+  admin: 'bg-destructive/10 text-destructive border-destructive/20',
+  moderator: 'bg-accent/10 text-accent border-accent/20',
+  owner: 'bg-primary/10 text-primary border-primary/20',
+  broker: 'bg-success/10 text-success border-success/20',
+  renter: 'bg-muted text-muted-foreground border-border',
 };
 
 export function AppSidebar() {
@@ -93,33 +93,33 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" side="right">
       {/* ── User Header ── */}
       {user && profile && (
-        <SidebarHeader className="border-b border-sidebar-border p-0">
+        <SidebarHeader className="border-b border-sidebar-border/50 p-0">
           <button
             onClick={() => navigate('/settings')}
-            className="flex items-center gap-3 w-full p-4 hover:bg-sidebar-accent/50 transition-colors"
+            className="flex items-center gap-3 w-full p-4 hover:bg-sidebar-accent/40 transition-all duration-200 group"
           >
-            <Avatar className="h-11 w-11 shrink-0 ring-2 ring-primary/15 ring-offset-2 ring-offset-sidebar">
+            <Avatar className="h-11 w-11 shrink-0 ring-2 ring-primary/10 ring-offset-2 ring-offset-sidebar shadow-sm">
               {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.full_name} />}
-              <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
+              <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary font-bold text-base">
                 {profile.full_name?.charAt(0) || '؟'}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <div className="flex-1 min-w-0 text-right">
                 <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-bold text-sidebar-foreground truncate leading-tight">
+                  <p className="text-sm font-bold text-sidebar-foreground truncate leading-tight group-hover:text-primary transition-colors">
                     {profile.full_name}
                   </p>
                   {profile.is_verified && (
                     <BadgeCheck className="h-4 w-4 text-success shrink-0" />
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5" dir="ltr">
+                <p className="text-[11px] text-muted-foreground/70 truncate mt-0.5" dir="ltr">
                   {profile.phone}
                 </p>
                 <span className={cn(
-                  'inline-block text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-md',
-                  roleBadgeColors[profile.role] || 'bg-muted text-muted-foreground'
+                  'inline-block text-[10px] font-semibold mt-1.5 px-2.5 py-0.5 rounded-lg border',
+                  roleBadgeColors[profile.role] || 'bg-muted text-muted-foreground border-border'
                 )}>
                   {roleLabels[profile.role] || profile.role}
                 </span>
@@ -129,10 +129,10 @@ export function AppSidebar() {
         </SidebarHeader>
       )}
 
-      <SidebarContent className="px-2 py-3">
+      <SidebarContent className="px-2.5 py-4">
         {/* ── Main Navigation ── */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-1 px-3">
+          <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50 mb-2 px-3">
             التنقل
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -146,14 +146,17 @@ export function AppSidebar() {
                       onClick={() => navigate(item.url)}
                       tooltip={item.title}
                       className={cn(
-                        'rounded-xl h-10 transition-all duration-200',
+                        'rounded-xl h-11 transition-all duration-200',
                         active
-                          ? 'bg-primary/10 text-primary font-semibold shadow-sm'
-                          : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
+                          ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                          : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                       )}
                     >
                       <div className="relative">
-                        <item.icon className={cn('h-[18px] w-[18px]', active && 'stroke-[2.5px]')} />
+                        <item.icon className={cn(
+                          'h-[18px] w-[18px] transition-all',
+                          active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                        )} />
                         {item.url === '/notifications' && unreadCount > 0 && (
                           <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar">
                             {unreadCount > 99 ? '99+' : unreadCount}
@@ -171,8 +174,8 @@ export function AppSidebar() {
 
         {/* ── Dashboard ── */}
         {user && dashboardItems.length > 0 && (
-          <SidebarGroup className="mt-2">
-            <SidebarGroupLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-1 px-3">
+          <SidebarGroup className="mt-3">
+            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50 mb-2 px-3">
               لوحة التحكم
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -186,13 +189,16 @@ export function AppSidebar() {
                         onClick={() => navigate(item.url)}
                         tooltip={item.title}
                         className={cn(
-                          'rounded-xl h-10 transition-all duration-200',
+                          'rounded-xl h-11 transition-all duration-200',
                           active
-                            ? 'bg-primary/10 text-primary font-semibold shadow-sm'
-                            : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
+                            ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                            : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                         )}
                       >
-                        <item.icon className={cn('h-[18px] w-[18px]', active && 'stroke-[2.5px]')} />
+                        <item.icon className={cn(
+                          'h-[18px] w-[18px] transition-all',
+                          active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                        )} />
                         {!collapsed && <span>{item.title}</span>}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -204,7 +210,7 @@ export function AppSidebar() {
         )}
 
         {/* ── Settings & Verification ── */}
-        <SidebarGroup className="mt-2">
+        <SidebarGroup className="mt-3">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-0.5">
               <SidebarMenuItem>
@@ -213,13 +219,16 @@ export function AppSidebar() {
                   onClick={() => navigate('/settings')}
                   tooltip="الإعدادات"
                   className={cn(
-                    'rounded-xl h-10 transition-all duration-200',
+                    'rounded-xl h-11 transition-all duration-200',
                     isActive('/settings')
-                      ? 'bg-primary/10 text-primary font-semibold shadow-sm'
-                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
+                      ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                      : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                   )}
                 >
-                  <Settings className={cn('h-[18px] w-[18px]', isActive('/settings') && 'stroke-[2.5px]')} />
+                  <Settings className={cn(
+                    'h-[18px] w-[18px] transition-all',
+                    isActive('/settings') ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                  )} />
                   {!collapsed && <span>الإعدادات</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -230,13 +239,16 @@ export function AppSidebar() {
                     onClick={() => navigate('/verify')}
                     tooltip="توثيق الحساب"
                     className={cn(
-                      'rounded-xl h-10 transition-all duration-200',
+                      'rounded-xl h-11 transition-all duration-200',
                       isActive('/verify')
-                        ? 'bg-accent/10 text-accent font-semibold'
-                        : 'text-accent/80 hover:bg-accent/5 hover:text-accent'
+                        ? 'bg-accent/10 text-accent font-semibold shadow-[0_2px_8px_-2px_hsl(var(--accent)/0.2)]'
+                        : 'text-accent/70 hover:bg-accent/5 hover:text-accent'
                     )}
                   >
-                    <Shield className={cn('h-[18px] w-[18px]', isActive('/verify') && 'stroke-[2.5px]')} />
+                    <Shield className={cn(
+                      'h-[18px] w-[18px] transition-all',
+                      isActive('/verify') ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                    )} />
                     {!collapsed && <span>توثيق الحساب</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -248,30 +260,30 @@ export function AppSidebar() {
 
       {/* ── Footer ── */}
       {user ? (
-        <SidebarFooter className="border-t border-sidebar-border p-2">
+        <SidebarFooter className="border-t border-sidebar-border/50 p-3">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={handleSignOut}
                 tooltip="تسجيل الخروج"
-                className="rounded-xl h-10 text-destructive/80 hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
+                className="rounded-xl h-11 text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
               >
-                <LogOut className="h-[18px] w-[18px]" />
+                <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
                 {!collapsed && <span>تسجيل الخروج</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
       ) : (
-        <SidebarFooter className="border-t border-sidebar-border p-2">
+        <SidebarFooter className="border-t border-sidebar-border/50 p-3">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={() => navigate('/auth')}
                 tooltip="تسجيل الدخول"
-                className="rounded-xl h-10 text-primary hover:bg-primary/5 transition-all duration-200"
+                className="rounded-xl h-11 text-primary hover:bg-primary/5 transition-all duration-200"
               >
-                <LogOut className="h-[18px] w-[18px]" />
+                <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
                 {!collapsed && <span>تسجيل الدخول</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
