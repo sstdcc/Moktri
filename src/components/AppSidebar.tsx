@@ -4,8 +4,9 @@ import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
-  FileText, Shield, LogOut, BadgeCheck, MessageSquare,
+  FileText, Shield, LogOut, MessageSquare,
 } from 'lucide-react';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import {
   Sidebar,
   SidebarContent,
