@@ -4,8 +4,9 @@ import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
-  FileText, Shield, LogOut, BadgeCheck, MessageSquare,
+  FileText, Shield, LogOut, MessageSquare,
 } from 'lucide-react';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import {
   Sidebar,
   SidebarContent,
@@ -110,9 +111,7 @@ export function AppSidebar() {
                   <p className="text-sm font-bold text-sidebar-foreground truncate leading-tight group-hover:text-primary transition-colors">
                     {profile.full_name}
                   </p>
-                  {profile.is_verified && (
-                    <BadgeCheck className="h-4 w-4 text-success shrink-0" />
-                  )}
+                  {profile.is_verified && <VerifiedBadge />}
                 </div>
                 <p className="text-[11px] text-muted-foreground/70 truncate mt-0.5" dir="ltr">
                   {profile.phone}
