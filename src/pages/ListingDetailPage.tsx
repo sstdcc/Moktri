@@ -401,6 +401,8 @@ const ListingDetailPage = () => {
                     bedrooms={sl.bedrooms}
                     furnishing={sl.furnishing}
                     createdAt={sl.created_at || ''}
+                    isFavorited={isFavoritedFn(sl.id)}
+                    onFavoriteToggle={() => toggleFavorite(sl.id)}
                   />
                 </div>
               ))}
