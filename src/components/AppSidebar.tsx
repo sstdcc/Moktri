@@ -148,7 +148,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
                       isActive={active}
-                      onClick={() => navigate(item.url)}
+                      onClick={() => go(item.url)}
                       tooltip={item.title}
                       className={cn(
                         'rounded-xl h-11 transition-all duration-200',
@@ -191,7 +191,7 @@ export function AppSidebar() {
                     <SidebarMenuItem key={item.url}>
                       <SidebarMenuButton
                         isActive={active}
-                        onClick={() => navigate(item.url)}
+                        onClick={() => go(item.url)}
                         tooltip={item.title}
                         className={cn(
                           'rounded-xl h-11 transition-all duration-200',
