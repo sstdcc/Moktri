@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useFavorites } from '@/hooks/useFavorites';
 import { Search, X, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -34,6 +35,7 @@ const categoryLabels: Record<string, string> = {
 const ListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   usePageTitle();
+  const { isFavorited, toggleFavorite } = useFavorites();
   const [listings, setListings] = useState<ListingWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -265,6 +267,8 @@ const ListingsPage = () => {
                   createdAt={listing.created_at || ''}
                   isUrgent={listing.is_urgent || false}
                   isFeatured={listing.is_featured || false}
+                  isFavorited={isFavorited(listing.id)}
+                  onFavoriteToggle={() => toggleFavorite(listing.id)}
                 />
               ))}
             </div>

@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListingCard } from '@/components/ui/ListingCard';
+import { useFavorites } from '@/hooks/useFavorites';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Heart, RefreshCw } from 'lucide-react';

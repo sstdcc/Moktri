@@ -4,6 +4,7 @@ import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed
 import useEmblaCarousel from 'embla-carousel-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFavorites } from '@/hooks/useFavorites';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
@@ -62,7 +63,7 @@ const ListingDetailPage = () => {
   const [listing, setListing] = useState<FullListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isFavorited, setIsFavorited] = useState(false);
+  const { isFavorited: isFavoritedFn, toggleFavorite } = useFavorites();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
@@ -74,7 +75,6 @@ const ListingDetailPage = () => {
   useEffect(() => {
     if (!id) return;
     fetchListing();
-    checkFavorite();
   }, [id]);
 
   const fetchListing = async () => {
@@ -117,22 +117,9 @@ const ListingDetailPage = () => {
     if (data) setSimilarListings(data);
   };
 
-  const checkFavorite = async () => {
-    if (!user || !id) return;
-    const { data } = await supabase.from('favorites').select('id').eq('user_id', user.id).eq('listing_id', id).maybeSingle();
-    setIsFavorited(!!data);
-  };
-
-  const toggleFavorite = async () => {
-    if (!user) { navigate(`/auth?returnUrl=/listings/${id}`); return; }
+  const handleToggleFavorite = () => {
     if (!id) return;
-    if (isFavorited) {
-      await supabase.from('favorites').delete().eq('user_id', user.id).eq('listing_id', id);
-      setIsFavorited(false);
-    } else {
-      await supabase.from('favorites').insert({ user_id: user.id, listing_id: id });
-      setIsFavorited(true);
-    }
+    toggleFavorite(id);
   };
 
   const handleWhatsApp = async () => {
@@ -237,8 +224,8 @@ const ListingDetailPage = () => {
                 toast.success('تم نسخ الرابط');
               }
             }} className="p-2"><Share2 className="h-5 w-5 text-foreground" /></button>
-            <button onClick={toggleFavorite} className="p-2">
-              <Heart className={cn('h-5 w-5', isFavorited ? 'fill-danger text-danger' : 'text-foreground')} />
+            <button onClick={handleToggleFavorite} className="p-2">
+              <Heart className={cn('h-5 w-5', id && isFavoritedFn(id) ? 'fill-danger text-danger' : 'text-foreground')} />
             </button>
           </div>
         }
@@ -414,6 +401,8 @@ const ListingDetailPage = () => {
                     bedrooms={sl.bedrooms}
                     furnishing={sl.furnishing}
                     createdAt={sl.created_at || ''}
+                    isFavorited={isFavoritedFn(sl.id)}
+                    onFavoriteToggle={() => toggleFavorite(sl.id)}
                   />
                 </div>
               ))}

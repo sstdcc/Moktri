@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { useFavorites } from '@/hooks/useFavorites';
 
 import heroImg1 from '@/assets/hero-1.jpg';
 import heroImg2 from '@/assets/hero-2.jpg';
@@ -42,6 +43,7 @@ const HomePage = () => {
   const { user } = useAuth();
   const { districts, loading: districtsLoading } = useDistricts();
   usePageTitle();
+  const { isFavorited, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredListings, setFeaturedListings] = useState<ListingWithImage[]>([]);
   const [latestListings, setLatestListings] = useState<ListingWithImage[]>([]);
@@ -242,6 +244,8 @@ const HomePage = () => {
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}
                   isFeatured
+                  isFavorited={isFavorited(listing.id)}
+                  onFavoriteToggle={() => toggleFavorite(listing.id)}
                 />
               </div>
             ))}
@@ -269,6 +273,8 @@ const HomePage = () => {
                 bedrooms={listing.bedrooms}
                 furnishing={listing.furnishing}
                 createdAt={listing.created_at || ''}
+                isFavorited={isFavorited(listing.id)}
+                onFavoriteToggle={() => toggleFavorite(listing.id)}
               />
             ))}
           </div>
@@ -297,6 +303,8 @@ const HomePage = () => {
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}
                   isUrgent
+                  isFavorited={isFavorited(listing.id)}
+                  onFavoriteToggle={() => toggleFavorite(listing.id)}
                 />
               </div>
             ))}
