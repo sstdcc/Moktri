@@ -224,8 +224,8 @@ const ListingDetailPage = () => {
                 toast.success('تم نسخ الرابط');
               }
             }} className="p-2"><Share2 className="h-5 w-5 text-foreground" /></button>
-            <button onClick={toggleFavorite} className="p-2">
-              <Heart className={cn('h-5 w-5', isFavorited ? 'fill-danger text-danger' : 'text-foreground')} />
+            <button onClick={handleToggleFavorite} className="p-2">
+              <Heart className={cn('h-5 w-5', id && isFavoritedFn(id) ? 'fill-danger text-danger' : 'text-foreground')} />
             </button>
           </div>
         }
