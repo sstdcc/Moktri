@@ -73,7 +73,7 @@ const roleBadgeColors: Record<string, string> = {
 };
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const navigate = useNavigate();
@@ -85,8 +85,14 @@ export function AppSidebar() {
 
   const dashboardItems = getRoleDashboardItems(profile?.role);
 
+  const go = (path: string) => {
+    navigate(path);
+    if (isMobile) setOpenMobile(false);
+  };
+
   const handleSignOut = async () => {
     await signOut();
+    if (isMobile) setOpenMobile(false);
     navigate('/auth');
   };
 
