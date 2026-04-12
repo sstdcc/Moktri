@@ -102,7 +102,7 @@ export function AppSidebar() {
       {user && profile && (
         <SidebarHeader className="border-b border-sidebar-border/50 p-0">
           <button
-            onClick={() => navigate('/settings')}
+            onClick={() => go('/settings')}
             className="flex items-center gap-3 w-full p-4 hover:bg-sidebar-accent/40 transition-all duration-200 group"
           >
             <Avatar className="h-11 w-11 shrink-0 ring-2 ring-primary/10 ring-offset-2 ring-offset-sidebar shadow-sm">
@@ -221,7 +221,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={isActive('/settings')}
-                  onClick={() => navigate('/settings')}
+                  onClick={() => go('/settings')}
                   tooltip="الإعدادات"
                   className={cn(
                     'rounded-xl h-11 transition-all duration-200',
@@ -241,7 +241,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     isActive={isActive('/verify')}
-                    onClick={() => navigate('/verify')}
+                    onClick={() => go('/verify')}
                     tooltip="توثيق الحساب"
                     className={cn(
                       'rounded-xl h-11 transition-all duration-200',
@@ -284,7 +284,7 @@ export function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                onClick={() => navigate('/auth')}
+                onClick={() => go('/auth')}
                 tooltip="تسجيل الدخول"
                 className="rounded-xl h-11 text-primary hover:bg-primary/5 transition-all duration-200"
               >
