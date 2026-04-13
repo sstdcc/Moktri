@@ -284,7 +284,7 @@ export function AppSidebar() {
 
       {/* ── Footer ── */}
       {user ? (
-        <SidebarFooter className="border-t border-sidebar-border/50 p-3">
+        <SidebarFooter className={cn("border-t border-sidebar-border/50", collapsed ? "p-1" : "p-3")}>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
