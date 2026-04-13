@@ -60,6 +60,8 @@ const billingOptions = [
 interface FormState {
   category: string;
   title: string;
+  governorate: string;
+  city_name: string;
   district_id: string;
   neighborhood: string;
   price: number | '';
@@ -82,7 +84,7 @@ interface FormState {
 }
 
 const defaultForm: FormState = {
-  category: '', title: '', district_id: '', neighborhood: '',
+  category: '', title: '', governorate: '', city_name: '', district_id: '', neighborhood: '',
   price: '', currency: 'YER', billing_period: 'monthly', is_negotiable: false,
   bedrooms: 0, bathrooms: 0, kitchens: 0, floor_number: 0, property_size: '',
   furnishing: '', allowed_for: 'all',
