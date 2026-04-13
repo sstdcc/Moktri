@@ -189,13 +189,13 @@ const HomePage = () => {
 
       {/* SMART NUDGES */}
       {user && (
-        <section className="px-4 pt-4">
+        <section className="px-5 pt-5">
           <SmartNudgeBanner />
         </section>
       )}
 
       {/* DISTRICTS */}
-      <section className="px-4 py-6">
+      <section className="px-5 py-7">
         <SectionTitle title="تصفح حسب الحي" />
         {districtsLoading ? (
           <div className="grid grid-cols-3 gap-3">
@@ -209,13 +209,13 @@ const HomePage = () => {
               <button
                 key={d.id}
                 onClick={() => navigate(`/listings?district=${d.id}`)}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-gradient-to-br from-card to-muted/30 p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-accent/40 active:scale-95"
+                className="flex flex-col items-center gap-2.5 rounded-2xl border border-border/50 bg-card p-4 cursor-pointer transition-all duration-250 shadow-card hover:shadow-elevated hover:border-accent/30 active:scale-[0.97]"
               >
-                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                  <MapPin className="h-[18px] w-[18px] text-accent" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center">
+                  <MapPin className="h-[18px] w-[18px] text-accent stroke-[2px]" />
                 </div>
-                <span className="text-sm font-bold text-foreground text-center">{d.name_ar}</span>
-                <span className="rounded-full bg-accent/10 text-accent text-xs px-2 py-0.5 font-medium">
+                <span className="text-[13px] font-bold text-foreground text-center leading-tight">{d.name_ar}</span>
+                <span className="rounded-lg bg-accent/8 text-accent text-[10px] px-2 py-0.5 font-bold">
                   {(d.listing_count || 0) > 0 ? `${d.listing_count} إعلان` : 'جديد'}
                 </span>
               </button>
@@ -226,13 +226,13 @@ const HomePage = () => {
 
       {/* FEATURED */}
       {featuredListings.length > 0 && (
-        <section className="py-4">
-          <div className="px-4">
+        <section className="py-5">
+          <div className="px-5">
             <SectionTitle title="إعلانات مميزة" />
           </div>
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto px-5 pb-2 scrollbar-hide">
             {featuredListings.map((listing) => (
-              <div key={listing.id} className="w-64 shrink-0">
+              <div key={listing.id} className="w-[280px] shrink-0">
                 <ListingCard
                   id={listing.id}
                   imageUrl={getPrimaryImage(listing)}
@@ -254,13 +254,13 @@ const HomePage = () => {
       )}
 
       {/* LATEST */}
-      <section className="px-4 py-4">
+      <section className="px-5 py-5">
         <SectionTitle
           title="أحدث الإعلانات"
           action={{ label: 'عرض الكل', href: '/listings' }}
         />
         {latestListings.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {latestListings.map((listing) => (
               <ListingCard
                 key={listing.id}
@@ -279,19 +279,19 @@ const HomePage = () => {
             ))}
           </div>
         ) : (
-          <p className="py-8 text-center text-sm text-muted-foreground">لا توجد إعلانات حالياً</p>
+          <p className="py-10 text-center text-sm text-muted-foreground">لا توجد إعلانات حالياً</p>
         )}
       </section>
 
       {/* URGENT */}
       {urgentListings.length > 0 && (
-        <section className="py-4">
-          <div className="px-4">
+        <section className="py-5">
+          <div className="px-5">
             <SectionTitle title="إعلانات عاجلة" />
           </div>
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide">
+          <div className="flex gap-4 overflow-x-auto px-5 pb-2 scrollbar-hide">
             {urgentListings.map((listing) => (
-              <div key={listing.id} className="w-64 shrink-0">
+              <div key={listing.id} className="w-[280px] shrink-0">
                 <ListingCard
                   id={listing.id}
                   imageUrl={getPrimaryImage(listing)}
@@ -313,29 +313,29 @@ const HomePage = () => {
       )}
 
       {/* HOW IT WORKS */}
-      <section className="px-4 py-6">
-        <div className="bg-muted/40 rounded-3xl p-6">
+      <section className="px-5 py-7">
+        <div className="rounded-3xl border border-border/40 bg-card p-6 shadow-card">
           <SectionTitle title="كيف يعمل مفتاح؟" />
-          <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col gap-5 mt-3">
             {steps.map((step, idx) => {
               const StepIcon = step.icon;
               return (
                 <div key={step.num} className="relative flex items-start gap-4">
                   {/* Connecting line */}
                   {idx < steps.length - 1 && (
-                    <div className="absolute right-5 top-10 h-full border-r-2 border-dashed border-accent/30" />
+                    <div className="absolute right-5 top-11 h-full border-r-2 border-dashed border-accent/20" />
                   )}
                   {/* Number circle */}
-                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-black text-sm shrink-0 relative z-10">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center text-white font-black text-sm shrink-0 relative z-10 shadow-glow-accent">
                     {step.num}
                   </div>
                   {/* Content */}
-                  <div className="flex-1 pb-2">
+                  <div className="flex-1 pb-1">
                     <div className="flex items-center gap-2">
-                      <StepIcon className="h-5 w-5 text-accent" />
-                      <h3 className="text-sm font-bold text-foreground">{step.title}</h3>
+                      <StepIcon className="h-[18px] w-[18px] text-accent stroke-[2px]" />
+                      <h3 className="text-[14px] font-bold text-foreground">{step.title}</h3>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{step.subtitle}</p>
+                    <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">{step.subtitle}</p>
                   </div>
                 </div>
               );
@@ -345,21 +345,21 @@ const HomePage = () => {
       </section>
 
       {/* HOUSING REQUEST CTA */}
-      <section className="px-4 pb-8">
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary to-[hsl(207,70%,15%)]">
+      <section className="px-5 pb-10">
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary to-[hsl(207,70%,15%)]">
           {/* Decorative circles */}
-          <div className="absolute -top-8 -left-8 w-32 h-32 rounded-full bg-white/5" />
-          <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-accent/10" />
+          <div className="absolute -top-10 -left-10 w-36 h-36 rounded-full bg-white/5" />
+          <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-accent/8" />
 
-          <div className="relative z-10 p-6">
-            <span className="inline-block rounded-full bg-accent/20 text-accent text-xs px-3 py-1 font-medium mb-3">
+          <div className="relative z-10 p-7">
+            <span className="inline-block rounded-lg bg-accent/20 backdrop-blur-sm text-accent text-[11px] px-3 py-1 font-bold mb-4 border border-accent/15">
               للباحثين عن سكن
             </span>
-            <h2 className="text-xl font-black text-white">لم تجد ما تبحث عنه؟</h2>
-            <p className="mt-2 text-sm text-white/70">انشر طلب سكن وسيتواصل معك الملاك والدلالون مباشرة</p>
+            <h2 className="text-xl font-black text-white tracking-tight">لم تجد ما تبحث عنه؟</h2>
+            <p className="mt-2.5 text-[13px] text-white/60 leading-relaxed">انشر طلب سكن وسيتواصل معك الملاك والدلالون مباشرة</p>
             <button
               onClick={() => navigate(user ? '/requests/new' : '/auth?returnUrl=/requests/new')}
-              className="mt-5 w-full rounded-2xl bg-accent py-3.5 text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-200 hover:bg-accent/90"
+              className="mt-6 w-full rounded-2xl bg-accent py-3.5 text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-200 hover:brightness-105 active:scale-[0.98] shadow-glow-accent"
             >
               انشر طلب سكن الآن
               <ArrowLeft className="h-4 w-4" />
