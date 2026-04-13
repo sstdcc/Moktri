@@ -102,19 +102,22 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" side="right">
       {/* ── User Header ── */}
       {user && profile && (
-        <SidebarHeader className="border-b border-sidebar-border/50 p-0">
+        <SidebarHeader className="border-b border-sidebar-border/50 p-0 overflow-hidden">
           <button
             onClick={() => go('/settings')}
-            className="flex items-center gap-3 w-full p-4 hover:bg-sidebar-accent/40 transition-all duration-200 group"
+            className={cn(
+              "flex items-center w-full hover:bg-sidebar-accent/40 transition-all duration-200 group overflow-hidden",
+              collapsed ? "justify-center p-2" : "gap-3 p-4"
+            )}
           >
-            <Avatar className="h-11 w-11 shrink-0 ring-2 ring-primary/10 ring-offset-2 ring-offset-sidebar shadow-sm">
+            <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/10 ring-offset-1 ring-offset-sidebar shadow-sm">
               {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.full_name} />}
-              <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary font-bold text-base">
+              <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary font-bold text-sm">
                 {profile.full_name?.charAt(0) || '؟'}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
-              <div className="flex-1 min-w-0 text-right">
+              <div className="flex-1 min-w-0 text-right overflow-hidden">
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-bold text-sidebar-foreground truncate leading-tight group-hover:text-primary transition-colors">
                     {profile.full_name}
@@ -136,14 +139,14 @@ export function AppSidebar() {
         </SidebarHeader>
       )}
 
-      <SidebarContent className="px-2.5 py-4">
+      <SidebarContent className="px-2 py-3">
         {/* ── Main Navigation ── */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50 mb-2 px-3">
             التنقل
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
+            <SidebarMenu className="space-y-1">
               {mainNav.map((item) => {
                 const active = isActive(item.url);
                 return (
@@ -153,15 +156,15 @@ export function AppSidebar() {
                       onClick={() => go(item.url)}
                       tooltip={item.title}
                       className={cn(
-                        'rounded-xl h-11 transition-all duration-200',
+                        'rounded-xl h-10 transition-all duration-200 gap-3',
                         active
                           ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
                           : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                       )}
                     >
-                      <div className="relative">
+                      <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
                         <item.icon className={cn(
-                          'h-[18px] w-[18px] transition-all',
+                          'h-[18px] w-[18px]',
                           active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
                         )} />
                         {item.url === '/notifications' && unreadCount > 0 && (
@@ -191,7 +194,7 @@ export function AppSidebar() {
               لوحة التحكم
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-0.5">
+              <SidebarMenu className="space-y-1">
                 {dashboardItems.map((item) => {
                   const active = isActive(item.url);
                   return (
@@ -201,16 +204,18 @@ export function AppSidebar() {
                         onClick={() => go(item.url)}
                         tooltip={item.title}
                         className={cn(
-                          'rounded-xl h-11 transition-all duration-200',
+                          'rounded-xl h-10 transition-all duration-200 gap-3',
                           active
                             ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
                             : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                         )}
                       >
-                        <item.icon className={cn(
-                          'h-[18px] w-[18px] transition-all',
-                          active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-                        )} />
+                        <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                          <item.icon className={cn(
+                            'h-[18px] w-[18px]',
+                            active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                          )} />
+                        </div>
                         {!collapsed && <span>{item.title}</span>}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -224,23 +229,25 @@ export function AppSidebar() {
         {/* ── Settings & Verification ── */}
         <SidebarGroup className="mt-3">
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
+            <SidebarMenu className="space-y-1">
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={isActive('/settings')}
                   onClick={() => go('/settings')}
                   tooltip="الإعدادات"
                   className={cn(
-                    'rounded-xl h-11 transition-all duration-200',
+                    'rounded-xl h-10 transition-all duration-200 gap-3',
                     isActive('/settings')
                       ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
                       : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                   )}
                 >
-                  <Settings className={cn(
-                    'h-[18px] w-[18px] transition-all',
-                    isActive('/settings') ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-                  )} />
+                  <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                    <Settings className={cn(
+                      'h-[18px] w-[18px]',
+                      isActive('/settings') ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                    )} />
+                  </div>
                   {!collapsed && <span>الإعدادات</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -251,16 +258,18 @@ export function AppSidebar() {
                     onClick={() => go('/verify')}
                     tooltip="توثيق الحساب"
                     className={cn(
-                      'rounded-xl h-11 transition-all duration-200',
+                      'rounded-xl h-10 transition-all duration-200 gap-3',
                       isActive('/verify')
                         ? 'bg-accent/10 text-accent font-semibold shadow-[0_2px_8px_-2px_hsl(var(--accent)/0.2)]'
                         : 'text-accent/70 hover:bg-accent/5 hover:text-accent'
                     )}
                   >
-                    <Shield className={cn(
-                      'h-[18px] w-[18px] transition-all',
-                      isActive('/verify') ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-                    )} />
+                    <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                      <Shield className={cn(
+                        'h-[18px] w-[18px]',
+                        isActive('/verify') ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                      )} />
+                    </div>
                     {!collapsed && <span>توثيق الحساب</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -278,9 +287,11 @@ export function AppSidebar() {
               <SidebarMenuButton
                 onClick={handleSignOut}
                 tooltip="تسجيل الخروج"
-                className="rounded-xl h-11 text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
+                className="rounded-xl h-10 text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-all duration-200 gap-3"
               >
-                <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
+                <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                  <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
+                </div>
                 {!collapsed && <span>تسجيل الخروج</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -293,9 +304,11 @@ export function AppSidebar() {
               <SidebarMenuButton
                 onClick={() => go('/auth')}
                 tooltip="تسجيل الدخول"
-                className="rounded-xl h-11 text-primary hover:bg-primary/5 transition-all duration-200"
+                className="rounded-xl h-10 text-primary hover:bg-primary/5 transition-all duration-200 gap-3"
               >
-                <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
+                <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                  <LogOut className="h-[18px] w-[18px] stroke-[1.8px]" />
+                </div>
                 {!collapsed && <span>تسجيل الدخول</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
