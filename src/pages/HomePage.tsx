@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Home, Building2, DoorOpen, Layers, Store, Briefcase, MapPin, Phone, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDistricts } from '@/contexts/DistrictsContext';
+
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -40,7 +40,7 @@ interface ListingWithImage extends Listing {
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { districts, loading: districtsLoading } = useDistricts();
+  
   usePageTitle();
   const { isFavorited, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
