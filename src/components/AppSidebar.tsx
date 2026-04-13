@@ -107,10 +107,13 @@ export function AppSidebar() {
             onClick={() => go('/settings')}
             className={cn(
               "flex items-center w-full hover:bg-sidebar-accent/40 transition-all duration-200 group overflow-hidden",
-              collapsed ? "justify-center p-2" : "gap-3 p-4"
+              collapsed ? "flex-col justify-center items-center px-0 py-3" : "gap-3 px-3 py-3"
             )}
           >
-            <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/10 ring-offset-1 ring-offset-sidebar shadow-sm">
+            <Avatar className={cn(
+              "shrink-0 ring-2 ring-primary/10 ring-offset-1 ring-offset-sidebar shadow-sm",
+              collapsed ? "h-8 w-8" : "h-10 w-10"
+            )}>
               {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.full_name} />}
               <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary font-bold text-sm">
                 {profile.full_name?.charAt(0) || '؟'}
