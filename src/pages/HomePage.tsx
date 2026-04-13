@@ -67,7 +67,7 @@ const HomePage = () => {
   const fetchFeaturedListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
+      .select('*, listing_images(url, is_primary)')
       .eq('is_featured', true)
       .eq('status', 'active')
       .limit(6);
@@ -77,7 +77,7 @@ const HomePage = () => {
   const fetchLatestListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
+      .select('*, listing_images(url, is_primary)')
       .eq('status', 'active')
       .order('published_at', { ascending: false })
       .limit(6);
@@ -87,7 +87,7 @@ const HomePage = () => {
   const fetchUrgentListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
+      .select('*, listing_images(url, is_primary)')
       .eq('is_urgent', true)
       .eq('status', 'active')
       .limit(4);
