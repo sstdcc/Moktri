@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import type { District } from '@/types/database';
 
 const categories = [
   { value: '', label: 'الكل' },
@@ -30,9 +29,8 @@ const allowedForOptions = [
 ];
 
 export interface FilterValues {
-  city?: string;
+  governorate?: string;
   category?: string;
-  district?: string;
   minPrice?: number;
   maxPrice?: number;
   bedrooms?: number;
@@ -52,18 +50,6 @@ interface FilterSheetProps {
 export const FilterSheet = ({ onApply, initialValues }: FilterSheetProps) => {
   const [open, setOpen] = useState(false);
   const [filters, setFilters] = useState<FilterValues>(initialValues || {});
-  const [districts, setDistricts] = useState<District[]>([]);
-
-  useEffect(() => {
-    supabase.from('districts').select('*').eq('is_active', true).order('name_ar')
-      .then(({ data }) => { if (data) setDistricts(data); });
-  }, []);
-
-  // Derive unique cities from districts
-  const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
-  const filteredDistricts = filters.city
-    ? districts.filter(d => d.city === filters.city)
-    : districts;
 
   useEffect(() => {
     if (initialValues) setFilters(initialValues);
