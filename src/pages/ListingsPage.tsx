@@ -14,7 +14,6 @@ import type { Listing } from '@/types/database';
 
 interface ListingWithRelations extends Listing {
   listing_images: { url: string; is_primary: boolean | null }[];
-  districts: { name_ar: string; city: string | null } | null;
 }
 
 const PAGE_SIZE = 12;
@@ -49,7 +48,7 @@ const ListingsPage = () => {
 
   const getFiltersFromParams = useCallback((): FilterValues => ({
     category: searchParams.get('category') || undefined,
-    district: searchParams.get('district') || undefined,
+    governorate: searchParams.get('governorate') || undefined,
     minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined,
     maxPrice: searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined,
     bedrooms: searchParams.get('bedrooms') ? Number(searchParams.get('bedrooms')) : undefined,
@@ -68,12 +67,12 @@ const ListingsPage = () => {
     setLoading(true);
     let q = supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)', { count: 'exact' })
+      .select('*, listing_images(url, is_primary)', { count: 'exact' })
       .eq('status', 'active');
 
-    if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%,neighborhood.ilike.%${query}%`);
+    if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%,neighborhood.ilike.%${query}%,governorate.ilike.%${query}%,city_name.ilike.%${query}%`);
     if (filters.category) q = q.eq('category', filters.category as any);
-    if (filters.district) q = q.eq('district_id', filters.district);
+    if (filters.governorate) q = q.ilike('governorate', `%${filters.governorate}%`);
     if (filters.minPrice) q = q.gte('price', filters.minPrice);
     if (filters.maxPrice) q = q.lte('price', filters.maxPrice);
     if (filters.bedrooms && filters.bedrooms < 4) q = q.eq('bedrooms', filters.bedrooms);
@@ -138,7 +137,7 @@ const ListingsPage = () => {
     const params = new URLSearchParams();
     if (query) params.set('q', query);
     if (newFilters.category) params.set('category', newFilters.category);
-    if (newFilters.district) params.set('district', newFilters.district);
+    if (newFilters.governorate) params.set('governorate', newFilters.governorate);
     if (newFilters.minPrice) params.set('minPrice', String(newFilters.minPrice));
     if (newFilters.maxPrice) params.set('maxPrice', String(newFilters.maxPrice));
     if (newFilters.bedrooms) params.set('bedrooms', String(newFilters.bedrooms));
@@ -260,8 +259,8 @@ const ListingsPage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
-                  city={listing.districts?.city ?? undefined}
-                  district={listing.districts?.name_ar}
+                  city={listing.governorate ?? undefined}
+                  district={listing.city_name || listing.neighborhood || undefined}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}

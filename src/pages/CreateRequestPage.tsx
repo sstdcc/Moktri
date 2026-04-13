@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -12,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,12 +47,11 @@ const furnishingOptions = [
 const CreateRequestPage = () => {
   usePageTitle();
   const { user, profile } = useAuth();
-  const { districts } = useDistricts();
   const navigate = useNavigate();
 
   const [category, setCategory] = useState<ListingCategory | ''>('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [districtId, setDistrictId] = useState('');
+  const [governorate, setGovernorate] = useState('');
+  const [cityName, setCityName] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -65,7 +64,7 @@ const CreateRequestPage = () => {
 
   const handleSubmit = async () => {
     if (!category) { toast.error('اختر نوع العقار المطلوب'); return; }
-    if (!districtId) { toast.error('اختر الحي المفضل'); return; }
+    if (!governorate.trim()) { toast.error('أدخل المحافظة'); return; }
     if (!forWhom) { toast.error('حدد الطلب لمن'); return; }
     if (!user) return;
 
@@ -76,7 +75,8 @@ const CreateRequestPage = () => {
     const { data, error } = await supabase.from('housing_requests').insert({
       requester_id: user.id,
       category: category as ListingCategory,
-      district_id: districtId,
+      governorate: governorate.trim() || null,
+      city_name: cityName.trim() || null,
       neighborhood: neighborhood.trim() || null,
       min_price: minPrice ? Number(minPrice) : null,
       max_price: maxPrice ? Number(maxPrice) : null,
@@ -125,43 +125,21 @@ const CreateRequestPage = () => {
           </div>
         </div>
 
-        {/* City */}
-        {(() => {
-          const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
-          const filteredDistricts = selectedCity ? districts.filter(d => d.city === selectedCity) : districts;
-          return (
-            <>
-              {cities.length > 1 && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold">المدينة *</Label>
-                  <Select value={selectedCity} onValueChange={(v) => { setSelectedCity(v); setDistrictId(''); }}>
-                    <SelectTrigger><SelectValue placeholder="اختر المدينة" /></SelectTrigger>
-                    <SelectContent>
-                      {cities.map(c => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">الحي المفضل *</Label>
-                <Select value={districtId} onValueChange={setDistrictId}>
-                  <SelectTrigger><SelectValue placeholder="اختر الحي" /></SelectTrigger>
-                  <SelectContent>
-                    {filteredDistricts.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          );
-        })()}
+        {/* Governorate */}
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">المحافظة *</Label>
+          <Input value={governorate} onChange={e => setGovernorate(e.target.value)} placeholder="مثال: تعز، صنعاء، عدن" />
+        </div>
+
+        {/* City / District */}
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">المدينة / المديرية</Label>
+          <Input value={cityName} onChange={e => setCityName(e.target.value)} placeholder="مثال: المظفر، الشماسي" />
+        </div>
 
         {/* Neighborhood */}
         <div className="space-y-2">
-          <Label className="text-sm font-semibold">المنطقة أو الشارع</Label>
+          <Label className="text-sm font-semibold">الحي أو المنطقة</Label>
           <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="مثال: شارع جمال" />
         </div>
 

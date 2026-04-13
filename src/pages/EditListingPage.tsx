@@ -48,6 +48,8 @@ const EditListingPage = () => {
     await supabase.from('listings').update({
       category: form.category,
       title: form.title,
+      governorate: form.governorate || null,
+      city_name: form.city_name || null,
       district_id: form.district_id || null,
       neighborhood: form.neighborhood || null,
       price: Number(form.price),
@@ -86,6 +88,8 @@ const EditListingPage = () => {
   const initialData = {
     category: listing.category,
     title: listing.title,
+    governorate: listing.governorate || '',
+    city_name: listing.city_name || '',
     district_id: listing.district_id || '',
     neighborhood: listing.neighborhood || '',
     price: Number(listing.price) as any,

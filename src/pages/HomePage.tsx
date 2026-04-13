@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Home, Building2, DoorOpen, Layers, Store, Briefcase, MapPin, Phone, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDistricts } from '@/contexts/DistrictsContext';
+
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -35,13 +35,12 @@ const steps = [
 
 interface ListingWithImage extends Listing {
   listing_images: { url: string; is_primary: boolean | null }[];
-  districts: { name_ar: string; city: string | null } | null;
 }
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { districts, loading: districtsLoading } = useDistricts();
+  
   usePageTitle();
   const { isFavorited, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,7 +67,7 @@ const HomePage = () => {
   const fetchFeaturedListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
+      .select('*, listing_images(url, is_primary)')
       .eq('is_featured', true)
       .eq('status', 'active')
       .limit(6);
@@ -78,7 +77,7 @@ const HomePage = () => {
   const fetchLatestListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
+      .select('*, listing_images(url, is_primary)')
       .eq('status', 'active')
       .order('published_at', { ascending: false })
       .limit(6);
@@ -88,7 +87,7 @@ const HomePage = () => {
   const fetchUrgentListings = async () => {
     const { data } = await supabase
       .from('listings')
-      .select('*, listing_images(url, is_primary), districts(name_ar, city)')
+      .select('*, listing_images(url, is_primary)')
       .eq('is_urgent', true)
       .eq('status', 'active')
       .limit(4);
@@ -194,34 +193,23 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* DISTRICTS */}
+      {/* GOVERNORATES */}
       <section className="px-5 py-7">
-        <SectionTitle title="تصفح حسب الحي" />
-        {districtsLoading ? (
-          <div className="grid grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {districts.map((d) => (
-              <button
-                key={d.id}
-                onClick={() => navigate(`/listings?district=${d.id}`)}
-                className="flex flex-col items-center gap-2.5 rounded-2xl border border-border/50 bg-card p-4 cursor-pointer transition-all duration-250 shadow-card hover:shadow-elevated hover:border-accent/30 active:scale-[0.97]"
-              >
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center">
-                  <MapPin className="h-[18px] w-[18px] text-accent stroke-[2px]" />
-                </div>
-                <span className="text-[13px] font-bold text-foreground text-center leading-tight">{d.name_ar}</span>
-                <span className="rounded-lg bg-accent/8 text-accent text-[10px] px-2 py-0.5 font-bold">
-                  {(d.listing_count || 0) > 0 ? `${d.listing_count} إعلان` : 'جديد'}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
+        <SectionTitle title="تصفح حسب المحافظة" />
+        <div className="grid grid-cols-3 gap-3">
+          {['تعز', 'صنعاء', 'عدن', 'إب', 'الحديدة', 'حضرموت', 'ذمار', 'المكلا', 'مأرب'].map((gov) => (
+            <button
+              key={gov}
+              onClick={() => navigate(`/listings?governorate=${encodeURIComponent(gov)}`)}
+              className="flex flex-col items-center gap-2.5 rounded-2xl border border-border/50 bg-card p-4 cursor-pointer transition-all duration-250 shadow-card hover:shadow-elevated hover:border-accent/30 active:scale-[0.97]"
+            >
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center">
+                <MapPin className="h-[18px] w-[18px] text-accent stroke-[2px]" />
+              </div>
+              <span className="text-[13px] font-bold text-foreground text-center leading-tight">{gov}</span>
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* FEATURED */}
@@ -238,8 +226,8 @@ const HomePage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
-                  city={listing.districts?.city ?? undefined}
-                  district={listing.districts?.name_ar}
+                  city={listing.governorate ?? undefined}
+                  district={listing.city_name || listing.neighborhood || undefined}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}
@@ -268,8 +256,8 @@ const HomePage = () => {
                 imageUrl={getPrimaryImage(listing)}
                 category={listing.category}
                 price={Number(listing.price)}
-                city={listing.districts?.city ?? undefined}
-                district={listing.districts?.name_ar}
+                city={listing.governorate ?? undefined}
+                district={listing.city_name || listing.neighborhood || undefined}
                 bedrooms={listing.bedrooms}
                 furnishing={listing.furnishing}
                 createdAt={listing.created_at || ''}
@@ -297,8 +285,8 @@ const HomePage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
-                  city={listing.districts?.city ?? undefined}
-                  district={listing.districts?.name_ar}
+                  city={listing.governorate ?? undefined}
+                  district={listing.city_name || listing.neighborhood || undefined}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}

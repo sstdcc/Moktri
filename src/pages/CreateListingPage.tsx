@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import type { District } from '@/types/database';
+// District type kept for backwards compat but no longer fetched for location selection
 
 const STEP_LABELS = ['المعلومات الأساسية', 'تفاصيل العقار', 'الصور والوصف', 'المراجعة والنشر'];
 
@@ -60,6 +60,8 @@ const billingOptions = [
 interface FormState {
   category: string;
   title: string;
+  governorate: string;
+  city_name: string;
   district_id: string;
   neighborhood: string;
   price: number | '';
@@ -82,7 +84,7 @@ interface FormState {
 }
 
 const defaultForm: FormState = {
-  category: '', title: '', district_id: '', neighborhood: '',
+  category: '', title: '', governorate: '', city_name: '', district_id: '', neighborhood: '',
   price: '', currency: 'YER', billing_period: 'monthly', is_negotiable: false,
   bedrooms: 0, bathrooms: 0, kitchens: 0, floor_number: 0, property_size: '',
   furnishing: '', allowed_for: 'all',
@@ -142,8 +144,6 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const { user, profile } = useAuth();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [districtSearch, setDistrictSearch] = useState('');
   const [images, setImages] = useState<UploadedImage[]>(initialImages || []);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -151,29 +151,9 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    supabase.from('districts').select('*').eq('is_active', true).order('name_ar').then(({ data }) => {
-      if (data) setDistricts(data);
-    });
-  }, []);
-
   const update = <K extends keyof FormState>(key: K, val: FormState[K]) => setForm(f => ({ ...f, [key]: val }));
 
-  // City selector state
-  const [selectedCity, setSelectedCity] = useState<string>(() => {
-    if (initialData?.district_id) {
-      const d = districts.find(d => d.id === initialData.district_id);
-      return d?.city || '';
-    }
-    return '';
-  });
-  const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
-  const cityFilteredDistricts = selectedCity
-    ? districts.filter(d => d.city === selectedCity)
-    : districts;
-  const filteredDistricts = cityFilteredDistricts.filter(d => !districtSearch || d.name_ar.includes(districtSearch));
-
-  const canProceedStep0 = form.category && form.title.length >= 10 && form.district_id;
+  const canProceedStep0 = form.category && form.title.length >= 10 && form.governorate.trim().length > 0;
   const canProceedStep1 = form.price && Number(form.price) > 0 && form.furnishing;
   const canProceedStep2 = images.length > 0 && form.description.length >= 30;
 
@@ -182,7 +162,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
     if (images.length >= 3) s += 25;
     if (form.description.length > 100) s += 20;
     if (Number(form.price) > 0) s += 15;
-    if (form.district_id) s += 15;
+    if (form.governorate) s += 15;
     const amenityCount = [form.has_water, form.has_electricity, form.has_parking, form.has_internet].filter(Boolean).length;
     if (amenityCount >= 2) s += 15;
     if (form.bedrooms > 0 || form.bathrooms > 0) s += 10;
@@ -229,6 +209,8 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         owner_id: user.id,
         category: form.category as any,
         title: form.title,
+        governorate: form.governorate || null,
+        city_name: form.city_name || null,
         district_id: form.district_id || null,
         neighborhood: form.neighborhood || null,
         price: Number(form.price),
@@ -299,7 +281,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
     );
   }
 
-  const selectedDistrict = districts.find(d => d.id === form.district_id);
+  const locationText = [form.governorate, form.city_name, form.neighborhood].filter(Boolean).join(' — ');
   const billingLabel = billingOptions.find(b => b.value === form.billing_period)?.label || '';
   const categoryLabel = categoryOptions.find(c => c.value === form.category)?.label || '';
   const furnishingLabel = furnishingOptions.find(f => f.value === form.furnishing)?.label || '';
@@ -357,39 +339,22 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
               )}
             </div>
 
-            {/* City */}
-            {cities.length > 1 && (
-              <div>
-                <Label className="text-sm font-bold mb-2 block font-tajawal">المدينة *</Label>
-                <select
-                  value={selectedCity}
-                  onChange={(e) => { setSelectedCity(e.target.value); update('district_id', ''); }}
-                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground font-tajawal"
-                >
-                  <option value="">اختر المدينة</option>
-                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-            )}
-
+            {/* Governorate */}
             <div>
-              <Label className="text-sm font-bold mb-2 block font-tajawal">الحي *</Label>
-              <Input value={districtSearch} onChange={e => setDistrictSearch(e.target.value)}
-                placeholder="ابحث عن الحي..." className="mb-2 font-tajawal" />
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-border bg-card divide-y divide-border">
-                {filteredDistricts.map(d => (
-                  <button key={d.id} type="button" onClick={() => { update('district_id', d.id); setDistrictSearch(''); }}
-                    className={cn('w-full text-right px-4 py-2.5 text-sm transition-all duration-200 hover:bg-muted font-tajawal',
-                      form.district_id === d.id ? 'bg-accent/10 text-accent font-semibold' : 'text-foreground')}>
-                    {d.name_ar}
-                    {form.district_id === d.id && <Check className="inline-block h-4 w-4 mr-2" />}
-                  </button>
-                ))}
-              </div>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">المحافظة *</Label>
+              <Input value={form.governorate} onChange={e => update('governorate', e.target.value)}
+                placeholder="مثال: تعز، صنعاء، عدن" className="font-tajawal" />
+            </div>
+
+            {/* City / District */}
+            <div>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">المدينة / المديرية</Label>
+              <Input value={form.city_name} onChange={e => update('city_name', e.target.value)}
+                placeholder="مثال: المظفر، الشماسي" className="font-tajawal" />
             </div>
 
             <div>
-              <Label className="text-sm font-bold mb-2 block font-tajawal">المنطقة أو الشارع</Label>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">الحي أو المنطقة</Label>
               <Input value={form.neighborhood} onChange={e => update('neighborhood', e.target.value)}
                 placeholder="مثال: شارع جمال، بجانب المسجد" className="font-tajawal" />
             </div>
@@ -601,7 +566,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                 <span className="text-xl font-black text-accent font-tajawal">{Number(form.price).toLocaleString('ar-YE')}</span>
                 <span className="text-xs text-muted-foreground font-tajawal">{form.currency === 'YER' ? 'ر.ي' : '$'}/{billingLabel}</span>
               </div>
-              {selectedDistrict && <p className="text-sm text-muted-foreground font-tajawal">📍 {selectedDistrict.name_ar}{form.neighborhood ? ` — ${form.neighborhood}` : ''}</p>}
+              {locationText && <p className="text-sm text-muted-foreground font-tajawal">📍 {locationText}</p>}
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
                 {form.bedrooms > 0 && <span className="text-xs text-muted-foreground font-tajawal">🛏 {form.bedrooms} غرف نوم</span>}
