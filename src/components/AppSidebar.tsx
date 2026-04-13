@@ -102,7 +102,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" side="right">
       {/* ── User Header ── */}
       {user && profile && (
-        <SidebarHeader className="border-b border-sidebar-border/50 p-0 overflow-hidden">
+        <SidebarHeader className={cn("border-b border-sidebar-border/50 overflow-hidden", collapsed ? "p-0" : "p-0")}>
           <button
             onClick={() => go('/settings')}
             className={cn(
