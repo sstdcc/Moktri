@@ -81,6 +81,7 @@ export type Database = {
         Row: {
           bedrooms_needed: number | null
           category: Database["public"]["Enums"]["listing_category"]
+          city_name: string | null
           created_at: string | null
           currency: string | null
           district_id: string | null
@@ -89,6 +90,7 @@ export type Database = {
           furnishing_preference:
             | Database["public"]["Enums"]["furnishing_preference"]
             | null
+          governorate: string | null
           id: string
           max_price: number | null
           min_price: number | null
@@ -103,6 +105,7 @@ export type Database = {
         Insert: {
           bedrooms_needed?: number | null
           category: Database["public"]["Enums"]["listing_category"]
+          city_name?: string | null
           created_at?: string | null
           currency?: string | null
           district_id?: string | null
@@ -111,6 +114,7 @@ export type Database = {
           furnishing_preference?:
             | Database["public"]["Enums"]["furnishing_preference"]
             | null
+          governorate?: string | null
           id?: string
           max_price?: number | null
           min_price?: number | null
@@ -125,6 +129,7 @@ export type Database = {
         Update: {
           bedrooms_needed?: number | null
           category?: Database["public"]["Enums"]["listing_category"]
+          city_name?: string | null
           created_at?: string | null
           currency?: string | null
           district_id?: string | null
@@ -133,6 +138,7 @@ export type Database = {
           furnishing_preference?:
             | Database["public"]["Enums"]["furnishing_preference"]
             | null
+          governorate?: string | null
           id?: string
           max_price?: number | null
           min_price?: number | null
@@ -291,6 +297,7 @@ export type Database = {
           bedrooms: number | null
           billing_period: Database["public"]["Enums"]["billing_period"] | null
           category: Database["public"]["Enums"]["listing_category"]
+          city_name: string | null
           contact_clicks: number | null
           created_at: string | null
           currency: string | null
@@ -300,6 +307,7 @@ export type Database = {
           favorites_count: number | null
           floor_number: number | null
           furnishing: Database["public"]["Enums"]["furnishing_type"] | null
+          governorate: string | null
           has_electricity: boolean | null
           has_internet: boolean | null
           has_parking: boolean | null
@@ -328,6 +336,7 @@ export type Database = {
           bedrooms?: number | null
           billing_period?: Database["public"]["Enums"]["billing_period"] | null
           category: Database["public"]["Enums"]["listing_category"]
+          city_name?: string | null
           contact_clicks?: number | null
           created_at?: string | null
           currency?: string | null
@@ -337,6 +346,7 @@ export type Database = {
           favorites_count?: number | null
           floor_number?: number | null
           furnishing?: Database["public"]["Enums"]["furnishing_type"] | null
+          governorate?: string | null
           has_electricity?: boolean | null
           has_internet?: boolean | null
           has_parking?: boolean | null
@@ -365,6 +375,7 @@ export type Database = {
           bedrooms?: number | null
           billing_period?: Database["public"]["Enums"]["billing_period"] | null
           category?: Database["public"]["Enums"]["listing_category"]
+          city_name?: string | null
           contact_clicks?: number | null
           created_at?: string | null
           currency?: string | null
@@ -374,6 +385,7 @@ export type Database = {
           favorites_count?: number | null
           floor_number?: number | null
           furnishing?: Database["public"]["Enums"]["furnishing_type"] | null
+          governorate?: string | null
           has_electricity?: boolean | null
           has_internet?: boolean | null
           has_parking?: boolean | null
