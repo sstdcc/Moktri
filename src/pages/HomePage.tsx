@@ -108,7 +108,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-background font-tajawal overflow-x-hidden">
       {/* HERO — background image slider */}
-      <section className="relative overflow-hidden min-h-[340px] px-4 pb-10 pt-12">
+      <section className="relative overflow-hidden min-h-[360px] px-5 pb-12 pt-14">
         {/* Background images with fade */}
         {heroImages.map((img, i) => (
           <div
@@ -125,31 +125,31 @@ const HomePage = () => {
           </div>
         ))}
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-primary/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85" />
 
         <div className="relative z-10">
           <div className="animate-fade-in">
             <h1 className="text-5xl font-black text-primary-foreground tracking-tight drop-shadow-lg">مفتاح</h1>
-            <span className="mt-3 inline-block rounded-full bg-accent/20 backdrop-blur-sm text-accent text-xs px-4 py-1.5 font-semibold border border-accent/20">
+            <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
               تعز • اليمن
             </span>
-            <p className="mt-3 text-xl font-bold text-primary-foreground/95">ابحث عن سكنك في تعز</p>
-            <p className="mt-1 text-sm text-primary-foreground/50">آلاف الإعلانات من الملاك والدلالين</p>
+            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 tracking-tight">ابحث عن سكنك في تعز</p>
+            <p className="mt-1 text-sm text-primary-foreground/45">آلاف الإعلانات من الملاك والدلالين</p>
           </div>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="mt-7 flex items-center gap-2 rounded-2xl bg-white/95 backdrop-blur-md p-2.5 shadow-2xl shadow-black/20 border border-white/20 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <form onSubmit={handleSearch} className="mt-8 flex items-center gap-2 rounded-2xl bg-white/95 backdrop-blur-xl p-3 shadow-elevated border border-white/30 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <Search className="h-5 w-5 text-accent mr-1 shrink-0" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث بالحي أو اسم المنطقة..."
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none px-1"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none px-1"
             />
             <button
               type="submit"
-              className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-white flex items-center gap-2 transition-all duration-200 hover:bg-accent/90 hover:shadow-lg shrink-0"
+              className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-white flex items-center gap-2 transition-all duration-200 hover:brightness-105 active:scale-95 shrink-0 shadow-glow-accent"
             >
               <Search className="h-4 w-4" />
               بحث
@@ -157,16 +157,16 @@ const HomePage = () => {
           </form>
 
           {/* Category chips */}
-          <div className="mt-5 flex gap-3 overflow-x-auto pb-1 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="mt-6 flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {categoryChips.map((chip) => {
               const Icon = chip.icon;
               return (
                 <button
                   key={chip.value}
                   onClick={() => navigate(`/listings?category=${chip.value}`)}
-                  className="flex shrink-0 items-center gap-2 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-2.5 text-xs font-medium text-white/90 transition-all duration-200 hover:bg-accent hover:border-accent hover:text-white hover:shadow-lg"
+                  className="flex shrink-0 items-center gap-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 px-4 py-2.5 text-xs font-semibold text-white/90 transition-all duration-200 hover:bg-accent hover:border-accent hover:text-white active:scale-95"
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4 stroke-[1.8px]" />
                   <span>{chip.label}</span>
                 </button>
               );
@@ -174,12 +174,12 @@ const HomePage = () => {
           </div>
 
           {/* Dots indicator */}
-          <div className="mt-4 flex justify-center gap-2">
+          <div className="mt-5 flex justify-center gap-2">
             {heroImages.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setHeroIndex(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${heroIndex === i ? 'bg-accent w-5' : 'bg-white/40'}`}
+                className={`h-2 rounded-full transition-all duration-300 ${heroIndex === i ? 'bg-accent w-6' : 'bg-white/35 w-2'}`}
                 aria-label={`صورة ${i + 1}`}
               />
             ))}
