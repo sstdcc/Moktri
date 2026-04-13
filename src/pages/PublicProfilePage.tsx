@@ -25,6 +25,7 @@ const roleLabels: Record<string, string> = {
 };
 
 const PublicProfilePage = () => {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
