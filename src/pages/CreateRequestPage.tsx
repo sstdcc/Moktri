@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDistricts } from '@/contexts/DistrictsContext';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -47,12 +47,11 @@ const furnishingOptions = [
 const CreateRequestPage = () => {
   usePageTitle();
   const { user, profile } = useAuth();
-  const { districts } = useDistricts();
   const navigate = useNavigate();
 
   const [category, setCategory] = useState<ListingCategory | ''>('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [districtId, setDistrictId] = useState('');
+  const [governorate, setGovernorate] = useState('');
+  const [cityName, setCityName] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -65,7 +64,7 @@ const CreateRequestPage = () => {
 
   const handleSubmit = async () => {
     if (!category) { toast.error('اختر نوع العقار المطلوب'); return; }
-    if (!districtId) { toast.error('اختر الحي المفضل'); return; }
+    if (!governorate.trim()) { toast.error('أدخل المحافظة'); return; }
     if (!forWhom) { toast.error('حدد الطلب لمن'); return; }
     if (!user) return;
 
@@ -76,7 +75,8 @@ const CreateRequestPage = () => {
     const { data, error } = await supabase.from('housing_requests').insert({
       requester_id: user.id,
       category: category as ListingCategory,
-      district_id: districtId,
+      governorate: governorate.trim() || null,
+      city_name: cityName.trim() || null,
       neighborhood: neighborhood.trim() || null,
       min_price: minPrice ? Number(minPrice) : null,
       max_price: maxPrice ? Number(maxPrice) : null,
