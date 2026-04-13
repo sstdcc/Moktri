@@ -107,7 +107,7 @@ export function AppSidebar() {
             onClick={() => go('/settings')}
             className={cn(
               "flex items-center w-full hover:bg-sidebar-accent/40 transition-all duration-200 group overflow-hidden",
-              collapsed ? "flex-col justify-center items-center px-0 py-3" : "gap-3 px-3 py-3"
+              collapsed ? "flex-col justify-center items-center px-0 py-3 mx-auto" : "gap-3 px-3 py-3"
             )}
           >
             <Avatar className={cn(
