@@ -167,34 +167,34 @@ const RequestDetailPage = () => {
   const requesterName = (request.requester as any)?.full_name ?? 'مستخدم';
 
   return (
-    <div className="min-h-screen bg-background pb-24 font-tajawal" dir="rtl">
+    <div className="min-h-screen bg-background pb-28 font-tajawal" dir="rtl">
       <PageHeader title="تفاصيل الطلب" showBack />
 
-      <div className="p-4 space-y-4 max-w-lg mx-auto">
+      <div className="p-5 space-y-5 max-w-lg mx-auto">
         {/* Status badge */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-foreground">
+          <h2 className="text-[18px] font-extrabold text-foreground tracking-tight">
             يبحث عن {categoryLabels[request.category] || request.category}
           </h2>
-          <Badge className={cn('text-xs', statusColors[request.status ?? 'active'])}>
+          <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1', statusColors[request.status ?? 'active'])}>
             {statusLabels[request.status ?? 'active']}
           </Badge>
         </div>
 
         {/* Requester info */}
-        <Card>
-          <CardContent className="p-4">
+        <Card className="overflow-hidden">
+          <CardContent className="p-5">
             <div
               onClick={() => navigate(`/profile/${request.requester_id}`)}
-              className="flex items-center gap-3 cursor-pointer"
+              className="flex items-center gap-3.5 cursor-pointer group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-sm font-bold text-primary shadow-sm">
                 {requesterName.charAt(0)}
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">{requesterName}</p>
+                <p className="text-[14px] font-bold text-foreground group-hover:text-primary transition-colors">{requesterName}</p>
                 {request.created_at && (
-                  <p className="text-[11px] text-muted-foreground">{timeAgo(request.created_at)}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{timeAgo(request.created_at)}</p>
                 )}
               </div>
             </div>
@@ -202,57 +202,57 @@ const RequestDetailPage = () => {
         </Card>
 
         {/* Details */}
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <Card className="overflow-hidden">
+          <CardContent className="p-5 space-y-3.5">
             {districtName(request.district_id) && (
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-accent" />
-                <span>{(() => { const d = districts.find(d => d.id === request.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
+              <div className="flex items-center gap-2.5 text-[13px]">
+                <MapPin className="h-4 w-4 text-accent stroke-[2px]" />
+                <span className="text-foreground/80">{(() => { const d = districts.find(d => d.id === request.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
               </div>
             )}
             {budget && (
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-accent font-bold">💰</span>
-                <span>{budget}</span>
+              <div className="flex items-center gap-2.5 text-[13px]">
+                <span className="text-accent font-bold text-base">💰</span>
+                <span className="font-semibold text-foreground">{budget}</span>
               </div>
             )}
             {request.bedrooms_needed && (
-              <div className="flex items-center gap-2 text-sm">
-                <span>🛏</span>
-                <span>{request.bedrooms_needed} غرف نوم</span>
+              <div className="flex items-center gap-2.5 text-[13px]">
+                <span className="text-base">🛏</span>
+                <span className="text-foreground/80">{request.bedrooms_needed} غرف نوم</span>
               </div>
             )}
             {request.for_whom && (
-              <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-accent" />
-                <span>{forWhomLabels[request.for_whom] ?? request.for_whom}</span>
+              <div className="flex items-center gap-2.5 text-[13px]">
+                <Users className="h-4 w-4 text-accent stroke-[2px]" />
+                <span className="text-foreground/80">{forWhomLabels[request.for_whom] ?? request.for_whom}</span>
               </div>
             )}
             {request.furnishing_preference && request.furnishing_preference !== 'any' && (
-              <div className="flex items-center gap-2 text-sm">
-                <span>🛋</span>
-                <span>{furnishingLabels[request.furnishing_preference]}</span>
+              <div className="flex items-center gap-2.5 text-[13px]">
+                <span className="text-base">🛋</span>
+                <span className="text-foreground/80">{furnishingLabels[request.furnishing_preference]}</span>
               </div>
             )}
             {request.move_in_date && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-accent" />
-                <span>تاريخ الانتقال: {new Date(request.move_in_date).toLocaleDateString('ar-YE')}</span>
+              <div className="flex items-center gap-2.5 text-[13px]">
+                <Calendar className="h-4 w-4 text-accent stroke-[2px]" />
+                <span className="text-foreground/80">تاريخ الانتقال: {new Date(request.move_in_date).toLocaleDateString('ar-YE')}</span>
               </div>
             )}
-            <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/50">
-              <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {request.responses_count ?? 0} رد</span>
-              <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {request.views_count ?? 0} مشاهدة</span>
+            <div className="flex items-center gap-5 text-[11px] text-muted-foreground pt-3 border-t border-border/40">
+              <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.responses_count ?? 0} رد</span>
+              <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.views_count ?? 0} مشاهدة</span>
             </div>
           </CardContent>
         </Card>
 
         {/* Notes */}
         {request.notes && (
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-sm font-bold mb-2">ملاحظات</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{request.notes}</p>
+          <Card className="overflow-hidden">
+            <CardContent className="p-5">
+              <h3 className="text-[13px] font-bold mb-2.5 text-foreground">ملاحظات</h3>
+              <p className="text-[13px] text-muted-foreground leading-[1.8]">{request.notes}</p>
             </CardContent>
           </Card>
         )}
@@ -260,29 +260,29 @@ const RequestDetailPage = () => {
         {/* Responses section */}
         {(isRequester || responses.length > 0) && (
           <div>
-            <h3 className="text-sm font-bold mb-3">الردود ({responses.length})</h3>
+            <h3 className="text-[14px] font-bold mb-4 text-foreground">الردود ({responses.length})</h3>
             {responses.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-4">لم ترد أي ردود بعد</p>
+              <p className="text-[12px] text-muted-foreground text-center py-6">لم ترد أي ردود بعد</p>
             ) : (
               <div className="space-y-3">
                 {responses.map((resp) => {
                   const respName = (resp.responder as any)?.full_name ?? 'مستخدم';
                   return (
-                    <Card key={resp.id}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
+                    <Card key={resp.id} className="overflow-hidden">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2.5 mb-3">
+                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center text-[11px] font-bold text-accent">
                             {respName.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold truncate">{respName}</p>
-                            {resp.created_at && <p className="text-[10px] text-muted-foreground">{timeAgo(resp.created_at)}</p>}
+                            <p className="text-[12px] font-bold truncate">{respName}</p>
+                            {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
                           </div>
                         </div>
-                        <p className="text-sm text-foreground leading-relaxed">{resp.message}</p>
+                        <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
                         {resp.contact_phone && (
-                          <a href={`tel:${resp.contact_phone}`} className="mt-2 inline-flex items-center gap-1 text-xs text-accent">
-                            <Phone className="h-3 w-3" /> {resp.contact_phone}
+                          <a href={`tel:${resp.contact_phone}`} className="mt-3 inline-flex items-center gap-1.5 text-[12px] text-accent font-semibold">
+                            <Phone className="h-3.5 w-3.5 stroke-[2px]" /> {resp.contact_phone}
                           </a>
                         )}
                       </CardContent>
