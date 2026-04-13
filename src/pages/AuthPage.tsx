@@ -72,7 +72,7 @@ const AuthPage = () => {
     }
 
     // Dev-only bypass: skip OTP and auto-login (DEV_BYPASS_PHONES is empty in production)
-    if (DEV_BYPASS_PHONES.length > 0 && DEV_BYPASS_PHONES.includes(normalized)) {
+    if (BYPASS_PHONES.includes(normalized)) {
       setLoading(true);
       try {
         const result = await verifyOtp(normalized, '000000');
