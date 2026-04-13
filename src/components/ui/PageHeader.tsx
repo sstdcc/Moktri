@@ -11,15 +11,18 @@ export const PageHeader = ({ title, showBack = false, action }: PageHeaderProps)
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card px-4">
+    <header className="sticky top-0 z-40 flex h-[56px] items-center justify-between border-b border-border/50 bg-card/80 backdrop-blur-xl backdrop-saturate-150 px-4">
       <div className="w-10">
         {showBack && (
-          <button onClick={() => navigate(-1)} className="flex items-center justify-center rounded-lg p-2 text-foreground hover:bg-muted">
-            <ArrowRight className="h-5 w-5" />
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center justify-center rounded-xl p-2 text-foreground transition-all duration-200 hover:bg-muted active:scale-95"
+          >
+            <ArrowRight className="h-5 w-5 stroke-[2.2px]" />
           </button>
         )}
       </div>
-      <h1 className="text-base font-bold text-foreground font-tajawal">{title}</h1>
+      <h1 className="text-[15px] font-bold text-foreground font-tajawal">{title}</h1>
       <div className="flex shrink-0 justify-start">{action}</div>
     </header>
   );
