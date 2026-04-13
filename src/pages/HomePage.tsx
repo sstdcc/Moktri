@@ -237,8 +237,8 @@ const HomePage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
-                  city={listing.districts?.city ?? undefined}
-                  district={listing.districts?.name_ar}
+                  city={listing.governorate ?? undefined}
+                  district={listing.city_name || listing.neighborhood || undefined}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}
@@ -267,8 +267,8 @@ const HomePage = () => {
                 imageUrl={getPrimaryImage(listing)}
                 category={listing.category}
                 price={Number(listing.price)}
-                city={listing.districts?.city ?? undefined}
-                district={listing.districts?.name_ar}
+                city={listing.governorate ?? undefined}
+                district={listing.city_name || listing.neighborhood || undefined}
                 bedrooms={listing.bedrooms}
                 furnishing={listing.furnishing}
                 createdAt={listing.created_at || ''}
@@ -296,8 +296,8 @@ const HomePage = () => {
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
                   price={Number(listing.price)}
-                  city={listing.districts?.city ?? undefined}
-                  district={listing.districts?.name_ar}
+                  city={listing.governorate ?? undefined}
+                  district={listing.city_name || listing.neighborhood || undefined}
                   bedrooms={listing.bedrooms}
                   furnishing={listing.furnishing}
                   createdAt={listing.created_at || ''}
