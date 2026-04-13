@@ -62,9 +62,7 @@ const AuthPage = () => {
     return digits;
   };
 
-  const DEV_BYPASS_PHONES = import.meta.env.DEV
-    ? ['+967777777777', '+967712345678', '+967772867128', '+967737777777']
-    : [];
+  const BYPASS_PHONES = ['+967777777777', '+967712345678', '+967772867128', '+967737777777'];
 
   const handleSendOtp = async () => {
     const normalized = normalizePhone(phone);
