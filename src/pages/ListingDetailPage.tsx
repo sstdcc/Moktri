@@ -301,8 +301,8 @@ const ListingDetailPage = () => {
 
         {/* Location & stats */}
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          {listing.districts && (
-            <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {listing.districts.city ? `${listing.districts.city} • ` : ''}{listing.districts.name_ar}{listing.neighborhood ? ` — ${listing.neighborhood}` : ''}</span>
+          {(listing.governorate || listing.city_name || listing.neighborhood || listing.districts) && (
+            <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {[listing.governorate, listing.city_name, listing.neighborhood].filter(Boolean).join(' — ') || (listing.districts ? `${listing.districts.city ? listing.districts.city + ' • ' : ''}${listing.districts.name_ar}` : '')}</span>
           )}
           {listing.published_at && (
             <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {getTimeAgo(listing.published_at)}</span>
