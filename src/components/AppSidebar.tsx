@@ -102,12 +102,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" side="right">
       {/* ── User Header ── */}
       {user && profile && (
-        <SidebarHeader className="border-b border-sidebar-border/50 p-0 overflow-hidden">
+        <SidebarHeader className={cn("border-b border-sidebar-border/50 overflow-hidden", collapsed ? "p-0" : "p-0")}>
           <button
             onClick={() => go('/settings')}
             className={cn(
               "flex items-center w-full hover:bg-sidebar-accent/40 transition-all duration-200 group overflow-hidden",
-              collapsed ? "flex-col justify-center items-center px-0 py-3" : "gap-3 px-3 py-3"
+              collapsed ? "flex-col justify-center items-center px-0 py-3 mx-auto" : "gap-3 px-3 py-3"
             )}
           >
             <Avatar className={cn(
@@ -142,7 +142,7 @@ export function AppSidebar() {
         </SidebarHeader>
       )}
 
-      <SidebarContent className="px-2 py-3">
+      <SidebarContent className={cn("py-3", collapsed ? "px-0" : "px-2")}>
         {/* ── Main Navigation ── */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50 mb-2 px-3">
@@ -284,7 +284,7 @@ export function AppSidebar() {
 
       {/* ── Footer ── */}
       {user ? (
-        <SidebarFooter className="border-t border-sidebar-border/50 p-3">
+        <SidebarFooter className={cn("border-t border-sidebar-border/50", collapsed ? "p-1" : "p-3")}>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
@@ -301,7 +301,7 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarFooter>
       ) : (
-        <SidebarFooter className="border-t border-sidebar-border/50 p-3">
+        <SidebarFooter className={cn("border-t border-sidebar-border/50", collapsed ? "p-1" : "p-3")}>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
