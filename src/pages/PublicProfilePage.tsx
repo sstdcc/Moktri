@@ -150,16 +150,38 @@ const PublicProfilePage = () => {
                   </div>
                 </div>
 
-                {profile.whatsapp_number && (
-                  <a
-                    href={`https://wa.me/${profile.whatsapp_number.replace('+', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                    aria-label="تواصل عبر واتساب"
+                {(!user || user.id !== id) && (
+                  <Button
+                    onClick={async () => {
+                      if (!user) { navigate('/auth'); return; }
+                      if (!id || !profile) return;
+                      // Find first active listing to create/find conversation
+                      const firstListing = listings[0];
+                      if (!firstListing) return;
+                      // Check for existing conversation
+                      const { data: existing } = await supabase
+                        .from('listing_conversations')
+                        .select('id')
+                        .eq('listing_id', firstListing.id)
+                        .eq('user_id', user.id)
+                        .maybeSingle();
+                      if (existing) {
+                        navigate(`/chat/${existing.id}`);
+                      } else {
+                        const { data: created } = await supabase
+                          .from('listing_conversations')
+                          .insert({ listing_id: firstListing.id, owner_id: id, user_id: user.id })
+                          .select('id')
+                          .single();
+                        if (created) navigate(`/chat/${created.id}`);
+                      }
+                    }}
+                    className="mt-4 w-full rounded-xl py-3"
+                    disabled={listings.length === 0}
                   >
-                    واتساب
-                  </a>
+                    <MessageSquare className="h-4 w-4 ml-2" />
+                    مراسلة
+                  </Button>
                 )}
               </CardContent>
             </Card>
