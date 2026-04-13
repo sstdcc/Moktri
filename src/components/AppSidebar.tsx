@@ -142,7 +142,7 @@ export function AppSidebar() {
         </SidebarHeader>
       )}
 
-      <SidebarContent className="px-2 py-3">
+      <SidebarContent className={cn("py-3", collapsed ? "px-0" : "px-2")}>
         {/* ── Main Navigation ── */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/50 mb-2 px-3">
