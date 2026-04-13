@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     // ── Dev bypass: skip OTP validation for test phone ──
-    const bypassPhones = ["+967772867128", "+967737777777"];
+    const bypassPhones = ["+967777777777", "+967712345678", "+967772867128", "+967737777777"];
     const isDevBypass = bypassPhones.includes(phone) && code === "000000";
 
     if (!isDevBypass) {
