@@ -249,10 +249,10 @@ const RequestDetailPage = () => {
 
         {/* Notes */}
         {request.notes && (
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="text-sm font-bold mb-2">ملاحظات</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{request.notes}</p>
+          <Card className="overflow-hidden">
+            <CardContent className="p-5">
+              <h3 className="text-[13px] font-bold mb-2.5 text-foreground">ملاحظات</h3>
+              <p className="text-[13px] text-muted-foreground leading-[1.8]">{request.notes}</p>
             </CardContent>
           </Card>
         )}
@@ -260,29 +260,29 @@ const RequestDetailPage = () => {
         {/* Responses section */}
         {(isRequester || responses.length > 0) && (
           <div>
-            <h3 className="text-sm font-bold mb-3">الردود ({responses.length})</h3>
+            <h3 className="text-[14px] font-bold mb-4 text-foreground">الردود ({responses.length})</h3>
             {responses.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-4">لم ترد أي ردود بعد</p>
+              <p className="text-[12px] text-muted-foreground text-center py-6">لم ترد أي ردود بعد</p>
             ) : (
               <div className="space-y-3">
                 {responses.map((resp) => {
                   const respName = (resp.responder as any)?.full_name ?? 'مستخدم';
                   return (
-                    <Card key={resp.id}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">
+                    <Card key={resp.id} className="overflow-hidden">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2.5 mb-3">
+                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center text-[11px] font-bold text-accent">
                             {respName.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold truncate">{respName}</p>
-                            {resp.created_at && <p className="text-[10px] text-muted-foreground">{timeAgo(resp.created_at)}</p>}
+                            <p className="text-[12px] font-bold truncate">{respName}</p>
+                            {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
                           </div>
                         </div>
-                        <p className="text-sm text-foreground leading-relaxed">{resp.message}</p>
+                        <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
                         {resp.contact_phone && (
-                          <a href={`tel:${resp.contact_phone}`} className="mt-2 inline-flex items-center gap-1 text-xs text-accent">
-                            <Phone className="h-3 w-3" /> {resp.contact_phone}
+                          <a href={`tel:${resp.contact_phone}`} className="mt-3 inline-flex items-center gap-1.5 text-[12px] text-accent font-semibold">
+                            <Phone className="h-3.5 w-3.5 stroke-[2px]" /> {resp.contact_phone}
                           </a>
                         )}
                       </CardContent>
