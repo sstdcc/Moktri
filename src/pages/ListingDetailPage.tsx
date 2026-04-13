@@ -412,15 +412,17 @@ const ListingDetailPage = () => {
       </div>
 
       {/* Sticky contact bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card p-3 pb-safe">
-        <button
-          onClick={handleOpenChat}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent/90"
-        >
-          <MessageCircle className="h-5 w-5" />
-          مراسلة
-        </button>
-      </div>
+      {(!user || user.id !== listing?.owner_id) && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card p-3 pb-safe">
+          <button
+            onClick={handleOpenChat}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent/90"
+          >
+            <MessageCircle className="h-5 w-5" />
+            مراسلة
+          </button>
+        </div>
+      )}
 
       {/* Chat modal */}
       {listing && owner && (
