@@ -209,6 +209,8 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         owner_id: user.id,
         category: form.category as any,
         title: form.title,
+        governorate: form.governorate || null,
+        city_name: form.city_name || null,
         district_id: form.district_id || null,
         neighborhood: form.neighborhood || null,
         price: Number(form.price),
@@ -279,7 +281,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
     );
   }
 
-  const selectedDistrict = districts.find(d => d.id === form.district_id);
+  const locationText = [form.governorate, form.city_name, form.neighborhood].filter(Boolean).join(' — ');
   const billingLabel = billingOptions.find(b => b.value === form.billing_period)?.label || '';
   const categoryLabel = categoryOptions.find(c => c.value === form.category)?.label || '';
   const furnishingLabel = furnishingOptions.find(f => f.value === form.furnishing)?.label || '';
@@ -337,39 +339,22 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
               )}
             </div>
 
-            {/* City */}
-            {cities.length > 1 && (
-              <div>
-                <Label className="text-sm font-bold mb-2 block font-tajawal">المدينة *</Label>
-                <select
-                  value={selectedCity}
-                  onChange={(e) => { setSelectedCity(e.target.value); update('district_id', ''); }}
-                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground font-tajawal"
-                >
-                  <option value="">اختر المدينة</option>
-                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-            )}
-
+            {/* Governorate */}
             <div>
-              <Label className="text-sm font-bold mb-2 block font-tajawal">الحي *</Label>
-              <Input value={districtSearch} onChange={e => setDistrictSearch(e.target.value)}
-                placeholder="ابحث عن الحي..." className="mb-2 font-tajawal" />
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-border bg-card divide-y divide-border">
-                {filteredDistricts.map(d => (
-                  <button key={d.id} type="button" onClick={() => { update('district_id', d.id); setDistrictSearch(''); }}
-                    className={cn('w-full text-right px-4 py-2.5 text-sm transition-all duration-200 hover:bg-muted font-tajawal',
-                      form.district_id === d.id ? 'bg-accent/10 text-accent font-semibold' : 'text-foreground')}>
-                    {d.name_ar}
-                    {form.district_id === d.id && <Check className="inline-block h-4 w-4 mr-2" />}
-                  </button>
-                ))}
-              </div>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">المحافظة *</Label>
+              <Input value={form.governorate} onChange={e => update('governorate', e.target.value)}
+                placeholder="مثال: تعز، صنعاء، عدن" className="font-tajawal" />
+            </div>
+
+            {/* City / District */}
+            <div>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">المدينة / المديرية</Label>
+              <Input value={form.city_name} onChange={e => update('city_name', e.target.value)}
+                placeholder="مثال: المظفر، الشماسي" className="font-tajawal" />
             </div>
 
             <div>
-              <Label className="text-sm font-bold mb-2 block font-tajawal">المنطقة أو الشارع</Label>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">الحي أو المنطقة</Label>
               <Input value={form.neighborhood} onChange={e => update('neighborhood', e.target.value)}
                 placeholder="مثال: شارع جمال، بجانب المسجد" className="font-tajawal" />
             </div>
@@ -581,7 +566,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                 <span className="text-xl font-black text-accent font-tajawal">{Number(form.price).toLocaleString('ar-YE')}</span>
                 <span className="text-xs text-muted-foreground font-tajawal">{form.currency === 'YER' ? 'ر.ي' : '$'}/{billingLabel}</span>
               </div>
-              {selectedDistrict && <p className="text-sm text-muted-foreground font-tajawal">📍 {selectedDistrict.name_ar}{form.neighborhood ? ` — ${form.neighborhood}` : ''}</p>}
+              {locationText && <p className="text-sm text-muted-foreground font-tajawal">📍 {locationText}</p>}
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
                 {form.bedrooms > 0 && <span className="text-xs text-muted-foreground font-tajawal">🛏 {form.bedrooms} غرف نوم</span>}
