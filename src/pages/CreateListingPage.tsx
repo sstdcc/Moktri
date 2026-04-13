@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import type { District } from '@/types/database';
+// District type kept for backwards compat but no longer fetched for location selection
 
 const STEP_LABELS = ['المعلومات الأساسية', 'تفاصيل العقار', 'الصور والوصف', 'المراجعة والنشر'];
 
@@ -144,8 +144,6 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const { user, profile } = useAuth();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [districtSearch, setDistrictSearch] = useState('');
   const [images, setImages] = useState<UploadedImage[]>(initialImages || []);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -153,29 +151,9 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    supabase.from('districts').select('*').eq('is_active', true).order('name_ar').then(({ data }) => {
-      if (data) setDistricts(data);
-    });
-  }, []);
-
   const update = <K extends keyof FormState>(key: K, val: FormState[K]) => setForm(f => ({ ...f, [key]: val }));
 
-  // City selector state
-  const [selectedCity, setSelectedCity] = useState<string>(() => {
-    if (initialData?.district_id) {
-      const d = districts.find(d => d.id === initialData.district_id);
-      return d?.city || '';
-    }
-    return '';
-  });
-  const cities = [...new Set(districts.map(d => d.city).filter(Boolean))] as string[];
-  const cityFilteredDistricts = selectedCity
-    ? districts.filter(d => d.city === selectedCity)
-    : districts;
-  const filteredDistricts = cityFilteredDistricts.filter(d => !districtSearch || d.name_ar.includes(districtSearch));
-
-  const canProceedStep0 = form.category && form.title.length >= 10 && form.district_id;
+  const canProceedStep0 = form.category && form.title.length >= 10 && form.governorate.trim().length > 0;
   const canProceedStep1 = form.price && Number(form.price) > 0 && form.furnishing;
   const canProceedStep2 = images.length > 0 && form.description.length >= 30;
 
