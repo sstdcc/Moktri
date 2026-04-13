@@ -155,29 +155,46 @@ const PublicProfilePage = () => {
                     onClick={async () => {
                       if (!user) { navigate('/auth'); return; }
                       if (!id || !profile) return;
-                      // Find first active listing to create/find conversation
-                      const firstListing = listings[0];
-                      if (!firstListing) return;
-                      // Check for existing conversation
-                      const { data: existing } = await supabase
+                      
+                      // Check for any existing conversation with this user
+                      const { data: existingConvs } = await supabase
                         .from('listing_conversations')
                         .select('id')
-                        .eq('listing_id', firstListing.id)
-                        .eq('user_id', user.id)
-                        .maybeSingle();
-                      if (existing) {
-                        navigate(`/chat/${existing.id}`);
-                      } else {
+                        .or(`and(owner_id.eq.${id},user_id.eq.${user.id}),and(owner_id.eq.${user.id},user_id.eq.${id})`)
+                        .limit(1);
+                      
+                      if (existingConvs && existingConvs.length > 0) {
+                        navigate(`/chat/${existingConvs[0].id}`);
+                        return;
+                      }
+                      
+                      // No existing conversation — create one using a listing
+                      const listingToUse = listings[0];
+                      if (listingToUse) {
                         const { data: created } = await supabase
                           .from('listing_conversations')
-                          .insert({ listing_id: firstListing.id, owner_id: id, user_id: user.id })
+                          .insert({ listing_id: listingToUse.id, owner_id: id, user_id: user.id })
                           .select('id')
                           .single();
                         if (created) navigate(`/chat/${created.id}`);
+                      } else {
+                        // Profile owner has no listings — find any listing owned by them
+                        const { data: ownerListings } = await supabase
+                          .from('listings')
+                          .select('id')
+                          .eq('owner_id', id)
+                          .limit(1);
+                        if (ownerListings && ownerListings.length > 0) {
+                          const { data: created } = await supabase
+                            .from('listing_conversations')
+                            .insert({ listing_id: ownerListings[0].id, owner_id: id, user_id: user.id })
+                            .select('id')
+                            .single();
+                          if (created) navigate(`/chat/${created.id}`);
+                        }
                       }
                     }}
                     className="mt-4 w-full rounded-xl py-3"
-                    disabled={listings.length === 0}
                   >
                     <MessageSquare className="h-4 w-4 ml-2" />
                     مراسلة
