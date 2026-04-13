@@ -162,7 +162,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
     if (images.length >= 3) s += 25;
     if (form.description.length > 100) s += 20;
     if (Number(form.price) > 0) s += 15;
-    if (form.district_id) s += 15;
+    if (form.governorate) s += 15;
     const amenityCount = [form.has_water, form.has_electricity, form.has_parking, form.has_internet].filter(Boolean).length;
     if (amenityCount >= 2) s += 15;
     if (form.bedrooms > 0 || form.bathrooms > 0) s += 10;
