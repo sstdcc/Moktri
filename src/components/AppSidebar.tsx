@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
+import { useUnreadChats } from '@/hooks/useUnreadChats';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
@@ -79,6 +80,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const unreadCount = useUnreadCount();
+  const unreadChats = useUnreadChats();
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
@@ -165,6 +167,11 @@ export function AppSidebar() {
                         {item.url === '/notifications' && unreadCount > 0 && (
                           <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar">
                             {unreadCount > 99 ? '99+' : unreadCount}
+                          </span>
+                        )}
+                        {item.url === '/chat' && unreadChats > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar">
+                            {unreadChats > 99 ? '99+' : unreadChats}
                           </span>
                         )}
                       </div>
