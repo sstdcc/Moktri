@@ -14,6 +14,7 @@ import {
   User, Building2, MessageSquare, Calendar,
   RefreshCw, Star,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 const roleLabels: Record<string, string> = {
@@ -150,49 +151,73 @@ const PublicProfilePage = () => {
                   </div>
                 </div>
 
-                {(!user || user.id !== id) && (
+                {user && user.id !== id && (
                   <Button
                     onClick={async () => {
-                      if (!user) { navigate('/auth'); return; }
                       if (!id || !profile) return;
                       
-                      // Check for any existing conversation with this user
-                      const { data: existingConvs } = await supabase
+                      // Check for any existing conversation between these two users
+                      const { data: asUser } = await supabase
                         .from('listing_conversations')
                         .select('id')
-                        .or(`and(owner_id.eq.${id},user_id.eq.${user.id}),and(owner_id.eq.${user.id},user_id.eq.${id})`)
+                        .eq('user_id', user.id)
+                        .eq('owner_id', id)
                         .limit(1);
-                      
-                      if (existingConvs && existingConvs.length > 0) {
-                        navigate(`/chat/${existingConvs[0].id}`);
+
+                      if (asUser && asUser.length > 0) {
+                        navigate(`/chat/${asUser[0].id}`);
+                        return;
+                      }
+
+                      const { data: asOwner } = await supabase
+                        .from('listing_conversations')
+                        .select('id')
+                        .eq('owner_id', user.id)
+                        .eq('user_id', id)
+                        .limit(1);
+
+                      if (asOwner && asOwner.length > 0) {
+                        navigate(`/chat/${asOwner[0].id}`);
                         return;
                       }
                       
-                      // No existing conversation — create one using a listing
-                      const listingToUse = listings[0];
-                      if (listingToUse) {
-                        const { data: created } = await supabase
+                      // No existing conversation — need a listing to anchor it
+                      // RLS requires user_id = auth.uid(), so current user must be user_id
+                      // and profile owner must be owner_id — find a listing owned by profile user
+                      const { data: ownerListings } = await supabase
+                        .from('listings')
+                        .select('id')
+                        .eq('owner_id', id)
+                        .limit(1);
+
+                      if (ownerListings && ownerListings.length > 0) {
+                        const { data: created, error } = await supabase
                           .from('listing_conversations')
-                          .insert({ listing_id: listingToUse.id, owner_id: id, user_id: user.id })
+                          .insert({ listing_id: ownerListings[0].id, owner_id: id, user_id: user.id })
                           .select('id')
                           .single();
-                        if (created) navigate(`/chat/${created.id}`);
-                      } else {
-                        // Profile owner has no listings — find any listing owned by them
-                        const { data: ownerListings } = await supabase
-                          .from('listings')
-                          .select('id')
-                          .eq('owner_id', id)
-                          .limit(1);
-                        if (ownerListings && ownerListings.length > 0) {
-                          const { data: created } = await supabase
-                            .from('listing_conversations')
-                            .insert({ listing_id: ownerListings[0].id, owner_id: id, user_id: user.id })
-                            .select('id')
-                            .single();
-                          if (created) navigate(`/chat/${created.id}`);
-                        }
+                        if (created) { navigate(`/chat/${created.id}`); return; }
+                        if (error) console.error('Failed to create conversation:', error);
                       }
+
+                      // If profile user has no listings, try current user's listings instead
+                      const { data: myListings } = await supabase
+                        .from('listings')
+                        .select('id')
+                        .eq('owner_id', user.id)
+                        .limit(1);
+
+                      if (myListings && myListings.length > 0) {
+                        const { data: created, error } = await supabase
+                          .from('listing_conversations')
+                          .insert({ listing_id: myListings[0].id, owner_id: user.id, user_id: id })
+                          .select('id')
+                          .single();
+                        if (created) { navigate(`/chat/${created.id}`); return; }
+                        if (error) console.error('Failed to create conversation:', error);
+                      }
+
+                      toast.error('لا يمكن بدء محادثة حالياً');
                     }}
                     className="mt-4 w-full rounded-xl py-3"
                   >
