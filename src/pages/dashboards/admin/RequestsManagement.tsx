@@ -125,7 +125,7 @@ const RequestsManagement = () => {
       };
       await supabase.from('notifications').insert({
         type: 'system' as any,
-        user_id: req.requester_id ?? (req.requester as any)?.id,
+        user_id: req.requester_id,
         title_ar: statusLabelsNotif[status] ?? 'تحديث على طلبك',
         body_ar: bodyMap[status] ?? 'تم تحديث حالة طلب السكن الخاص بك',
         link: `/requests/${id}`,
