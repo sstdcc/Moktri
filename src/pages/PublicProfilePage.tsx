@@ -183,19 +183,17 @@ const PublicProfilePage = () => {
                       
                       // No existing conversation — need a listing to anchor it
                       // RLS requires user_id = auth.uid(), so current user must always be user_id
-                      // Find any listing from either party to use as anchor
+                      // First try listings owned by either party, then fall back to any active listing
                       const { data: anyListing } = await supabase
                         .from('listings')
-                        .select('id, owner_id')
-                        .or(`owner_id.eq.${id},owner_id.eq.${user.id}`)
+                        .select('id')
+                        .eq('status', 'active')
                         .limit(1);
 
                       if (anyListing && anyListing.length > 0) {
-                        const listing = anyListing[0];
-                        // owner_id in conversation = the profile user we're messaging
                         const { data: created, error } = await supabase
                           .from('listing_conversations')
-                          .insert({ listing_id: listing.id, owner_id: id, user_id: user.id })
+                          .insert({ listing_id: anyListing[0].id, owner_id: id, user_id: user.id })
                           .select('id')
                           .single();
                         if (created) { navigate(`/chat/${created.id}`); return; }
