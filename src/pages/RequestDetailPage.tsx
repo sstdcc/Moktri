@@ -79,7 +79,6 @@ const RequestDetailPage = () => {
 
   // Response form
   const [message, setMessage] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
@@ -125,7 +124,7 @@ const RequestDetailPage = () => {
       request_id: id,
       responder_id: user.id,
       message: message.trim(),
-      contact_phone: contactPhone.trim() || profile?.phone || null,
+      contact_phone: profile?.phone || null,
       contact_whatsapp: profile?.whatsapp_number || null,
     });
     if (err) {
@@ -133,7 +132,6 @@ const RequestDetailPage = () => {
     } else {
       toast.success('تم إرسال ردك بنجاح');
       setMessage('');
-      setContactPhone('');
       setShowForm(false);
       fetchData();
     }
@@ -310,12 +308,6 @@ const RequestDetailPage = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     rows={3}
-                  />
-                  <Input
-                    placeholder="رقم التواصل (اختياري)"
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    dir="ltr"
                   />
                   <div className="flex gap-2">
                     <Button onClick={handleSubmitResponse} disabled={submitting || !message.trim()} className="flex-1 gap-1">
