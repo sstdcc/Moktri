@@ -14,6 +14,7 @@ import {
   User, Building2, MessageSquare, Calendar,
   RefreshCw, Star,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 const roleLabels: Record<string, string> = {
