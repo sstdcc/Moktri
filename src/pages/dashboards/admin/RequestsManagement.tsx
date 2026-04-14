@@ -58,6 +58,7 @@ interface RequestRow {
   created_at: string | null;
   expires_at: string | null;
   district_id: string | null;
+  requester_id: string;
   requester: { full_name: string } | null;
 }
 
@@ -79,7 +80,7 @@ const RequestsManagement = () => {
     setError(false);
     const { data, error: err } = await supabase
       .from('housing_requests')
-      .select('id, category, neighborhood, min_price, max_price, currency, for_whom, status, responses_count, views_count, created_at, expires_at, district_id, requester:profiles!housing_requests_requester_id_fkey(full_name)')
+      .select('id, category, neighborhood, min_price, max_price, currency, for_whom, status, responses_count, views_count, created_at, expires_at, district_id, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name)')
       .eq('status', tab)
       .order('created_at', { ascending: false })
       .limit(200);
