@@ -11,6 +11,10 @@ import {
   ShieldAlert,
   Bell,
   ExternalLink,
+  AlertTriangle,
+  Clock,
+  BadgeCheck,
+  ChevronLeft,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -79,10 +83,10 @@ const AdminDashboardPage = () => {
   ];
 
   const alertItems = [
-    { count: alerts.pendingReview, label: 'إعلان بانتظار المراجعة', color: 'bg-amber-500', link: '/dashboard/admin/listings' },
-    { count: alerts.staleListings, label: 'إعلان قديم (أكثر من 60 يوم)', color: 'bg-orange-500', link: '/dashboard/admin/listings' },
-    { count: alerts.pendingVerifications, label: 'طلب توثيق معلق', color: 'bg-blue-500', link: '/dashboard/admin/verifications' },
-    { count: stats.pendingReports, label: 'بلاغ معلق', color: 'bg-red-500', link: '/dashboard/admin/reports' },
+    { count: alerts.pendingReview, label: 'إعلان بانتظار المراجعة', color: 'bg-amber-500', icon: Clock, status: 'معلق', statusColor: 'text-amber-600 bg-amber-100', link: '/dashboard/admin/listings' },
+    { count: alerts.staleListings, label: 'إعلان قديم (أكثر من 60 يوم)', color: 'bg-orange-500', icon: AlertTriangle, status: 'يحتاج تحديث', statusColor: 'text-orange-600 bg-orange-100', link: '/dashboard/admin/listings' },
+    { count: alerts.pendingVerifications, label: 'طلب توثيق معلق', color: 'bg-blue-500', icon: BadgeCheck, status: 'معلق', statusColor: 'text-blue-600 bg-blue-100', link: '/dashboard/admin/verifications' },
+    { count: stats.pendingReports, label: 'بلاغ معلق', color: 'bg-red-500', icon: ShieldAlert, status: 'عاجل', statusColor: 'text-red-600 bg-red-100', link: '/dashboard/admin/reports' },
   ].filter((a) => a.count > 0);
 
   const reasonMap: Record<string, string> = {
@@ -143,25 +147,30 @@ const AdminDashboardPage = () => {
       {/* Alerts */}
       {alertItems.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-4">
             <Bell className="h-5 w-5 text-accent" />
             <h2 className="text-lg font-bold text-foreground">يحتاج انتباهك</h2>
+            <Badge variant="secondary" className="text-xs mr-auto">{alertItems.length}</Badge>
           </div>
-          <div className="space-y-2">
+          <div className="grid gap-3">
             {alertItems.map((alert, i) => (
-              <div
+              <Link
                 key={i}
-                className="rounded-xl border border-border p-3 flex items-center justify-between bg-card"
+                to={alert.link}
+                className="group rounded-2xl border border-border bg-card p-4 flex items-center gap-4 hover:border-accent/40 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <span className={`w-2.5 h-2.5 rounded-full ${alert.color}`} />
-                  <Badge variant="secondary" className="text-xs">{alert.count}</Badge>
-                  <span className="text-sm text-foreground">{alert.label}</span>
+                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${alert.color}/10`}>
+                  <alert.icon className={`h-5 w-5 ${alert.color.replace('bg-', 'text-')}`} />
                 </div>
-                <Link to={alert.link} className="text-sm text-accent font-medium hover:underline">
-                  مراجعة
-                </Link>
-              </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-2xl font-black text-foreground leading-none">{alert.count}</span>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${alert.statusColor}`}>{alert.status}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{alert.label}</p>
+                </div>
+                <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
+              </Link>
             ))}
           </div>
         </div>
