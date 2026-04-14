@@ -174,8 +174,8 @@ const ReportsManagement = () => {
                 </a>
                 {activeTab === 'pending' && (
                   <>
-                    <Button size="sm" className="h-8 text-xs bg-success text-success-foreground" onClick={() => resolve(r.id)}>حل البلاغ</Button>
-                    <Button size="sm" variant="destructive" className="h-8 text-xs" onClick={() => dismiss(r.id)}>رفض البلاغ</Button>
+                    <Button size="sm" className="h-8 text-xs bg-success text-success-foreground" onClick={() => resolve(r.id, r.reporter_id)}>حل البلاغ</Button>
+                    <Button size="sm" variant="destructive" className="h-8 text-xs" onClick={() => dismiss(r.id, r.reporter_id)}>رفض البلاغ</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button size="sm" variant="ghost" className="h-8"><MoreHorizontal className="h-4 w-4" /></Button>

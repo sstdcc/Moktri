@@ -106,6 +106,31 @@ const RequestsManagement = () => {
       .eq('id', id);
     setActing(null);
     if (err) { toast.error('حدث خطأ أثناء التحديث'); return; }
+
+    // Notify the request owner
+    const req = requests.find((r) => r.id === id);
+    if (req) {
+      const statusLabelsNotif: Record<string, string> = {
+        fulfilled: 'تم تلبية طلبك',
+        cancelled: 'تم إلغاء طلبك',
+        expired: 'انتهت صلاحية طلبك',
+        active: 'تم تجديد طلبك',
+      };
+      const bodyMap: Record<string, string> = {
+        fulfilled: 'تم تحديث حالة طلب السكن الخاص بك إلى "تم التلبية"',
+        cancelled: 'تم إلغاء طلب السكن الخاص بك من قبل الإدارة',
+        expired: 'انتهت صلاحية طلب السكن الخاص بك',
+        active: 'تم تجديد طلب السكن الخاص بك لمدة 30 يوماً إضافية',
+      };
+      await supabase.from('notifications').insert({
+        type: 'system' as any,
+        user_id: req.requester_id ?? (req.requester as any)?.id,
+        title_ar: statusLabelsNotif[status] ?? 'تحديث على طلبك',
+        body_ar: bodyMap[status] ?? 'تم تحديث حالة طلب السكن الخاص بك',
+        link: `/requests/${id}`,
+      });
+    }
+
     toast.success('تم التحديث بنجاح');
     fetchRequests();
   };
