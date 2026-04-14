@@ -45,14 +45,32 @@ const ReportsManagement = () => {
 
   useEffect(() => { fetchReports(); }, [fetchReports]);
 
-  const resolve = async (id: string) => {
+  const resolve = async (id: string, reporterId?: string) => {
     await supabase.from('reports').update({ status: 'resolved' as any, resolved_by: user!.id }).eq('id', id);
+    if (reporterId) {
+      await supabase.from('notifications').insert({
+        type: 'system' as any,
+        user_id: reporterId,
+        title_ar: 'تم حل البلاغ',
+        body_ar: 'تمت مراجعة بلاغك واتخاذ الإجراء المناسب',
+        link: '/notifications',
+      });
+    }
     toast.success('تم حل البلاغ');
     fetchReports();
   };
 
-  const dismiss = async (id: string) => {
+  const dismiss = async (id: string, reporterId?: string) => {
     await supabase.from('reports').update({ status: 'dismissed' as any, resolved_by: user!.id }).eq('id', id);
+    if (reporterId) {
+      await supabase.from('notifications').insert({
+        type: 'system' as any,
+        user_id: reporterId,
+        title_ar: 'تحديث على بلاغك',
+        body_ar: 'تمت مراجعة بلاغك ولم يتم العثور على مخالفة',
+        link: '/notifications',
+      });
+    }
     toast.success('تم رفض البلاغ');
     fetchReports();
   };
@@ -60,8 +78,19 @@ const ReportsManagement = () => {
   const removeListing = async (r: any) => {
     if (r.target_type === 'listing') {
       await supabase.from('listings').update({ status: 'rejected' as any }).eq('id', r.target_id);
+      // Notify the listing owner
+      const { data: listing } = await supabase.from('listings').select('owner_id, title').eq('id', r.target_id).single();
+      if (listing) {
+        await supabase.from('notifications').insert({
+          type: 'listing_rejected' as any,
+          user_id: listing.owner_id,
+          title_ar: 'تم إزالة إعلانك',
+          body_ar: `تم إزالة إعلانك "${listing.title}" بسبب بلاغ مقدم`,
+          link: `/listings/${r.target_id}`,
+        });
+      }
     }
-    await resolve(r.id);
+    await resolve(r.id, r.reporter_id);
   };
 
   const warnUser = async (r: any) => {
@@ -81,8 +110,14 @@ const ReportsManagement = () => {
     const targetUserId = r.target_type === 'user' ? r.target_id : null;
     if (targetUserId) {
       await supabase.from('profiles').update({ is_active: false }).eq('id', targetUserId);
+      await supabase.from('notifications').insert({
+        type: 'system' as any,
+        user_id: targetUserId,
+        title_ar: 'تم تعليق حسابك',
+        body_ar: 'تم تعليق حسابك بسبب مخالفة سياسة الاستخدام. تواصل مع الإدارة للاستفسار.',
+      });
     }
-    await resolve(r.id);
+    await resolve(r.id, r.reporter_id);
     toast.success('تم تعليق الحساب');
   };
 
