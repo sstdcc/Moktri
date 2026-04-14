@@ -5,9 +5,9 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { BadgeCheck, Clock, XCircle, Upload, FileText, RefreshCw, ShieldCheck } from 'lucide-react';
@@ -16,6 +16,18 @@ import { cn } from '@/lib/utils';
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
+const roleToVerification = (role?: string): 'renter' | 'owner' | 'broker' => {
+  if (role === 'owner') return 'owner';
+  if (role === 'broker') return 'broker';
+  return 'renter';
+};
+
+const roleLabelMap: Record<string, string> = {
+  renter: 'مستأجر عقار',
+  owner: 'مالك عقار',
+  broker: 'دلال عقارات',
+};
+
 const VerificationPage = () => {
   const { user, profile } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -23,7 +35,8 @@ const VerificationPage = () => {
   const [existingApp, setExistingApp] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const [role, setRole] = useState<'owner' | 'broker'>('owner');
+  const verificationRole = roleToVerification(profile?.role);
+  const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [idFile, setIdFile] = useState<File | null>(null);
   const [businessFile, setBusinessFile] = useState<File | null>(null);
@@ -69,6 +82,10 @@ const VerificationPage = () => {
 
   const handleSubmit = async () => {
     if (!user || !idFile) return;
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error('يرجى إدخال بريد إلكتروني صحيح');
+      return;
+    }
 
     const idErr = validateFile(idFile);
     if (idErr) { toast.error(idErr); return; }
@@ -95,11 +112,12 @@ const VerificationPage = () => {
       // Store private storage paths only — NOT public URLs
       const { error: insertErr } = await supabase.from('verification_applications').insert({
         applicant_id: user.id,
-        role,
+        role: verificationRole,
         id_document_url: idPath,
         business_document_url: bizPath,
         notes: notes.trim() || null,
-      });
+        email: email.trim() || null,
+      } as any);
       if (insertErr) throw insertErr;
 
       // Do NOT update profiles.verification_badge directly from client.
@@ -214,16 +232,23 @@ const VerificationPage = () => {
                 <div className="space-y-5">
                   <div>
                     <Label className="text-sm font-semibold mb-2 block">نوع التوثيق</Label>
-                    <RadioGroup value={role} onValueChange={(v) => setRole(v as 'owner' | 'broker')} className="flex gap-4">
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="owner" id="v-owner" />
-                        <Label htmlFor="v-owner" className="text-sm cursor-pointer">مالك عقار</Label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="broker" id="v-broker" />
-                        <Label htmlFor="v-broker" className="text-sm cursor-pointer">دلال عقارات</Label>
-                      </div>
-                    </RadioGroup>
+                    <div className="bg-muted rounded-xl px-4 py-3 text-sm font-medium text-foreground">
+                      {roleLabelMap[verificationRole]}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-semibold mb-2 block">
+                      البريد الإلكتروني <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="example@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      dir="ltr"
+                      className="text-left"
+                    />
                   </div>
 
                   <div>
