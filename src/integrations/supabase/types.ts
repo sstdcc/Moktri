@@ -670,6 +670,7 @@ export type Database = {
           applicant_id: string
           business_document_url: string | null
           created_at: string | null
+          email: string | null
           id: string
           id_document_url: string | null
           notes: string | null
@@ -682,6 +683,7 @@ export type Database = {
           applicant_id: string
           business_document_url?: string | null
           created_at?: string | null
+          email?: string | null
           id?: string
           id_document_url?: string | null
           notes?: string | null
@@ -694,6 +696,7 @@ export type Database = {
           applicant_id?: string
           business_document_url?: string | null
           created_at?: string | null
+          email?: string | null
           id?: string
           id_document_url?: string | null
           notes?: string | null
@@ -788,7 +791,7 @@ export type Database = {
       user_role: "renter" | "owner" | "broker" | "admin" | "moderator"
       verification_app_status: "pending" | "approved" | "rejected"
       verification_badge_status: "none" | "pending" | "verified" | "rejected"
-      verification_role: "owner" | "broker"
+      verification_role: "owner" | "broker" | "renter"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -966,7 +969,7 @@ export const Constants = {
       user_role: ["renter", "owner", "broker", "admin", "moderator"],
       verification_app_status: ["pending", "approved", "rejected"],
       verification_badge_status: ["none", "pending", "verified", "rejected"],
-      verification_role: ["owner", "broker"],
+      verification_role: ["owner", "broker", "renter"],
     },
   },
 } as const
