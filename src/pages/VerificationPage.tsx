@@ -335,7 +335,7 @@ const VerificationPage = () => {
 
                   <Button
                     onClick={handleSubmit}
-                    disabled={submitting || !idFile}
+                    disabled={submitting || !idFile || !email.trim()}
                     className="w-full"
                   >
                     {submitting ? 'جاري الإرسال...' : 'إرسال طلب التوثيق'}
