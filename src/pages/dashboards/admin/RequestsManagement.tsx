@@ -58,6 +58,7 @@ interface RequestRow {
   created_at: string | null;
   expires_at: string | null;
   district_id: string | null;
+  requester_id: string;
   requester: { full_name: string } | null;
 }
 
@@ -79,7 +80,7 @@ const RequestsManagement = () => {
     setError(false);
     const { data, error: err } = await supabase
       .from('housing_requests')
-      .select('id, category, neighborhood, min_price, max_price, currency, for_whom, status, responses_count, views_count, created_at, expires_at, district_id, requester:profiles!housing_requests_requester_id_fkey(full_name)')
+      .select('id, category, neighborhood, min_price, max_price, currency, for_whom, status, responses_count, views_count, created_at, expires_at, district_id, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name)')
       .eq('status', tab)
       .order('created_at', { ascending: false })
       .limit(200);
@@ -106,6 +107,31 @@ const RequestsManagement = () => {
       .eq('id', id);
     setActing(null);
     if (err) { toast.error('حدث خطأ أثناء التحديث'); return; }
+
+    // Notify the request owner
+    const req = requests.find((r) => r.id === id);
+    if (req) {
+      const statusLabelsNotif: Record<string, string> = {
+        fulfilled: 'تم تلبية طلبك',
+        cancelled: 'تم إلغاء طلبك',
+        expired: 'انتهت صلاحية طلبك',
+        active: 'تم تجديد طلبك',
+      };
+      const bodyMap: Record<string, string> = {
+        fulfilled: 'تم تحديث حالة طلب السكن الخاص بك إلى "تم التلبية"',
+        cancelled: 'تم إلغاء طلب السكن الخاص بك من قبل الإدارة',
+        expired: 'انتهت صلاحية طلب السكن الخاص بك',
+        active: 'تم تجديد طلب السكن الخاص بك لمدة 30 يوماً إضافية',
+      };
+      await supabase.from('notifications').insert({
+        type: 'system' as any,
+        user_id: req.requester_id,
+        title_ar: statusLabelsNotif[status] ?? 'تحديث على طلبك',
+        body_ar: bodyMap[status] ?? 'تم تحديث حالة طلب السكن الخاص بك',
+        link: `/requests/${id}`,
+      });
+    }
+
     toast.success('تم التحديث بنجاح');
     fetchRequests();
   };

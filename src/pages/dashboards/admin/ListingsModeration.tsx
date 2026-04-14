@@ -227,6 +227,13 @@ const ListingsModeration = () => {
                     {activeTab === 'active' && (
                       <Button size="sm" variant="outline" className="h-8" onClick={async () => {
                         await supabase.from('listings').update({ status: 'paused' as any }).eq('id', l.id);
+                        await supabase.from('notifications').insert({
+                          type: 'system' as any,
+                          user_id: l.owner_id,
+                          title_ar: 'تم إيقاف إعلانك',
+                          body_ar: `تم إيقاف إعلانك "${l.title}" من قبل الإدارة`,
+                          link: `/listings/${l.id}`,
+                        });
                         toast.success('تم إيقاف الإعلان');
                         fetchListings();
                         fetchCounts();
