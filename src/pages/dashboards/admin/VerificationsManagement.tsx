@@ -20,7 +20,7 @@ const tabList: { label: string; status: TabStatus }[] = [
   { label: 'مرفوضة', status: 'rejected' },
 ];
 
-const roleLabel: Record<string, string> = { owner: 'مالك عقار', broker: 'دلال عقارات' };
+const roleLabel: Record<string, string> = { renter: 'مستأجر عقار', owner: 'مالك عقار', broker: 'دلال عقارات' };
 
 /** Generate a short-lived signed URL for a private verification document */
 const getSignedUrl = async (path: string): Promise<string | null> => {
@@ -138,6 +138,9 @@ const VerificationsManagement = () => {
               <p className="text-xs text-muted-foreground mt-1">
                 {a.created_at ? format(new Date(a.created_at), 'dd MMM yyyy', { locale: ar }) : ''}
               </p>
+              {(a as any).email && (
+                <p className="text-xs text-muted-foreground mt-0.5" dir="ltr">{(a as any).email}</p>
+              )}
               <div className="flex gap-2 mt-2 flex-wrap">
                 {a.id_document_url && (
                   <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.id_document_url)}>
