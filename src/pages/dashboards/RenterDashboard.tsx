@@ -9,8 +9,6 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
   Search, Heart, MessageSquare, Bell, Plus, FileText,
@@ -19,9 +17,6 @@ import ProfileCompletionCard from '@/components/ProfileCompletionCard';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 import { RequestCard } from '@/components/RequestCard';
 
-const statusLabels: Record<string, string> = {
-  active: 'نشط', fulfilled: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
-};
 
 const RenterDashboard = () => {
   usePageTitle();
