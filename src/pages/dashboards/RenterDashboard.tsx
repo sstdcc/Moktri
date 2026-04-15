@@ -14,10 +14,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import {
-  Search, Heart, MessageSquare, Bell, Plus, MapPin, Eye, FileText,
+  Search, Heart, MessageSquare, Bell, Plus, FileText,
 } from 'lucide-react';
 import ProfileCompletionCard from '@/components/ProfileCompletionCard';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
+import { RequestCard } from '@/components/RequestCard';
 
 const categoryLabels: Record<string, string> = {
   room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
