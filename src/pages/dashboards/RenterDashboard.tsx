@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { formatPrice, timeAgo } from '@/lib/format';
 import {
   Search, Heart, MessageSquare, Bell, Plus, FileText,
 } from 'lucide-react';
