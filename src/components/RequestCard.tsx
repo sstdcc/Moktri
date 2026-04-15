@@ -196,9 +196,9 @@ export const RequestCard = ({ request: r, districts }: RequestCardProps) => {
       {/* Message Button */}
       {!isOwner && (
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
-          className="w-full mt-3 rounded-xl gap-2 text-xs"
+          className="mt-3 rounded-xl gap-2 text-xs"
           onClick={handleMessage}
           disabled={chatLoading}
         >
