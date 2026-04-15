@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -73,10 +73,29 @@
   body {
     @apply bg-background text-foreground font-tajawal antialiased;
     overflow-x: hidden;
+    font-weight: 400;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
   }
   #root {
     overflow-x: hidden;
     max-width: 100vw;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-cairo;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  h1 { @apply text-2xl; }
+  h2 { @apply text-xl; }
+  h3 { @apply text-lg; }
+  p {
+    line-height: 1.75;
+  }
+  small, .text-xs, .text-\[10px\], .text-\[11px\] {
+    font-weight: 400;
+    line-height: 1.5;
   }
 }
 
