@@ -9,27 +9,14 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { formatPrice, timeAgo } from '@/lib/format';
 import {
-  Search, Heart, MessageSquare, Bell, Plus, MapPin, Eye, FileText,
+  Search, Heart, MessageSquare, Bell, Plus, FileText,
 } from 'lucide-react';
 import ProfileCompletionCard from '@/components/ProfileCompletionCard';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
+import { RequestCard } from '@/components/RequestCard';
 
-const categoryLabels: Record<string, string> = {
-  room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
-  shop: 'محل', office: 'مكتب', shared: 'سكن مشترك', family: 'عائلي', student: 'طلابي',
-};
-const statusLabels: Record<string, string> = {
-  active: 'نشط', fulfilled: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
-};
-const statusColors: Record<string, string> = {
-  active: 'bg-success/10 text-success', fulfilled: 'bg-primary/10 text-primary',
-  expired: 'bg-muted text-muted-foreground', cancelled: 'bg-destructive/10 text-destructive',
-};
 
 const RenterDashboard = () => {
   usePageTitle();
@@ -47,7 +34,7 @@ const RenterDashboard = () => {
     if (!user) return;
     setLoading(true);
     const [reqRes, favRes, notifRes] = await Promise.all([
-      supabase.from('housing_requests').select('id, category, district_id, neighborhood, min_price, max_price, status, responses_count, views_count, created_at')
+      supabase.from('housing_requests').select('id, category, district_id, neighborhood, min_price, max_price, currency, for_whom, notes, bedrooms_needed, status, responses_count, views_count, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
         .eq('requester_id', user.id).order('created_at', { ascending: false }).limit(10),
       supabase.from('favorites').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
@@ -117,36 +104,9 @@ const RenterDashboard = () => {
             />
           ) : (
             <div className="space-y-3">
-              {myRequests.map((r: any) => {
-                const budget = r.min_price || r.max_price
-                  ? `${r.min_price ? formatPrice(Number(r.min_price)) : '—'} – ${r.max_price ? formatPrice(Number(r.max_price)) : '—'}`
-                  : null;
-                return (
-                  <Card key={r.id} className="cursor-pointer transition-all hover:shadow-md" onClick={() => navigate(`/requests/${r.id}`)}>
-                    <CardContent className="p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-foreground">
-                            {categoryLabels[r.category] || r.category}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {districtName(r.district_id)}{r.neighborhood ? ` — ${r.neighborhood}` : ''}
-                          </p>
-                        </div>
-                        <Badge className={cn('shrink-0 text-[10px]', statusColors[r.status ?? 'active'])}>
-                          {statusLabels[r.status ?? 'active']}
-                        </Badge>
-                      </div>
-                      {budget && <p className="text-xs text-accent font-medium mt-1">{budget}</p>}
-                      <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
-                        <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {r.responses_count ?? 0} رد</span>
-                        <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</span>
-                        {r.created_at && <span>{timeAgo(r.created_at)}</span>}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {myRequests.map((r: any) => (
+                <RequestCard key={r.id} request={r} districts={districts} />
+              ))}
             </div>
           )}
         </div>
