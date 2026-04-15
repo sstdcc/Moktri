@@ -110,36 +110,9 @@ const RenterDashboard = () => {
             />
           ) : (
             <div className="space-y-3">
-              {myRequests.map((r: any) => {
-                const budget = r.min_price || r.max_price
-                  ? `${r.min_price ? formatPrice(Number(r.min_price)) : '—'} – ${r.max_price ? formatPrice(Number(r.max_price)) : '—'}`
-                  : null;
-                return (
-                  <Card key={r.id} className="cursor-pointer transition-all hover:shadow-md" onClick={() => navigate(`/requests/${r.id}`)}>
-                    <CardContent className="p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-foreground">
-                            {categoryLabels[r.category] || r.category}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {districtName(r.district_id)}{r.neighborhood ? ` — ${r.neighborhood}` : ''}
-                          </p>
-                        </div>
-                        <Badge className={cn('shrink-0 text-[10px]', statusColors[r.status ?? 'active'])}>
-                          {statusLabels[r.status ?? 'active']}
-                        </Badge>
-                      </div>
-                      {budget && <p className="text-xs text-accent font-medium mt-1">{budget}</p>}
-                      <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
-                        <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {r.responses_count ?? 0} رد</span>
-                        <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</span>
-                        {r.created_at && <span>{timeAgo(r.created_at)}</span>}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {myRequests.map((r: any) => (
+                <RequestCard key={r.id} request={r} districts={districts} />
+              ))}
             </div>
           )}
         </div>
