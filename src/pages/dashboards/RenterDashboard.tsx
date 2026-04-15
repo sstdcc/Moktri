@@ -34,7 +34,7 @@ const RenterDashboard = () => {
     if (!user) return;
     setLoading(true);
     const [reqRes, favRes, notifRes] = await Promise.all([
-      supabase.from('housing_requests').select('id, category, district_id, neighborhood, min_price, max_price, status, responses_count, views_count, created_at')
+      supabase.from('housing_requests').select('id, category, district_id, neighborhood, min_price, max_price, currency, for_whom, notes, bedrooms_needed, status, responses_count, views_count, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
         .eq('requester_id', user.id).order('created_at', { ascending: false }).limit(10),
       supabase.from('favorites').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
