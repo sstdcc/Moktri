@@ -20,16 +20,8 @@ import ProfileCompletionCard from '@/components/ProfileCompletionCard';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 import { RequestCard } from '@/components/RequestCard';
 
-const categoryLabels: Record<string, string> = {
-  room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
-  shop: 'محل', office: 'مكتب', shared: 'سكن مشترك', family: 'عائلي', student: 'طلابي',
-};
 const statusLabels: Record<string, string> = {
   active: 'نشط', fulfilled: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
-};
-const statusColors: Record<string, string> = {
-  active: 'bg-success/10 text-success', fulfilled: 'bg-primary/10 text-primary',
-  expired: 'bg-muted text-muted-foreground', cancelled: 'bg-destructive/10 text-destructive',
 };
 
 const RenterDashboard = () => {
