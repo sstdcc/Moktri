@@ -22,9 +22,9 @@ const inflight = new Map<string, Promise<Stats>>();
 const fetchStats = (userId: string): Promise<Stats> => {
   if (cache.has(userId)) return Promise.resolve(cache.get(userId)!);
   if (inflight.has(userId)) return inflight.get(userId)!;
-  const p = supabase
-    .rpc('get_user_rating_stats', { p_user_id: userId })
-    .then(({ data }) => {
+  const p = Promise.resolve(
+    supabase.rpc('get_user_rating_stats', { p_user_id: userId })
+  ).then(({ data }) => {
       const row = data?.[0];
       const stats: Stats = {
         average_rating: Number(row?.average_rating ?? 0),
