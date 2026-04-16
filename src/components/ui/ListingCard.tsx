@@ -101,9 +101,12 @@ export const ListingCard = ({
 
       {/* BODY */}
       <div className="p-4 space-y-2.5">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-xl font-black text-accent font-tajawal tracking-tight">{fmtPrice(price)}</span>
-          <span className="text-[11px] text-muted-foreground font-tajawal">ر.ي/شهري</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-xl font-black text-accent font-tajawal tracking-tight">{fmtPrice(price)}</span>
+            <span className="text-[11px] text-muted-foreground font-tajawal">ر.ي/شهري</span>
+          </div>
+          {ownerId && <RatingDisplay userId={ownerId} variant="compact" size="sm" />}
         </div>
 
         {(city || district) && (
