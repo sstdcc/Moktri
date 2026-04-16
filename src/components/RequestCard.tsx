@@ -8,6 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
+import { RatingDisplay } from '@/components/rating/RatingDisplay';
 import {
   MapPin, MessageSquare, Eye, Users, BedDouble, Wallet,
   Home, Clock,
