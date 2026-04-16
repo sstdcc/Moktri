@@ -202,7 +202,7 @@ const OwnerDashboard = () => {
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
                           {l.status !== 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
-                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented')}>تعيين كمؤجر</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
