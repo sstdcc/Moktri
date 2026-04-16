@@ -102,33 +102,42 @@ export const PendingRatings = () => {
 
   return (
     <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-2">
         <Star className="h-5 w-5 text-accent fill-accent" />
-        <h2 className="text-base font-bold text-foreground">تقييمات معلقة</h2>
-        <span className="mr-auto text-xs bg-accent text-white rounded-full px-2 py-0.5 font-bold">{items.length}</span>
+        <h2 className="text-base font-bold text-foreground">بانتظار تقييمك</h2>
+        <span className="mr-auto text-[11px] bg-accent text-white rounded-full px-2 py-0.5 font-bold">{items.length}</span>
       </div>
       <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
         ساعد المجتمع بمشاركة تجربتك. التقييم اختياري.
       </p>
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {items.map((it) => (
-          <div key={`${it.rental_id}:${it.other_user_id}`} className="flex items-center gap-3 rounded-xl bg-card border border-border p-3">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
-              {it.other_user_avatar ? (
-                <img src={it.other_user_avatar} alt="" className="h-full w-full object-cover" />
-              ) : it.other_user_name ? (
-                <span className="text-sm font-bold text-muted-foreground">{getInitials(it.other_user_name)}</span>
-              ) : (
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground line-clamp-1">{it.other_user_name}</p>
-              <p className="text-[11px] text-muted-foreground">{it.other_role_label} • <span className="line-clamp-1 inline">{it.listing_title}</span></p>
+          <div key={`${it.rental_id}:${it.other_user_id}`} className="rounded-xl bg-card border border-border p-3">
+            <div className="flex items-center gap-2.5">
+              <div className="h-11 w-11 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                {it.other_user_avatar ? (
+                  <img src={it.other_user_avatar} alt="" className="h-full w-full object-cover" />
+                ) : it.other_user_name ? (
+                  <span className="text-sm font-bold text-muted-foreground">{getInitials(it.other_user_name)}</span>
+                ) : (
+                  <UserIcon className="h-5 w-5 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-sm font-semibold text-foreground truncate">{it.other_user_name}</p>
+                  <span className="text-[10px] font-bold bg-accent/10 text-accent rounded-md px-1.5 py-0.5 shrink-0">
+                    {it.other_role_label}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                  {it.listing_title}
+                </p>
+              </div>
             </div>
             <Button
               size="sm"
-              className="shrink-0 bg-accent hover:bg-accent/90 text-white"
+              className="w-full mt-3 h-8 text-xs bg-accent hover:bg-accent/90 text-white"
               onClick={() => setDialog({ open: true, userId: it.other_user_id, userName: it.other_user_name })}
             >
               قيّم الآن
