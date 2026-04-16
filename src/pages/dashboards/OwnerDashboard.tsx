@@ -11,6 +11,7 @@ import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MarkAsRentedDialog } from '@/components/rental/MarkAsRentedDialog';
 import { cn } from '@/lib/utils';
 import type { Listing } from '@/types/database';
 
