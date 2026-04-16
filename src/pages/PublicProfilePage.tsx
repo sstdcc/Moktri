@@ -12,10 +12,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   User, Building2, MessageSquare, Calendar,
-  RefreshCw, Star,
+  RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { UserRatingsSection } from '@/components/rating/UserRatingsSection';
 
 const roleLabels: Record<string, string> = {
   renter: 'مستأجر',
@@ -246,13 +247,7 @@ const PublicProfilePage = () => {
               )}
             </div>
 
-            <Card>
-              <CardContent className="flex flex-col items-center py-8 gap-2">
-                <Star className="h-8 w-8 text-muted-foreground/40" />
-                <p className="text-sm font-semibold text-muted-foreground">التقييمات</p>
-                <p className="text-xs text-muted-foreground">قريباً</p>
-              </CardContent>
-            </Card>
+            <UserRatingsSection userId={profile.id} userName={profile.full_name || 'المستخدم'} />
           </>
         ) : (
           <EmptyState icon={User} title="المستخدم غير موجود" />

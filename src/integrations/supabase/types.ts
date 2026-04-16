@@ -665,6 +665,51 @@ export type Database = {
           },
         ]
       }
+      user_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rated_user_id: string
+          rater_id: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rated_user_id: string
+          rater_id: string
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rated_user_id?: string
+          rater_id?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ratings_rated_user_id_fkey"
+            columns: ["rated_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_ratings_rater_id_fkey"
+            columns: ["rater_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verification_applications: {
         Row: {
           applicant_id: string
@@ -727,6 +772,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_rating_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          average_rating: number
+          total_reviews: number
+        }[]
+      }
       increment_contact_clicks: {
         Args: { p_listing_id: string }
         Returns: undefined
