@@ -8,6 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
+import { RatingDisplay } from '@/components/rating/RatingDisplay';
 import {
   MapPin, MessageSquare, Eye, Users, BedDouble, Wallet,
   Home, Clock,
@@ -135,7 +136,10 @@ export const RequestCard = ({ request: r, districts }: RequestCardProps) => {
           <p className="text-sm font-bold text-foreground truncate">
             يبحث عن {categoryLabels[r.category] || r.category}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">{name}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-muted-foreground truncate">{name}</p>
+            <RatingDisplay userId={r.requester_id} variant="compact" />
+          </div>
         </div>
         <Badge
           variant="outline"
