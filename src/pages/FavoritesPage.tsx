@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 interface FavListing {
   favoriteId: string;
   id: string;
+  ownerId?: string;
   category: string;
   price: number;
   createdAt: string;
@@ -64,6 +65,7 @@ const FavoritesPage = () => {
           return {
             favoriteId: f.id,
             id: l.id,
+            ownerId: l.owner_id,
             category: l.category,
             price: l.price,
             createdAt: l.created_at,
@@ -173,6 +175,7 @@ const FavoritesPage = () => {
                 isFavorited={true}
                 isUrgent={item.isUrgent}
                 isFeatured={item.isFeatured}
+                ownerId={item.ownerId}
                 onFavoriteToggle={() => removeFavorite(item.favoriteId)}
               />
             ))}

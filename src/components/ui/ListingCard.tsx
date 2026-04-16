@@ -1,6 +1,7 @@
 import { Heart, BedDouble, MapPin, Clock, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MiftahBadge } from './MiftahBadge';
+import { RatingDisplay } from '@/components/rating/RatingDisplay';
 import { cn } from '@/lib/utils';
 import { formatPrice as fmtPrice, timeAgo } from '@/lib/format';
 
@@ -31,12 +32,13 @@ interface ListingCardProps {
   isVerifiedOwner?: boolean;
   isUrgent?: boolean;
   isFeatured?: boolean;
+  ownerId?: string;
   onFavoriteToggle?: () => void;
 }
 
 export const ListingCard = ({
   id, imageUrl, category, price, city, district, bedrooms, furnishing,
-  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, onFavoriteToggle,
+  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, onFavoriteToggle,
 }: ListingCardProps) => {
   const navigate = useNavigate();
   const daysSince = getDaysSincePublished(createdAt);
@@ -99,9 +101,12 @@ export const ListingCard = ({
 
       {/* BODY */}
       <div className="p-4 space-y-2.5">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-xl font-black text-accent font-tajawal tracking-tight">{fmtPrice(price)}</span>
-          <span className="text-[11px] text-muted-foreground font-tajawal">ر.ي/شهري</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-xl font-black text-accent font-tajawal tracking-tight">{fmtPrice(price)}</span>
+            <span className="text-[11px] text-muted-foreground font-tajawal">ر.ي/شهري</span>
+          </div>
+          {ownerId && <RatingDisplay userId={ownerId} variant="compact" size="sm" />}
         </div>
 
         {(city || district) && (
