@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 interface FavListing {
   favoriteId: string;
   id: string;
+  ownerId?: string;
   category: string;
   price: number;
   createdAt: string;
