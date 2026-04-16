@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { UserRatingsSection } from '@/components/rating/UserRatingsSection';
+import { RatingDisplay } from '@/components/rating/RatingDisplay';
 
 const roleLabels: Record<string, string> = {
   renter: 'مستأجر',
@@ -125,9 +126,12 @@ const PublicProfilePage = () => {
                       <h2 className="text-lg font-bold truncate">{profile.full_name || 'مستخدم مفتاح'}</h2>
                       {profile.verification_badge === 'verified' && <VerifiedBadge size="lg" />}
                     </div>
-                    <Badge variant="secondary" className="mt-1 text-xs">
-                      {roleLabels[profile.role] || profile.role}
-                    </Badge>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <Badge variant="secondary" className="text-xs">
+                        {roleLabels[profile.role] || profile.role}
+                      </Badge>
+                      <RatingDisplay userId={profile.id} variant="full" size="md" />
+                    </div>
                     <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       عضو منذ {memberSince}
@@ -234,6 +238,7 @@ const PublicProfilePage = () => {
                         bedrooms={listing.bedrooms}
                         furnishing={listing.furnishing}
                         createdAt={listing.created_at}
+                        ownerId={profile.id}
                         isVerifiedOwner={profile.verification_badge === 'verified'}
                       />
                     ))}

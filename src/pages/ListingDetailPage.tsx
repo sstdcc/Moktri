@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { Listing, Profile, District } from '@/types/database';
 import { ChatModal } from '@/components/chat/ChatModal';
+import { RatingDisplay } from '@/components/rating/RatingDisplay';
 
 interface FullListing extends Listing {
   listing_images: { id: string; url: string; is_primary: boolean | null; sort_order: number | null }[];
@@ -369,9 +370,10 @@ const ListingDetailPage = () => {
               )}
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-sm font-bold text-foreground">{owner.full_name}</p>
                 {owner.is_verified && <VerifiedBadge size="sm" />}
+                <RatingDisplay userId={owner.id} variant="full" size="sm" />
               </div>
               <p className="text-[10px] text-muted-foreground">
                 عضو منذ {new Date(owner.created_at || '').getFullYear()} • {owner.total_listings || 0} إعلان
@@ -401,6 +403,7 @@ const ListingDetailPage = () => {
                     bedrooms={sl.bedrooms}
                     furnishing={sl.furnishing}
                     createdAt={sl.created_at || ''}
+                    ownerId={sl.owner_id}
                     isFavorited={isFavoritedFn(sl.id)}
                     onFavoriteToggle={() => toggleFavorite(sl.id)}
                   />
