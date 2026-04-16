@@ -16,6 +16,7 @@ import {
 import ProfileCompletionCard from '@/components/ProfileCompletionCard';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 import { RequestCard } from '@/components/RequestCard';
+import { PendingRatings } from '@/components/rating/PendingRatings';
 
 
 const RenterDashboard = () => {
@@ -70,6 +71,7 @@ const RenterDashboard = () => {
 
         <SmartNudgeBanner />
         <ProfileCompletionCard />
+        <PendingRatings />
 
         {/* Quick links */}
         <div className="grid grid-cols-2 gap-3">
