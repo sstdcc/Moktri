@@ -11,6 +11,7 @@ import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MarkAsRentedDialog } from '@/components/rental/MarkAsRentedDialog';
 import { cn } from '@/lib/utils';
 import type { Listing } from '@/types/database';
 
@@ -40,6 +41,7 @@ const OwnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [stats, setStats] = useState({ total: 0, active: 0, views: 0, clicks: 0 });
+  const [rentDialog, setRentDialog] = useState<{ open: boolean; listingId: string; title: string }>({ open: false, listingId: '', title: '' });
 
   useEffect(() => {
     if (!user) return;
@@ -78,9 +80,13 @@ const OwnerDashboard = () => {
     return (Date.now() - new Date(l.last_updated_at).getTime()) > 45 * 86400000;
   });
 
-  const handleAction = async (listingId: string, action: string) => {
+  const handleAction = async (listingId: string, action: string, title?: string) => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
-    const statusMap: Record<string, string> = { pause: 'paused', rented: 'rented', renew: 'active' };
+    if (action === 'rented') {
+      setRentDialog({ open: true, listingId, title: title || '' });
+      return;
+    }
+    const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
     const newStatus = statusMap[action];
     if (newStatus) {
       await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
@@ -196,7 +202,7 @@ const OwnerDashboard = () => {
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
                           {l.status !== 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
-                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented')}>تعيين كمؤجر</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -227,7 +233,15 @@ const OwnerDashboard = () => {
         </button>
       )}
 
-      
+      <MarkAsRentedDialog
+        open={rentDialog.open}
+        onOpenChange={(o) => setRentDialog(prev => ({ ...prev, open: o }))}
+        listingId={rentDialog.listingId}
+        listingTitle={rentDialog.title}
+        onCompleted={() => {
+          setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented' as any, last_updated_at: new Date().toISOString() } : l));
+        }}
+      />
     </div>
   );
 };
