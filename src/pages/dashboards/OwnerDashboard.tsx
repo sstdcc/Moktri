@@ -233,7 +233,15 @@ const OwnerDashboard = () => {
         </button>
       )}
 
-      
+      <MarkAsRentedDialog
+        open={rentDialog.open}
+        onOpenChange={(o) => setRentDialog(prev => ({ ...prev, open: o }))}
+        listingId={rentDialog.listingId}
+        listingTitle={rentDialog.title}
+        onCompleted={() => {
+          setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented' as any, last_updated_at: new Date().toISOString() } : l));
+        }}
+      />
     </div>
   );
 };
