@@ -136,7 +136,10 @@ export const RequestCard = ({ request: r, districts }: RequestCardProps) => {
           <p className="text-sm font-bold text-foreground truncate">
             يبحث عن {categoryLabels[r.category] || r.category}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">{name}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-muted-foreground truncate">{name}</p>
+            <RatingDisplay userId={r.requester_id} variant="compact" />
+          </div>
         </div>
         <Badge
           variant="outline"
