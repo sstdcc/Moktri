@@ -233,6 +233,7 @@ const HomePage = () => {
                   createdAt={listing.created_at || ''}
                   isFeatured
                   isFavorited={isFavorited(listing.id)}
+                  ownerId={listing.owner_id}
                   onFavoriteToggle={() => toggleFavorite(listing.id)}
                 />
               </div>
@@ -262,6 +263,7 @@ const HomePage = () => {
                 furnishing={listing.furnishing}
                 createdAt={listing.created_at || ''}
                 isFavorited={isFavorited(listing.id)}
+                ownerId={listing.owner_id}
                 onFavoriteToggle={() => toggleFavorite(listing.id)}
               />
             ))}
@@ -292,6 +294,7 @@ const HomePage = () => {
                   createdAt={listing.created_at || ''}
                   isUrgent
                   isFavorited={isFavorited(listing.id)}
+                  ownerId={listing.owner_id}
                   onFavoriteToggle={() => toggleFavorite(listing.id)}
                 />
               </div>

@@ -267,6 +267,7 @@ const ListingsPage = () => {
                   isUrgent={listing.is_urgent || false}
                   isFeatured={listing.is_featured || false}
                   isFavorited={isFavorited(listing.id)}
+                  ownerId={listing.owner_id}
                   onFavoriteToggle={() => toggleFavorite(listing.id)}
                 />
               ))}

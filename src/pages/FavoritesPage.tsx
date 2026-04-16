@@ -64,6 +64,7 @@ const FavoritesPage = () => {
           return {
             favoriteId: f.id,
             id: l.id,
+            ownerId: l.owner_id,
             category: l.category,
             price: l.price,
             createdAt: l.created_at,
@@ -173,6 +174,7 @@ const FavoritesPage = () => {
                 isFavorited={true}
                 isUrgent={item.isUrgent}
                 isFeatured={item.isFeatured}
+                ownerId={item.ownerId}
                 onFavoriteToggle={() => removeFavorite(item.favoriteId)}
               />
             ))}
