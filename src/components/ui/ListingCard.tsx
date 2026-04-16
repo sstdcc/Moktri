@@ -32,12 +32,13 @@ interface ListingCardProps {
   isVerifiedOwner?: boolean;
   isUrgent?: boolean;
   isFeatured?: boolean;
+  ownerId?: string;
   onFavoriteToggle?: () => void;
 }
 
 export const ListingCard = ({
   id, imageUrl, category, price, city, district, bedrooms, furnishing,
-  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, onFavoriteToggle,
+  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, onFavoriteToggle,
 }: ListingCardProps) => {
   const navigate = useNavigate();
   const daysSince = getDaysSincePublished(createdAt);
