@@ -80,9 +80,13 @@ const OwnerDashboard = () => {
     return (Date.now() - new Date(l.last_updated_at).getTime()) > 45 * 86400000;
   });
 
-  const handleAction = async (listingId: string, action: string) => {
+  const handleAction = async (listingId: string, action: string, title?: string) => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
-    const statusMap: Record<string, string> = { pause: 'paused', rented: 'rented', renew: 'active' };
+    if (action === 'rented') {
+      setRentDialog({ open: true, listingId, title: title || '' });
+      return;
+    }
+    const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
     const newStatus = statusMap[action];
     if (newStatus) {
       await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
