@@ -1,6 +1,7 @@
 import { Heart, BedDouble, MapPin, Clock, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MiftahBadge } from './MiftahBadge';
+import { RatingDisplay } from '@/components/rating/RatingDisplay';
 import { cn } from '@/lib/utils';
 import { formatPrice as fmtPrice, timeAgo } from '@/lib/format';
 
