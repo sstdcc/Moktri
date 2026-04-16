@@ -556,6 +556,74 @@ export type Database = {
         }
         Relationships: []
       }
+      rentals: {
+        Row: {
+          broker_id: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          listing_id: string
+          owner_id: string
+          renter_id: string
+          started_at: string
+          status: Database["public"]["Enums"]["rental_status"]
+          updated_at: string
+        }
+        Insert: {
+          broker_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          owner_id: string
+          renter_id: string
+          started_at?: string
+          status?: Database["public"]["Enums"]["rental_status"]
+          updated_at?: string
+        }
+        Update: {
+          broker_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          owner_id?: string
+          renter_id?: string
+          started_at?: string
+          status?: Database["public"]["Enums"]["rental_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_renter_id_fkey"
+            columns: ["renter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           created_at: string | null
@@ -673,6 +741,7 @@ export type Database = {
           rated_user_id: string
           rater_id: string
           rating: number
+          rental_id: string
           updated_at: string
         }
         Insert: {
@@ -682,6 +751,7 @@ export type Database = {
           rated_user_id: string
           rater_id: string
           rating: number
+          rental_id: string
           updated_at?: string
         }
         Update: {
@@ -691,6 +761,7 @@ export type Database = {
           rated_user_id?: string
           rater_id?: string
           rating?: number
+          rental_id?: string
           updated_at?: string
         }
         Relationships: [
@@ -706,6 +777,13 @@ export type Database = {
             columns: ["rater_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_ratings_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
             referencedColumns: ["id"]
           },
         ]
@@ -772,6 +850,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_rateable_rentals: {
+        Args: { p_rated: string; p_rater: string }
+        Returns: {
+          already_rated: boolean
+          completed_at: string
+          listing_id: string
+          listing_title: string
+          rental_id: string
+        }[]
+      }
       get_user_rating_stats: {
         Args: { p_user_id: string }
         Returns: {
@@ -829,6 +917,7 @@ export type Database = {
         | "new_report"
         | "system"
         | "new_message"
+      rental_status: "active" | "completed" | "cancelled"
       report_reason:
         | "fake"
         | "duplicate"
@@ -1006,6 +1095,7 @@ export const Constants = {
         "system",
         "new_message",
       ],
+      rental_status: ["active", "completed", "cancelled"],
       report_reason: [
         "fake",
         "duplicate",
