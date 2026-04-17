@@ -142,7 +142,14 @@ const QualityScore = ({ score }: { score: number }) => {
 
 const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, onSave }: CreateListingFormProps = {}) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, profile } = useAuth();
+
+  // Private offer mode: created by owner for a specific renter from a housing request
+  const privateForUserId = searchParams.get('private_for') || '';
+  const fromRequestId = searchParams.get('from_request') || '';
+  const isPrivateOffer = !!privateForUserId && !isEditing;
+
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
   const [images, setImages] = useState<UploadedImage[]>(initialImages || []);
@@ -151,6 +158,33 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const [success, setSuccess] = useState<{ id: string; status: string } | null>(null);
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Prefill from source housing request
+  useEffect(() => {
+    if (!fromRequestId || isEditing) return;
+    (async () => {
+      const { data } = await supabase
+        .from('housing_requests')
+        .select('category, governorate, city_name, neighborhood, max_price, currency, bedrooms_needed, furnishing_preference, notes')
+        .eq('id', fromRequestId)
+        .single();
+      if (!data) return;
+      setForm(f => ({
+        ...f,
+        category: data.category || f.category,
+        governorate: data.governorate || f.governorate,
+        city_name: data.city_name || f.city_name,
+        neighborhood: data.neighborhood || f.neighborhood,
+        price: data.max_price ?? f.price,
+        currency: data.currency || f.currency,
+        bedrooms: data.bedrooms_needed ?? f.bedrooms,
+        furnishing: data.furnishing_preference && data.furnishing_preference !== 'any'
+          ? data.furnishing_preference
+          : f.furnishing,
+        description: data.notes ? `عرض خاص بناءً على طلب السكن:\n\n${data.notes}` : f.description,
+      }));
+    })();
+  }, [fromRequestId, isEditing]);
 
   const update = <K extends keyof FormState>(key: K, val: FormState[K]) => setForm(f => ({ ...f, [key]: val }));
 
