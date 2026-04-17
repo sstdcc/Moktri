@@ -239,7 +239,14 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         return;
       }
 
-      const finalStatus = status === 'active' && profile?.is_verified ? 'active' : status === 'active' ? 'pending_review' : 'draft';
+      const finalStatus = isPrivateOffer
+        ? 'private_offer'
+        : status === 'active' && profile?.is_verified
+          ? 'active'
+          : status === 'active'
+            ? 'pending_review'
+            : 'draft';
+
       const { data: listing, error } = await supabase.from('listings').insert({
         owner_id: user.id,
         category: form.category as any,
@@ -266,10 +273,13 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         description: form.description,
         is_urgent: form.is_urgent,
         status: finalStatus as any,
-        published_at: finalStatus !== 'draft' ? new Date().toISOString() : null,
-        expires_at: finalStatus !== 'draft' ? new Date(Date.now() + 90 * 86400000).toISOString() : null,
+        published_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date().toISOString() : null,
+        expires_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date(Date.now() + 90 * 86400000).toISOString() : null,
         quality_score: calculateScore(),
-      }).select('id').single();
+        reserved_for_user_id: isPrivateOffer ? privateForUserId : null,
+        source_request_id: isPrivateOffer && fromRequestId ? fromRequestId : null,
+        offered_at: isPrivateOffer ? new Date().toISOString() : null,
+      } as any).select('id').single();
 
       if (error) throw error;
 
@@ -282,6 +292,20 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
             sort_order: i,
           }))
         );
+      }
+
+      // If private offer: notify the renter
+      if (isPrivateOffer && listing) {
+        await supabase.from('notifications').insert({
+          user_id: privateForUserId,
+          type: 'private_offer_created' as any,
+          title_ar: 'تم إنشاء عرض خاص لك',
+          body_ar: 'قام المالك بإنشاء إعلان خاص لطلب السكن. راجع التفاصيل وأكّد القبول.',
+          link: `/listings/${listing.id}`,
+        });
+        toast.success('تم إرسال العرض الخاص للمستأجر');
+        navigate('/dashboard/owner');
+        return;
       }
 
       if (status === 'draft') {
