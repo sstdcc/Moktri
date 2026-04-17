@@ -35,6 +35,8 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [alreadyRatedPair, setAlreadyRatedPair] = useState(false);
+
   useEffect(() => {
     if (!open || !user) return;
     setLoading(true);
@@ -42,42 +44,35 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
     setRating(0);
     setComment('');
     setSelectedRentalId('');
+    setAlreadyRatedPair(false);
 
     (async () => {
+      // Pair-level check: has this user ever rated the target before?
+      const { data: existingPair } = await supabase
+        .from('user_ratings')
+        .select('id')
+        .eq('rater_id', user.id)
+        .eq('rated_user_id', ratedUserId)
+        .maybeSingle();
+
+      if (existingPair) {
+        setAlreadyRatedPair(true);
+        setRentals([]);
+        setLoading(false);
+        return;
+      }
+
       const { data } = await supabase.rpc('get_rateable_rentals', {
         p_rater: user.id,
         p_rated: ratedUserId,
       });
       const list = (data ?? []) as RateableRental[];
       setRentals(list);
-      // Auto-pick first un-rated rental
-      const firstAvailable = list.find((r) => !r.already_rated);
-      if (firstAvailable) setSelectedRentalId(firstAvailable.rental_id);
+      // Auto-pick most recent rental (one rating per pair regardless)
+      if (list[0]) setSelectedRentalId(list[0].rental_id);
       setLoading(false);
     })();
   }, [open, user, ratedUserId]);
-
-  // Load existing rating when rental selection changes
-  useEffect(() => {
-    if (!user || !selectedRentalId) return;
-    (async () => {
-      const { data } = await supabase
-        .from('user_ratings')
-        .select('id, rating, comment')
-        .eq('rater_id', user.id)
-        .eq('rental_id', selectedRentalId)
-        .maybeSingle();
-      if (data) {
-        setExistingId(data.id);
-        setRating(data.rating);
-        setComment(data.comment ?? '');
-      } else {
-        setExistingId(null);
-        setRating(0);
-        setComment('');
-      }
-    })();
-  }, [user, selectedRentalId]);
 
   const handleSubmit = async () => {
     if (!user) { toast.error('سجل دخول لإضافة تقييم'); return; }
