@@ -320,11 +320,14 @@ export type Database = {
           last_updated_at: string | null
           moderation_note: string | null
           neighborhood: string | null
+          offered_at: string | null
           owner_id: string
           price: number
           property_size: number | null
           published_at: string | null
           quality_score: number | null
+          reserved_for_user_id: string | null
+          source_request_id: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
           title: string
           views_count: number | null
@@ -359,11 +362,14 @@ export type Database = {
           last_updated_at?: string | null
           moderation_note?: string | null
           neighborhood?: string | null
+          offered_at?: string | null
           owner_id: string
           price: number
           property_size?: number | null
           published_at?: string | null
           quality_score?: number | null
+          reserved_for_user_id?: string | null
+          source_request_id?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           title: string
           views_count?: number | null
@@ -398,11 +404,14 @@ export type Database = {
           last_updated_at?: string | null
           moderation_note?: string | null
           neighborhood?: string | null
+          offered_at?: string | null
           owner_id?: string
           price?: number
           property_size?: number | null
           published_at?: string | null
           quality_score?: number | null
+          reserved_for_user_id?: string | null
+          source_request_id?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           title?: string
           views_count?: number | null
@@ -908,6 +917,8 @@ export type Database = {
         | "rented"
         | "expired"
         | "rejected"
+        | "private_offer"
+        | "reserved"
       notification_type:
         | "new_response"
         | "listing_expiring"
@@ -917,6 +928,10 @@ export type Database = {
         | "new_report"
         | "system"
         | "new_message"
+        | "private_offer_request"
+        | "private_offer_created"
+        | "private_offer_accepted"
+        | "private_offer_rejected"
       rental_status: "active" | "completed" | "cancelled"
       report_reason:
         | "fake"
@@ -1084,6 +1099,8 @@ export const Constants = {
         "rented",
         "expired",
         "rejected",
+        "private_offer",
+        "reserved",
       ],
       notification_type: [
         "new_response",
@@ -1094,6 +1111,10 @@ export const Constants = {
         "new_report",
         "system",
         "new_message",
+        "private_offer_request",
+        "private_offer_created",
+        "private_offer_accepted",
+        "private_offer_rejected",
       ],
       rental_status: ["active", "completed", "cancelled"],
       report_reason: [

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { 
   DoorOpen, Building2, Home, Layers, Store, Briefcase, Users, HeartHandshake, GraduationCap,
   Check, ArrowLeft, ArrowRight, Camera, X, Droplets, Zap, ParkingCircle, Wifi,
@@ -141,7 +142,14 @@ const QualityScore = ({ score }: { score: number }) => {
 
 const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, onSave }: CreateListingFormProps = {}) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, profile } = useAuth();
+
+  // Private offer mode: created by owner for a specific renter from a housing request
+  const privateForUserId = searchParams.get('private_for') || '';
+  const fromRequestId = searchParams.get('from_request') || '';
+  const isPrivateOffer = !!privateForUserId && !isEditing;
+
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
   const [images, setImages] = useState<UploadedImage[]>(initialImages || []);
@@ -150,6 +158,33 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const [success, setSuccess] = useState<{ id: string; status: string } | null>(null);
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Prefill from source housing request
+  useEffect(() => {
+    if (!fromRequestId || isEditing) return;
+    (async () => {
+      const { data } = await supabase
+        .from('housing_requests')
+        .select('category, governorate, city_name, neighborhood, max_price, currency, bedrooms_needed, furnishing_preference, notes')
+        .eq('id', fromRequestId)
+        .single();
+      if (!data) return;
+      setForm(f => ({
+        ...f,
+        category: data.category || f.category,
+        governorate: data.governorate || f.governorate,
+        city_name: data.city_name || f.city_name,
+        neighborhood: data.neighborhood || f.neighborhood,
+        price: data.max_price ?? f.price,
+        currency: data.currency || f.currency,
+        bedrooms: data.bedrooms_needed ?? f.bedrooms,
+        furnishing: data.furnishing_preference && data.furnishing_preference !== 'any'
+          ? data.furnishing_preference
+          : f.furnishing,
+        description: data.notes ? `عرض خاص بناءً على طلب السكن:\n\n${data.notes}` : f.description,
+      }));
+    })();
+  }, [fromRequestId, isEditing]);
 
   const update = <K extends keyof FormState>(key: K, val: FormState[K]) => setForm(f => ({ ...f, [key]: val }));
 
@@ -204,7 +239,14 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         return;
       }
 
-      const finalStatus = status === 'active' && profile?.is_verified ? 'active' : status === 'active' ? 'pending_review' : 'draft';
+      const finalStatus = isPrivateOffer
+        ? 'private_offer'
+        : status === 'active' && profile?.is_verified
+          ? 'active'
+          : status === 'active'
+            ? 'pending_review'
+            : 'draft';
+
       const { data: listing, error } = await supabase.from('listings').insert({
         owner_id: user.id,
         category: form.category as any,
@@ -231,10 +273,13 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         description: form.description,
         is_urgent: form.is_urgent,
         status: finalStatus as any,
-        published_at: finalStatus !== 'draft' ? new Date().toISOString() : null,
-        expires_at: finalStatus !== 'draft' ? new Date(Date.now() + 90 * 86400000).toISOString() : null,
+        published_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date().toISOString() : null,
+        expires_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date(Date.now() + 90 * 86400000).toISOString() : null,
         quality_score: calculateScore(),
-      }).select('id').single();
+        reserved_for_user_id: isPrivateOffer ? privateForUserId : null,
+        source_request_id: isPrivateOffer && fromRequestId ? fromRequestId : null,
+        offered_at: isPrivateOffer ? new Date().toISOString() : null,
+      } as any).select('id').single();
 
       if (error) throw error;
 
@@ -247,6 +292,20 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
             sort_order: i,
           }))
         );
+      }
+
+      // If private offer: notify the renter
+      if (isPrivateOffer && listing) {
+        await supabase.from('notifications').insert({
+          user_id: privateForUserId,
+          type: 'private_offer_created' as any,
+          title_ar: 'تم إنشاء عرض خاص لك',
+          body_ar: 'قام المالك بإنشاء إعلان خاص لطلب السكن. راجع التفاصيل وأكّد القبول.',
+          link: `/listings/${listing.id}`,
+        });
+        toast.success('تم إرسال العرض الخاص للمستأجر');
+        navigate('/dashboard/owner');
+        return;
       }
 
       if (status === 'draft') {
@@ -288,7 +347,14 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
 
   return (
     <div className="min-h-screen bg-background pb-8 font-tajawal">
-      <PageHeader title={isEditing ? 'تعديل الإعلان' : 'إضافة إعلان جديد'} showBack />
+      <PageHeader title={isPrivateOffer ? 'إنشاء عرض خاص' : isEditing ? 'تعديل الإعلان' : 'إضافة إعلان جديد'} showBack />
+
+      {isPrivateOffer && (
+        <div className="mx-4 mt-3 rounded-2xl border border-accent/30 bg-accent/5 p-3 text-xs font-tajawal text-foreground" dir="rtl">
+          <p className="font-bold mb-1">عرض خاص بمستأجر محدد</p>
+          <p className="text-muted-foreground">هذا الإعلان لن يكون عاماً، وسيظهر فقط للمستأجر الذي طلبه. عند رفضه يتحول لمسودة يمكنك تعديلها ونشرها لاحقاً.</p>
+        </div>
+      )}
 
       {/* Progress bar */}
       <div className="sticky top-14 z-30 bg-card border-b border-border px-4 py-3">
@@ -582,9 +648,9 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
             <div className="flex flex-col gap-3">
               <Button onClick={() => handleSubmit('active')} disabled={submitting} className="w-full gap-2">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {isEditing ? 'حفظ التعديلات' : 'نشر الإعلان الآن'}
+                {isPrivateOffer ? 'إرسال العرض الخاص' : isEditing ? 'حفظ التعديلات' : 'نشر الإعلان الآن'}
               </Button>
-              {!isEditing && (
+              {!isEditing && !isPrivateOffer && (
                 <Button variant="outline" onClick={() => handleSubmit('draft')} disabled={submitting} className="w-full">
                   حفظ كمسودة
                 </Button>

@@ -120,23 +120,38 @@ export const FulfillRequestDialog = ({
       return;
     }
 
-    // Auto-resolve listing_id from the selected owner's listings (required by rentals schema)
-    let listingId: string | undefined;
-    if (!listingId) {
-      // Find any listing by that owner
-      const { data: ownerListing } = await supabase
-        .from('listings')
-        .select('id')
-        .eq('owner_id', ownerId)
-        .limit(1);
-      if (ownerListing && ownerListing.length > 0) {
-        listingId = ownerListing[0].id;
-      }
-    }
+    // Try to find a listing for that owner
+    const { data: ownerListing } = await supabase
+      .from('listings')
+      .select('id')
+      .eq('owner_id', ownerId)
+      .in('status', ['active', 'reserved', 'rented'])
+      .limit(1);
 
+    const listingId = ownerListing?.[0]?.id;
+
+    // No listing yet → trigger private offer request flow
     if (!listingId) {
-      toast.error('لم يتم العثور على إعلان مرتبط. اطلب من المالك إضافة إعلانه أولاً.');
+      const { error: notifErr } = await supabase.from('notifications').insert({
+        user_id: ownerId,
+        type: 'private_offer_request' as any,
+        title_ar: 'طلب إنشاء إعلان خاص',
+        body_ar: 'مستأجر يريد إتمام صفقة معك. أنشئ إعلاناً خاصاً به لتأكيد التعامل.',
+        link: `/listings/new?private_for=${user.id}&from_request=${requestId}`,
+      });
+
+      if (notifErr) {
+        console.error(notifErr);
+        toast.error('تعذر إرسال طلب الإعلان للمالك');
+        setSubmitting(false);
+        return;
+      }
+
+      toast.success('تم إرسال طلب للمالك لإنشاء إعلان خاص بك. ستصلك إشعار عند إنشائه.');
+      onOpenChange(false);
+      onCompleted?.();
       setSubmitting(false);
+      resetState();
       return;
     }
 
