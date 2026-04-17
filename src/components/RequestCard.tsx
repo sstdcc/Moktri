@@ -200,18 +200,42 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
         )}
       </div>
 
-      {/* Message Button */}
-      {!isOwner && (
-        <Button
-          variant="default"
-          size="sm"
-          className="mt-3 rounded-xl gap-2 text-xs"
-          onClick={handleMessage}
-          disabled={chatLoading}
-        >
-          <MessageSquare className="h-3.5 w-3.5" />
-          {chatLoading ? 'جاري الفتح...' : 'مراسلة'}
-        </Button>
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2 mt-3">
+        {!isOwner && (
+          <Button
+            variant="default"
+            size="sm"
+            className="rounded-xl gap-2 text-xs"
+            onClick={handleMessage}
+            disabled={chatLoading}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            {chatLoading ? 'جاري الفتح...' : 'مراسلة'}
+          </Button>
+        )}
+        {isOwner && r.status === 'active' && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-xl gap-1.5 text-xs border-success/30 text-success hover:bg-success/10"
+            onClick={(e) => { e.stopPropagation(); setFulfillOpen(true); }}
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            تم تنفيذ الطلب
+          </Button>
+        )}
+      </div>
+
+      {/* Fulfill Dialog */}
+      {isOwner && (
+        <FulfillRequestDialog
+          open={fulfillOpen}
+          onOpenChange={setFulfillOpen}
+          requestId={r.id}
+          requestCategory={r.category}
+          onCompleted={onFulfilled}
+        />
       )}
     </div>
   );
