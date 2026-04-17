@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
 import { RatingDisplay } from '@/components/rating/RatingDisplay';
+import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
 import {
   MapPin, MessageSquare, Eye, Users, BedDouble, Wallet,
-  Home, Clock,
+  Home, Clock, CheckCircle2,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
@@ -56,6 +57,7 @@ export interface RequestCardData {
 interface RequestCardProps {
   request: RequestCardData;
   districts: { id: string; name_ar: string; city?: string | null }[];
+  onFulfilled?: () => void;
 }
 
 export const RequestCard = ({ request: r, districts }: RequestCardProps) => {
