@@ -110,18 +110,26 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
     onSaved?.();
   };
 
-  const noRentals = !loading && rentals.length === 0;
+  const noRentals = !loading && !alreadyRatedPair && rentals.length === 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent dir="rtl" className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-cairo">تقييم {ratedUserName}</DialogTitle>
-          <DialogDescription>التقييم متاح فقط بعد اكتمال إيجار بينكما</DialogDescription>
+          <DialogDescription>يمكنك تقييم كل مستخدم مرة واحدة فقط بعد اكتمال إيجار بينكما</DialogDescription>
         </DialogHeader>
 
         {loading ? (
           <p className="text-sm text-muted-foreground text-center py-6">جاري التحميل...</p>
+        ) : alreadyRatedPair ? (
+          <div className="flex flex-col items-center py-6 gap-3 text-center">
+            <Lock className="h-10 w-10 text-muted-foreground/40" />
+            <p className="text-sm font-semibold">سبق وقمت بتقييم هذا المستخدم</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              لا يمكن تقييم المستخدم نفسه أكثر من مرة، حتى بعد إتمام صفقات أخرى.
+            </p>
+          </div>
         ) : noRentals ? (
           <div className="flex flex-col items-center py-6 gap-3 text-center">
             <Lock className="h-10 w-10 text-muted-foreground/40" />
@@ -132,22 +140,6 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
           </div>
         ) : (
           <>
-            {rentals.length > 1 && (
-              <div className="space-y-1.5">
-                <label className="text-xs text-muted-foreground">الإيجار</label>
-                <Select value={selectedRentalId} onValueChange={setSelectedRentalId}>
-                  <SelectTrigger><SelectValue placeholder="اختر إيجاراً" /></SelectTrigger>
-                  <SelectContent>
-                    {rentals.map((r) => (
-                      <SelectItem key={r.rental_id} value={r.rental_id}>
-                        {r.listing_title}{r.already_rated ? ' (تم التقييم)' : ''}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             <div className="flex justify-center py-2">
               <RatingStars value={rating} onChange={setRating} size="lg" />
             </div>
@@ -164,13 +156,8 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
 
             <div className="flex gap-2">
               <Button onClick={handleSubmit} disabled={submitting || rating < 1 || !selectedRentalId} className="flex-1">
-                {existingId ? 'تحديث' : 'إرسال'}
+                إرسال
               </Button>
-              {existingId && (
-                <Button variant="outline" size="icon" onClick={handleDelete} disabled={submitting}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              )}
             </div>
           </>
         )}
