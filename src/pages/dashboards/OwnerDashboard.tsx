@@ -227,16 +227,17 @@ const OwnerDashboard = () => {
                       {statusLabelOverride[l.status || ''] && (
                         <span className="text-[10px] text-accent font-bold">{statusLabelOverride[l.status || '']}</span>
                       )}
-                      {l.status === 'reserved' && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleAction(l.id, 'rented', l.title); }}
-                          className="text-[10px] font-bold rounded-md bg-success text-white px-2 py-0.5 hover:bg-success/90 transition-all"
-                        >
-                          تأكيد التسليم
-                        </button>
-                      )}
                       {isStale && <span className="text-[10px] text-accent font-medium">⚠ يحتاج تحديث</span>}
                     </div>
+                    {l.status === 'reserved' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAction(l.id, 'rented', l.title); }}
+                        className="mt-2 w-full text-xs font-bold rounded-lg bg-success text-white px-3 py-2 hover:bg-success/90 transition-all flex items-center justify-center gap-1.5"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        تأكيد التسليم — تم الإيجار
+                      </button>
+                    )}
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{l.views_count || 0}</span>
                       <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{l.favorites_count || 0}</span>
