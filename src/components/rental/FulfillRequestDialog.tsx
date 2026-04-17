@@ -250,24 +250,6 @@ export const FulfillRequestDialog = ({
               </div>
             )}
 
-            {/* Optional listing */}
-            {listings.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">ربط بإعلان (اختياري)</Label>
-                <Select value={selectedListingId} onValueChange={setSelectedListingId}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue placeholder="اختر إعلان" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {listings.map((l) => (
-                      <SelectItem key={l.id} value={l.id} className="text-xs">
-                        {l.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
 
             {/* Optional broker */}
             {brokers.length > 0 && (
