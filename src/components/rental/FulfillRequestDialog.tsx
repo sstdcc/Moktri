@@ -120,8 +120,8 @@ export const FulfillRequestDialog = ({
       return;
     }
 
-    // We need a listing_id for the rental record; use selected or create a placeholder
-    let listingId = selectedListingId;
+    // Auto-resolve listing_id from the selected owner's listings (required by rentals schema)
+    let listingId: string | undefined;
     if (!listingId) {
       // Find any listing by that owner
       const { data: ownerListing } = await supabase
