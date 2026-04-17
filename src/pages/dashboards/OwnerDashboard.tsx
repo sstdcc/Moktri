@@ -92,7 +92,8 @@ const OwnerDashboard = () => {
   const handleAction = async (listingId: string, action: string, title?: string) => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
     if (action === 'rented') {
-      setRentDialog({ open: true, listingId, title: title || '' });
+      const l = listings.find(x => x.id === listingId);
+      setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: (l as any)?.reserved_for_user_id || null });
       return;
     }
     const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
