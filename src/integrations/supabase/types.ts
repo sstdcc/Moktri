@@ -320,11 +320,14 @@ export type Database = {
           last_updated_at: string | null
           moderation_note: string | null
           neighborhood: string | null
+          offered_at: string | null
           owner_id: string
           price: number
           property_size: number | null
           published_at: string | null
           quality_score: number | null
+          reserved_for_user_id: string | null
+          source_request_id: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
           title: string
           views_count: number | null
@@ -359,11 +362,14 @@ export type Database = {
           last_updated_at?: string | null
           moderation_note?: string | null
           neighborhood?: string | null
+          offered_at?: string | null
           owner_id: string
           price: number
           property_size?: number | null
           published_at?: string | null
           quality_score?: number | null
+          reserved_for_user_id?: string | null
+          source_request_id?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           title: string
           views_count?: number | null
@@ -398,11 +404,14 @@ export type Database = {
           last_updated_at?: string | null
           moderation_note?: string | null
           neighborhood?: string | null
+          offered_at?: string | null
           owner_id?: string
           price?: number
           property_size?: number | null
           published_at?: string | null
           quality_score?: number | null
+          reserved_for_user_id?: string | null
+          source_request_id?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           title?: string
           views_count?: number | null
