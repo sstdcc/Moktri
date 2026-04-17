@@ -73,6 +73,7 @@ const RenterDashboard = () => {
         <SmartNudgeBanner />
         <ProfileCompletionCard />
         <PendingRatings />
+        <PrivateOffersForRenter />
 
         {/* Quick links */}
         <div className="grid grid-cols-2 gap-3">
