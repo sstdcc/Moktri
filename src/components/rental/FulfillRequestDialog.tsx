@@ -176,7 +176,6 @@ export const FulfillRequestDialog = ({
     setSelectedOwnerId('');
     setManualPhone('');
     setSelectedBrokerId('');
-    setSelectedListingId('');
   };
 
   return (
