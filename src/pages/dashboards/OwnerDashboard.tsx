@@ -50,7 +50,7 @@ const OwnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [stats, setStats] = useState({ total: 0, active: 0, views: 0, clicks: 0 });
-  const [rentDialog, setRentDialog] = useState<{ open: boolean; listingId: string; title: string }>({ open: false, listingId: '', title: '' });
+  const [rentDialog, setRentDialog] = useState<{ open: boolean; listingId: string; title: string; reservedRenterId?: string | null }>({ open: false, listingId: '', title: '', reservedRenterId: null });
 
   useEffect(() => {
     if (!user) return;
@@ -92,7 +92,8 @@ const OwnerDashboard = () => {
   const handleAction = async (listingId: string, action: string, title?: string) => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
     if (action === 'rented') {
-      setRentDialog({ open: true, listingId, title: title || '' });
+      const l = listings.find(x => x.id === listingId);
+      setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: (l as any)?.reserved_for_user_id || null });
       return;
     }
     const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
@@ -209,10 +210,15 @@ const OwnerDashboard = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="font-tajawal">
+                          {l.status === 'reserved' && (
+                            <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)} className="text-success font-bold">
+                              تأكيد التسليم (تم الإيجار)
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
-                          {l.status !== 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
-                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>
+                          {l.status !== 'active' && l.status !== 'reserved' && l.status !== 'private_offer' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
+                          {l.status !== 'reserved' && <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -222,16 +228,17 @@ const OwnerDashboard = () => {
                       {statusLabelOverride[l.status || ''] && (
                         <span className="text-[10px] text-accent font-bold">{statusLabelOverride[l.status || '']}</span>
                       )}
-                      {l.status === 'reserved' && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleAction(l.id, 'rented', l.title); }}
-                          className="text-[10px] font-bold rounded-md bg-success text-white px-2 py-0.5 hover:bg-success/90 transition-all"
-                        >
-                          تأكيد التسليم
-                        </button>
-                      )}
                       {isStale && <span className="text-[10px] text-accent font-medium">⚠ يحتاج تحديث</span>}
                     </div>
+                    {l.status === 'reserved' && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleAction(l.id, 'rented', l.title); }}
+                        className="mt-2 w-full text-xs font-bold rounded-lg bg-success text-white px-3 py-2 hover:bg-success/90 transition-all flex items-center justify-center gap-1.5"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        تأكيد التسليم — تم الإيجار
+                      </button>
+                    )}
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{l.views_count || 0}</span>
                       <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{l.favorites_count || 0}</span>
@@ -259,6 +266,7 @@ const OwnerDashboard = () => {
         onOpenChange={(o) => setRentDialog(prev => ({ ...prev, open: o }))}
         listingId={rentDialog.listingId}
         listingTitle={rentDialog.title}
+        reservedRenterId={rentDialog.reservedRenterId || undefined}
         onCompleted={() => {
           setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented' as any, last_updated_at: new Date().toISOString() } : l));
         }}

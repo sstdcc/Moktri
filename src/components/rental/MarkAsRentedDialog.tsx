@@ -20,10 +20,11 @@ interface MarkAsRentedDialogProps {
   onOpenChange: (open: boolean) => void;
   listingId: string;
   listingTitle: string;
+  reservedRenterId?: string;
   onCompleted?: () => void;
 }
 
-export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle, onCompleted }: MarkAsRentedDialogProps) => {
+export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle, reservedRenterId, onCompleted }: MarkAsRentedDialogProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -54,7 +55,24 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
           renters.push({ id: p.id, full_name: p.full_name, phone: p.phone });
         }
       });
+
+      // Ensure reserved renter is included and preselected
+      if (reservedRenterId && !seen.has(reservedRenterId)) {
+        const { data: rp } = await supabase
+          .from('profiles')
+          .select('id, full_name, phone')
+          .eq('id', reservedRenterId)
+          .maybeSingle();
+        if (rp) {
+          renters.unshift({ id: rp.id, full_name: rp.full_name, phone: rp.phone });
+          seen.add(rp.id);
+        }
+      }
       setChatRenters(renters);
+      if (reservedRenterId) {
+        setRenterId(reservedRenterId);
+        setMode('chat');
+      }
 
       // Fetch verified brokers
       const { data: brokerData } = await supabase
@@ -66,7 +84,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
       setLoading(false);
     };
     load();
-  }, [open, user, listingId]);
+  }, [open, user, listingId, reservedRenterId]);
 
   const resolveRenterByPhone = async (phone: string): Promise<string | null> => {
     const cleaned = phone.trim();
