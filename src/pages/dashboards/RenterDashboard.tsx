@@ -17,6 +17,7 @@ import ProfileCompletionCard from '@/components/ProfileCompletionCard';
 import SmartNudgeBanner from '@/components/SmartNudgeBanner';
 import { RequestCard } from '@/components/RequestCard';
 import { PendingRatings } from '@/components/rating/PendingRatings';
+import { PrivateOffersForRenter } from '@/components/rental/PrivateOffersForRenter';
 
 
 const RenterDashboard = () => {
