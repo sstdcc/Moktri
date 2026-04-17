@@ -30,7 +30,6 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
   const [selectedRentalId, setSelectedRentalId] = useState<string>('');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [existingId, setExistingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
 
