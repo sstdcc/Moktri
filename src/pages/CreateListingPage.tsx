@@ -347,7 +347,14 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
 
   return (
     <div className="min-h-screen bg-background pb-8 font-tajawal">
-      <PageHeader title={isEditing ? 'تعديل الإعلان' : 'إضافة إعلان جديد'} showBack />
+      <PageHeader title={isPrivateOffer ? 'إنشاء عرض خاص' : isEditing ? 'تعديل الإعلان' : 'إضافة إعلان جديد'} showBack />
+
+      {isPrivateOffer && (
+        <div className="mx-4 mt-3 rounded-2xl border border-accent/30 bg-accent/5 p-3 text-xs font-tajawal text-foreground" dir="rtl">
+          <p className="font-bold mb-1">عرض خاص بمستأجر محدد</p>
+          <p className="text-muted-foreground">هذا الإعلان لن يكون عاماً، وسيظهر فقط للمستأجر الذي طلبه. عند رفضه يتحول لمسودة يمكنك تعديلها ونشرها لاحقاً.</p>
+        </div>
+      )}
 
       {/* Progress bar */}
       <div className="sticky top-14 z-30 bg-card border-b border-border px-4 py-3">
