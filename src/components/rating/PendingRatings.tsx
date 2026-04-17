@@ -45,18 +45,17 @@ export const PendingRatings = () => {
       return;
     }
 
-    // Fetch all ratings made by current user for these rentals
-    const rentalIds = rentals.map((r: any) => r.id);
+    // Fetch all ratings made by current user (pair-level: once per rated user, ever)
     const { data: myRatings } = await supabase
       .from('user_ratings')
-      .select('rental_id, rated_user_id')
-      .eq('rater_id', user.id)
-      .in('rental_id', rentalIds);
+      .select('rated_user_id')
+      .eq('rater_id', user.id);
 
-    const ratedSet = new Set((myRatings ?? []).map((r: any) => `${r.rental_id}:${r.rated_user_id}`));
+    const ratedUserSet = new Set((myRatings ?? []).map((r: any) => r.rated_user_id));
 
-    // Build pending list: for each rental, list each allowed counterpart not yet rated
+    // Build pending list: one entry per (counterpart user) — dedupe across rentals
     const pending: PendingItem[] = [];
+    const seenPair = new Set<string>();
     rentals.forEach((r: any) => {
       const targets: { id: string; name: string; avatar: string | null; role: string }[] = [];
       const isOwner = r.owner_id === user.id;
@@ -75,18 +74,19 @@ export const PendingRatings = () => {
       }
 
       targets.forEach((t) => {
-        if (!ratedSet.has(`${r.id}:${t.id}`)) {
-          pending.push({
-            rental_id: r.id,
-            listing_id: r.listing_id,
-            listing_title: r.listing?.title ?? 'إعلان',
-            completed_at: r.completed_at,
-            other_user_id: t.id,
-            other_user_name: t.name,
-            other_user_avatar: t.avatar,
-            other_role_label: t.role,
-          });
-        }
+        if (ratedUserSet.has(t.id)) return; // already rated this user before — never prompt again
+        if (seenPair.has(t.id)) return; // already added from a more recent rental
+        seenPair.add(t.id);
+        pending.push({
+          rental_id: r.id,
+          listing_id: r.listing_id,
+          listing_title: r.listing?.title ?? 'إعلان',
+          completed_at: r.completed_at,
+          other_user_id: t.id,
+          other_user_name: t.name,
+          other_user_avatar: t.avatar,
+          other_role_label: t.role,
+        });
       });
     });
 
