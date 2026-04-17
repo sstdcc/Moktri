@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { 
   DoorOpen, Building2, Home, Layers, Store, Briefcase, Users, HeartHandshake, GraduationCap,
   Check, ArrowLeft, ArrowRight, Camera, X, Droplets, Zap, ParkingCircle, Wifi,
