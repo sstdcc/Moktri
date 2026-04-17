@@ -37,8 +37,6 @@ export const FulfillRequestDialog = ({
   const [selectedOwnerId, setSelectedOwnerId] = useState('');
   const [manualPhone, setManualPhone] = useState('');
   const [selectedBrokerId, setSelectedBrokerId] = useState('');
-  const [selectedListingId, setSelectedListingId] = useState('');
-  const [listings, setListings] = useState<{ id: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
