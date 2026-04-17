@@ -37,8 +37,6 @@ export const FulfillRequestDialog = ({
   const [selectedOwnerId, setSelectedOwnerId] = useState('');
   const [manualPhone, setManualPhone] = useState('');
   const [selectedBrokerId, setSelectedBrokerId] = useState('');
-  const [selectedListingId, setSelectedListingId] = useState('');
-  const [listings, setListings] = useState<{ id: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -73,14 +71,6 @@ export const FulfillRequestDialog = ({
         .neq('id', user.id)
         .limit(50);
       setBrokers((brokerData as ProfileOption[]) ?? []);
-
-      // Fetch active listings (to optionally link)
-      const { data: listingData } = await supabase
-        .from('listings')
-        .select('id, title')
-        .eq('status', 'active')
-        .limit(50);
-      setListings(listingData ?? []);
 
       setLoading(false);
     };
@@ -130,8 +120,8 @@ export const FulfillRequestDialog = ({
       return;
     }
 
-    // We need a listing_id for the rental record; use selected or create a placeholder
-    let listingId = selectedListingId;
+    // Auto-resolve listing_id from the selected owner's listings (required by rentals schema)
+    let listingId: string | undefined;
     if (!listingId) {
       // Find any listing by that owner
       const { data: ownerListing } = await supabase
@@ -186,7 +176,6 @@ export const FulfillRequestDialog = ({
     setSelectedOwnerId('');
     setManualPhone('');
     setSelectedBrokerId('');
-    setSelectedListingId('');
   };
 
   return (
@@ -260,24 +249,6 @@ export const FulfillRequestDialog = ({
               </div>
             )}
 
-            {/* Optional listing */}
-            {listings.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">ربط بإعلان (اختياري)</Label>
-                <Select value={selectedListingId} onValueChange={setSelectedListingId}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue placeholder="اختر إعلان" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {listings.map((l) => (
-                      <SelectItem key={l.id} value={l.id} className="text-xs">
-                        {l.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
 
             {/* Optional broker */}
             {brokers.length > 0 && (
