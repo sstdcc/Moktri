@@ -16,9 +16,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
+import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, Phone, FileQuestion, Clock,
+  Send, Phone, FileQuestion, Clock, CheckCircle2,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
@@ -81,6 +82,7 @@ const RequestDetailPage = () => {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [fulfillOpen, setFulfillOpen] = useState(false);
 
   const districtName = (dId: string | null) => districts.find(d => d.id === dId)?.name_ar ?? '';
 
@@ -318,6 +320,27 @@ const RequestDetailPage = () => {
                 </CardContent>
               </Card>
             )}
+          </>
+        )}
+
+        {/* Fulfill action for requester */}
+        {isRequester && request.status === 'active' && (
+          <>
+            <Button
+              onClick={() => setFulfillOpen(true)}
+              variant="outline"
+              className="w-full gap-2 border-success/30 text-success hover:bg-success/10"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              تم تنفيذ الطلب
+            </Button>
+            <FulfillRequestDialog
+              open={fulfillOpen}
+              onOpenChange={setFulfillOpen}
+              requestId={request.id}
+              requestCategory={request.category}
+              onCompleted={fetchData}
+            />
           </>
         )}
 
