@@ -138,6 +138,20 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
         .update({ status: 'rented', last_updated_at: new Date().toISOString() })
         .eq('id', listingId);
 
+      // If linked to a housing request, close it
+      const { data: listingRow } = await supabase
+        .from('listings')
+        .select('source_request_id')
+        .eq('id', listingId)
+        .maybeSingle();
+      const sourceRequestId = (listingRow as any)?.source_request_id as string | null | undefined;
+      if (sourceRequestId) {
+        await supabase
+          .from('housing_requests')
+          .update({ status: 'fulfilled' })
+          .eq('id', sourceRequestId);
+      }
+
       // Notifications
       const notifs: any[] = [
         { user_id: finalRenterId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` },
