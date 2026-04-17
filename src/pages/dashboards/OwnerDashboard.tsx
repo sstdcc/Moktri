@@ -266,6 +266,7 @@ const OwnerDashboard = () => {
         onOpenChange={(o) => setRentDialog(prev => ({ ...prev, open: o }))}
         listingId={rentDialog.listingId}
         listingTitle={rentDialog.title}
+        reservedRenterId={rentDialog.reservedRenterId || undefined}
         onCompleted={() => {
           setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented' as any, last_updated_at: new Date().toISOString() } : l));
         }}
