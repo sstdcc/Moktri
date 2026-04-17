@@ -121,6 +121,7 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
   };
 
   return (
+    <>
     <div
       onClick={() => navigate(`/requests/${r.id}`)}
       className="cursor-pointer rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:shadow-elevated active:scale-[0.99]"
@@ -227,8 +228,10 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
         )}
       </div>
 
-      {/* Fulfill Dialog */}
-      {isOwner && (
+    </div>
+    {/* Fulfill Dialog - rendered outside clickable card to avoid click bubbling */}
+    {isOwner && (
+      <div onClick={(e) => e.stopPropagation()}>
         <FulfillRequestDialog
           open={fulfillOpen}
           onOpenChange={setFulfillOpen}
@@ -236,7 +239,8 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
           requestCategory={r.category}
           onCompleted={onFulfilled}
         />
-      )}
-    </div>
+      </div>
+    )}
+    </>
   );
 };
