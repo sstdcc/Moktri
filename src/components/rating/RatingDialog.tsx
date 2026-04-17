@@ -4,10 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RatingStars } from './RatingStars';
 import { toast } from 'sonner';
-import { Trash2, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 interface RatingDialogProps {
   open: boolean;
