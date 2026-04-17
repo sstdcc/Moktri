@@ -908,6 +908,8 @@ export type Database = {
         | "rented"
         | "expired"
         | "rejected"
+        | "private_offer"
+        | "reserved"
       notification_type:
         | "new_response"
         | "listing_expiring"
@@ -917,6 +919,10 @@ export type Database = {
         | "new_report"
         | "system"
         | "new_message"
+        | "private_offer_request"
+        | "private_offer_created"
+        | "private_offer_accepted"
+        | "private_offer_rejected"
       rental_status: "active" | "completed" | "cancelled"
       report_reason:
         | "fake"
@@ -1084,6 +1090,8 @@ export const Constants = {
         "rented",
         "expired",
         "rejected",
+        "private_offer",
+        "reserved",
       ],
       notification_type: [
         "new_response",
@@ -1094,6 +1102,10 @@ export const Constants = {
         "new_report",
         "system",
         "new_message",
+        "private_offer_request",
+        "private_offer_created",
+        "private_offer_accepted",
+        "private_offer_rejected",
       ],
       rental_status: ["active", "completed", "cancelled"],
       report_reason: [
