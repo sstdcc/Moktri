@@ -209,10 +209,15 @@ const OwnerDashboard = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="font-tajawal">
+                          {l.status === 'reserved' && (
+                            <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)} className="text-success font-bold">
+                              تأكيد التسليم (تم الإيجار)
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
-                          {l.status !== 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
-                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>
+                          {l.status !== 'active' && l.status !== 'reserved' && l.status !== 'private_offer' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
+                          {l.status !== 'reserved' && <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
