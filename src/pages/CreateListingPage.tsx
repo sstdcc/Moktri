@@ -648,9 +648,9 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
             <div className="flex flex-col gap-3">
               <Button onClick={() => handleSubmit('active')} disabled={submitting} className="w-full gap-2">
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {isEditing ? 'حفظ التعديلات' : 'نشر الإعلان الآن'}
+                {isPrivateOffer ? 'إرسال العرض الخاص' : isEditing ? 'حفظ التعديلات' : 'نشر الإعلان الآن'}
               </Button>
-              {!isEditing && (
+              {!isEditing && !isPrivateOffer && (
                 <Button variant="outline" onClick={() => handleSubmit('draft')} disabled={submitting} className="w-full">
                   حفظ كمسودة
                 </Button>
