@@ -72,14 +72,6 @@ export const FulfillRequestDialog = ({
         .limit(50);
       setBrokers((brokerData as ProfileOption[]) ?? []);
 
-      // Fetch active listings (to optionally link)
-      const { data: listingData } = await supabase
-        .from('listings')
-        .select('id, title')
-        .eq('status', 'active')
-        .limit(50);
-      setListings(listingData ?? []);
-
       setLoading(false);
     };
     load();
