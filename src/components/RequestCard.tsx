@@ -227,8 +227,10 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
         )}
       </div>
 
-      {/* Fulfill Dialog */}
-      {isOwner && (
+    </div>
+    {/* Fulfill Dialog - rendered outside clickable card to avoid click bubbling */}
+    {isOwner && (
+      <div onClick={(e) => e.stopPropagation()}>
         <FulfillRequestDialog
           open={fulfillOpen}
           onOpenChange={setFulfillOpen}
@@ -236,7 +238,8 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
           requestCategory={r.category}
           onCompleted={onFulfilled}
         />
-      )}
-    </div>
+      </div>
+    )}
+    </>
   );
 };
