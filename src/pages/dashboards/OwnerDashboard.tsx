@@ -50,7 +50,7 @@ const OwnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [stats, setStats] = useState({ total: 0, active: 0, views: 0, clicks: 0 });
-  const [rentDialog, setRentDialog] = useState<{ open: boolean; listingId: string; title: string }>({ open: false, listingId: '', title: '' });
+  const [rentDialog, setRentDialog] = useState<{ open: boolean; listingId: string; title: string; reservedRenterId?: string | null }>({ open: false, listingId: '', title: '', reservedRenterId: null });
 
   useEffect(() => {
     if (!user) return;
