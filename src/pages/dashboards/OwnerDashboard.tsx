@@ -217,8 +217,19 @@ const OwnerDashboard = () => {
                       </DropdownMenu>
                     </div>
                     <p className="text-sm font-bold text-accent mt-0.5">{Number(l.price).toLocaleString('ar-YE')} {l.currency === 'YER' ? 'ر.ي' : '$'}</p>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <MiftahBadge variant={statusBadgeMap[l.status || 'draft'] || 'expired'} />
+                      {statusLabelOverride[l.status || ''] && (
+                        <span className="text-[10px] text-accent font-bold">{statusLabelOverride[l.status || '']}</span>
+                      )}
+                      {l.status === 'reserved' && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleAction(l.id, 'rented', l.title); }}
+                          className="text-[10px] font-bold rounded-md bg-success text-white px-2 py-0.5 hover:bg-success/90 transition-all"
+                        >
+                          تأكيد التسليم
+                        </button>
+                      )}
                       {isStale && <span className="text-[10px] text-accent font-medium">⚠ يحتاج تحديث</span>}
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
