@@ -75,36 +75,29 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
 
   const handleSubmit = async () => {
     if (!user) { toast.error('سجل دخول لإضافة تقييم'); return; }
-    if (!selectedRentalId) { toast.error('اختر إيجاراً مكتملاً'); return; }
+    if (!selectedRentalId) { toast.error('لا يوجد إيجار مكتمل'); return; }
     if (rating < 1 || rating > 5) { toast.error('اختر عدد النجوم'); return; }
     if (comment.length > 500) { toast.error('التعليق طويل جداً'); return; }
 
     setSubmitting(true);
-    const payload = {
+    const { error } = await supabase.from('user_ratings').insert({
       rater_id: user.id,
       rated_user_id: ratedUserId,
       rental_id: selectedRentalId,
       rating,
       comment: comment.trim() || null,
-    };
-    const { error } = existingId
-      ? await supabase.from('user_ratings').update(payload).eq('id', existingId)
-      : await supabase.from('user_ratings').insert(payload);
+    });
     setSubmitting(false);
 
-    if (error) { toast.error(error.message || 'تعذر حفظ التقييم'); return; }
-    toast.success(existingId ? 'تم تحديث تقييمك' : 'شكراً على تقييمك');
-    onOpenChange(false);
-    onSaved?.();
-  };
-
-  const handleDelete = async () => {
-    if (!existingId) return;
-    setSubmitting(true);
-    const { error } = await supabase.from('user_ratings').delete().eq('id', existingId);
-    setSubmitting(false);
-    if (error) { toast.error('تعذر حذف التقييم'); return; }
-    toast.success('تم حذف التقييم');
+    if (error) {
+      if ((error as any).code === '23505') {
+        toast.error('سبق وقمت بتقييم هذا المستخدم');
+      } else {
+        toast.error(error.message || 'تعذر حفظ التقييم');
+      }
+      return;
+    }
+    toast.success('شكراً على تقييمك');
     onOpenChange(false);
     onSaved?.();
   };
