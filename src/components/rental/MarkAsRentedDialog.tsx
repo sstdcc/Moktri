@@ -20,10 +20,11 @@ interface MarkAsRentedDialogProps {
   onOpenChange: (open: boolean) => void;
   listingId: string;
   listingTitle: string;
+  reservedRenterId?: string;
   onCompleted?: () => void;
 }
 
-export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle, onCompleted }: MarkAsRentedDialogProps) => {
+export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle, reservedRenterId, onCompleted }: MarkAsRentedDialogProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
