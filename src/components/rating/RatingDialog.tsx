@@ -38,7 +38,6 @@ export const RatingDialog = ({ open, onOpenChange, ratedUserId, ratedUserName, o
   useEffect(() => {
     if (!open || !user) return;
     setLoading(true);
-    setExistingId(null);
     setRating(0);
     setComment('');
     setSelectedRentalId('');
