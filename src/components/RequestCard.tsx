@@ -60,10 +60,11 @@ interface RequestCardProps {
   onFulfilled?: () => void;
 }
 
-export const RequestCard = ({ request: r, districts }: RequestCardProps) => {
+export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [chatLoading, setChatLoading] = useState(false);
+  const [fulfillOpen, setFulfillOpen] = useState(false);
 
   const name = (r.requester as any)?.full_name ?? 'مستخدم';
   const avatarUrl = (r.requester as any)?.avatar_url ?? null;
