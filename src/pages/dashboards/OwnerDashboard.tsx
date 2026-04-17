@@ -19,6 +19,8 @@ import type { Listing } from '@/types/database';
 const statusTabs = [
   { value: 'all', label: 'الكل' },
   { value: 'active', label: 'نشط' },
+  { value: 'reserved', label: 'بانتظار التأكيد' },
+  { value: 'private_offer', label: 'عرض خاص' },
   { value: 'paused', label: 'موقوف' },
   { value: 'rented', label: 'مؤجر' },
   { value: 'draft', label: 'مسودة' },
@@ -29,6 +31,12 @@ const statusTabs = [
 const statusBadgeMap: Record<string, any> = {
   active: 'active', paused: 'pending', rented: 'rented', draft: 'expired',
   pending_review: 'pending', expired: 'expired', rejected: 'rejected',
+  private_offer: 'pending', reserved: 'pending',
+};
+
+const statusLabelOverride: Record<string, string> = {
+  private_offer: 'عرض خاص — بانتظار رد المستأجر',
+  reserved: 'بانتظار تأكيد التسليم',
 };
 
 interface ListingWithImage extends Listing {
