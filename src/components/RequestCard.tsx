@@ -25,7 +25,7 @@ const forWhomLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  active: 'نشط', fulfilled: 'مكتمل', completed: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
+  active: 'طلب نشط', fulfilled: 'مكتمل', completed: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
 };
 const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
@@ -224,7 +224,7 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
             onClick={(e) => { e.stopPropagation(); setFulfillOpen(true); }}
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
-            تم تنفيذ الطلب
+            تأكيد تنفيذ الطلب
           </Button>
         )}
       </div>
