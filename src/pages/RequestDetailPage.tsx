@@ -332,7 +332,7 @@ const RequestDetailPage = () => {
               className="w-full gap-2 border-success/30 text-success hover:bg-success/10"
             >
               <CheckCircle2 className="h-4 w-4" />
-              تم تنفيذ الطلب
+              تأكيد تنفيذ الطلب
             </Button>
             <FulfillRequestDialog
               open={fulfillOpen}
