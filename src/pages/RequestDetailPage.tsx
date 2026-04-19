@@ -28,9 +28,9 @@ const categoryLabels: Record<string, string> = {
 };
 const forWhomLabels: Record<string, string> = { family: 'عائلة', bachelors: 'عزاب', students: 'طلاب' };
 const furnishingLabels: Record<string, string> = { any: 'أي نوع', furnished: 'مفروش', unfurnished: 'غير مفروش' };
-const statusLabels: Record<string, string> = { active: 'نشط', fulfilled: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي' };
+const statusLabels: Record<string, string> = { active: 'نشط', fulfilled: 'مكتمل', completed: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي' };
 const statusColors: Record<string, string> = {
-  active: 'bg-success/10 text-success', fulfilled: 'bg-primary/10 text-primary',
+  active: 'bg-success/10 text-success', fulfilled: 'bg-primary/10 text-primary', completed: 'bg-primary/10 text-primary',
   expired: 'bg-muted text-muted-foreground', cancelled: 'bg-destructive/10 text-destructive',
 };
 

@@ -27,20 +27,21 @@ const forWhomLabels: Record<string, string> = {
 const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success',
   fulfilled: 'bg-primary/10 text-primary',
+  completed: 'bg-primary/10 text-primary',
   expired: 'bg-muted text-muted-foreground',
   cancelled: 'bg-danger/10 text-danger',
 };
 
 const statusLabels: Record<string, string> = {
-  active: 'نشط', fulfilled: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
+  active: 'نشط', fulfilled: 'مكتمل', completed: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
 };
 
-type TabValue = 'active' | 'expired' | 'fulfilled' | 'cancelled';
+type TabValue = 'active' | 'expired' | 'completed' | 'cancelled';
 
 const tabs: { label: string; value: TabValue }[] = [
   { label: 'نشطة', value: 'active' },
   { label: 'منتهية', value: 'expired' },
-  { label: 'مكتملة', value: 'fulfilled' },
+  { label: 'مكتملة', value: 'completed' },
   { label: 'ملغية', value: 'cancelled' },
 ];
 
