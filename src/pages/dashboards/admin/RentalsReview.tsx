@@ -72,7 +72,7 @@ const RentalsReview = () => {
         if (r.listing.source_request_id) {
           await supabase
             .from('housing_requests')
-            .update({ status: 'fulfilled' as any })
+            .update({ status: 'completed' as any })
             .eq('id', r.listing.source_request_id);
         }
       }

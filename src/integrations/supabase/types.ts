@@ -944,7 +944,12 @@ export type Database = {
         | "other"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
       report_target_type: "listing" | "user" | "request"
-      request_status: "active" | "fulfilled" | "expired" | "cancelled"
+      request_status:
+        | "active"
+        | "fulfilled"
+        | "expired"
+        | "cancelled"
+        | "completed"
       user_role: "renter" | "owner" | "broker" | "admin" | "moderator"
       verification_app_status: "pending" | "approved" | "rejected"
       verification_badge_status: "none" | "pending" | "verified" | "rejected"
@@ -1130,7 +1135,13 @@ export const Constants = {
       ],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],
       report_target_type: ["listing", "user", "request"],
-      request_status: ["active", "fulfilled", "expired", "cancelled"],
+      request_status: [
+        "active",
+        "fulfilled",
+        "expired",
+        "cancelled",
+        "completed",
+      ],
       user_role: ["renter", "owner", "broker", "admin", "moderator"],
       verification_app_status: ["pending", "approved", "rejected"],
       verification_badge_status: ["none", "pending", "verified", "rejected"],

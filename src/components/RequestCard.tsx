@@ -25,11 +25,12 @@ const forWhomLabels: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  active: 'نشط', fulfilled: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
+  active: 'نشط', fulfilled: 'مكتمل', completed: 'مكتمل', expired: 'منتهي', cancelled: 'ملغي',
 };
 const statusColors: Record<string, string> = {
   active: 'bg-success/10 text-success border-success/20',
   fulfilled: 'bg-primary/10 text-primary border-primary/20',
+  completed: 'bg-primary/10 text-primary border-primary/20',
   expired: 'bg-muted text-muted-foreground border-border',
   cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
 };

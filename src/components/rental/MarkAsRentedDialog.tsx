@@ -179,7 +179,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
         if (sourceRequestId) {
           await supabase
             .from('housing_requests')
-            .update({ status: 'fulfilled' })
+            .update({ status: 'completed' as any })
             .eq('id', sourceRequestId);
         }
 

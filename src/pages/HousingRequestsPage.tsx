@@ -28,19 +28,21 @@ const HousingRequestsPage = () => {
     const { data, error: err } = await supabase
       .from('housing_requests')
       .select('id, category, neighborhood, district_id, min_price, max_price, currency, for_whom, notes, bedrooms_needed, responses_count, views_count, status, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
-      .in('status', ['active', 'fulfilled', 'expired', 'cancelled'])
+      .in('status', ['active', 'fulfilled', 'expired', 'cancelled', 'completed'])
       .order('created_at', { ascending: false })
       .limit(100);
 
     if (err) { setError(true); setLoading(false); return; }
     const all = (data as unknown as RequestCardData[]) ?? [];
 
+    const isClosed = (s: string | null) => s === 'fulfilled' || s === 'completed' || s === 'cancelled' || s === 'expired';
     if (user) {
       setMyRequests(all.filter(r => r.requester_id === user.id));
-      setOtherRequests(all.filter(r => r.requester_id !== user.id));
+      // Hide closed/completed requests from the public "other requests" view
+      setOtherRequests(all.filter(r => r.requester_id !== user.id && !isClosed(r.status)));
     } else {
       setMyRequests([]);
-      setOtherRequests(all);
+      setOtherRequests(all.filter(r => !isClosed(r.status)));
     }
     setLoading(false);
   }, [user]);
