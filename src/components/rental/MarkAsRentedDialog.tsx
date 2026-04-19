@@ -291,7 +291,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
             </div>
 
             <div className="rounded-xl bg-accent/5 border border-accent/20 p-3 text-xs text-foreground/80 text-right">
-              سيتم تعيين حالة الإيجار إلى <span className="font-bold text-success">مكتمل</span> فوراً، وتفعيل التقييم بين الأطراف المسموح بها.
+              للعروض الخاصة: سيتم رفع الإيجار <span className="font-bold">للمراجعة من الإدارة</span> قبل اعتماده. للإعلانات العادية: يتم تعيينه كمكتمل فوراً.
             </div>
           </div>
         )}
