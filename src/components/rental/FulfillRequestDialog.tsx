@@ -31,8 +31,9 @@ export const FulfillRequestDialog = ({
   open, onOpenChange, requestId, requestCategory, onCompleted,
 }: FulfillRequestDialogProps) => {
   const { user } = useAuth();
-  const [mode, setMode] = useState<'responder' | 'manual'>('responder');
+  const [mode, setMode] = useState<'responder' | 'chat' | 'manual'>('responder');
   const [responders, setResponders] = useState<ProfileOption[]>([]);
+  const [chatUsers, setChatUsers] = useState<ProfileOption[]>([]);
   const [brokers, setBrokers] = useState<ProfileOption[]>([]);
   const [selectedOwnerId, setSelectedOwnerId] = useState('');
   const [manualPhone, setManualPhone] = useState('');
@@ -61,6 +62,24 @@ export const FulfillRequestDialog = ({
         }
       });
       setResponders(respList);
+
+      // Fetch users the renter has chatted with (as initiator on listing conversations)
+      const { data: convs } = await supabase
+        .from('listing_conversations')
+        .select('owner_id, user_id, owner:profiles!listing_conversations_owner_id_fkey(id, full_name, phone), other:profiles!listing_conversations_user_id_fkey(id, full_name, phone)')
+        .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`)
+        .limit(100);
+
+      const chatSeen = new Set<string>();
+      const chatList: ProfileOption[] = [];
+      (convs ?? []).forEach((c: any) => {
+        const p = c.owner_id === user.id ? c.other : c.owner;
+        if (p && !chatSeen.has(p.id) && p.id !== user.id) {
+          chatSeen.add(p.id);
+          chatList.push({ id: p.id, full_name: p.full_name, phone: p.phone });
+        }
+      });
+      setChatUsers(chatList);
 
       // Fetch verified brokers
       const { data: brokerData } = await supabase
@@ -92,7 +111,7 @@ export const FulfillRequestDialog = ({
 
     let ownerId: string | null = null;
 
-    if (mode === 'responder') {
+    if (mode === 'responder' || mode === 'chat') {
       ownerId = selectedOwnerId;
     } else {
       if (!manualPhone.trim()) {
@@ -210,20 +229,28 @@ export const FulfillRequestDialog = ({
         ) : (
           <div className="space-y-4">
             {/* Mode toggle */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Button
                 variant={mode === 'responder' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1 text-xs"
-                onClick={() => setMode('responder')}
+                className="text-xs"
+                onClick={() => { setMode('responder'); setSelectedOwnerId(''); }}
               >
                 من الردود
               </Button>
               <Button
+                variant={mode === 'chat' ? 'default' : 'outline'}
+                size="sm"
+                className="text-xs"
+                onClick={() => { setMode('chat'); setSelectedOwnerId(''); }}
+              >
+                من المحادثات
+              </Button>
+              <Button
                 variant={mode === 'manual' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-1 text-xs"
-                onClick={() => setMode('manual')}
+                className="text-xs"
+                onClick={() => { setMode('manual'); setSelectedOwnerId(''); }}
               >
                 إدخال يدوي
               </Button>
@@ -234,7 +261,7 @@ export const FulfillRequestDialog = ({
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">المالك / المتعامل</Label>
                 {responders.length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-2">لا يوجد مستجيبون - استخدم الإدخال اليدوي</p>
+                  <p className="text-xs text-muted-foreground py-2">لا يوجد مستجيبون - جرّب من المحادثات أو الإدخال اليدوي</p>
                 ) : (
                   <Select value={selectedOwnerId} onValueChange={setSelectedOwnerId}>
                     <SelectTrigger className="h-9 text-xs">
@@ -242,6 +269,26 @@ export const FulfillRequestDialog = ({
                     </SelectTrigger>
                     <SelectContent>
                       {responders.map((p) => (
+                        <SelectItem key={p.id} value={p.id} className="text-xs">
+                          {p.full_name} {p.phone ? `(${p.phone})` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            ) : mode === 'chat' ? (
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">من محادثاتك</Label>
+                {chatUsers.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-2">لا توجد محادثات سابقة - استخدم الإدخال اليدوي</p>
+                ) : (
+                  <Select value={selectedOwnerId} onValueChange={setSelectedOwnerId}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue placeholder="اختر من المحادثات" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {chatUsers.map((p) => (
                         <SelectItem key={p.id} value={p.id} className="text-xs">
                           {p.full_name} {p.phone ? `(${p.phone})` : ''}
                         </SelectItem>
