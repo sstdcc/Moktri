@@ -11,6 +11,7 @@ import {
   Users,
   BadgeCheck,
   MapPin,
+  Handshake,
   LogOut,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -19,6 +20,7 @@ const adminNavItems = [
   { label: 'نظرة عامة', icon: LayoutDashboard, path: '/dashboard/admin' },
   { label: 'الإعلانات', icon: ListChecks, path: '/dashboard/admin/listings' },
   { label: 'الطلبات', icon: FileSearch, path: '/dashboard/admin/requests' },
+  { label: 'الإيجارات', icon: Handshake, path: '/dashboard/admin/rentals' },
   { label: 'البلاغات', icon: ShieldAlert, path: '/dashboard/admin/reports' },
   { label: 'المستخدمون', icon: Users, path: '/dashboard/admin/users' },
   { label: 'التوثيق', icon: BadgeCheck, path: '/dashboard/admin/verifications' },

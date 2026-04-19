@@ -122,46 +122,77 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
         return;
       }
 
-      // Insert rental as completed
+      // Determine if this is a private offer (needs admin review before completion)
+      const { data: listingRow } = await supabase
+        .from('listings')
+        .select('source_request_id, status, reserved_for_user_id')
+        .eq('id', listingId)
+        .maybeSingle();
+      const isPrivateOffer = !!(listingRow as any)?.reserved_for_user_id
+        && ((listingRow as any)?.status === 'private_offer' || (listingRow as any)?.status === 'reserved');
+      const sourceRequestId = (listingRow as any)?.source_request_id as string | null | undefined;
+
+      const rentalStatus = isPrivateOffer ? 'pending_review' : 'completed';
+
+      // Insert rental
       const { error: insertError } = await supabase.from('rentals').insert({
         listing_id: listingId,
         owner_id: user.id,
         renter_id: finalRenterId,
         broker_id: brokerId !== 'none' ? brokerId : null,
-        status: 'completed',
+        status: rentalStatus as any,
       });
       if (insertError) throw insertError;
 
-      // Update listing status to rented
-      await supabase
-        .from('listings')
-        .update({ status: 'rented', last_updated_at: new Date().toISOString() })
-        .eq('id', listingId);
-
-      // If linked to a housing request, close it
-      const { data: listingRow } = await supabase
-        .from('listings')
-        .select('source_request_id')
-        .eq('id', listingId)
-        .maybeSingle();
-      const sourceRequestId = (listingRow as any)?.source_request_id as string | null | undefined;
-      if (sourceRequestId) {
+      if (isPrivateOffer) {
+        // Keep listing as reserved; do NOT close housing request yet
         await supabase
-          .from('housing_requests')
-          .update({ status: 'fulfilled' })
-          .eq('id', sourceRequestId);
-      }
+          .from('listings')
+          .update({ status: 'reserved', last_updated_at: new Date().toISOString() })
+          .eq('id', listingId);
 
-      // Notifications
-      const notifs: any[] = [
-        { user_id: finalRenterId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` },
-      ];
-      if (brokerId !== 'none') {
-        notifs.push({ user_id: brokerId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كوسيط في الإعلان: ${listingTitle}.`, link: `/profile/${finalRenterId}` });
-      }
-      await supabase.from('notifications').insert(notifs);
+        // Notify admins/moderators for review
+        const { data: admins } = await supabase
+          .from('profiles')
+          .select('id')
+          .in('role', ['admin', 'moderator']);
+        if (admins && admins.length) {
+          await supabase.from('notifications').insert(
+            admins.map((a: any) => ({
+              user_id: a.id,
+              type: 'rental_pending_review' as any,
+              title_ar: 'إيجار عرض خاص بانتظار المراجعة',
+              body_ar: `طلب اعتماد إيجار للإعلان: ${listingTitle}.`,
+              link: '/dashboard/admin/rentals',
+            }))
+          );
+        }
 
-      toast({ title: 'تم تسجيل الإيجار', description: 'يمكن الآن للأطراف تقييم بعضهم' });
+        toast({ title: 'تم رفع الإيجار للمراجعة', description: 'سيتم اعتماده من قبل الإدارة قريباً' });
+      } else {
+        // Normal flow: complete immediately
+        await supabase
+          .from('listings')
+          .update({ status: 'rented', last_updated_at: new Date().toISOString() })
+          .eq('id', listingId);
+
+        if (sourceRequestId) {
+          await supabase
+            .from('housing_requests')
+            .update({ status: 'fulfilled' })
+            .eq('id', sourceRequestId);
+        }
+
+        const notifs: any[] = [
+          { user_id: finalRenterId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` },
+        ];
+        if (brokerId !== 'none') {
+          notifs.push({ user_id: brokerId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كوسيط في الإعلان: ${listingTitle}.`, link: `/profile/${finalRenterId}` });
+        }
+        await supabase.from('notifications').insert(notifs);
+
+        toast({ title: 'تم تسجيل الإيجار', description: 'يمكن الآن للأطراف تقييم بعضهم' });
+      }
       onCompleted?.();
       onOpenChange(false);
       // reset
@@ -260,7 +291,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
             </div>
 
             <div className="rounded-xl bg-accent/5 border border-accent/20 p-3 text-xs text-foreground/80 text-right">
-              سيتم تعيين حالة الإيجار إلى <span className="font-bold text-success">مكتمل</span> فوراً، وتفعيل التقييم بين الأطراف المسموح بها.
+              للعروض الخاصة: سيتم رفع الإيجار <span className="font-bold">للمراجعة من الإدارة</span> قبل اعتماده. للإعلانات العادية: يتم تعيينه كمكتمل فوراً.
             </div>
           </div>
         )}
