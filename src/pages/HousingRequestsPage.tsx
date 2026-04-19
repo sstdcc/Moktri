@@ -35,12 +35,14 @@ const HousingRequestsPage = () => {
     if (err) { setError(true); setLoading(false); return; }
     const all = (data as unknown as RequestCardData[]) ?? [];
 
+    const isClosed = (s: string | null) => s === 'fulfilled' || s === 'completed' || s === 'cancelled' || s === 'expired';
     if (user) {
       setMyRequests(all.filter(r => r.requester_id === user.id));
-      setOtherRequests(all.filter(r => r.requester_id !== user.id));
+      // Hide closed/completed requests from the public "other requests" view
+      setOtherRequests(all.filter(r => r.requester_id !== user.id && !isClosed(r.status)));
     } else {
       setMyRequests([]);
-      setOtherRequests(all);
+      setOtherRequests(all.filter(r => !isClosed(r.status)));
     }
     setLoading(false);
   }, [user]);
