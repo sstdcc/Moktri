@@ -932,7 +932,8 @@ export type Database = {
         | "private_offer_created"
         | "private_offer_accepted"
         | "private_offer_rejected"
-      rental_status: "active" | "completed" | "cancelled"
+        | "rental_pending_review"
+      rental_status: "active" | "completed" | "cancelled" | "pending_review"
       report_reason:
         | "fake"
         | "duplicate"
@@ -1115,8 +1116,9 @@ export const Constants = {
         "private_offer_created",
         "private_offer_accepted",
         "private_offer_rejected",
+        "rental_pending_review",
       ],
-      rental_status: ["active", "completed", "cancelled"],
+      rental_status: ["active", "completed", "cancelled", "pending_review"],
       report_reason: [
         "fake",
         "duplicate",
