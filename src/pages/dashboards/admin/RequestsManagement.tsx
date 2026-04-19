@@ -79,10 +79,11 @@ const RequestsManagement = () => {
   const fetchRequests = useCallback(async () => {
     setLoading(true);
     setError(false);
+    const statuses = tab === 'completed' ? ['completed', 'fulfilled'] : [tab];
     const { data, error: err } = await supabase
       .from('housing_requests')
       .select('id, category, neighborhood, min_price, max_price, currency, for_whom, status, responses_count, views_count, created_at, expires_at, district_id, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name)')
-      .eq('status', tab)
+      .in('status', statuses as any)
       .order('created_at', { ascending: false })
       .limit(200);
 
