@@ -139,15 +139,22 @@ export const FulfillRequestDialog = ({
       return;
     }
 
-    // Try to find a listing for that owner
-    const { data: ownerListing } = await supabase
+    // Try to find a listing for that owner — prefer one tied to this request / reserved for this renter
+    const { data: ownerListings } = await supabase
       .from('listings')
-      .select('id')
+      .select('id, status, reserved_for_user_id, source_request_id')
       .eq('owner_id', ownerId)
-      .in('status', ['active', 'reserved', 'rented'])
-      .limit(1);
+      .in('status', ['active', 'reserved', 'private_offer', 'rented'])
+      .limit(20);
 
-    const listingId = ownerListing?.[0]?.id;
+    // Prioritize private offer reserved for this renter, originating from this request
+    const matched = (ownerListings ?? []).find((l: any) =>
+      l.reserved_for_user_id === user.id && (l.source_request_id === requestId || l.status === 'private_offer' || l.status === 'reserved')
+    ) ?? ownerListings?.[0];
+
+    const listingId = matched?.id;
+    const isPrivateOffer = !!(matched as any)?.reserved_for_user_id
+      && ((matched as any)?.status === 'private_offer' || (matched as any)?.status === 'reserved');
 
     // No listing yet → trigger private offer request flow
     if (!listingId) {
