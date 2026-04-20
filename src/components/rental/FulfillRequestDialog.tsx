@@ -139,15 +139,22 @@ export const FulfillRequestDialog = ({
       return;
     }
 
-    // Try to find a listing for that owner
-    const { data: ownerListing } = await supabase
+    // Try to find a listing for that owner — prefer one tied to this request / reserved for this renter
+    const { data: ownerListings } = await supabase
       .from('listings')
-      .select('id')
+      .select('id, status, reserved_for_user_id, source_request_id')
       .eq('owner_id', ownerId)
-      .in('status', ['active', 'reserved', 'rented'])
-      .limit(1);
+      .in('status', ['active', 'reserved', 'private_offer', 'rented'])
+      .limit(20);
 
-    const listingId = ownerListing?.[0]?.id;
+    // Prioritize private offer reserved for this renter, originating from this request
+    const matched = (ownerListings ?? []).find((l: any) =>
+      l.reserved_for_user_id === user.id && (l.source_request_id === requestId || l.status === 'private_offer' || l.status === 'reserved')
+    ) ?? ownerListings?.[0];
+
+    const listingId = matched?.id;
+    const isPrivateOffer = !!(matched as any)?.reserved_for_user_id
+      && ((matched as any)?.status === 'private_offer' || (matched as any)?.status === 'reserved');
 
     // No listing yet → trigger private offer request flow
     if (!listingId) {
@@ -176,7 +183,54 @@ export const FulfillRequestDialog = ({
 
     const brokerId = selectedBrokerId || null;
 
-    // Create completed rental
+    // Private offer → must go through admin review; do NOT complete, do NOT close request, do NOT unlock ratings yet
+    if (isPrivateOffer) {
+      const { error: rentalErr } = await supabase.from('rentals').insert({
+        listing_id: listingId,
+        owner_id: ownerId,
+        renter_id: user.id,
+        broker_id: brokerId,
+        status: 'pending_review' as any,
+      });
+      if (rentalErr) {
+        console.error(rentalErr);
+        toast.error('تعذر رفع الإيجار للمراجعة');
+        setSubmitting(false);
+        return;
+      }
+
+      // Keep listing reserved (do NOT mark as rented yet)
+      await supabase
+        .from('listings')
+        .update({ status: 'reserved' as any, last_updated_at: new Date().toISOString() })
+        .eq('id', listingId);
+
+      // Notify admins
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .in('role', ['admin', 'moderator']);
+      if (admins?.length) {
+        await supabase.from('notifications').insert(
+          admins.map((a: any) => ({
+            user_id: a.id,
+            type: 'rental_pending_review' as any,
+            title_ar: 'إيجار عرض خاص بانتظار المراجعة',
+            body_ar: 'طلب اعتماد إيجار عرض خاص بحاجة لمراجعتك.',
+            link: '/dashboard/admin/rentals',
+          }))
+        );
+      }
+
+      toast.success('تم رفع الإيجار للمراجعة من الإدارة. سيتم اعتماده قريباً.');
+      onOpenChange(false);
+      onCompleted?.();
+      setSubmitting(false);
+      resetState();
+      return;
+    }
+
+    // Normal flow: create completed rental
     const { error: rentalErr } = await supabase.from('rentals').insert({
       listing_id: listingId,
       owner_id: ownerId,
