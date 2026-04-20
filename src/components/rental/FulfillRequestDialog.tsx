@@ -183,7 +183,54 @@ export const FulfillRequestDialog = ({
 
     const brokerId = selectedBrokerId || null;
 
-    // Create completed rental
+    // Private offer → must go through admin review; do NOT complete, do NOT close request, do NOT unlock ratings yet
+    if (isPrivateOffer) {
+      const { error: rentalErr } = await supabase.from('rentals').insert({
+        listing_id: listingId,
+        owner_id: ownerId,
+        renter_id: user.id,
+        broker_id: brokerId,
+        status: 'pending_review' as any,
+      });
+      if (rentalErr) {
+        console.error(rentalErr);
+        toast.error('تعذر رفع الإيجار للمراجعة');
+        setSubmitting(false);
+        return;
+      }
+
+      // Keep listing reserved (do NOT mark as rented yet)
+      await supabase
+        .from('listings')
+        .update({ status: 'reserved' as any, last_updated_at: new Date().toISOString() })
+        .eq('id', listingId);
+
+      // Notify admins
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .in('role', ['admin', 'moderator']);
+      if (admins?.length) {
+        await supabase.from('notifications').insert(
+          admins.map((a: any) => ({
+            user_id: a.id,
+            type: 'rental_pending_review' as any,
+            title_ar: 'إيجار عرض خاص بانتظار المراجعة',
+            body_ar: 'طلب اعتماد إيجار عرض خاص بحاجة لمراجعتك.',
+            link: '/dashboard/admin/rentals',
+          }))
+        );
+      }
+
+      toast.success('تم رفع الإيجار للمراجعة من الإدارة. سيتم اعتماده قريباً.');
+      onOpenChange(false);
+      onCompleted?.();
+      setSubmitting(false);
+      resetState();
+      return;
+    }
+
+    // Normal flow: create completed rental
     const { error: rentalErr } = await supabase.from('rentals').insert({
       listing_id: listingId,
       owner_id: ownerId,
