@@ -115,7 +115,7 @@ const FavoritesPage = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-        <PageHeader title="المفضلة" />
+        <PageHeader title="المفضلة" showBack />
         <EmptyState
           icon={Heart}
           title="سجّل دخولك أولاً"
@@ -130,7 +130,7 @@ const FavoritesPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-      <PageHeader title={`المفضلة${!loading && items.length > 0 ? ` (${items.length})` : ''}`} />
+      <PageHeader title={`المفضلة${!loading && items.length > 0 ? ` (${items.length})` : ''}`} showBack />
 
       <div className="p-4">
         {loading ? (

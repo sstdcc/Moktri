@@ -153,7 +153,7 @@ const SettingsPage = () => {
   if (!user || !profile) {
     return (
       <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-        <PageHeader title="الإعدادات" />
+        <PageHeader title="الإعدادات" showBack />
         <div className="p-4 space-y-4">
           <Skeleton className="h-24 w-full rounded-xl" />
           <Skeleton className="h-48 w-full rounded-xl" />
@@ -166,7 +166,7 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-      <PageHeader title="الإعدادات" />
+      <PageHeader title="الإعدادات" showBack />
 
       <div className="p-4 max-w-lg mx-auto space-y-4">
         {/* Section 1: Profile */}

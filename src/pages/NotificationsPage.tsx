@@ -147,6 +147,7 @@ const NotificationsPage = () => {
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
       <PageHeader
         title="الإشعارات"
+        showBack
         action={
           unreadCount > 0 ? (
             <button onClick={markAllRead} className="text-xs text-accent font-medium" aria-label="تحديد الكل كمقروء">
