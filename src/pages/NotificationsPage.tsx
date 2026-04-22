@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
   BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
-  SlidersHorizontal, ChevronDown,
+  SlidersHorizontal, ChevronDown, Menu,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -385,29 +385,42 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--muted))]/40 pb-24 font-tajawal" dir="rtl">
-      <PageHeader title="الإشعارات" showBack />
+      {/* Large title header with menu button (matches reference) */}
+      <header className="sticky top-0 z-40 bg-[hsl(var(--muted))]/40 backdrop-blur-xl px-4 pt-5 pb-2">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-[26px] font-extrabold text-foreground font-tajawal leading-tight">
+            الإشعارات
+          </h1>
+          <button
+            type="button"
+            aria-label="القائمة"
+            onClick={() => navigate(-1)}
+            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-card border border-border/60 text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
+      </header>
 
       {/* Filter / actions row — pills as in reference */}
       {!loading && !error && notifications.length > 0 && (
-        <div className="flex items-center justify-between gap-2 px-4 pt-4">
-          {/* Right side: mark all read pill */}
+        <div className="flex items-center justify-between gap-2 px-4 pt-3">
           {unreadCount > 0 ? (
             <button
               onClick={markAllRead}
-              className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border/60 px-4 py-2 text-[12px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
+              className="inline-flex items-center gap-2 rounded-full bg-card border border-border/60 px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
               aria-label="تحديد الكل كمقروء"
             >
-              <Check className="h-3.5 w-3.5 text-primary" />
               تحديد الكل كمقروء
+              <Check className="h-4 w-4 text-foreground" />
             </button>
           ) : <span />}
 
-          {/* Left side: filter icon + dropdown */}
           <div className="flex items-center gap-2">
             <button
               type="button"
               aria-label="تصفية"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border/60 text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border/60 text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
             >
               <SlidersHorizontal className="h-4 w-4" />
             </button>
@@ -416,10 +429,10 @@ const NotificationsPage = () => {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border/60 px-4 py-2 text-[12px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-full bg-card border border-border/60 px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
                 >
-                  <ChevronDown className="h-3.5 w-3.5" />
                   {filter === 'unread' ? 'غير مقروءة' : 'الكل'}
+                  <ChevronDown className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="font-tajawal min-w-[160px]">
