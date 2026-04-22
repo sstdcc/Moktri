@@ -10,8 +10,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
-  BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, CheckCheck,
+  BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
+  SlidersHorizontal, ChevronDown,
 } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 /* ---------- Notification visual config ---------- */
