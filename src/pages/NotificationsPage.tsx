@@ -204,12 +204,12 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
         removing && 'opacity-0 scale-95 -translate-y-1',
       )}
     >
-      {/* Delete action revealed on swipe (left side in RTL = visually left) */}
+      {/* Delete action revealed on swipe (visually-left side) */}
       <button
         onClick={handleDelete}
         aria-label="حذف الإشعار"
         className={cn(
-          'absolute inset-y-0 left-0 flex w-24 items-center justify-center bg-rose-500 text-white',
+          'absolute inset-y-0 left-0 flex w-24 items-center justify-center bg-destructive text-destructive-foreground',
           'transition-opacity duration-200',
           dragX < -10 ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
@@ -227,25 +227,55 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
         style={{ transform: `translateX(${dragX}px)` }}
         className={cn(
           'group relative w-full text-right',
-          'flex items-stretch gap-3 rounded-2xl bg-card',
-          'p-4 sm:p-5',
+          'flex items-start gap-3 rounded-2xl bg-card',
+          'pr-4 pl-5 py-4 sm:py-5',
           'shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]',
           'transition-all duration-200 ease-out',
           'hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(16,24,40,0.06),0_2px_4px_rgba(16,24,40,0.04)]',
           'active:scale-[0.99]',
         )}
       >
-        {/* Accent bar for unread (right side because RTL) */}
+        {/* Accent bar — visually LEFT side of card (as in reference image) */}
         <span
           aria-hidden
           className={cn(
-            'absolute right-0 top-3 bottom-3 w-[3px] rounded-l-full transition-opacity',
+            'absolute left-0 top-2 bottom-2 w-[4px] rounded-r-full transition-opacity',
             visual.bar,
             isUnread ? 'opacity-100' : 'opacity-0',
           )}
         />
 
-        {/* Icon */}
+        {/* Unread dot — top-LEFT (visually) */}
+        {isUnread && (
+          <span
+            aria-hidden
+            className="absolute left-3 top-3 h-2 w-2 rounded-full bg-primary"
+          />
+        )}
+
+        {/* Content (right side in RTL) */}
+        <div className="flex-1 min-w-0 pb-5">
+          <p
+            className={cn(
+              'text-[15px] leading-tight text-foreground font-tajawal',
+              isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
+            )}
+          >
+            {notif.title_ar}
+          </p>
+          {notif.body_ar && (
+            <p
+              className={cn(
+                'mt-1.5 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
+                isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
+              )}
+            >
+              {notif.body_ar}
+            </p>
+          )}
+        </div>
+
+        {/* Icon circle — visually right (start of row in RTL) */}
         <div
           className={cn(
             'flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-105',
@@ -260,35 +290,10 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
           />
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <p
-              className={cn(
-                'text-[15px] leading-tight text-foreground font-tajawal',
-                isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
-              )}
-            >
-              {notif.title_ar}
-            </p>
-            {isUnread && (
-              <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', visual.bar)} />
-            )}
-          </div>
-          {notif.body_ar && (
-            <p
-              className={cn(
-                'mt-1 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
-                isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
-              )}
-            >
-              {notif.body_ar}
-            </p>
-          )}
-          <p className="mt-2 text-[11px] text-muted-foreground/70 font-tajawal">
-            {getRelativeTime(notif.created_at ?? '')}
-          </p>
-        </div>
+        {/* Time — bottom-LEFT (visually) */}
+        <span className="absolute bottom-3 left-4 text-[10px] font-medium text-muted-foreground/70 font-tajawal">
+          {getRelativeTime(notif.created_at ?? '')}
+        </span>
       </button>
     </div>
   );
