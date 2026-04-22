@@ -385,57 +385,54 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--muted))]/40 pb-24 font-tajawal" dir="rtl">
-      <PageHeader
-        title="الإشعارات"
-        showBack
-        action={
-          unreadCount > 0 ? (
+      <PageHeader title="الإشعارات" showBack />
+
+      {/* Filter / actions row — pills as in reference */}
+      {!loading && !error && notifications.length > 0 && (
+        <div className="flex items-center justify-between gap-2 px-4 pt-4">
+          {/* Right side: mark all read pill */}
+          {unreadCount > 0 ? (
             <button
               onClick={markAllRead}
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary transition-all hover:bg-primary/15 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border/60 px-4 py-2 text-[12px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
               aria-label="تحديد الكل كمقروء"
             >
-              <CheckCheck className="h-3.5 w-3.5" />
-              تحديد الكل
+              <Check className="h-3.5 w-3.5 text-primary" />
+              تحديد الكل كمقروء
             </button>
-          ) : undefined
-        }
-      />
+          ) : <span />}
 
-      {/* Filter tabs */}
-      {!loading && !error && notifications.length > 0 && (
-        <div className="px-4 pt-4">
-          <div className="inline-flex items-center gap-1 rounded-full bg-card p-1 shadow-[0_1px_2px_rgba(16,24,40,0.04)] border border-border/40">
-            {([
-              { key: 'all', label: 'الكل', count: notifications.length },
-              { key: 'unread', label: 'غير مقروءة', count: unreadCount },
-            ] as const).map((t) => {
-              const active = filter === t.key;
-              return (
+          {/* Left side: filter icon + dropdown */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="تصفية"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border/60 text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <button
-                  key={t.key}
-                  onClick={() => setFilter(t.key)}
-                  className={cn(
-                    'relative rounded-full px-4 py-1.5 text-[12px] font-semibold transition-all duration-200',
-                    active
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border/60 px-4 py-2 text-[12px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
                 >
-                  {t.label}
-                  {t.count > 0 && (
-                    <span
-                      className={cn(
-                        'mr-1.5 inline-flex min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold',
-                        active ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground',
-                      )}
-                    >
-                      {t.count}
-                    </span>
-                  )}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                  {filter === 'unread' ? 'غير مقروءة' : 'الكل'}
                 </button>
-              );
-            })}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="font-tajawal min-w-[160px]">
+                <DropdownMenuItem onClick={() => setFilter('all')} className="justify-end gap-2">
+                  {filter === 'all' && <Check className="h-3.5 w-3.5 text-primary" />}
+                  الكل ({notifications.length})
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilter('unread')} className="justify-end gap-2">
+                  {filter === 'unread' && <Check className="h-3.5 w-3.5 text-primary" />}
+                  غير مقروءة ({unreadCount})
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       )}
