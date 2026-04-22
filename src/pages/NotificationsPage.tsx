@@ -10,8 +10,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
-  BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, CheckCheck,
+  BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
+  SlidersHorizontal, ChevronDown,
 } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 /* ---------- Notification visual config ---------- */
@@ -200,12 +204,12 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
         removing && 'opacity-0 scale-95 -translate-y-1',
       )}
     >
-      {/* Delete action revealed on swipe (left side in RTL = visually left) */}
+      {/* Delete action revealed on swipe (visually-left side) */}
       <button
         onClick={handleDelete}
         aria-label="حذف الإشعار"
         className={cn(
-          'absolute inset-y-0 left-0 flex w-24 items-center justify-center bg-rose-500 text-white',
+          'absolute inset-y-0 left-0 flex w-24 items-center justify-center bg-destructive text-destructive-foreground',
           'transition-opacity duration-200',
           dragX < -10 ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
@@ -223,25 +227,55 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
         style={{ transform: `translateX(${dragX}px)` }}
         className={cn(
           'group relative w-full text-right',
-          'flex items-stretch gap-3 rounded-2xl bg-card',
-          'p-4 sm:p-5',
+          'flex items-start gap-3 rounded-2xl bg-card',
+          'pr-4 pl-5 py-4 sm:py-5',
           'shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]',
           'transition-all duration-200 ease-out',
           'hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(16,24,40,0.06),0_2px_4px_rgba(16,24,40,0.04)]',
           'active:scale-[0.99]',
         )}
       >
-        {/* Accent bar for unread (right side because RTL) */}
+        {/* Accent bar — visually LEFT side of card (as in reference image) */}
         <span
           aria-hidden
           className={cn(
-            'absolute right-0 top-3 bottom-3 w-[3px] rounded-l-full transition-opacity',
+            'absolute left-0 top-2 bottom-2 w-[4px] rounded-r-full transition-opacity',
             visual.bar,
             isUnread ? 'opacity-100' : 'opacity-0',
           )}
         />
 
-        {/* Icon */}
+        {/* Unread dot — top-LEFT (visually) */}
+        {isUnread && (
+          <span
+            aria-hidden
+            className="absolute left-3 top-3 h-2 w-2 rounded-full bg-primary"
+          />
+        )}
+
+        {/* Content (right side in RTL) */}
+        <div className="flex-1 min-w-0 pb-5">
+          <p
+            className={cn(
+              'text-[15px] leading-tight text-foreground font-tajawal',
+              isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
+            )}
+          >
+            {notif.title_ar}
+          </p>
+          {notif.body_ar && (
+            <p
+              className={cn(
+                'mt-1.5 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
+                isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
+              )}
+            >
+              {notif.body_ar}
+            </p>
+          )}
+        </div>
+
+        {/* Icon circle — visually right (start of row in RTL) */}
         <div
           className={cn(
             'flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-105',
@@ -256,35 +290,10 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
           />
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <p
-              className={cn(
-                'text-[15px] leading-tight text-foreground font-tajawal',
-                isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
-              )}
-            >
-              {notif.title_ar}
-            </p>
-            {isUnread && (
-              <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', visual.bar)} />
-            )}
-          </div>
-          {notif.body_ar && (
-            <p
-              className={cn(
-                'mt-1 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
-                isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
-              )}
-            >
-              {notif.body_ar}
-            </p>
-          )}
-          <p className="mt-2 text-[11px] text-muted-foreground/70 font-tajawal">
-            {getRelativeTime(notif.created_at ?? '')}
-          </p>
-        </div>
+        {/* Time — bottom-LEFT (visually) */}
+        <span className="absolute bottom-3 left-4 text-[10px] font-medium text-muted-foreground/70 font-tajawal">
+          {getRelativeTime(notif.created_at ?? '')}
+        </span>
       </button>
     </div>
   );
@@ -376,57 +385,54 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--muted))]/40 pb-24 font-tajawal" dir="rtl">
-      <PageHeader
-        title="الإشعارات"
-        showBack
-        action={
-          unreadCount > 0 ? (
+      <PageHeader title="الإشعارات" showBack />
+
+      {/* Filter / actions row — pills as in reference */}
+      {!loading && !error && notifications.length > 0 && (
+        <div className="flex items-center justify-between gap-2 px-4 pt-4">
+          {/* Right side: mark all read pill */}
+          {unreadCount > 0 ? (
             <button
               onClick={markAllRead}
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary transition-all hover:bg-primary/15 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border/60 px-4 py-2 text-[12px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
               aria-label="تحديد الكل كمقروء"
             >
-              <CheckCheck className="h-3.5 w-3.5" />
-              تحديد الكل
+              <Check className="h-3.5 w-3.5 text-primary" />
+              تحديد الكل كمقروء
             </button>
-          ) : undefined
-        }
-      />
+          ) : <span />}
 
-      {/* Filter tabs */}
-      {!loading && !error && notifications.length > 0 && (
-        <div className="px-4 pt-4">
-          <div className="inline-flex items-center gap-1 rounded-full bg-card p-1 shadow-[0_1px_2px_rgba(16,24,40,0.04)] border border-border/40">
-            {([
-              { key: 'all', label: 'الكل', count: notifications.length },
-              { key: 'unread', label: 'غير مقروءة', count: unreadCount },
-            ] as const).map((t) => {
-              const active = filter === t.key;
-              return (
+          {/* Left side: filter icon + dropdown */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="تصفية"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-card border border-border/60 text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <button
-                  key={t.key}
-                  onClick={() => setFilter(t.key)}
-                  className={cn(
-                    'relative rounded-full px-4 py-1.5 text-[12px] font-semibold transition-all duration-200',
-                    active
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border/60 px-4 py-2 text-[12px] font-semibold text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
                 >
-                  {t.label}
-                  {t.count > 0 && (
-                    <span
-                      className={cn(
-                        'mr-1.5 inline-flex min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold',
-                        active ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground',
-                      )}
-                    >
-                      {t.count}
-                    </span>
-                  )}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                  {filter === 'unread' ? 'غير مقروءة' : 'الكل'}
                 </button>
-              );
-            })}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="font-tajawal min-w-[160px]">
+                <DropdownMenuItem onClick={() => setFilter('all')} className="justify-end gap-2">
+                  {filter === 'all' && <Check className="h-3.5 w-3.5 text-primary" />}
+                  الكل ({notifications.length})
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilter('unread')} className="justify-end gap-2">
+                  {filter === 'unread' && <Check className="h-3.5 w-3.5 text-primary" />}
+                  غير مقروءة ({unreadCount})
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       )}
