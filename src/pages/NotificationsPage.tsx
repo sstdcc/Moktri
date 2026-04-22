@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
   BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
-  SlidersHorizontal, ChevronDown,
+  SlidersHorizontal, ChevronDown, Menu,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
