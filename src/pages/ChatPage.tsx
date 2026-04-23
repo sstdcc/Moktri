@@ -128,6 +128,12 @@ const ConversationRow = ({ conv, currentUserId, onOpen, onDelete }: RowProps) =>
               </span>
             )}
           </div>
+          {online && (
+            <span
+              aria-label="متصل الآن"
+              className="absolute bottom-0 left-0 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-card"
+            />
+          )}
         </div>
 
         {/* Content with bottom divider like WhatsApp */}
