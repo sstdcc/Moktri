@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LoginRequired } from '@/components/ui/LoginRequired';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -150,7 +151,17 @@ const SettingsPage = () => {
 
   const getInitials = (name: string) => name?.split(' ').map((w) => w[0]).join('').slice(0, 2) || '؟';
 
-  if (!user || !profile) {
+  if (!user) {
+    return (
+      <LoginRequired
+        pageTitle="الإعدادات"
+        icon={User}
+        subtitle="يجب تسجيل الدخول لإدارة إعداداتك وحسابك"
+      />
+    );
+  }
+
+  if (!profile) {
     return (
       <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
         <PageHeader title="الإعدادات" showBack />
@@ -159,7 +170,6 @@ const SettingsPage = () => {
           <Skeleton className="h-48 w-full rounded-xl" />
           <Skeleton className="h-32 w-full rounded-xl" />
         </div>
-        
       </div>
     );
   }

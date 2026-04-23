@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LoginRequired } from '@/components/ui/LoginRequired';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -114,17 +115,11 @@ const FavoritesPage = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-        <PageHeader title="المفضلة" showBack />
-        <EmptyState
-          icon={Heart}
-          title="سجّل دخولك أولاً"
-          subtitle="لعرض إعلاناتك المحفوظة"
-          actionLabel="تسجيل الدخول"
-          onAction={() => navigate('/auth?returnUrl=/favorites')}
-        />
-        <BottomNav />
-      </div>
+      <LoginRequired
+        pageTitle="المفضلة"
+        icon={Heart}
+        subtitle="لعرض إعلاناتك المحفوظة"
+      />
     );
   }
 

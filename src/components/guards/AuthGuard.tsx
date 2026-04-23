@@ -1,14 +1,13 @@
-import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { LoginRequired } from '@/components/ui/LoginRequired';
 import { Button } from '@/components/ui/button';
 
 export const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading, profileError, retryProfile } = useAuth();
-  const location = useLocation();
 
   if (loading) return <LoadingSpinner />;
-  if (!user) return <Navigate to={`/auth?returnUrl=${encodeURIComponent(location.pathname)}`} replace />;
+  if (!user) return <LoginRequired />;
 
   if (profileError) {
     return (

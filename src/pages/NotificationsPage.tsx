@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LoginRequired } from '@/components/ui/LoginRequired';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -382,6 +383,16 @@ const NotificationsPage = () => {
   }, [filtered]);
 
   const groupOrder = ['اليوم', 'الأمس', 'هذا الأسبوع', 'سابقاً'];
+
+  if (!user) {
+    return (
+      <LoginRequired
+        pageTitle="الإشعارات"
+        icon={Bell}
+        subtitle="يجب تسجيل الدخول لعرض إشعاراتك"
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[hsl(var(--muted))]/40 pb-24 font-tajawal" dir="rtl">
