@@ -239,6 +239,77 @@ const ChatPage = () => {
     fetchConversations();
   }, [fetchConversations]);
 
+  // Realtime: listen for new/updated messages and update the list in place (WhatsApp-like)
+  useEffect(() => {
+    if (!user) return;
+
+    const handleNewMessage = async (conversationId: string, message: string, createdAt: string, senderId: string, isRead: boolean) => {
+      setConversations(prev => {
+        const idx = prev.findIndex(c => c.id === conversationId);
+        if (idx === -1) {
+          // New conversation we don't know about — refetch to pick it up
+          fetchConversations();
+          return prev;
+        }
+        const existing = prev[idx];
+        const isIncoming = senderId !== user.id;
+        const updated: ConversationItem = {
+          ...existing,
+          last_message: message,
+          last_message_at: createdAt,
+          last_message_sender_id: senderId,
+          last_message_is_read: isRead,
+          unread_count: isIncoming ? existing.unread_count + 1 : existing.unread_count,
+        };
+        // Move to top
+        const next = [updated, ...prev.slice(0, idx), ...prev.slice(idx + 1)];
+        return next;
+      });
+    };
+
+    const handleMessageUpdate = (conversationId: string, isRead: boolean, senderId: string) => {
+      setConversations(prev => prev.map(c => {
+        if (c.id !== conversationId) return c;
+        // If incoming messages got marked read, reset unread count
+        const isIncoming = senderId !== user.id;
+        return {
+          ...c,
+          last_message_is_read: c.last_message_sender_id === senderId ? isRead : c.last_message_is_read,
+          unread_count: isIncoming && isRead ? 0 : c.unread_count,
+        };
+      }));
+    };
+
+    const channel = supabase
+      .channel(`chat-list-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'listing_messages' },
+        (payload) => {
+          const m = payload.new as { conversation_id: string; message: string; created_at: string; sender_id: string; is_read: boolean };
+          handleNewMessage(m.conversation_id, m.message, m.created_at, m.sender_id, m.is_read);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'listing_messages' },
+        (payload) => {
+          const m = payload.new as { conversation_id: string; is_read: boolean; sender_id: string };
+          handleMessageUpdate(m.conversation_id, m.is_read, m.sender_id);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'listing_conversations' },
+        () => fetchConversations()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchConversations]);
+
   const filtered = useMemo(() => {
     let list = conversations;
     if (filter === 'unread') list = list.filter(c => c.unread_count > 0);
