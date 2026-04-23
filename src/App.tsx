@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DistrictsProvider } from "@/contexts/DistrictsContext";
+import { PresenceProvider } from "@/contexts/PresenceContext";
 import { AuthGuard } from "@/components/guards/AuthGuard";
 import { AdminGuard } from "@/components/guards/AdminGuard";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
