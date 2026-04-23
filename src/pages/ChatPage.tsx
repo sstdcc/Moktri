@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { MessageSquare, Search, SlidersHorizontal, Menu, Trash2, Check } from 'lucide-react';
+import { MessageSquare, Search, Camera, MoreVertical, Trash2, Check, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -25,36 +25,38 @@ interface ConversationItem {
   other_avatar: string | null;
   last_message: string | null;
   last_message_at: string | null;
+  last_message_sender_id: string | null;
+  last_message_is_read: boolean;
   unread_count: number;
 }
 
-const getRelativeTime = (dateStr: string) => {
+const formatTime = (dateStr: string) => {
   const date = new Date(dateStr);
   const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'الآن';
-  if (mins < 60) return `${mins} د`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) {
+  const sameDay = date.toDateString() === now.toDateString();
+  if (sameDay) {
     return date.toLocaleTimeString('ar-YE', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
-  const days = Math.floor(hours / 24);
-  if (days === 1) return 'أمس';
-  if (days < 7) return `${days} أيام`;
-  return date.toLocaleDateString('ar-YE', { day: '2-digit', month: '2-digit' });
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) return 'أمس';
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
+  if (diffDays < 7) {
+    return date.toLocaleDateString('ar-YE', { weekday: 'long' });
+  }
+  return date.toLocaleDateString('ar-YE', { day: '2-digit', month: '2-digit', year: '2-digit' });
 };
 
-// Color palette for avatar fallbacks (deterministic by name)
+// Color palette for avatar fallbacks
 const avatarPalette = [
-  { bg: 'bg-violet-100', fg: 'text-violet-700' },
-  { bg: 'bg-emerald-100', fg: 'text-emerald-700' },
-  { bg: 'bg-amber-100', fg: 'text-amber-700' },
-  { bg: 'bg-sky-100', fg: 'text-sky-700' },
-  { bg: 'bg-rose-100', fg: 'text-rose-700' },
-  { bg: 'bg-indigo-100', fg: 'text-indigo-700' },
-  { bg: 'bg-teal-100', fg: 'text-teal-700' },
-  { bg: 'bg-fuchsia-100', fg: 'text-fuchsia-700' },
+  { bg: 'bg-violet-500', fg: 'text-white' },
+  { bg: 'bg-emerald-500', fg: 'text-white' },
+  { bg: 'bg-amber-500', fg: 'text-white' },
+  { bg: 'bg-sky-500', fg: 'text-white' },
+  { bg: 'bg-rose-500', fg: 'text-white' },
+  { bg: 'bg-indigo-500', fg: 'text-white' },
+  { bg: 'bg-teal-500', fg: 'text-white' },
+  { bg: 'bg-fuchsia-500', fg: 'text-white' },
 ];
 
 const getAvatarColor = (name: string) => {
@@ -67,20 +69,21 @@ type FilterMode = 'all' | 'unread';
 
 interface RowProps {
   conv: ConversationItem;
+  currentUserId: string;
   onOpen: (c: ConversationItem) => void;
   onDelete: (c: ConversationItem) => void;
 }
 
-const ConversationRow = ({ conv, onOpen, onDelete }: RowProps) => {
+const ConversationRow = ({ conv, currentUserId, onOpen, onDelete }: RowProps) => {
   const [translateX, setTranslateX] = useState(0);
   const [startX, setStartX] = useState<number | null>(null);
   const isUnread = conv.unread_count > 0;
   const palette = getAvatarColor(conv.other_name);
+  const isMine = conv.last_message_sender_id === currentUserId;
 
   const handleTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startX === null) return;
-    // RTL: swipe right (positive delta) reveals delete on the right side
     const delta = e.touches[0].clientX - startX;
     if (delta > 0) setTranslateX(Math.min(delta, 88));
   };
@@ -90,15 +93,15 @@ const ConversationRow = ({ conv, onOpen, onDelete }: RowProps) => {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl">
-      {/* Delete action revealed on swipe (right side in RTL) */}
+    <div className="relative overflow-hidden">
+      {/* Delete action */}
       <div className="absolute inset-y-0 right-0 flex items-center pr-4">
         <button
           onClick={() => onDelete(conv)}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm active:scale-95 transition-transform"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive text-destructive-foreground active:scale-95 transition-transform"
           aria-label="حذف"
         >
-          <Trash2 className="h-4.5 w-4.5" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
 
@@ -108,67 +111,65 @@ const ConversationRow = ({ conv, onOpen, onDelete }: RowProps) => {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{ transform: `translateX(${translateX}px)` }}
-        className={cn(
-          'relative w-full text-right flex items-center gap-3 px-3 py-3 rounded-2xl bg-card transition-all duration-200',
-          'active:scale-[0.99] hover:bg-muted/40'
-        )}
+        className="relative w-full text-right flex items-center gap-3 px-4 py-3 bg-card transition-colors active:bg-muted/60"
       >
-        {/* Avatar */}
+        {/* Avatar - 56px like WhatsApp */}
         <div className="relative shrink-0">
-          <div className={cn('flex h-12 w-12 items-center justify-center rounded-full overflow-hidden', palette.bg)}>
+          <div className={cn('flex h-14 w-14 items-center justify-center rounded-full overflow-hidden', palette.bg)}>
             {conv.other_avatar ? (
               <img src={conv.other_avatar} alt={conv.other_name} className="h-full w-full object-cover" />
             ) : (
-              <span className={cn('text-base font-bold font-tajawal', palette.fg)}>
+              <span className={cn('text-xl font-semibold font-tajawal', palette.fg)}>
                 {conv.other_name.charAt(0)}
               </span>
             )}
           </div>
-          {/* Unread dot indicator on avatar */}
-          {isUnread && (
-            <span className="absolute -top-0.5 -left-0.5 h-3 w-3 rounded-full bg-primary ring-2 ring-card" />
-          )}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-          <div className="flex items-center justify-between gap-2">
+        {/* Content with bottom divider like WhatsApp */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center border-b border-border/50 py-2 -my-2">
+          {/* Top row: Name + Time */}
+          <div className="flex items-center justify-between gap-2 mb-0.5">
             <p className={cn(
-              'text-[15px] truncate font-tajawal',
-              isUnread ? 'font-bold text-foreground' : 'font-semibold text-foreground/90'
+              'text-[16px] truncate font-tajawal text-foreground',
+              isUnread ? 'font-bold' : 'font-semibold'
             )}>
               {conv.other_name}
             </p>
             {conv.last_message_at && (
               <span className={cn(
-                'text-[11px] shrink-0 font-tajawal',
-                isUnread ? 'text-primary font-bold' : 'text-muted-foreground/70'
+                'text-[12px] shrink-0 font-tajawal',
+                isUnread ? 'text-primary font-semibold' : 'text-muted-foreground'
               )}>
-                {getRelativeTime(conv.last_message_at)}
+                {formatTime(conv.last_message_at)}
               </span>
             )}
           </div>
 
+          {/* Bottom row: Last message + Unread badge */}
           <div className="flex items-center justify-between gap-2">
-            <p className={cn(
-              'text-[13px] truncate font-tajawal flex-1',
-              isUnread ? 'text-foreground/80 font-medium' : 'text-muted-foreground'
-            )}>
-              {conv.last_message || conv.listing_title}
-            </p>
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              {/* Read receipts for own messages */}
+              {isMine && conv.last_message && (
+                conv.last_message_is_read ? (
+                  <CheckCheck className="h-4 w-4 text-primary shrink-0" />
+                ) : (
+                  <CheckCheck className="h-4 w-4 text-muted-foreground shrink-0" />
+                )
+              )}
+              <p className={cn(
+                'text-[14px] truncate font-tajawal',
+                isUnread ? 'text-foreground/90 font-medium' : 'text-muted-foreground'
+              )}>
+                {conv.last_message || conv.listing_title}
+              </p>
+            </div>
             {isUnread && (
-              <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground shrink-0">
+              <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground shrink-0">
                 {conv.unread_count > 99 ? '99+' : conv.unread_count}
               </span>
             )}
           </div>
-
-          {/* Listing context line */}
-          {conv.last_message && (
-            <p className="text-[11px] truncate text-accent/80 font-tajawal mt-0.5">
-              {conv.listing_title}
-            </p>
-          )}
         </div>
       </button>
     </div>
@@ -181,6 +182,7 @@ const ChatPage = () => {
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [filter, setFilter] = useState<FilterMode>('all');
 
   const fetchConversations = useCallback(async () => {
@@ -206,10 +208,11 @@ const ChatPage = () => {
       const [listingRes, profileRes, msgRes, unreadRes] = await Promise.all([
         supabase.from('listings').select('title').eq('id', conv.listing_id).single(),
         supabase.from('profiles').select('full_name, avatar_url').eq('id', otherId).single(),
-        supabase.from('listing_messages').select('message, created_at').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
+        supabase.from('listing_messages').select('message, created_at, sender_id, is_read').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
         supabase.from('listing_messages').select('id', { count: 'exact', head: true }).eq('conversation_id', conv.id).neq('sender_id', user.id).eq('is_read', false),
       ]);
 
+      const lastMsg = msgRes.data?.[0];
       items.push({
         id: conv.id,
         listing_id: conv.listing_id,
@@ -219,8 +222,10 @@ const ChatPage = () => {
         listing_title: listingRes.data?.title ?? 'إعلان',
         other_name: profileRes.data?.full_name ?? 'مستخدم',
         other_avatar: profileRes.data?.avatar_url ?? null,
-        last_message: msgRes.data?.[0]?.message ?? null,
-        last_message_at: msgRes.data?.[0]?.created_at ?? conv.created_at,
+        last_message: lastMsg?.message ?? null,
+        last_message_at: lastMsg?.created_at ?? conv.created_at,
+        last_message_sender_id: lastMsg?.sender_id ?? null,
+        last_message_is_read: lastMsg?.is_read ?? false,
         unread_count: unreadRes.count ?? 0,
       });
     }
@@ -233,11 +238,6 @@ const ChatPage = () => {
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
-
-  const totalUnread = useMemo(
-    () => conversations.reduce((sum, c) => sum + c.unread_count, 0),
-    [conversations]
-  );
 
   const filtered = useMemo(() => {
     let list = conversations;
@@ -256,76 +256,82 @@ const ChatPage = () => {
   const handleDelete = async (conv: ConversationItem) => {
     setConversations(prev => prev.filter(c => c.id !== conv.id));
     toast.success('تم حذف المحادثة');
-    // Note: actual deletion would require RLS-allowed delete + cascading cleanup.
-    // For now we hide it locally to keep UX snappy.
   };
 
   const handleOpen = (conv: ConversationItem) => navigate(`/chat/${conv.id}`);
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--muted))]/40 font-tajawal pb-24" dir="rtl">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-[hsl(var(--muted))]/40 backdrop-blur-xl px-4 pt-5 pb-3">
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-[26px] font-extrabold text-foreground font-tajawal leading-tight">
-              المحادثات
-            </h1>
-            {totalUnread > 0 && (
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary px-2 text-[11px] font-bold text-primary-foreground">
-                {totalUnread}
-              </span>
-            )}
+    <div className="min-h-screen bg-card font-tajawal pb-24" dir="rtl">
+      {/* Header - WhatsApp style */}
+      <header className="sticky top-0 z-40 bg-card">
+        <div className="flex items-center justify-between gap-1 px-4 pt-4 pb-3">
+          <h1 className="text-[24px] font-bold text-foreground font-tajawal">
+            المحادثات
+          </h1>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowSearch(s => !s)}
+              className="flex h-10 w-10 items-center justify-center rounded-full active:bg-muted/60 transition-colors"
+              aria-label="بحث"
+            >
+              <Search className="h-[22px] w-[22px] text-foreground" />
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex h-10 w-10 items-center justify-center rounded-full active:bg-muted/60 transition-colors"
+                  aria-label="المزيد"
+                >
+                  <MoreVertical className="h-[22px] w-[22px] text-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="font-tajawal min-w-[180px]">
+                <DropdownMenuItem onClick={() => setFilter('all')} className="justify-between">
+                  <span>عرض الكل</span>
+                  {filter === 'all' && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilter('unread')} className="justify-between">
+                  <span>غير المقروءة فقط</span>
+                  {filter === 'unread' && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <button
-            onClick={() => navigate(-1)}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-card border border-border/60 shadow-sm active:scale-95 transition-transform"
-            aria-label="القائمة"
-          >
-            <Menu className="h-5 w-5 text-foreground" />
-          </button>
         </div>
 
-        {/* Search + filter */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="ابحث في المحادثات..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-11 rounded-2xl bg-card border border-border/60 pr-10 pl-4 text-[14px] font-tajawal placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
-            />
+        {/* Search bar */}
+        {showSearch && (
+          <div className="px-4 pb-3">
+            <div className="relative">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="ابحث في المحادثات..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+                className="w-full h-10 rounded-full bg-muted/60 pr-11 pl-4 text-[14px] font-tajawal placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+              />
+            </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-2xl border border-border/60 shadow-sm active:scale-95 transition-all',
-                  filter === 'unread' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-foreground'
-                )}
-                aria-label="تصفية"
-              >
-                <SlidersHorizontal className="h-4.5 w-4.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="font-tajawal min-w-[160px]">
-              <DropdownMenuItem onClick={() => setFilter('all')} className="justify-between">
-                <span>الكل</span>
-                {filter === 'all' && <Check className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter('unread')} className="justify-between">
-                <span>غير مقروءة</span>
-                {filter === 'unread' && <Check className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        )}
+
+        {/* Filter chip when active */}
+        {filter === 'unread' && (
+          <div className="px-4 pb-3 flex gap-2">
+            <button
+              onClick={() => setFilter('all')}
+              className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-3 py-1 text-[12px] font-semibold"
+            >
+              غير المقروءة
+              <span className="text-[14px] leading-none">×</span>
+            </button>
+          </div>
+        )}
       </header>
 
       {/* List */}
-      <div className="px-3 pt-2">
+      <div>
         {loading ? (
           <div className="pt-20"><LoadingSpinner /></div>
         ) : filtered.length === 0 ? (
@@ -337,11 +343,12 @@ const ChatPage = () => {
             />
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div>
             {filtered.map((conv) => (
               <ConversationRow
                 key={conv.id}
                 conv={conv}
+                currentUserId={user?.id ?? ''}
                 onOpen={handleOpen}
                 onDelete={handleDelete}
               />
