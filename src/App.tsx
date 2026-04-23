@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { DistrictsProvider } from "@/contexts/DistrictsContext";
+import { PresenceProvider } from "@/contexts/PresenceContext";
 import { AuthGuard } from "@/components/guards/AuthGuard";
 import { AdminGuard } from "@/components/guards/AdminGuard";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -63,50 +64,52 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <DistrictsProvider>
-            <Suspense fallback={<LazyFallback />}>
-              <Routes>
-                {/* Auth page - no sidebar */}
-                <Route path="/auth" element={<AuthPage />} />
+            <PresenceProvider>
+              <Suspense fallback={<LazyFallback />}>
+                <Routes>
+                  {/* Auth page - no sidebar */}
+                  <Route path="/auth" element={<AuthPage />} />
 
-                {/* All other pages wrapped in MainLayout with sidebar */}
-                <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
-                <Route path="/listings" element={<MainLayout><ListingsPage /></MainLayout>} />
-                <Route path="/listings/:id" element={<MainLayout><ListingDetailPage /></MainLayout>} />
-                <Route path="/requests" element={<MainLayout><HousingRequestsPage /></MainLayout>} />
-                <Route path="/requests/:id" element={<MainLayout><RequestDetailPage /></MainLayout>} />
-                <Route path="/profile/:id" element={<MainLayout><PublicProfilePage /></MainLayout>} />
-                <Route path="/notifications" element={<MainLayout><NotificationsPage /></MainLayout>} />
-                <Route path="/favorites" element={<MainLayout><FavoritesPage /></MainLayout>} />
-                <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
-                <Route path="/verify" element={<MainLayout><VerificationPage /></MainLayout>} />
-                <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
-                <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
-                <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
-                <Route path="/chat/:id" element={<MainLayout><AuthGuard><ConversationPage /></AuthGuard></MainLayout>} />
+                  {/* All other pages wrapped in MainLayout with sidebar */}
+                  <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+                  <Route path="/listings" element={<MainLayout><ListingsPage /></MainLayout>} />
+                  <Route path="/listings/:id" element={<MainLayout><ListingDetailPage /></MainLayout>} />
+                  <Route path="/requests" element={<MainLayout><HousingRequestsPage /></MainLayout>} />
+                  <Route path="/requests/:id" element={<MainLayout><RequestDetailPage /></MainLayout>} />
+                  <Route path="/profile/:id" element={<MainLayout><PublicProfilePage /></MainLayout>} />
+                  <Route path="/notifications" element={<MainLayout><NotificationsPage /></MainLayout>} />
+                  <Route path="/favorites" element={<MainLayout><FavoritesPage /></MainLayout>} />
+                  <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
+                  <Route path="/verify" element={<MainLayout><VerificationPage /></MainLayout>} />
+                  <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
+                  <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
+                  <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
+                  <Route path="/chat/:id" element={<MainLayout><AuthGuard><ConversationPage /></AuthGuard></MainLayout>} />
 
-                {/* Protected routes */}
-                <Route path="/dashboard" element={<MainLayout><AuthGuard><DashboardRedirect /></AuthGuard></MainLayout>} />
-                <Route path="/dashboard/renter" element={<MainLayout><AuthGuard><RenterDashboard /></AuthGuard></MainLayout>} />
-                <Route path="/dashboard/owner" element={<MainLayout><AuthGuard><OwnerDashboard /></AuthGuard></MainLayout>} />
-                <Route path="/dashboard/broker" element={<MainLayout><AuthGuard><BrokerDashboard /></AuthGuard></MainLayout>} />
+                  {/* Protected routes */}
+                  <Route path="/dashboard" element={<MainLayout><AuthGuard><DashboardRedirect /></AuthGuard></MainLayout>} />
+                  <Route path="/dashboard/renter" element={<MainLayout><AuthGuard><RenterDashboard /></AuthGuard></MainLayout>} />
+                  <Route path="/dashboard/owner" element={<MainLayout><AuthGuard><OwnerDashboard /></AuthGuard></MainLayout>} />
+                  <Route path="/dashboard/broker" element={<MainLayout><AuthGuard><BrokerDashboard /></AuthGuard></MainLayout>} />
 
-                {/* Admin routes */}
-                <Route path="/dashboard/admin" element={<MainLayout><AdminGuard><AdminDashboardPage /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/listings" element={<MainLayout><AdminGuard><ListingsModeration /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/reports" element={<MainLayout><AdminGuard><ReportsManagement /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/users" element={<MainLayout><AdminGuard><UsersManagement /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/verifications" element={<MainLayout><AdminGuard><VerificationsManagement /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/requests" element={<MainLayout><AdminGuard><RequestsManagement /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/districts" element={<MainLayout><AdminGuard><DistrictsManagement /></AdminGuard></MainLayout>} />
-                <Route path="/dashboard/admin/rentals" element={<MainLayout><AdminGuard><RentalsReview /></AdminGuard></MainLayout>} />
+                  {/* Admin routes */}
+                  <Route path="/dashboard/admin" element={<MainLayout><AdminGuard><AdminDashboardPage /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/listings" element={<MainLayout><AdminGuard><ListingsModeration /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/reports" element={<MainLayout><AdminGuard><ReportsManagement /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/users" element={<MainLayout><AdminGuard><UsersManagement /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/verifications" element={<MainLayout><AdminGuard><VerificationsManagement /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/requests" element={<MainLayout><AdminGuard><RequestsManagement /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/districts" element={<MainLayout><AdminGuard><DistrictsManagement /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/rentals" element={<MainLayout><AdminGuard><RentalsReview /></AdminGuard></MainLayout>} />
 
-                <Route path="/listings/new" element={<MainLayout><AuthGuard><CreateListingPage /></AuthGuard></MainLayout>} />
-                <Route path="/listings/:id/edit" element={<MainLayout><AuthGuard><EditListingPage /></AuthGuard></MainLayout>} />
-                <Route path="/requests/new" element={<MainLayout><AuthGuard><CreateRequestPage /></AuthGuard></MainLayout>} />
+                  <Route path="/listings/new" element={<MainLayout><AuthGuard><CreateListingPage /></AuthGuard></MainLayout>} />
+                  <Route path="/listings/:id/edit" element={<MainLayout><AuthGuard><EditListingPage /></AuthGuard></MainLayout>} />
+                  <Route path="/requests/new" element={<MainLayout><AuthGuard><CreateRequestPage /></AuthGuard></MainLayout>} />
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </PresenceProvider>
           </DistrictsProvider>
         </AuthProvider>
       </BrowserRouter>

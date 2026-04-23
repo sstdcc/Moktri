@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { usePresence } from '@/contexts/PresenceContext';
 
 interface ConversationItem {
   id: string;
@@ -80,6 +81,9 @@ const ConversationRow = ({ conv, currentUserId, onOpen, onDelete }: RowProps) =>
   const isUnread = conv.unread_count > 0;
   const palette = getAvatarColor(conv.other_name);
   const isMine = conv.last_message_sender_id === currentUserId;
+  const otherUserId = conv.owner_id === currentUserId ? conv.user_id : conv.owner_id;
+  const { isOnline } = usePresence();
+  const online = isOnline(otherUserId);
 
   const handleTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -124,6 +128,12 @@ const ConversationRow = ({ conv, currentUserId, onOpen, onDelete }: RowProps) =>
               </span>
             )}
           </div>
+          {online && (
+            <span
+              aria-label="متصل الآن"
+              className="absolute bottom-0 left-0 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-card"
+            />
+          )}
         </div>
 
         {/* Content with bottom divider like WhatsApp */}
