@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { usePresence } from '@/contexts/PresenceContext';
 
 interface ConversationItem {
   id: string;
