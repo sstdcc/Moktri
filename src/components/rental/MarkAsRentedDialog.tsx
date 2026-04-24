@@ -12,7 +12,6 @@ import { toast } from '@/hooks/use-toast';
 interface ProfileOption {
   id: string;
   full_name: string;
-  phone?: string | null;
 }
 
 interface MarkAsRentedDialogProps {
@@ -42,7 +41,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
       // Fetch chat participants for this listing
       const { data: convs } = await supabase
         .from('listing_conversations')
-        .select('user_id, profiles:user_id(id, full_name, phone)')
+        .select('user_id, profiles:user_id(id, full_name)')
         .eq('listing_id', listingId)
         .eq('owner_id', user.id);
 
@@ -52,7 +51,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
         const p = c.profiles;
         if (p && !seen.has(p.id)) {
           seen.add(p.id);
-          renters.push({ id: p.id, full_name: p.full_name, phone: p.phone });
+          renters.push({ id: p.id, full_name: p.full_name });
         }
       });
 
@@ -60,11 +59,11 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
       if (reservedRenterId && !seen.has(reservedRenterId)) {
         const { data: rp } = await supabase
           .from('profiles')
-          .select('id, full_name, phone')
+          .select('id, full_name')
           .eq('id', reservedRenterId)
           .maybeSingle();
         if (rp) {
-          renters.unshift({ id: rp.id, full_name: rp.full_name, phone: rp.phone });
+          renters.unshift({ id: rp.id, full_name: rp.full_name });
           seen.add(rp.id);
         }
       }
@@ -77,7 +76,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
       // Fetch verified brokers
       const { data: brokerData } = await supabase
         .from('profiles')
-        .select('id, full_name, phone')
+        .select('id, full_name')
         .eq('role', 'broker')
         .order('full_name');
       setBrokers((brokerData || []) as ProfileOption[]);
@@ -89,12 +88,9 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
   const resolveRenterByPhone = async (phone: string): Promise<string | null> => {
     const cleaned = phone.trim();
     if (!cleaned) return null;
-    const { data } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', cleaned)
-      .maybeSingle();
-    return data?.id || null;
+    // Phone numbers are private; use SECURITY DEFINER RPC that returns only the user id.
+    const { data } = await supabase.rpc('find_user_id_by_phone', { _phone: cleaned });
+    return (data as string | null) || null;
   };
 
   const handleSubmit = async () => {

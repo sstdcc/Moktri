@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, Phone, FileQuestion, Clock, CheckCircle2,
+  Send, FileQuestion, Clock, CheckCircle2,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
@@ -53,14 +53,12 @@ interface RequestData {
   created_at: string | null;
   expires_at: string | null;
   requester_id: string;
-  requester: { full_name: string; avatar_url: string | null; phone: string; whatsapp_number: string | null; verification_badge: string | null } | null;
+  requester: { full_name: string; avatar_url: string | null; verification_badge: string | null } | null;
 }
 
 interface ResponseRow {
   id: string;
   message: string;
-  contact_phone: string | null;
-  contact_whatsapp: string | null;
   created_at: string | null;
   listing_id: string | null;
   responder: { full_name: string; avatar_url: string | null } | null;
@@ -96,7 +94,7 @@ const RequestDetailPage = () => {
     try {
       const { data, error: err } = await supabase
         .from('housing_requests')
-        .select('*, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url, phone, whatsapp_number, verification_badge)')
+        .select('*, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url, verification_badge)')
         .eq('id', id)
         .single();
       if (err || !data) throw err;
@@ -106,7 +104,7 @@ const RequestDetailPage = () => {
       if (user) {
         const { data: resps } = await supabase
           .from('request_responses')
-          .select('id, message, contact_phone, contact_whatsapp, created_at, listing_id, responder:profiles!request_responses_responder_id_fkey(full_name, avatar_url)')
+          .select('id, message, created_at, listing_id, responder:profiles!request_responses_responder_id_fkey(full_name, avatar_url)')
           .eq('request_id', id)
           .order('created_at', { ascending: false });
         setResponses((resps as unknown as ResponseRow[]) ?? []);
@@ -126,8 +124,7 @@ const RequestDetailPage = () => {
       request_id: id,
       responder_id: user.id,
       message: message.trim(),
-      contact_phone: profile?.phone || null,
-      contact_whatsapp: profile?.whatsapp_number || null,
+      // Contact details intentionally omitted — communication happens via in-app chat only.
     });
     if (err) {
       toast.error('تعذر إرسال الرد');
@@ -280,11 +277,7 @@ const RequestDetailPage = () => {
                           </div>
                         </div>
                         <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
-                        {resp.contact_phone && (
-                          <a href={`tel:${resp.contact_phone}`} className="mt-3 inline-flex items-center gap-1.5 text-[12px] text-accent font-semibold">
-                            <Phone className="h-3.5 w-3.5 stroke-[2px]" /> {resp.contact_phone}
-                          </a>
-                        )}
+
                       </CardContent>
                     </Card>
                   );

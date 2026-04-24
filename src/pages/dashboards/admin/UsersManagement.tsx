@@ -49,17 +49,20 @@ const UsersManagement = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    let q = supabase.from('profiles').select('*').order('created_at', { ascending: false });
-    if (search) {
-      q = q.or(`full_name.ilike.%${search}%,phone.ilike.%${search}%`);
+    // Use admin-only RPC to fetch users with their private contact info (phone/whatsapp).
+    const { data, error } = await supabase.rpc('admin_list_users', {
+      _search: search || null,
+      _role: roleFilter,
+      _status: statusFilter,
+      _verified: verifiedFilter,
+      _limit: 200,
+    });
+    if (error) {
+      console.error(error);
+      setUsers([]);
+    } else {
+      setUsers(data ?? []);
     }
-    if (roleFilter !== 'all') q = q.eq('role', roleFilter as any);
-    if (statusFilter === 'active') q = q.eq('is_active', true);
-    if (statusFilter === 'suspended') q = q.eq('is_active', false);
-    if (verifiedFilter === 'verified') q = q.eq('is_verified', true);
-    if (verifiedFilter === 'unverified') q = q.eq('is_verified', false);
-    const { data } = await q;
-    setUsers(data ?? []);
     setLoading(false);
   }, [search, roleFilter, statusFilter, verifiedFilter]);
 

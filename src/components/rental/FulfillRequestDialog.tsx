@@ -16,7 +16,6 @@ import { Loader2 } from 'lucide-react';
 interface ProfileOption {
   id: string;
   full_name: string;
-  phone?: string | null;
 }
 
 interface FulfillRequestDialogProps {
@@ -49,7 +48,7 @@ export const FulfillRequestDialog = ({
       // Fetch responders who replied to this request
       const { data: resps } = await supabase
         .from('request_responses')
-        .select('responder_id, responder:profiles!request_responses_responder_id_fkey(id, full_name, phone)')
+        .select('responder_id, responder:profiles!request_responses_responder_id_fkey(id, full_name)')
         .eq('request_id', requestId);
 
       const seen = new Set<string>();
@@ -58,7 +57,7 @@ export const FulfillRequestDialog = ({
         const p = r.responder;
         if (p && !seen.has(p.id) && p.id !== user.id) {
           seen.add(p.id);
-          respList.push({ id: p.id, full_name: p.full_name, phone: p.phone });
+          respList.push({ id: p.id, full_name: p.full_name });
         }
       });
       setResponders(respList);
@@ -66,7 +65,7 @@ export const FulfillRequestDialog = ({
       // Fetch users the renter has chatted with (as initiator on listing conversations)
       const { data: convs } = await supabase
         .from('listing_conversations')
-        .select('owner_id, user_id, owner:profiles!listing_conversations_owner_id_fkey(id, full_name, phone), other:profiles!listing_conversations_user_id_fkey(id, full_name, phone)')
+        .select('owner_id, user_id, owner:profiles!listing_conversations_owner_id_fkey(id, full_name), other:profiles!listing_conversations_user_id_fkey(id, full_name)')
         .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`)
         .limit(100);
 
@@ -76,7 +75,7 @@ export const FulfillRequestDialog = ({
         const p = c.owner_id === user.id ? c.other : c.owner;
         if (p && !chatSeen.has(p.id) && p.id !== user.id) {
           chatSeen.add(p.id);
-          chatList.push({ id: p.id, full_name: p.full_name, phone: p.phone });
+          chatList.push({ id: p.id, full_name: p.full_name });
         }
       });
       setChatUsers(chatList);
@@ -84,7 +83,7 @@ export const FulfillRequestDialog = ({
       // Fetch verified brokers
       const { data: brokerData } = await supabase
         .from('profiles')
-        .select('id, full_name, phone')
+        .select('id, full_name')
         .eq('role', 'broker')
         .eq('verification_badge', 'verified')
         .neq('id', user.id)
@@ -97,12 +96,9 @@ export const FulfillRequestDialog = ({
   }, [open, user, requestId]);
 
   const resolveByPhone = async (phone: string): Promise<string | null> => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('phone', phone.trim())
-      .single();
-    return data?.id ?? null;
+    // Phone numbers are private; resolve via SECURITY DEFINER RPC that returns only the user id.
+    const { data } = await supabase.rpc('find_user_id_by_phone', { _phone: phone.trim() });
+    return (data as string | null) ?? null;
   };
 
   const handleSubmit = async () => {
@@ -322,11 +318,11 @@ export const FulfillRequestDialog = ({
                       <SelectValue placeholder="اختر المالك" />
                     </SelectTrigger>
                     <SelectContent>
-                      {responders.map((p) => (
-                        <SelectItem key={p.id} value={p.id} className="text-xs">
-                          {p.full_name} {p.phone ? `(${p.phone})` : ''}
-                        </SelectItem>
-                      ))}
+                    {responders.map((p) => (
+                      <SelectItem key={p.id} value={p.id} className="text-xs">
+                        {p.full_name}
+                      </SelectItem>
+                    ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -342,11 +338,11 @@ export const FulfillRequestDialog = ({
                       <SelectValue placeholder="اختر من المحادثات" />
                     </SelectTrigger>
                     <SelectContent>
-                      {chatUsers.map((p) => (
-                        <SelectItem key={p.id} value={p.id} className="text-xs">
-                          {p.full_name} {p.phone ? `(${p.phone})` : ''}
-                        </SelectItem>
-                      ))}
+                    {chatUsers.map((p) => (
+                      <SelectItem key={p.id} value={p.id} className="text-xs">
+                        {p.full_name}
+                      </SelectItem>
+                    ))}
                     </SelectContent>
                   </Select>
                 )}

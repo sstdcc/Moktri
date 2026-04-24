@@ -859,6 +859,44 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_user_contact: {
+        Args: { _user_id: string }
+        Returns: {
+          phone: string
+          whatsapp_number: string
+        }[]
+      }
+      admin_list_users: {
+        Args: {
+          _limit?: number
+          _role?: string
+          _search?: string
+          _status?: string
+          _verified?: string
+        }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          full_name: string
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          phone: string
+          role: Database["public"]["Enums"]["user_role"]
+          total_listings: number
+          total_responses: number
+          verification_badge: Database["public"]["Enums"]["verification_badge_status"]
+          whatsapp_number: string
+        }[]
+      }
+      find_user_id_by_phone: { Args: { _phone: string }; Returns: string }
+      get_my_contact: {
+        Args: never
+        Returns: {
+          phone: string
+          whatsapp_number: string
+        }[]
+      }
       get_rateable_rentals: {
         Args: { p_rated: string; p_rater: string }
         Returns: {

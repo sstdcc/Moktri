@@ -34,17 +34,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     setProfileError(false);
+    // Fetch base profile (no private contact columns — those are restricted at the DB level)
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at')
       .eq('id', userId)
       .single();
     if (error || !data) {
       setProfileError(true);
       setProfile(null);
-    } else {
-      setProfile(data);
+      return;
     }
+    // Fetch own contact details (phone + whatsapp) via SECURITY DEFINER helper
+    const { data: contact } = await supabase.rpc('get_my_contact');
+    const c = Array.isArray(contact) ? contact[0] : null;
+    setProfile({
+      ...(data as any),
+      phone: c?.phone ?? '',
+      whatsapp_number: c?.whatsapp_number ?? null,
+    });
   };
 
   const retryProfile = () => {
