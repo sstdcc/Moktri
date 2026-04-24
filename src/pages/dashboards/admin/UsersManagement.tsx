@@ -19,6 +19,8 @@ const roleMap: Record<string, string> = {
   renter: 'مستأجر', owner: 'مالك', broker: 'دلال', admin: 'مدير', moderator: 'مشرف',
 };
 
+interface Stats { total: number; owners: number; renters: number; banned: number; }
+
 const UsersManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,22 @@ const UsersManagement = () => {
   const [verifiedFilter, setVerifiedFilter] = useState('all');
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [newRole, setNewRole] = useState('');
+  const [stats, setStats] = useState<Stats>({ total: 0, owners: 0, renters: 0, banned: 0 });
+
+  const fetchStats = useCallback(async () => {
+    const [t, o, r, b] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'owner'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'renter'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_active', false),
+    ]);
+    setStats({
+      total: t.count ?? 0,
+      owners: o.count ?? 0,
+      renters: r.count ?? 0,
+      banned: b.count ?? 0,
+    });
+  }, []);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -46,10 +64,26 @@ const UsersManagement = () => {
   }, [search, roleFilter, statusFilter, verifiedFilter]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { fetchStats(); }, [fetchStats]);
 
   const toggleActive = async (u: any) => {
-    await supabase.from('profiles').update({ is_active: !u.is_active }).eq('id', u.id);
-    toast.success(u.is_active ? 'تم تعليق الحساب' : 'تم تفعيل الحساب');
+    const { error } = await supabase.from('profiles').update({ is_active: !u.is_active }).eq('id', u.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(u.is_active ? 'تم حظر الحساب' : 'تم رفع الحظر');
+    fetchUsers();
+    fetchStats();
+  };
+
+  const toggleVerified = async (u: any) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        is_verified: !u.is_verified,
+        verification_badge: !u.is_verified ? 'verified' : 'none',
+      })
+      .eq('id', u.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(u.is_verified ? 'تم إلغاء التوثيق' : 'تم توثيق المستخدم');
     fetchUsers();
   };
 
@@ -64,6 +98,21 @@ const UsersManagement = () => {
   return (
     <AdminLayout>
       <h1 className="text-2xl font-bold text-foreground mb-4">إدارة المستخدمين</h1>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        {[
+          { label: 'إجمالي المستخدمين', value: stats.total, color: 'text-primary' },
+          { label: 'الملاك', value: stats.owners, color: 'text-accent' },
+          { label: 'المستأجرون', value: stats.renters, color: 'text-foreground' },
+          { label: 'محظورون', value: stats.banned, color: 'text-destructive' },
+        ].map((s) => (
+          <div key={s.label} className="bg-card border border-border rounded-2xl p-3">
+            <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
+            <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+          </div>
+        ))}
+      </div>
 
       {/* Search */}
       <div className="relative mb-3">
@@ -147,8 +196,14 @@ const UsersManagement = () => {
                   <DropdownMenuItem onClick={() => { setRoleModal({ open: true, user: u }); setNewRole(u.role); }}>
                     تغيير الدور
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toggleActive(u)}>
-                    {u.is_active ? 'تعليق الحساب' : 'تفعيل الحساب'}
+                  <DropdownMenuItem onClick={() => toggleVerified(u)}>
+                    {u.is_verified ? 'إلغاء التوثيق' : 'توثيق المستخدم'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => toggleActive(u)}
+                    className={u.is_active ? 'text-destructive focus:text-destructive' : ''}
+                  >
+                    {u.is_active ? 'حظر الحساب' : 'رفع الحظر'}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
