@@ -20,9 +20,9 @@ const adminNavItems = [
   { label: 'نظرة عامة', icon: LayoutDashboard, path: '/dashboard/admin' },
   { label: 'الإعلانات', icon: ListChecks, path: '/dashboard/admin/listings' },
   { label: 'الطلبات', icon: FileSearch, path: '/dashboard/admin/requests' },
-  { label: 'الإيجارات', icon: Handshake, path: '/dashboard/admin/rentals' },
-  { label: 'البلاغات', icon: ShieldAlert, path: '/dashboard/admin/reports' },
   { label: 'المستخدمون', icon: Users, path: '/dashboard/admin/users' },
+  { label: 'البلاغات', icon: ShieldAlert, path: '/dashboard/admin/reports' },
+  { label: 'الإيجارات', icon: Handshake, path: '/dashboard/admin/rentals' },
   { label: 'التوثيق', icon: BadgeCheck, path: '/dashboard/admin/verifications' },
   { label: 'الأحياء', icon: MapPin, path: '/dashboard/admin/districts' },
 ];
