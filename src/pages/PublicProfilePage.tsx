@@ -43,7 +43,7 @@ const PublicProfilePage = () => {
     setLoading(true);
     try {
       const [profileRes, listingsRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', id).single(),
+        supabase.from('profiles').select('id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at').eq('id', id).single(),
         supabase
           .from('listings')
           .select('*, district:districts(name_ar), listing_images(url, is_primary)')
