@@ -77,10 +77,10 @@ const App = () => (
                   <Route path="/requests" element={<MainLayout><HousingRequestsPage /></MainLayout>} />
                   <Route path="/requests/:id" element={<MainLayout><RequestDetailPage /></MainLayout>} />
                   <Route path="/profile/:id" element={<MainLayout><PublicProfilePage /></MainLayout>} />
-                  <Route path="/notifications" element={<MainLayout><NotificationsPage /></MainLayout>} />
-                  <Route path="/favorites" element={<MainLayout><FavoritesPage /></MainLayout>} />
-                  <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
-                  <Route path="/verify" element={<MainLayout><VerificationPage /></MainLayout>} />
+                  <Route path="/notifications" element={<MainLayout><AuthGuard><NotificationsPage /></AuthGuard></MainLayout>} />
+                  <Route path="/favorites" element={<MainLayout><AuthGuard><FavoritesPage /></AuthGuard></MainLayout>} />
+                  <Route path="/settings" element={<MainLayout><AuthGuard><SettingsPage /></AuthGuard></MainLayout>} />
+                  <Route path="/verify" element={<MainLayout><AuthGuard><VerificationPage /></AuthGuard></MainLayout>} />
                   <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
                   <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
                   <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
