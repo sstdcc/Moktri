@@ -82,7 +82,7 @@ const ListingDetailPage = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('listings')
-      .select('*, listing_images(*), districts(*), profiles!owner_id(*)')
+      .select('*, listing_images(*), districts(*), profiles!owner_id(id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at)')
       .eq('id', id!)
       .single();
 
@@ -123,21 +123,8 @@ const ListingDetailPage = () => {
     toggleFavorite(id);
   };
 
-  const handleWhatsApp = async () => {
-    if (!user) { toast.info('سجل دخولك للتواصل مع المالك'); navigate(`/auth?returnUrl=/listings/${id}`); return; }
-    const phone = listing?.profiles?.whatsapp_number || listing?.profiles?.phone;
-    if (!phone) return;
-    await supabase.rpc('increment_whatsapp_clicks', { p_listing_id: id! });
-    window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
-  };
+  // Phone & WhatsApp contact removed: all communication is via in-app chat only.
 
-  const handleCall = async () => {
-    if (!user) { toast.info('سجل دخولك للتواصل مع المالك'); navigate(`/auth?returnUrl=/listings/${id}`); return; }
-    const phone = listing?.profiles?.phone;
-    if (!phone) return;
-    await supabase.rpc('increment_contact_clicks', { p_listing_id: id! });
-    window.open(`tel:${phone}`, '_self');
-  };
 
   const submitReport = async () => {
     if (!user) { navigate('/auth'); return; }
