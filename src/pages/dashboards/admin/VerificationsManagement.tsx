@@ -49,7 +49,7 @@ const VerificationsManagement = () => {
     setLoading(true);
     const { data } = await supabase
       .from('verification_applications')
-      .select('*, applicant:profiles!verification_applications_applicant_id_fkey(full_name, phone, role, verification_badge)')
+      .select('*, applicant:profiles!verification_applications_applicant_id_fkey(full_name, role, verification_badge)')
       .eq('status', activeTab)
       .order('created_at', { ascending: false });
     setApps(data ?? []);
@@ -131,7 +131,7 @@ const VerificationsManagement = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-bold text-foreground">{a.applicant?.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{a.applicant?.phone}</p>
+                  <p className="text-xs text-muted-foreground">{roleLabel[a.role] ?? a.role}</p>
                 </div>
                 <Badge variant="outline" className="text-xs">{roleLabel[a.role] ?? a.role}</Badge>
               </div>

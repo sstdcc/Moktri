@@ -20,7 +20,7 @@ interface PendingRental {
   status: string;
   listing: { id: string; title: string; status: string; reserved_for_user_id: string | null; source_request_id: string | null } | null;
   owner: { full_name: string } | null;
-  renter: { full_name: string; phone: string | null } | null;
+  renter: { full_name: string } | null;
   broker: { full_name: string } | null;
 }
 
@@ -39,7 +39,7 @@ const RentalsReview = () => {
         id, listing_id, owner_id, renter_id, broker_id, created_at, status,
         listing:listings!rentals_listing_id_fkey(id, title, status, reserved_for_user_id, source_request_id),
         owner:profiles!rentals_owner_id_fkey(full_name),
-        renter:profiles!rentals_renter_id_fkey(full_name, phone),
+        renter:profiles!rentals_renter_id_fkey(full_name),
         broker:profiles!rentals_broker_id_fkey(full_name)
       `)
       .eq('status', 'pending_review' as any)
@@ -166,7 +166,7 @@ const RentalsReview = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1.5"><UserIcon className="h-3.5 w-3.5" /><span>المالك: <span className="text-foreground">{r.owner?.full_name || '—'}</span></span></div>
-                <div className="flex items-center gap-1.5"><UserIcon className="h-3.5 w-3.5" /><span>المستأجر: <span className="text-foreground">{r.renter?.full_name || '—'}</span> {r.renter?.phone ? `· ${r.renter.phone}` : ''}</span></div>
+                <div className="flex items-center gap-1.5"><UserIcon className="h-3.5 w-3.5" /><span>المستأجر: <span className="text-foreground">{r.renter?.full_name || '—'}</span></span></div>
                 {r.broker_id && (
                   <div className="flex items-center gap-1.5"><UserIcon className="h-3.5 w-3.5" /><span>الوسيط: <span className="text-foreground">{r.broker?.full_name || '—'}</span></span></div>
                 )}
