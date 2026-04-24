@@ -859,6 +859,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_user_contact: {
+        Args: { _user_id: string }
+        Returns: {
+          phone: string
+          whatsapp_number: string
+        }[]
+      }
+      find_user_id_by_phone: { Args: { _phone: string }; Returns: string }
+      get_my_contact: {
+        Args: never
+        Returns: {
+          phone: string
+          whatsapp_number: string
+        }[]
+      }
       get_rateable_rentals: {
         Args: { p_rated: string; p_rater: string }
         Returns: {
