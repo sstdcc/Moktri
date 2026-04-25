@@ -432,6 +432,20 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "listings_reserved_for_user_id_fkey"
+            columns: ["reserved_for_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_source_request_id_fkey"
+            columns: ["source_request_id"]
+            isOneToOne: false
+            referencedRelation: "housing_requests"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notifications: {
@@ -889,6 +903,7 @@ export type Database = {
           whatsapp_number: string
         }[]
       }
+      expire_stale_records: { Args: never; Returns: undefined }
       find_user_id_by_phone: { Args: { _phone: string }; Returns: string }
       get_my_contact: {
         Args: never
