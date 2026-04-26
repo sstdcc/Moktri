@@ -26,6 +26,7 @@ const adminNavItems = [
   { label: 'الإيجارات', icon: Handshake, path: '/dashboard/admin/rentals' },
   { label: 'التوثيق', icon: BadgeCheck, path: '/dashboard/admin/verifications' },
   { label: 'الأحياء', icon: MapPin, path: '/dashboard/admin/districts' },
+  { label: 'سجل الإجراءات', icon: ScrollText, path: '/dashboard/admin/audit-logs' },
 ];
 
 export const AdminLayout = ({ children }: { children: ReactNode }) => {
