@@ -32,6 +32,7 @@ const VerificationsManagement = lazy(() => import("./pages/dashboards/admin/Veri
 const RequestsManagement = lazy(() => import("./pages/dashboards/admin/RequestsManagement"));
 const DistrictsManagement = lazy(() => import("./pages/dashboards/admin/DistrictsManagement"));
 const RentalsReview = lazy(() => import("./pages/dashboards/admin/RentalsReview"));
+const AuditLogsPage = lazy(() => import("./pages/dashboards/admin/AuditLogsPage"));
 const CreateListingPage = lazy(() => import("./pages/CreateListingPage"));
 const CreateRequestPage = lazy(() => import("./pages/CreateRequestPage"));
 const EditListingPage = lazy(() => import("./pages/EditListingPage"));
@@ -100,6 +101,7 @@ const App = () => (
                   <Route path="/dashboard/admin/verifications" element={<MainLayout><AdminGuard><VerificationsManagement /></AdminGuard></MainLayout>} />
                   <Route path="/dashboard/admin/requests" element={<MainLayout><AdminGuard><RequestsManagement /></AdminGuard></MainLayout>} />
                   <Route path="/dashboard/admin/districts" element={<MainLayout><AdminGuard><DistrictsManagement /></AdminGuard></MainLayout>} />
+                  <Route path="/dashboard/admin/audit-logs" element={<MainLayout><AdminGuard><AuditLogsPage /></AdminGuard></MainLayout>} />
                   <Route path="/dashboard/admin/rentals" element={<MainLayout><AdminGuard><RentalsReview /></AdminGuard></MainLayout>} />
 
                   <Route path="/listings/new" element={<MainLayout><AuthGuard><CreateListingPage /></AuthGuard></MainLayout>} />
