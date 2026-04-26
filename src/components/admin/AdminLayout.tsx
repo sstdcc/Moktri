@@ -139,7 +139,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
             }}
           >
             <div className="flex h-[64px] items-center justify-around px-1">
-              {adminNavItems.slice(0, 5).map((item) => {
+              {adminNavItems.slice(0, 4).map((item) => {
                 const active = isActive(item.path);
                 return (
                   <button
@@ -175,6 +175,13 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
                   </button>
                 );
               })}
+
+              {/* More sheet for remaining admin items */}
+              <MoreSheet
+                items={adminNavItems.slice(4)}
+                isActive={isActive}
+                onNavigate={(p) => navigate(p)}
+              />
             </div>
           </div>
         </nav>
