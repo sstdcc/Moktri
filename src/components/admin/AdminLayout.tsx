@@ -192,7 +192,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
 
 type AdminNavItem = (typeof adminNavItems)[number];
 
-const MoreSheet = ({
+function MoreSheet({
   items,
   isActive,
   onNavigate,
@@ -200,7 +200,7 @@ const MoreSheet = ({
   items: AdminNavItem[];
   isActive: (path: string) => boolean;
   onNavigate: (path: string) => void;
-}) => {
+}) {
   const [open, setOpen] = useState(false);
   const anyActive = items.some((i) => isActive(i.path));
 
