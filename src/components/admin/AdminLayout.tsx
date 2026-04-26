@@ -12,6 +12,7 @@ import {
   BadgeCheck,
   MapPin,
   Handshake,
+  ScrollText,
   LogOut,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
