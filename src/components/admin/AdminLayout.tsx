@@ -189,3 +189,86 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
     </div>
   );
 };
+
+type AdminNavItem = (typeof adminNavItems)[number];
+
+const MoreSheet = ({
+  items,
+  isActive,
+  onNavigate,
+}: {
+  items: AdminNavItem[];
+  isActive: (path: string) => boolean;
+  onNavigate: (path: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const anyActive = items.some((i) => isActive(i.path));
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button
+          className={cn(
+            'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
+            anyActive ? 'text-primary' : 'text-muted-foreground/60 active:scale-95'
+          )}
+        >
+          <div
+            className={cn(
+              'flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
+              anyActive
+                ? 'bg-primary/12 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.25)]'
+                : 'hover:bg-muted/40'
+            )}
+          >
+            <MoreHorizontal
+              className={cn(
+                'h-[20px] w-[20px] transition-all duration-300',
+                anyActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+              )}
+            />
+          </div>
+          <span
+            className={cn(
+              'text-[9px] font-tajawal leading-tight truncate max-w-[52px] transition-all duration-300',
+              anyActive ? 'font-bold text-primary' : 'font-medium'
+            )}
+          >
+            المزيد
+          </span>
+          {anyActive && (
+            <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+          )}
+        </button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="rounded-t-2xl pb-8" dir="rtl">
+        <SheetHeader>
+          <SheetTitle className="text-right font-tajawal">المزيد</SheetTitle>
+        </SheetHeader>
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          {items.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <button
+                key={item.path}
+                onClick={() => {
+                  setOpen(false);
+                  onNavigate(item.path);
+                }}
+                className={cn(
+                  'flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all',
+                  active
+                    ? 'bg-primary/10 border-primary/30 text-primary'
+                    : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="text-xs font-tajawal font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
