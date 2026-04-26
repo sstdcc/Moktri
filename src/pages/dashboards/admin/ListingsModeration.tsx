@@ -60,7 +60,7 @@ const ListingsModeration = () => {
     setSelected(new Set());
     const { data } = await supabase
       .from('listings')
-      .select('*, owner:profiles!listings_owner_id_fkey(full_name, is_verified, phone), district:districts!listings_district_id_fkey(name_ar)')
+      .select('*, owner:profiles!listings_owner_id_fkey(full_name, is_verified), district:districts!listings_district_id_fkey(name_ar)')
       .eq('status', activeTab)
       .order('created_at', { ascending: false });
     setListings(data ?? []);
