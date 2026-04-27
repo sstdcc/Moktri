@@ -21,9 +21,13 @@ const roleMap: Record<string, string> = {
 
 interface Stats { total: number; owners: number; renters: number; banned: number; }
 
+const PAGE_SIZE = 50;
+
 const UsersManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -31,6 +35,7 @@ const UsersManagement = () => {
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [newRole, setNewRole] = useState('');
   const [stats, setStats] = useState<Stats>({ total: 0, owners: 0, renters: 0, banned: 0 });
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const fetchStats = useCallback(async () => {
     const [t, o, r, b] = await Promise.all([
@@ -49,16 +54,18 @@ const UsersManagement = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    // Use admin-only RPC to fetch users with their private contact info (phone/whatsapp).
-    const { data, error } = await supabase.rpc('admin_list_users', {
+    setError(false);
+    setVisibleCount(PAGE_SIZE);
+    const { data, error: err } = await supabase.rpc('admin_list_users', {
       _search: search || null,
       _role: roleFilter,
       _status: statusFilter,
       _verified: verifiedFilter,
-      _limit: 200,
+      _limit: 500,
     });
-    if (error) {
-      console.error(error);
+    if (err) {
+      console.error(err);
+      setError(true);
       setUsers([]);
     } else {
       setUsers(data ?? []);
@@ -66,7 +73,16 @@ const UsersManagement = () => {
     setLoading(false);
   }, [search, roleFilter, statusFilter, verifiedFilter]);
 
+  const loadMore = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(c => c + PAGE_SIZE);
+      setLoadingMore(false);
+    }, 100);
+  };
+
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
   const toggleActive = async (u: any) => {
