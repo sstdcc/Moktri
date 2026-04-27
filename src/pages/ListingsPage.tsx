@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { FilterSheet, type FilterValues } from '@/components/ui/FilterSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { cn } from '@/lib/utils';
 import type { Listing } from '@/types/database';
 
@@ -40,6 +41,7 @@ const ListingsPage = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [error, setError] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const [showSortMenu, setShowSortMenu] = useState(false);
 
@@ -65,6 +67,7 @@ const ListingsPage = () => {
 
   const fetchListings = useCallback(async (pageNum: number, append = false) => {
     setLoading(true);
+    setError(false);
     let q = supabase
       .from('listings')
       .select('*, listing_images(url, is_primary)', { count: 'exact' })
@@ -95,7 +98,13 @@ const ListingsPage = () => {
     const from = pageNum * PAGE_SIZE;
     q = q.range(from, from + PAGE_SIZE - 1);
 
-    const { data, count } = await q;
+    const { data, count, error: err } = await q;
+    if (err) {
+      setError(true);
+      if (!append) setListings([]);
+      setLoading(false);
+      return;
+    }
     const results = (data || []) as unknown as ListingWithRelations[];
     setListings(prev => append ? [...prev, ...results] : results);
     setTotalCount(count || 0);
