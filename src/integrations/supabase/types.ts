@@ -526,6 +526,7 @@ export type Database = {
           created_at: string | null
           expires_at: string
           id: string
+          ip_address: string | null
           otp_hash: string | null
           phone: string
           verified: boolean | null
@@ -536,6 +537,7 @@ export type Database = {
           created_at?: string | null
           expires_at: string
           id?: string
+          ip_address?: string | null
           otp_hash?: string | null
           phone: string
           verified?: boolean | null
@@ -546,6 +548,7 @@ export type Database = {
           created_at?: string | null
           expires_at?: string
           id?: string
+          ip_address?: string | null
           otp_hash?: string | null
           phone?: string
           verified?: boolean | null
