@@ -244,7 +244,9 @@ const ListingsPage = () => {
 
       {/* Listings grid */}
       <div className="px-4">
-        {loading && listings.length === 0 ? (
+        {error && listings.length === 0 ? (
+          <ErrorState onRetry={() => fetchListings(0)} />
+        ) : loading && listings.length === 0 ? (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-72 animate-pulse rounded-xl bg-muted" />
