@@ -222,7 +222,7 @@ const ReportsManagement = () => {
                 )}
               </div>
             </div>
-          })}
+          ))}
           {hasMore && (
             <button
               onClick={loadMore}
