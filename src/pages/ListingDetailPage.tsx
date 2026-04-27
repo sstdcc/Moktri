@@ -10,6 +10,7 @@ import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { LoginRequired } from '@/components/ui/LoginRequired';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -166,12 +167,23 @@ const ListingDetailPage = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (!listing) return (
-    <div className="min-h-screen bg-background font-tajawal">
-      <PageHeader title="غير موجود" showBack />
-      <p className="p-8 text-center text-muted-foreground">الإعلان غير موجود</p>
-    </div>
-  );
+  if (!listing) {
+    if (!user) {
+      return (
+        <LoginRequired
+          pageTitle="تفاصيل الإعلان"
+          title="يلزم تسجيل الدخول"
+          subtitle="يلزم تسجيل الدخول لعرض تفاصيل الإعلان"
+        />
+      );
+    }
+    return (
+      <div className="min-h-screen bg-background font-tajawal">
+        <PageHeader title="غير موجود" showBack />
+        <p className="p-8 text-center text-muted-foreground">الإعلان غير موجود</p>
+      </div>
+    );
+  }
 
   const images = listing.listing_images?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
   const owner = listing.profiles;
