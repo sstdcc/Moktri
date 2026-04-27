@@ -173,6 +173,8 @@ const ReportsManagement = () => {
 
       {loading ? (
         <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" /></div>
+      ) : error ? (
+        <ErrorState onRetry={() => fetchReports(0)} />
       ) : reports.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">لا توجد بلاغات</p>
       ) : (
@@ -220,7 +222,16 @@ const ReportsManagement = () => {
                 )}
               </div>
             </div>
-          ))}
+          })}
+          {hasMore && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+            >
+              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+            </button>
+          )}
         </div>
       )}
     </AdminLayout>
