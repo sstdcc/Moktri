@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { ErrorState } from '@/components/ui/ErrorState';
+
+const PAGE_SIZE = 50;
 
 type AuditLog = {
   id: string;
@@ -46,32 +49,55 @@ const AuditLogsPage = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [admins, setAdmins] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [search, setSearch] = useState('');
 
-  const fetchLogs = useCallback(async () => {
-    setLoading(true);
-    const { data } = await (supabase as any)
+  const fetchLogs = useCallback(async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true); else setLoading(true);
+    setError(false);
+    const from = pageNum * PAGE_SIZE;
+    const { data, error: err } = await (supabase as any)
       .from('admin_audit_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(300);
+      .range(from, from + PAGE_SIZE - 1);
+    if (err) {
+      setError(true);
+      setLoading(false);
+      setLoadingMore(false);
+      return;
+    }
     const list = (data ?? []) as AuditLog[];
-    setLogs(list);
+    setLogs(prev => append ? [...prev, ...list] : list);
+    setHasMore(list.length === PAGE_SIZE);
 
-    const adminIds = Array.from(new Set(list.map((l) => l.admin_id)));
-    if (adminIds.length) {
+    const newAdminIds = Array.from(new Set(list.map((l) => l.admin_id)))
+      .filter(id => !admins[id]);
+    if (newAdminIds.length) {
       const { data: profs } = await supabase
         .from('profiles')
         .select('id, full_name')
-        .in('id', adminIds);
-      const map: Record<string, string> = {};
-      (profs ?? []).forEach((p: any) => { map[p.id] = p.full_name; });
-      setAdmins(map);
+        .in('id', newAdminIds);
+      setAdmins(prev => {
+        const map = { ...prev };
+        (profs ?? []).forEach((p: any) => { map[p.id] = p.full_name; });
+        return map;
+      });
     }
     setLoading(false);
-  }, []);
+    setLoadingMore(false);
+  }, [admins]);
 
-  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+  useEffect(() => { fetchLogs(0); }, []);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchLogs(next, true);
+  };
 
   const filtered = logs.filter((l) => {
     if (!search.trim()) return true;
