@@ -81,7 +81,7 @@ const ReportsManagement = () => {
       });
     }
     toast.success('تم حل البلاغ');
-    fetchReports();
+    fetchReports(0);
   };
 
   const dismiss = async (id: string, reporterId?: string) => {
@@ -96,7 +96,7 @@ const ReportsManagement = () => {
       });
     }
     toast.success('تم رفض البلاغ');
-    fetchReports();
+    fetchReports(0);
   };
 
   const removeListing = async (r: any) => {
