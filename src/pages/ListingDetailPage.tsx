@@ -10,7 +10,6 @@ import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { LoginRequired } from '@/components/ui/LoginRequired';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
