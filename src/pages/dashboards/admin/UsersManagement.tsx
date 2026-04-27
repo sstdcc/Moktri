@@ -14,6 +14,7 @@ import { MoreHorizontal, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/ErrorState';
 
 const roleMap: Record<string, string> = {
   renter: 'مستأجر', owner: 'مالك', broker: 'دلال', admin: 'مدير', moderator: 'مشرف',
@@ -178,11 +179,13 @@ const UsersManagement = () => {
 
       {loading ? (
         <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" /></div>
+      ) : error ? (
+        <ErrorState onRetry={fetchUsers} />
       ) : users.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">لا يوجد مستخدمون</p>
       ) : (
         <div className="space-y-3">
-          {users.map((u) => (
+          {users.slice(0, visibleCount).map((u) => (
             <div key={u.id} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
                 {u.full_name?.charAt(0) || '؟'}
@@ -228,6 +231,15 @@ const UsersManagement = () => {
               </DropdownMenu>
             </div>
           ))}
+          {visibleCount < users.length && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+            >
+              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+            </button>
+          )}
         </div>
       )}
 
