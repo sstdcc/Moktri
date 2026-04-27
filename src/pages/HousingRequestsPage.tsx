@@ -83,7 +83,7 @@ const HousingRequestsPage = () => {
         {error && !loading && (
           <div className="flex flex-col items-center gap-3 py-12">
             <p className="text-sm text-destructive">تعذر تحميل الطلبات</p>
-            <Button variant="outline" size="sm" onClick={fetchRequests}>
+            <Button variant="outline" size="sm" onClick={() => fetchRequests(0)}>
               <RefreshCw className="h-4 w-4 ml-2" /> إعادة المحاولة
             </Button>
           </div>
@@ -136,6 +136,16 @@ const HousingRequestsPage = () => {
                 )}
               </CollapsibleContent>
             </Collapsible>
+
+            {hasMore && (
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mx-auto mt-4 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              </button>
+            )}
           </>
         )}
       </div>
