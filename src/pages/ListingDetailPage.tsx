@@ -169,12 +169,26 @@ const ListingDetailPage = () => {
   if (loading) return <LoadingSpinner />;
   if (!listing) {
     if (!user) {
+      const returnUrl = encodeURIComponent(`/listings/${id}`);
       return (
-        <LoginRequired
-          pageTitle="تفاصيل الإعلان"
-          title="يلزم تسجيل الدخول"
-          subtitle="يلزم تسجيل الدخول لعرض تفاصيل الإعلان"
-        />
+        <div className="min-h-screen bg-background font-tajawal" dir="rtl">
+          <PageHeader title="تفاصيل الإعلان" showBack />
+          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+            <div className="mb-5 rounded-2xl bg-gradient-to-br from-muted to-muted/60 p-5 shadow-card">
+              <Eye className="h-9 w-9 text-muted-foreground/70 stroke-[1.6px]" />
+            </div>
+            <h3 className="text-[17px] font-bold text-foreground">يلزم تسجيل الدخول</h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-[280px]">
+              يلزم تسجيل الدخول لعرض تفاصيل الإعلان
+            </p>
+            <div className="mt-5 flex flex-col gap-2 w-full max-w-[260px]">
+              <Button onClick={() => navigate(`/auth?returnUrl=${returnUrl}`)}>تسجيل الدخول</Button>
+              <Button variant="outline" onClick={() => navigate(`/auth?mode=signup&returnUrl=${returnUrl}`)}>
+                إنشاء حساب
+              </Button>
+            </div>
+          </div>
+        </div>
       );
     }
     return (
