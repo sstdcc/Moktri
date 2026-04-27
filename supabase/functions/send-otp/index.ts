@@ -44,19 +44,71 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Rate limit: max 3 OTPs per phone in 10 minutes
-    const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-    const { count } = await supabase
+    // Extract client IP (best-effort)
+    const ipHeader =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("cf-connecting-ip") ||
+      req.headers.get("x-real-ip") ||
+      "";
+    const clientIp = ipHeader.split(",")[0].trim() || "unknown";
+
+    const now = Date.now();
+    const oneMinAgo = new Date(now - 60 * 1000).toISOString();
+    const oneHourAgo = new Date(now - 60 * 60 * 1000).toISOString();
+    const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+
+    // 1) 60-second cooldown per phone
+    const { count: lastMinCount } = await supabase
       .from("otp_codes")
       .select("id", { count: "exact", head: true })
       .eq("phone", phone)
-      .gte("created_at", tenMinAgo);
-
-    if ((count ?? 0) >= 3) {
+      .gte("created_at", oneMinAgo);
+    if ((lastMinCount ?? 0) >= 1) {
       return new Response(
-        JSON.stringify({ error: "تم تجاوز الحد المسموح، حاول بعد قليل" }),
+        JSON.stringify({ error: "يرجى الانتظار 60 ثانية قبل طلب رمز جديد" }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // 2) Max 5 per phone per hour
+    const { count: hourPhoneCount } = await supabase
+      .from("otp_codes")
+      .select("id", { count: "exact", head: true })
+      .eq("phone", phone)
+      .gte("created_at", oneHourAgo);
+    if ((hourPhoneCount ?? 0) >= 5) {
+      return new Response(
+        JSON.stringify({ error: "تم تجاوز الحد المسموح لهذا الرقم، حاول بعد ساعة" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 3) Max 15 per phone per day
+    const { count: dayPhoneCount } = await supabase
+      .from("otp_codes")
+      .select("id", { count: "exact", head: true })
+      .eq("phone", phone)
+      .gte("created_at", oneDayAgo);
+    if ((dayPhoneCount ?? 0) >= 15) {
+      return new Response(
+        JSON.stringify({ error: "تم تجاوز الحد اليومي لهذا الرقم، حاول غداً" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 4) Max 10 per IP per hour
+    if (clientIp && clientIp !== "unknown") {
+      const { count: hourIpCount } = await supabase
+        .from("otp_codes")
+        .select("id", { count: "exact", head: true })
+        .eq("ip_address", clientIp)
+        .gte("created_at", oneHourAgo);
+      if ((hourIpCount ?? 0) >= 10) {
+        return new Response(
+          JSON.stringify({ error: "تم تجاوز الحد المسموح، حاول بعد ساعة" }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Generate 6-digit code
@@ -76,7 +128,7 @@ Deno.serve(async (req) => {
     // Store hashed code only — `code` column set to placeholder
     const { error: insertErr } = await supabase
       .from("otp_codes")
-      .insert({ phone, code: "***", otp_hash: otpHash, expires_at: expiresAt });
+      .insert({ phone, code: "***", otp_hash: otpHash, expires_at: expiresAt, ip_address: clientIp });
     if (insertErr) throw insertErr;
 
     // Build SMS params — prefer MessagingServiceSid, fall back to From number
