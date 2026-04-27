@@ -382,7 +382,7 @@ const NotificationsPage = () => {
     const { error: err } = await supabase.from('notifications').delete().eq('id', notif.id);
     if (err) {
       toast.error('تعذر حذف الإشعار');
-      fetchNotifications();
+      fetchNotifications(0);
     }
   };
 
@@ -500,7 +500,7 @@ const NotificationsPage = () => {
               <ShieldAlert className="h-8 w-8 text-rose-500" />
             </div>
             <p className="text-sm text-muted-foreground">تعذر تحميل الإشعارات</p>
-            <Button variant="outline" size="sm" onClick={fetchNotifications}>
+            <Button variant="outline" size="sm" onClick={() => fetchNotifications(0)}>
               <RefreshCw className="h-4 w-4 ml-2" />
               إعادة المحاولة
             </Button>
@@ -544,6 +544,15 @@ const NotificationsPage = () => {
                 </section>
               );
             })}
+            {hasMore && filter === 'all' && (
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              </button>
+            )}
           </div>
         )}
       </div>
