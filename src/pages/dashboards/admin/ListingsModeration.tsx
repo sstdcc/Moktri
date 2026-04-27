@@ -110,7 +110,7 @@ const ListingsModeration = () => {
       body_ar: `تمت مراجعة إعلانك "${listing.title}" وتم نشره`,
     });
     toast.success('تم قبول الإعلان');
-    fetchListings();
+    fetchListings(0);
     fetchCounts();
   };
 
@@ -129,7 +129,7 @@ const ListingsModeration = () => {
     setRejectModal({ open: false, listing: null });
     setRejectReason('');
     setRejectNote('');
-    fetchListings();
+    fetchListings(0);
     fetchCounts();
   };
 
@@ -260,7 +260,7 @@ const ListingsModeration = () => {
                           link: `/listings/${l.id}`,
                         });
                         toast.success('تم إيقاف الإعلان');
-                        fetchListings();
+                        fetchListings(0);
                         fetchCounts();
                       }}>
                         إيقاف
