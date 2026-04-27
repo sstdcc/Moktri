@@ -11,6 +11,8 @@ import { Plus, Search as SearchIcon, RefreshCw, ChevronDown, ChevronUp } from 'l
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RequestCard, type RequestCardData } from '@/components/RequestCard';
 
+const PAGE_SIZE = 20;
+
 const HousingRequestsPage = () => {
   usePageTitle();
   const navigate = useNavigate();
@@ -19,35 +21,50 @@ const HousingRequestsPage = () => {
   const [myRequests, setMyRequests] = useState<RequestCardData[]>([]);
   const [otherRequests, setOtherRequests] = useState<RequestCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
   const [othersOpen, setOthersOpen] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
-  const fetchRequests = useCallback(async () => {
-    setLoading(true);
+  const isClosed = (s: string | null) => s === 'fulfilled' || s === 'completed' || s === 'cancelled' || s === 'expired';
+
+  const fetchRequests = useCallback(async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true); else setLoading(true);
     setError(false);
+    const from = pageNum * PAGE_SIZE;
     const { data, error: err } = await supabase
       .from('housing_requests')
       .select('id, category, neighborhood, district_id, min_price, max_price, currency, for_whom, notes, bedrooms_needed, responses_count, views_count, status, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
       .in('status', ['active', 'fulfilled', 'expired', 'cancelled', 'completed'])
       .order('created_at', { ascending: false })
-      .limit(100);
+      .range(from, from + PAGE_SIZE - 1);
 
-    if (err) { setError(true); setLoading(false); return; }
+    if (err) { setError(true); setLoading(false); setLoadingMore(false); return; }
     const all = (data as unknown as RequestCardData[]) ?? [];
+    setHasMore(all.length === PAGE_SIZE);
 
-    const isClosed = (s: string | null) => s === 'fulfilled' || s === 'completed' || s === 'cancelled' || s === 'expired';
     if (user) {
-      setMyRequests(all.filter(r => r.requester_id === user.id));
-      // Hide closed/completed requests from the public "other requests" view
-      setOtherRequests(all.filter(r => r.requester_id !== user.id && !isClosed(r.status)));
+      const mine = all.filter(r => r.requester_id === user.id);
+      const others = all.filter(r => r.requester_id !== user.id && !isClosed(r.status));
+      setMyRequests(prev => append ? [...prev, ...mine] : mine);
+      setOtherRequests(prev => append ? [...prev, ...others] : others);
     } else {
       setMyRequests([]);
-      setOtherRequests(all.filter(r => !isClosed(r.status)));
+      const others = all.filter(r => !isClosed(r.status));
+      setOtherRequests(prev => append ? [...prev, ...others] : others);
     }
     setLoading(false);
+    setLoadingMore(false);
   }, [user]);
 
-  useEffect(() => { fetchRequests(); }, [fetchRequests]);
+  useEffect(() => { setPage(0); fetchRequests(0); }, [fetchRequests]);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchRequests(next, true);
+  };
 
   return (
     <div className="min-h-screen bg-background font-tajawal" dir="rtl">
@@ -66,7 +83,7 @@ const HousingRequestsPage = () => {
         {error && !loading && (
           <div className="flex flex-col items-center gap-3 py-12">
             <p className="text-sm text-destructive">تعذر تحميل الطلبات</p>
-            <Button variant="outline" size="sm" onClick={fetchRequests}>
+            <Button variant="outline" size="sm" onClick={() => fetchRequests(0)}>
               <RefreshCw className="h-4 w-4 ml-2" /> إعادة المحاولة
             </Button>
           </div>
@@ -119,6 +136,16 @@ const HousingRequestsPage = () => {
                 )}
               </CollapsibleContent>
             </Collapsible>
+
+            {hasMore && (
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mx-auto mt-4 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              </button>
+            )}
           </>
         )}
       </div>

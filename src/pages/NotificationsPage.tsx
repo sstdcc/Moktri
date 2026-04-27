@@ -301,29 +301,48 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
 };
 
 /* ---------- Page ---------- */
+const PAGE_SIZE = 30;
+
 const NotificationsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (pageNum: number = 0, append = false) => {
     if (!user) return;
+    if (append) setLoadingMore(true); else setLoading(true);
     setError(false);
-    setLoading(true);
+    const from = pageNum * PAGE_SIZE;
     const { data, error: err } = await supabase
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-    if (err) setError(true);
-    else setNotifications(data ?? []);
+      .order('created_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+    if (err) {
+      setError(true);
+    } else {
+      const list = data ?? [];
+      setNotifications(prev => append ? [...prev, ...list] : list);
+      setHasMore(list.length === PAGE_SIZE);
+    }
     setLoading(false);
+    setLoadingMore(false);
   }, [user]);
 
-  useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
+  useEffect(() => { setPage(0); fetchNotifications(0); }, [fetchNotifications]);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchNotifications(next, true);
+  };
 
   // Realtime
   useEffect(() => {
@@ -363,7 +382,7 @@ const NotificationsPage = () => {
     const { error: err } = await supabase.from('notifications').delete().eq('id', notif.id);
     if (err) {
       toast.error('تعذر حذف الإشعار');
-      fetchNotifications();
+      fetchNotifications(0);
     }
   };
 
@@ -481,7 +500,7 @@ const NotificationsPage = () => {
               <ShieldAlert className="h-8 w-8 text-rose-500" />
             </div>
             <p className="text-sm text-muted-foreground">تعذر تحميل الإشعارات</p>
-            <Button variant="outline" size="sm" onClick={fetchNotifications}>
+            <Button variant="outline" size="sm" onClick={() => fetchNotifications(0)}>
               <RefreshCw className="h-4 w-4 ml-2" />
               إعادة المحاولة
             </Button>
@@ -525,6 +544,15 @@ const NotificationsPage = () => {
                 </section>
               );
             })}
+            {hasMore && filter === 'all' && (
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              </button>
+            )}
           </div>
         )}
       </div>

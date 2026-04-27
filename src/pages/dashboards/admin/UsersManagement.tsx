@@ -14,6 +14,7 @@ import { MoreHorizontal, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/ErrorState';
 
 const roleMap: Record<string, string> = {
   renter: 'مستأجر', owner: 'مالك', broker: 'دلال', admin: 'مدير', moderator: 'مشرف',
@@ -21,9 +22,13 @@ const roleMap: Record<string, string> = {
 
 interface Stats { total: number; owners: number; renters: number; banned: number; }
 
+const PAGE_SIZE = 50;
+
 const UsersManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -31,6 +36,7 @@ const UsersManagement = () => {
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [newRole, setNewRole] = useState('');
   const [stats, setStats] = useState<Stats>({ total: 0, owners: 0, renters: 0, banned: 0 });
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const fetchStats = useCallback(async () => {
     const [t, o, r, b] = await Promise.all([
@@ -49,16 +55,18 @@ const UsersManagement = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    // Use admin-only RPC to fetch users with their private contact info (phone/whatsapp).
-    const { data, error } = await supabase.rpc('admin_list_users', {
+    setError(false);
+    setVisibleCount(PAGE_SIZE);
+    const { data, error: err } = await supabase.rpc('admin_list_users', {
       _search: search || null,
       _role: roleFilter,
       _status: statusFilter,
       _verified: verifiedFilter,
-      _limit: 200,
+      _limit: 500,
     });
-    if (error) {
-      console.error(error);
+    if (err) {
+      console.error(err);
+      setError(true);
       setUsers([]);
     } else {
       setUsers(data ?? []);
@@ -66,7 +74,16 @@ const UsersManagement = () => {
     setLoading(false);
   }, [search, roleFilter, statusFilter, verifiedFilter]);
 
+  const loadMore = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(c => c + PAGE_SIZE);
+      setLoadingMore(false);
+    }, 100);
+  };
+
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
   const toggleActive = async (u: any) => {
@@ -162,11 +179,13 @@ const UsersManagement = () => {
 
       {loading ? (
         <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" /></div>
+      ) : error ? (
+        <ErrorState onRetry={fetchUsers} />
       ) : users.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">لا يوجد مستخدمون</p>
       ) : (
         <div className="space-y-3">
-          {users.map((u) => (
+          {users.slice(0, visibleCount).map((u) => (
             <div key={u.id} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
                 {u.full_name?.charAt(0) || '؟'}
@@ -212,6 +231,15 @@ const UsersManagement = () => {
               </DropdownMenu>
             </div>
           ))}
+          {visibleCount < users.length && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+            >
+              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+            </button>
+          )}
         </div>
       )}
 

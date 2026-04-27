@@ -10,6 +10,9 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/ErrorState';
+
+const PAGE_SIZE = 30;
 
 type TabStatus = 'pending' | 'reviewed' | 'resolved' | 'dismissed';
 
@@ -31,19 +34,40 @@ const ReportsManagement = () => {
   const [activeTab, setActiveTab] = useState<TabStatus>('pending');
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
-  const fetchReports = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase
+  const fetchReports = useCallback(async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true); else setLoading(true);
+    setError(false);
+    const from = pageNum * PAGE_SIZE;
+    const { data, error: err } = await supabase
       .from('reports')
       .select('*, reporter:profiles!reports_reporter_id_fkey(full_name), resolver:profiles!reports_resolved_by_fkey(full_name)')
       .eq('status', activeTab)
-      .order('created_at', { ascending: false });
-    setReports(data ?? []);
+      .order('created_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+    if (err) {
+      setError(true);
+      if (!append) setReports([]);
+    } else {
+      const list = data ?? [];
+      setReports(prev => append ? [...prev, ...list] : list);
+      setHasMore(list.length === PAGE_SIZE);
+    }
     setLoading(false);
+    setLoadingMore(false);
   }, [activeTab]);
 
-  useEffect(() => { fetchReports(); }, [fetchReports]);
+  useEffect(() => { setPage(0); fetchReports(0); }, [fetchReports]);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchReports(next, true);
+  };
 
   const resolve = async (id: string, reporterId?: string) => {
     await supabase.from('reports').update({ status: 'resolved' as any, resolved_by: user!.id }).eq('id', id);
@@ -57,7 +81,7 @@ const ReportsManagement = () => {
       });
     }
     toast.success('تم حل البلاغ');
-    fetchReports();
+    fetchReports(0);
   };
 
   const dismiss = async (id: string, reporterId?: string) => {
@@ -72,7 +96,7 @@ const ReportsManagement = () => {
       });
     }
     toast.success('تم رفض البلاغ');
-    fetchReports();
+    fetchReports(0);
   };
 
   const removeListing = async (r: any) => {
@@ -149,6 +173,8 @@ const ReportsManagement = () => {
 
       {loading ? (
         <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" /></div>
+      ) : error ? (
+        <ErrorState onRetry={() => fetchReports(0)} />
       ) : reports.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">لا توجد بلاغات</p>
       ) : (
@@ -197,6 +223,15 @@ const ReportsManagement = () => {
               </div>
             </div>
           ))}
+          {hasMore && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+            >
+              {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+            </button>
+          )}
         </div>
       )}
     </AdminLayout>
