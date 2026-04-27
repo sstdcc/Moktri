@@ -13,6 +13,9 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { ExternalLink, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { ErrorState } from '@/components/ui/ErrorState';
+
+const PAGE_SIZE = 30;
 
 type TabStatus = 'pending_review' | 'active' | 'paused' | 'rejected' | 'expired';
 
@@ -39,6 +42,10 @@ const ListingsModeration = () => {
   const [listings, setListings] = useState<any[]>([]);
   const [counts, setCounts] = useState<Record<TabStatus, number>>({} as any);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [rejectModal, setRejectModal] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
   const [rejectReason, setRejectReason] = useState('');
@@ -55,22 +62,40 @@ const ListingsModeration = () => {
     setCounts(c);
   }, []);
 
-  const fetchListings = useCallback(async () => {
-    setLoading(true);
-    setSelected(new Set());
-    const { data } = await supabase
+  const fetchListings = useCallback(async (pageNum: number, append = false) => {
+    if (append) setLoadingMore(true); else setLoading(true);
+    setError(false);
+    if (!append) setSelected(new Set());
+    const from = pageNum * PAGE_SIZE;
+    const { data, error: err } = await supabase
       .from('listings')
       .select('*, owner:profiles!listings_owner_id_fkey(full_name, is_verified), district:districts!listings_district_id_fkey(name_ar)')
       .eq('status', activeTab)
-      .order('created_at', { ascending: false });
-    setListings(data ?? []);
+      .order('created_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+    if (err) {
+      setError(true);
+      if (!append) setListings([]);
+    } else {
+      const list = data ?? [];
+      setListings(prev => append ? [...prev, ...list] : list);
+      setHasMore(list.length === PAGE_SIZE);
+    }
     setLoading(false);
+    setLoadingMore(false);
   }, [activeTab]);
 
   useEffect(() => {
+    setPage(0);
     fetchCounts();
-    fetchListings();
+    fetchListings(0);
   }, [fetchCounts, fetchListings]);
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetchListings(next, true);
+  };
 
   const approveListing = async (listing: any) => {
     const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
