@@ -279,6 +279,41 @@ const SettingsPage = () => {
           </CardContent>
         </Card>
 
+        {/* Section: Appearance */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Sun className="h-4 w-4 text-primary" />
+              المظهر
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'system', label: 'النظام', Icon: Monitor },
+                { value: 'light', label: 'فاتح', Icon: Sun },
+                { value: 'dark', label: 'داكن', Icon: Moon },
+              ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-3 text-xs font-bold transition-all',
+                    theme === value
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-card text-muted-foreground hover:bg-muted/50'
+                  )}
+                  aria-pressed={theme === value}
+                >
+                  <Icon className="h-5 w-5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">يتم حفظ اختيارك تلقائياً</p>
+          </CardContent>
+        </Card>
+
         {/* Section 4: Security */}
         <Card>
           <CardHeader className="pb-3">
