@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { DistrictsProvider } from "@/contexts/DistrictsContext";
 import { PresenceProvider } from "@/contexts/PresenceContext";
 import { AuthGuard } from "@/components/guards/AuthGuard";
@@ -60,6 +61,7 @@ const LazyFallback = () => <LoadingSpinner />;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
     <TooltipProvider>
       <Sonner />
       <BrowserRouter>
@@ -116,6 +118,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

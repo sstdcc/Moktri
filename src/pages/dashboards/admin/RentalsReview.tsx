@@ -158,7 +158,7 @@ const RentalsReview = () => {
                 <div className="flex items-center gap-2 min-w-0">
                   <Home className="h-4 w-4 text-accent shrink-0" />
                   <span className="font-bold text-foreground line-clamp-1">{r.listing?.title || '—'}</span>
-                  <Badge className="bg-amber-500/15 text-amber-700 text-[10px]">بانتظار المراجعة</Badge>
+                  <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 text-[10px]">بانتظار المراجعة</Badge>
                 </div>
                 <a href={`/listings/${r.listing_id}`} target="_blank" rel="noreferrer">
                   <Button size="sm" variant="ghost" className="h-8"><ExternalLink className="h-4 w-4" /></Button>

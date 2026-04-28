@@ -16,6 +16,18 @@
   <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ce97f771-83e4-4753-992d-4624ffde2e0b/id-preview-62b5a215--dc97fb0f-909e-4028-a962-b20d2b806bf0.lovable.app-1774922921016.png">
   <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ce97f771-83e4-4753-992d-4624ffde2e0b/id-preview-62b5a215--dc97fb0f-909e-4028-a962-b20d2b806bf0.lovable.app-1774922921016.png">
   <meta name="twitter:card" content="summary_large_image">
+  <script>
+    // No-flash theme initialization (runs before React)
+    (function () {
+      try {
+        var stored = localStorage.getItem('miftah_theme');
+        var theme = stored === 'light' || stored === 'dark' ? stored
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.add(theme);
+        document.documentElement.style.colorScheme = theme;
+      } catch (e) {}
+    })();
+  </script>
 </head>
   <body>
     <div id="root"></div>

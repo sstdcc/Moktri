@@ -190,7 +190,7 @@ const ReportsManagement = () => {
                 </div>
                 <div className="flex gap-1.5">
                   <Badge variant="outline" className="text-xs">{targetMap[r.target_type] ?? r.target_type}</Badge>
-                  <Badge className="bg-red-100 text-red-700 text-xs">{reasonMap[r.reason] ?? r.reason}</Badge>
+                  <Badge className="bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300 text-xs">{reasonMap[r.reason] ?? r.reason}</Badge>
                 </div>
               </div>
               {r.notes && <p className="text-sm text-muted-foreground mt-2">{r.notes}</p>}
