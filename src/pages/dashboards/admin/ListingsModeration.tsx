@@ -223,7 +223,7 @@ const ListingsModeration = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-foreground line-clamp-1">{l.title}</span>
                     <Badge variant="outline" className="text-[10px]">{categoryMap[l.category] ?? l.category}</Badge>
-                    {isStale && <Badge className="bg-orange-500 text-white text-[10px]">قديم</Badge>}
+                    {isStale && <Badge className="bg-orange-500 text-white dark:bg-orange-500/20 dark:text-orange-300 text-[10px]">قديم</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {l.owner?.full_name} {l.owner?.is_verified && '✓'} · {l.district?.name_ar ?? '—'} · {l.price} ر.ي
@@ -233,8 +233,8 @@ const ListingsModeration = () => {
                     {l.quality_score != null && (
                       <span className={cn(
                         'mr-2 px-1.5 py-0.5 rounded text-[10px] font-medium',
-                        l.quality_score >= 70 ? 'bg-green-100 text-green-700' :
-                        l.quality_score >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                        l.quality_score >= 70 ? 'bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300' :
+                        l.quality_score >= 40 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' : 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300'
                       )}>
                         جودة {l.quality_score}
                       </span>
