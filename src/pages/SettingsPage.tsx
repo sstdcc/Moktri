@@ -21,9 +21,10 @@ import {
 import { toast } from 'sonner';
 import {
   User, Camera, Phone, LogOut, MessageCircle, Shield,
-  Info, FileText, RefreshCw, Bell,
+  Info, FileText, RefreshCw, Bell, Sun, Moon, Monitor,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
 
 const NOTIF_PREFS_KEY = 'miftah_notif_prefs';
 
@@ -49,6 +50,7 @@ const notifLabels: Record<string, string> = {
 
 const SettingsPage = () => {
   const { user, profile, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
