@@ -122,9 +122,23 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
       <main
         className={cn(
           'flex-1 overflow-auto',
-          !isMobile ? 'mr-[260px]' : 'pb-24'
+          !isMobile ? 'mr-[260px]' : 'pb-24 pt-[60px]'
         )}
       >
+        {/* ── Mobile Top Header with Menu Trigger ── */}
+        {isMobile && (
+          <header className="fixed top-0 right-0 left-0 z-40 h-[60px] flex items-center justify-between px-3 bg-card/85 backdrop-blur-xl backdrop-saturate-150 border-b border-border/40">
+            <MobileMenuSheet
+              items={adminNavItems}
+              isActive={isActive}
+              onNavigate={(p) => navigate(p)}
+              onSignOut={handleSignOut}
+              profile={profile}
+            />
+            <p className="text-[13px] font-bold text-foreground font-tajawal">مفتاح — لوحة التحكم</p>
+            <div className="w-11 h-11" />
+          </header>
+        )}
         <div className="p-4">{children}</div>
       </main>
 
