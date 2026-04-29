@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
 
 const adminNavItems = [
   { label: 'نظرة عامة', icon: LayoutDashboard, path: '/dashboard/admin' },
@@ -49,8 +51,10 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background font-tajawal flex" dir="rtl">
-      {/* ── Desktop Sidebar ── */}
+    <SidebarProvider>
+      <AppSidebar />
+      <div className="min-h-screen bg-background font-tajawal flex flex-1 w-full" dir="rtl">
+        {/* ── Desktop Sidebar ── */}
       {!isMobile && (
         <aside className="w-[260px] shrink-0 fixed top-0 right-0 h-screen bg-card/95 backdrop-blur-xl border-l border-border/40 flex flex-col z-40"
           style={{ boxShadow: '-4px 0 24px -8px rgba(0,0,0,0.06)' }}
@@ -128,12 +132,9 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
         {/* ── Mobile Top Header with Menu Trigger ── */}
         {isMobile && (
           <header className="fixed top-0 right-0 left-0 z-40 h-[60px] flex items-center justify-between px-3 bg-card/85 backdrop-blur-xl backdrop-saturate-150 border-b border-border/40">
-            <MobileMenuSheet
-              items={adminNavItems}
-              isActive={isActive}
-              onNavigate={(p) => navigate(p)}
-              onSignOut={handleSignOut}
-              profile={profile}
+            <SidebarTrigger
+              aria-label="فتح القائمة"
+              className="flex items-center justify-center h-11 w-11 rounded-xl bg-muted/60 text-foreground hover:bg-muted active:scale-95 transition-all border border-border/40 [&_svg]:!size-6"
             />
             <p className="text-[13px] font-bold text-foreground font-tajawal">مفتاح — لوحة التحكم</p>
             <div className="w-11 h-11" />
@@ -201,7 +202,8 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
           </div>
         </nav>
       )}
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
