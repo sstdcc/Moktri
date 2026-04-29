@@ -2,17 +2,18 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { PageHeader } from '@/components/ui/PageHeader';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoginRequired } from '@/components/ui/LoginRequired';
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle, DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -20,8 +21,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import {
-  User, Camera, Phone, LogOut, MessageCircle, Shield,
-  Info, FileText, RefreshCw, Bell, Sun, Moon, Monitor,
+  User, Camera, Phone, Mail, LogOut, MessageCircle, Shield,
+  Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft,
+  Lock, ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
@@ -48,6 +50,74 @@ const notifLabels: Record<string, string> = {
   system: 'إشعارات النظام',
 };
 
+/* ---------- Reusable premium row primitives ---------- */
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <h2 className="px-1 mb-2.5 text-[12px] font-medium text-muted-foreground/80 tracking-wide">
+    {children}
+  </h2>
+);
+
+const SettingsCard = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div
+    className={cn(
+      'rounded-2xl border border-border/60 bg-card overflow-hidden',
+      'shadow-[0_1px_2px_rgba(0,0,0,0.03)]',
+      className
+    )}
+  >
+    {children}
+  </div>
+);
+
+const Row = ({
+  icon: Icon,
+  label,
+  subtext,
+  right,
+  onClick,
+  isLast,
+  className,
+}: {
+  icon?: React.ElementType;
+  label: string;
+  subtext?: string;
+  right?: React.ReactNode;
+  onClick?: () => void;
+  isLast?: boolean;
+  className?: string;
+}) => {
+  const Comp: any = onClick ? 'button' : 'div';
+  return (
+    <Comp
+      onClick={onClick}
+      className={cn(
+        'w-full flex items-center gap-3.5 px-4 py-3.5 text-right transition-colors duration-150',
+        onClick && 'hover:bg-muted/50 active:bg-muted/70 cursor-pointer',
+        !isLast && 'border-b border-border/40',
+        className
+      )}
+    >
+      {Icon && (
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/60 text-foreground/70 shrink-0">
+          <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <div className="text-[14.5px] text-foreground font-medium leading-tight truncate">{label}</div>
+        {subtext && (
+          <div className="text-[12.5px] text-muted-foreground mt-0.5 truncate" dir="ltr" style={{ textAlign: 'right' }}>
+            {subtext}
+          </div>
+        )}
+      </div>
+      {right !== undefined && <div className="shrink-0 text-muted-foreground">{right}</div>}
+    </Comp>
+  );
+};
+
+/* ---------- Page ---------- */
+
 const SettingsPage = () => {
   const { user, profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -61,6 +131,7 @@ const SettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState(defaultNotifPrefs);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -69,7 +140,6 @@ const SettingsPage = () => {
       setBio(profile.bio || '');
       setAvatarUrl(profile.avatar_url || '');
     }
-    // Load notification prefs
     try {
       const saved = localStorage.getItem(NOTIF_PREFS_KEY);
       if (saved) setNotifPrefs(JSON.parse(saved));
@@ -133,6 +203,7 @@ const SettingsPage = () => {
       }).eq('id', user.id);
       if (error) throw error;
       toast.success('تم حفظ التغييرات');
+      setProfileOpen(false);
     } catch {
       toast.error('تعذر حفظ التغييرات');
     } finally {
@@ -151,7 +222,8 @@ const SettingsPage = () => {
     navigate('/auth', { replace: true });
   };
 
-  const getInitials = (name: string) => name?.split(' ').map((w) => w[0]).join('').slice(0, 2) || '؟';
+  const getInitials = (name: string) =>
+    name?.split(' ').map((w) => w[0]).join('').slice(0, 2) || '؟';
 
   if (!user) {
     return (
@@ -166,37 +238,212 @@ const SettingsPage = () => {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-        <PageHeader title="الإعدادات" showBack />
-        <div className="p-4 space-y-4">
-          <Skeleton className="h-24 w-full rounded-xl" />
-          <Skeleton className="h-48 w-full rounded-xl" />
-          <Skeleton className="h-32 w-full rounded-xl" />
+        <div className="px-4 pt-6 pb-4">
+          <Skeleton className="h-7 w-32 mx-auto rounded-md" />
+        </div>
+        <div className="p-4 space-y-5 max-w-lg mx-auto">
+          <Skeleton className="h-20 w-full rounded-2xl" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
-      <PageHeader title="الإعدادات" showBack />
+  const arrow = <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2} />;
 
-      <div className="p-4 max-w-lg mx-auto space-y-4">
-        {/* Section 1: Profile */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <User className="h-4 w-4 text-primary" />
-              معلومات الملف الشخصي
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Avatar */}
+  return (
+    <div className="min-h-screen bg-background pb-24 font-tajawal" dir="rtl">
+      {/* Minimal centered header */}
+      <header className="relative px-4 pt-7 pb-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 mt-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 transition-colors"
+          aria-label="رجوع"
+        >
+          <ArrowRight className="h-5 w-5" strokeWidth={1.75} />
+        </button>
+        <h1 className="text-center text-[17px] font-semibold text-foreground tracking-tight">
+          الإعدادات
+        </h1>
+      </header>
+
+      <div className="px-4 max-w-lg mx-auto space-y-7 pt-4">
+        {/* Profile summary card */}
+        <SettingsCard>
+          <button
+            onClick={() => setProfileOpen(true)}
+            className="w-full flex items-center gap-3.5 p-4 text-right transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
+          >
+            <div className="relative shrink-0">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  className="h-14 w-14 rounded-full object-cover ring-1 ring-border"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary text-base font-semibold ring-1 ring-primary/15">
+                  {getInitials(fullName)}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[15.5px] font-semibold text-foreground truncate">
+                {fullName || 'بدون اسم'}
+              </div>
+              <div className="text-[12.5px] text-muted-foreground mt-0.5 truncate" dir="ltr" style={{ textAlign: 'right' }}>
+                {profile.phone}
+              </div>
+            </div>
+            <ChevronLeft className="h-5 w-5 text-muted-foreground/70" strokeWidth={2} />
+          </button>
+        </SettingsCard>
+
+        {/* Account */}
+        <section>
+          <SectionLabel>👤 الحساب</SectionLabel>
+          <SettingsCard>
+            <Row icon={User} label="الاسم" subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
+            <Row icon={Mail} label="البريد الإلكتروني" subtext={user.email || 'غير مضاف'} right={arrow} onClick={() => toast('قريباً')} />
+            <Row icon={Phone} label="رقم الهاتف" subtext={profile.phone} isLast />
+          </SettingsCard>
+        </section>
+
+        {/* Notifications */}
+        <section>
+          <SectionLabel>🔔 الإشعارات</SectionLabel>
+          <SettingsCard>
+            {Object.entries(notifLabels).map(([key, label], idx, arr) => (
+              <Row
+                key={key}
+                icon={Bell}
+                label={label}
+                isLast={idx === arr.length - 1}
+                right={
+                  <Switch
+                    checked={notifPrefs[key as keyof typeof notifPrefs]}
+                    onCheckedChange={() => toggleNotifPref(key)}
+                    aria-label={label}
+                  />
+                }
+              />
+            ))}
+          </SettingsCard>
+        </section>
+
+        {/* Appearance */}
+        <section>
+          <SectionLabel>🎨 المظهر</SectionLabel>
+          <SettingsCard className="p-3">
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'system', label: 'النظام', Icon: Monitor },
+                { value: 'light', label: 'فاتح', Icon: Sun },
+                { value: 'dark', label: 'داكن', Icon: Moon },
+              ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-[12.5px] font-medium transition-all duration-150',
+                    theme === value
+                      ? 'border-primary/60 bg-primary/10 text-primary'
+                      : 'border-border/60 bg-transparent text-muted-foreground hover:bg-muted/50'
+                  )}
+                  aria-pressed={theme === value}
+                >
+                  <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </SettingsCard>
+        </section>
+
+        {/* Security */}
+        <section>
+          <SectionLabel>🔒 الأمان</SectionLabel>
+          <SettingsCard>
+            <Row
+              icon={Lock}
+              label="تغيير كلمة المرور"
+              subtext="تحديث كلمة المرور الخاصة بك"
+              right={arrow}
+              onClick={() => toast('قريباً')}
+              isLast
+            />
+          </SettingsCard>
+        </section>
+
+        {/* Support */}
+        <section>
+          <SectionLabel>الدعم والمساعدة</SectionLabel>
+          <SettingsCard>
+            <Row
+              icon={MessageCircle}
+              label="تواصل مع الدعم"
+              subtext="عبر واتساب"
+              right={arrow}
+              onClick={() => window.open('https://wa.me/967772867128', '_blank')}
+            />
+            <Row icon={FileText} label="الشروط والأحكام" right={arrow} onClick={() => navigate('/terms')} />
+            <Row icon={Shield} label="سياسة الخصوصية" right={arrow} onClick={() => navigate('/privacy')} />
+            <Row icon={Info} label="حول التطبيق" subtext="الإصدار 1.0.0" isLast />
+          </SettingsCard>
+        </section>
+
+        {/* Logout — separated card */}
+        <section className="pt-2">
+          <SettingsCard>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="w-full flex items-center justify-center gap-2 px-4 py-4 text-[14.5px] font-medium text-destructive hover:bg-destructive/5 active:bg-destructive/10 transition-colors duration-150"
+                >
+                  <LogOut className="h-[17px] w-[17px]" strokeWidth={1.75} />
+                  تسجيل الخروج
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent dir="rtl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="font-tajawal">تسجيل الخروج</AlertDialogTitle>
+                  <AlertDialogDescription className="font-tajawal">
+                    هل أنت متأكد من تسجيل الخروج؟
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-row-reverse gap-2">
+                  <AlertDialogCancel className="font-tajawal">إلغاء</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleSignOut}
+                    className="font-tajawal bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    تسجيل الخروج
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </SettingsCard>
+        </section>
+      </div>
+
+      {/* Edit profile dialog */}
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent dir="rtl" className="font-tajawal max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-right">تعديل الملف الشخصي</DialogTitle>
+            <DialogDescription className="text-right">
+              قم بتحديث بياناتك الشخصية
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
             <div className="flex justify-center">
               <div className="relative">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="h-24 w-24 rounded-full object-cover border-2 border-border" />
+                  <img src={avatarUrl} alt="" className="h-20 w-20 rounded-full object-cover ring-1 ring-border" />
                 ) : (
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary border-2 border-primary/20">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-xl font-semibold text-primary ring-1 ring-primary/15">
                     {getInitials(fullName)}
                   </div>
                 )}
@@ -210,192 +457,41 @@ const SettingsPage = () => {
                 <button
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploadingAvatar}
-                  className="absolute -bottom-1 -left-1 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-white shadow-md transition-opacity hover:opacity-90"
-                  aria-label="تغيير الصورة الشخصية"
+                  className="absolute -bottom-1 -left-1 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
+                  aria-label="تغيير الصورة"
                 >
-                  <Camera className="h-4 w-4" />
+                  <Camera className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
 
             <div>
-              <Label className="text-sm mb-1.5 block">الاسم الكامل</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">الاسم الكامل</Label>
               <Input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={100} />
             </div>
 
             <div>
-              <Label className="text-sm mb-1.5 block">رقم الواتساب</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">رقم الواتساب</Label>
               <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} dir="ltr" placeholder="+967..." />
             </div>
 
             <div>
-              <Label className="text-sm mb-1.5 block">نبذة عنك</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">نبذة عنك</Label>
               <Textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={3} placeholder="اكتب نبذة مختصرة..." />
               <p className="text-[10px] text-muted-foreground mt-1 text-left" dir="ltr">{bio.length}/500</p>
             </div>
+          </div>
 
-            <Button onClick={handleSaveProfile} disabled={saving} className="w-full">
-              {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+          <DialogFooter className="flex-row-reverse gap-2">
+            <Button onClick={handleSaveProfile} disabled={saving}>
+              {saving ? 'جاري الحفظ...' : 'حفظ'}
             </Button>
-          </CardContent>
-        </Card>
-
-        {/* Section 2: Account */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Phone className="h-4 w-4 text-primary" />
-              الحساب
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label className="text-sm mb-1.5 block">رقم الهاتف</Label>
-              <Input value={profile.phone} disabled dir="ltr" className="bg-muted" />
-              <p className="text-xs text-muted-foreground mt-1">تغيير رقم الهاتف قريباً</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 3: Notifications */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Bell className="h-4 w-4 text-primary" />
-              إعدادات الإشعارات
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {Object.entries(notifLabels).map(([key, label]) => (
-              <div key={key} className="flex items-center justify-between">
-                <Label className="text-sm cursor-pointer">{label}</Label>
-                <Switch
-                  checked={notifPrefs[key as keyof typeof notifPrefs]}
-                  onCheckedChange={() => toggleNotifPref(key)}
-                  aria-label={label}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Section: Appearance */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Sun className="h-4 w-4 text-primary" />
-              المظهر
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-2">
-              {([
-                { value: 'system', label: 'النظام', Icon: Monitor },
-                { value: 'light', label: 'فاتح', Icon: Sun },
-                { value: 'dark', label: 'داكن', Icon: Moon },
-              ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => (
-                <button
-                  key={value}
-                  onClick={() => setTheme(value)}
-                  className={cn(
-                    'flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-3 text-xs font-bold transition-all',
-                    theme === value
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border bg-card text-muted-foreground hover:bg-muted/50'
-                  )}
-                  aria-pressed={theme === value}
-                >
-                  <Icon className="h-5 w-5" />
-                  {label}
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">يتم حفظ اختيارك تلقائياً</p>
-          </CardContent>
-        </Card>
-
-        {/* Section 4: Security */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              الأمان
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full">
-                  <LogOut className="h-4 w-4 ml-2" />
-                  تسجيل الخروج
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="font-tajawal">تسجيل الخروج</AlertDialogTitle>
-                  <AlertDialogDescription className="font-tajawal">
-                    هل أنت متأكد من تسجيل الخروج؟
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-row-reverse gap-2">
-                  <AlertDialogCancel className="font-tajawal">إلغاء</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleSignOut} className="font-tajawal bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    تسجيل الخروج
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </CardContent>
-        </Card>
-
-        {/* Section 5: Support */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <MessageCircle className="h-4 w-4 text-primary" />
-              الدعم
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <a
-              href="https://wa.me/967772867128"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              تواصل مع الدعم عبر واتساب
-            </a>
-          </CardContent>
-        </Card>
-
-        {/* Section 6: About */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Info className="h-4 w-4 text-primary" />
-              حول التطبيق
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">الإصدار</span>
-              <span className="font-medium">1.0.0</span>
-            </div>
-            <Separator />
-            <div className="space-y-2">
-              <button onClick={() => navigate('/terms')} className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
-                <FileText className="h-4 w-4" />
-                الشروط والأحكام
-              </button>
-              <button onClick={() => navigate('/privacy')} className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1">
-                <Shield className="h-4 w-4" />
-                سياسة الخصوصية
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
+            <Button variant="ghost" onClick={() => setProfileOpen(false)}>
+              إلغاء
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
