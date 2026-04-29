@@ -264,7 +264,7 @@ const SettingsPage = () => {
         >
           <ArrowRight className="h-5 w-5" strokeWidth={1.75} />
         </button>
-        <h1 className="text-center text-[17px] font-semibold text-foreground tracking-tight">
+        <h1 className="text-center text-[17px] font-medium text-foreground tracking-tight">
           الإعدادات
         </h1>
       </header>
@@ -290,7 +290,7 @@ const SettingsPage = () => {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[15.5px] font-semibold text-foreground truncate">
+              <div className="text-[15.5px] font-medium text-foreground truncate">
                 {fullName || 'بدون اسم'}
               </div>
               <div className="text-[12.5px] text-muted-foreground mt-0.5 truncate" dir="ltr" style={{ textAlign: 'right' }}>
