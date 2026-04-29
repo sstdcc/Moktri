@@ -15,6 +15,7 @@ import {
   ScrollText,
   LogOut,
   MoreHorizontal,
+  Menu,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
