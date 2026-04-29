@@ -66,7 +66,7 @@ const PublicProfilePage = () => {
   };
 
   const memberSince = profile?.created_at
-    ? new Date(profile.created_at).toLocaleDateString('ar-YE', { year: 'numeric', month: 'long' })
+    ? new Date(profile.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long' })
     : '';
 
   const displayedListings = showAll ? listings : listings.slice(0, 6);

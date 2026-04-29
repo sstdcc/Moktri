@@ -113,7 +113,7 @@ const OwnerDashboard = () => {
     return `منذ ${days} يوم`;
   };
 
-  const today = new Date().toLocaleDateString('ar-YE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   if (loading) return <LoadingSpinner />;
 
@@ -154,7 +154,7 @@ const OwnerDashboard = () => {
           <div className="mt-3 rounded-2xl bg-accent/10 border border-accent/30 px-4 py-3 flex items-start gap-2">
             <AlertTriangle className="h-5 w-5 text-accent shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm text-accent font-medium">لديك {staleListings.length} إعلان لم يُحدَّث منذ أكثر من ٤٥ يوماً</p>
+              <p className="text-sm text-accent font-medium">لديك {staleListings.length} إعلان لم يُحدَّث منذ أكثر من 45 يوماً</p>
               <p className="text-xs text-accent/70 mt-0.5">المستأجرون يفضلون الإعلانات المحدّثة</p>
             </div>
           </div>
@@ -165,7 +165,7 @@ const OwnerDashboard = () => {
           {statCards.map(s => (
             <div key={s.label} className="min-w-[140px] rounded-2xl border border-border bg-card p-4 shadow-sm shrink-0">
               <s.icon className={cn('h-6 w-6 mb-2', s.color)} />
-              <p className="text-2xl font-black text-foreground">{s.value.toLocaleString('ar-YE')}</p>
+              <p className="text-2xl font-black text-foreground">{s.value.toLocaleString('en-GB')}</p>
               <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
             </div>
           ))}
@@ -222,7 +222,7 @@ const OwnerDashboard = () => {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                    <p className="text-sm font-bold text-accent mt-0.5">{Number(l.price).toLocaleString('ar-YE')} {l.currency === 'YER' ? 'ر.ي' : '$'}</p>
+                    <p className="text-sm font-bold text-accent mt-0.5">{Number(l.price).toLocaleString('en-GB')} {l.currency === 'YER' ? 'ر.ي' : '$'}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <MiftahBadge variant={statusBadgeMap[l.status || 'draft'] || 'expired'} />
                       {statusLabelOverride[l.status || ''] && (

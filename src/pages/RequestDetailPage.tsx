@@ -206,7 +206,7 @@ const RequestDetailPage = () => {
                   <span className="text-[11px] text-muted-foreground">تاريخ الإنشاء</span>
                 </div>
                 <span className="text-[13px] font-bold text-foreground">
-                  {request.created_at ? new Date(request.created_at).toLocaleDateString('ar-YE') : '—'}
+                  {request.created_at ? new Date(request.created_at).toLocaleDateString('en-GB') : '—'}
                 </span>
               </div>
               <div className="flex flex-col items-center gap-1.5 text-center">
@@ -268,7 +268,7 @@ const RequestDetailPage = () => {
                 {
                   icon: Calendar,
                   label: 'تاريخ الانتقال',
-                  value: request.move_in_date ? new Date(request.move_in_date).toLocaleDateString('ar-YE') : '—',
+                  value: request.move_in_date ? new Date(request.move_in_date).toLocaleDateString('en-GB') : '—',
                   borderL: false, borderB: false,
                 },
               ].map((item, i) => {

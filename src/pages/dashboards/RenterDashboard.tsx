@@ -49,7 +49,7 @@ const RenterDashboard = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const today = new Date().toLocaleDateString('ar-YE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   if (loading) return <LoadingSpinner />;
 

@@ -36,16 +36,16 @@ const formatTime = (dateStr: string) => {
   const now = new Date();
   const sameDay = date.toDateString() === now.toDateString();
   if (sameDay) {
-    return date.toLocaleTimeString('ar-YE', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   if (date.toDateString() === yesterday.toDateString()) return 'أمس';
   const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
   if (diffDays < 7) {
-    return date.toLocaleDateString('ar-YE', { weekday: 'long' });
+    return date.toLocaleDateString('en-GB', { weekday: 'long' });
   }
-  return date.toLocaleDateString('ar-YE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
 };
 
 // Color palette for avatar fallbacks

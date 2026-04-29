@@ -103,7 +103,7 @@ const BrokerDashboard = () => {
     }
   };
 
-  const today = new Date().toLocaleDateString('ar-YE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   if (loading) return <LoadingSpinner />;
 
@@ -137,7 +137,7 @@ const BrokerDashboard = () => {
           {statCards.map(s => (
             <div key={s.label} className="min-w-[140px] rounded-2xl border border-border bg-card p-4 shadow-sm shrink-0">
               <s.icon className={cn('h-6 w-6 mb-2', s.color)} />
-              <p className="text-2xl font-black text-foreground">{s.value.toLocaleString('ar-YE')}</p>
+              <p className="text-2xl font-black text-foreground">{s.value.toLocaleString('en-GB')}</p>
               <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
             </div>
           ))}
@@ -182,7 +182,7 @@ const BrokerDashboard = () => {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                    <p className="text-sm font-bold text-accent mt-0.5">{Number(l.price).toLocaleString('ar-YE')} ر.ي</p>
+                    <p className="text-sm font-bold text-accent mt-0.5">{Number(l.price).toLocaleString('en-GB')} ر.ي</p>
                     <div className="flex items-center gap-2 mt-1">
                       <MiftahBadge variant={statusBadgeMap[l.status || 'draft'] || 'expired'} />
                     </div>
@@ -213,7 +213,7 @@ const BrokerDashboard = () => {
                   <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                     {r.districts?.name_ar && <span>📍 {r.districts.name_ar}</span>}
                     {(r.min_price || r.max_price) && (
-                      <span>{r.min_price ? Number(r.min_price).toLocaleString('ar-YE') : '٠'} - {r.max_price ? Number(r.max_price).toLocaleString('ar-YE') : '∞'} ريال</span>
+                      <span>{r.min_price ? Number(r.min_price).toLocaleString('en-GB') : '0'} - {r.max_price ? Number(r.max_price).toLocaleString('en-GB') : '∞'} ريال</span>
                     )}
                     {r.for_whom && <MiftahBadge variant="active" className="!text-[10px]" />}
                     <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{r.responses_count || 0} رد</span>

@@ -249,7 +249,7 @@ const ListingDetailPage = () => {
         <div className="bg-danger/10 px-4 py-2 text-center text-xs text-danger">⛔ إعلان قديم جداً — قد لا يكون متاحاً</div>
       )}
       {lastUpdatedDays > 45 && lastUpdatedDays <= 90 && (
-        <div className="bg-accent/10 px-4 py-2 text-center text-xs text-accent">⚠️ هذا الإعلان لم يُحدَّث منذ أكثر من ٤٥ يوماً — تحقق من توفره</div>
+        <div className="bg-accent/10 px-4 py-2 text-center text-xs text-accent">⚠️ هذا الإعلان لم يُحدَّث منذ أكثر من 45 يوماً — تحقق من توفره</div>
       )}
 
       {/* Image Gallery */}
@@ -308,7 +308,7 @@ const ListingDetailPage = () => {
 
         {/* Price */}
         <p className="mt-2 text-2xl font-extrabold text-accent">
-          {Number(listing.price).toLocaleString('ar-YE')} <span className="text-sm font-normal text-muted-foreground">ريال / {billingLabels[listing.billing_period || 'monthly']}</span>
+          {Number(listing.price).toLocaleString('en-GB')} <span className="text-sm font-normal text-muted-foreground">ريال / {billingLabels[listing.billing_period || 'monthly']}</span>
         </p>
         {listing.is_negotiable && <p className="mt-0.5 text-xs text-muted-foreground">السعر قابل للتفاوض</p>}
 
