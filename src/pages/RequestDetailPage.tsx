@@ -200,44 +200,46 @@ const RequestDetailPage = () => {
 
         {/* Details */}
         <Card className="overflow-hidden">
-          <CardContent className="p-5 space-y-3.5">
-            {districtName(request.district_id) && (
-              <div className="flex items-center gap-2.5 text-[13px]">
-                <MapPin className="h-4 w-4 text-primary stroke-[2px]" />
-                <span className="text-foreground/80">{(() => { const d = districts.find(d => d.id === request.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
-              </div>
-            )}
-            {budget && (
-              <div className="flex items-center gap-2.5 text-[13px]">
-                <Wallet className="h-4 w-4 text-primary stroke-[2px]" />
-                <span className="font-semibold text-foreground">{budget}</span>
-              </div>
-            )}
-            {request.bedrooms_needed && (
-              <div className="flex items-center gap-2.5 text-[13px]">
-                <BedDouble className="h-4 w-4 text-primary stroke-[2px]" />
-                <span className="text-foreground/80">{request.bedrooms_needed} غرف نوم</span>
-              </div>
-            )}
-            {request.for_whom && (
-              <div className="flex items-center gap-2.5 text-[13px]">
-                <Users className="h-4 w-4 text-primary stroke-[2px]" />
-                <span className="text-foreground/80">{forWhomLabels[request.for_whom] ?? request.for_whom}</span>
-              </div>
-            )}
-            {request.furnishing_preference && request.furnishing_preference !== 'any' && (
-              <div className="flex items-center gap-2.5 text-[13px]">
-                <Sofa className="h-4 w-4 text-primary stroke-[2px]" />
-                <span className="text-foreground/80">{furnishingLabels[request.furnishing_preference]}</span>
-              </div>
-            )}
-            {request.move_in_date && (
-              <div className="flex items-center gap-2.5 text-[13px]">
-                <Calendar className="h-4 w-4 text-primary stroke-[2px]" />
-                <span className="text-foreground/80">تاريخ الانتقال: {new Date(request.move_in_date).toLocaleDateString('ar-YE')}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-5 text-[11px] text-muted-foreground pt-3 border-t border-border/40">
+          <CardContent className="p-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
+              {districtName(request.district_id) && (
+                <div className="flex items-center justify-start gap-2 text-[13px] min-w-0">
+                  <MapPin className="h-4 w-4 shrink-0 text-primary stroke-[2px]" />
+                  <span className="text-foreground/80 truncate">{(() => { const d = districts.find(d => d.id === request.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
+                </div>
+              )}
+              {budget && (
+                <div className="flex items-center justify-start gap-2 text-[13px] min-w-0">
+                  <Wallet className="h-4 w-4 shrink-0 text-primary stroke-[2px]" />
+                  <span className="font-semibold text-foreground truncate">{budget}</span>
+                </div>
+              )}
+              {request.bedrooms_needed && (
+                <div className="flex items-center justify-start gap-2 text-[13px] min-w-0">
+                  <BedDouble className="h-4 w-4 shrink-0 text-primary stroke-[2px]" />
+                  <span className="text-foreground/80 truncate">{request.bedrooms_needed} غرف نوم</span>
+                </div>
+              )}
+              {request.for_whom && (
+                <div className="flex items-center justify-start gap-2 text-[13px] min-w-0">
+                  <Users className="h-4 w-4 shrink-0 text-primary stroke-[2px]" />
+                  <span className="text-foreground/80 truncate">{forWhomLabels[request.for_whom] ?? request.for_whom}</span>
+                </div>
+              )}
+              {request.furnishing_preference && request.furnishing_preference !== 'any' && (
+                <div className="flex items-center justify-start gap-2 text-[13px] min-w-0">
+                  <Sofa className="h-4 w-4 shrink-0 text-primary stroke-[2px]" />
+                  <span className="text-foreground/80 truncate">{furnishingLabels[request.furnishing_preference]}</span>
+                </div>
+              )}
+              {request.move_in_date && (
+                <div className="flex items-center justify-start gap-2 text-[13px] min-w-0">
+                  <Calendar className="h-4 w-4 shrink-0 text-primary stroke-[2px]" />
+                  <span className="text-foreground/80 truncate">تاريخ الانتقال: {new Date(request.move_in_date).toLocaleDateString('ar-YE')}</span>
+                </div>
+              )}
+            </div>
+            <div className="mt-4 pt-3 border-t border-border/40 flex items-center gap-5 text-[11px] text-muted-foreground">
               <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.responses_count ?? 0} رد</span>
               <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.views_count ?? 0} مشاهدة</span>
             </div>
