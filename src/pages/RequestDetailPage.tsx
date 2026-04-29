@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, StickyNote,
+  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
