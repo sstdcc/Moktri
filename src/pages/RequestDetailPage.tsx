@@ -248,7 +248,10 @@ const RequestDetailPage = () => {
         {request.notes && (
           <Card className="overflow-hidden">
             <CardContent className="p-5">
-              <h3 className="text-[13px] font-bold mb-2.5 text-foreground">ملاحظات</h3>
+              <h3 className="text-[13px] font-bold mb-2.5 text-foreground flex items-center gap-2">
+                <StickyNote className="h-4 w-4 text-primary stroke-[2px]" />
+                ملاحظات
+              </h3>
               <p className="text-[13px] text-muted-foreground leading-[1.8]">{request.notes}</p>
             </CardContent>
           </Card>
