@@ -230,7 +230,7 @@ const SignUpPage = () => {
           <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
             إنشاء <span className="text-primary">حساب</span>
           </h1>
-          <p className="mt-2.5 text-[13px] text-muted-foreground/75 leading-relaxed">
+          <p className="mt-2.5 text-[13px] text-white/70 leading-relaxed">
             {step === 'form' ? 'أنشئ حسابك في مفتاح بخطوات بسيطة' : 'أدخل رمز التحقق المرسل إليك'}
           </p>
         </div>
@@ -239,7 +239,7 @@ const SignUpPage = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-[12.5px] font-semibold text-foreground/80 block">الاسم الأول</Label>
+                <Label className="text-[12.5px] font-semibold text-white/90 block">الاسم الأول</Label>
                 <Input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -249,7 +249,7 @@ const SignUpPage = () => {
                 {errors.firstName && <p className="text-[11px] text-destructive">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] font-semibold text-foreground/80 block">اسم العائلة</Label>
+                <Label className="text-[12.5px] font-semibold text-white/90 block">اسم العائلة</Label>
                 <Input
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -261,7 +261,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground/80 block">رقم الهاتف</Label>
+              <Label className="text-[12.5px] font-semibold text-white/90 block">رقم الهاتف</Label>
               <Input
                 type="tel"
                 inputMode="tel"
@@ -274,14 +274,14 @@ const SignUpPage = () => {
               {errors.phone ? (
                 <p className="text-[11px] text-destructive">{errors.phone}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground/60">سنرسل لك رمز تحقق عبر SMS</p>
+                <p className="text-[11px] text-white/55">سنرسل لك رمز تحقق عبر SMS</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground/80 block">البريد الإلكتروني</Label>
+              <Label className="text-[12.5px] font-semibold text-white/90 block">البريد الإلكتروني</Label>
               <div className="relative">
-                <Mail className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                <Mail className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/55" />
                 <Input
                   type="email"
                   inputMode="email"
@@ -297,7 +297,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground/80 block">كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-white/90 block">كلمة المرور</Label>
               <div className="relative">
                 <Input
                   type={showPassword ? 'text' : 'password'}
@@ -310,7 +310,7 @@ const SignUpPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/55 hover:text-foreground transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -319,12 +319,12 @@ const SignUpPage = () => {
               {errors.password ? (
                 <p className="text-[11px] text-destructive">{errors.password}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground/60">6 أحرف على الأقل</p>
+                <p className="text-[11px] text-white/55">6 أحرف على الأقل</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground/80 block">تأكيد كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-white/90 block">تأكيد كلمة المرور</Label>
               <Input
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
@@ -345,9 +345,9 @@ const SignUpPage = () => {
             </Button>
 
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-border/50" />
-              <span className="text-[11px] text-muted-foreground/60">أو</span>
-              <div className="flex-1 h-px bg-border/50" />
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-[11px] text-white/55">أو</span>
+              <div className="flex-1 h-px bg-white/15" />
             </div>
 
             <Button
@@ -372,7 +372,7 @@ const SignUpPage = () => {
               )}
             </Button>
 
-            <p className="text-center text-[13px] text-muted-foreground/75 pt-2">
+            <p className="text-center text-[13px] text-white/70 pt-2">
               لديك حساب؟{' '}
               <Link to="/auth" className="text-primary font-bold hover:underline">
                 سجّل دخولك
