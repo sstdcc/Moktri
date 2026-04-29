@@ -15,6 +15,7 @@ import {
   ScrollText,
   LogOut,
   MoreHorizontal,
+  Menu,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -121,9 +122,23 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
       <main
         className={cn(
           'flex-1 overflow-auto',
-          !isMobile ? 'mr-[260px]' : 'pb-24'
+          !isMobile ? 'mr-[260px]' : 'pb-24 pt-[60px]'
         )}
       >
+        {/* ── Mobile Top Header with Menu Trigger ── */}
+        {isMobile && (
+          <header className="fixed top-0 right-0 left-0 z-40 h-[60px] flex items-center justify-between px-3 bg-card/85 backdrop-blur-xl backdrop-saturate-150 border-b border-border/40">
+            <MobileMenuSheet
+              items={adminNavItems}
+              isActive={isActive}
+              onNavigate={(p) => navigate(p)}
+              onSignOut={handleSignOut}
+              profile={profile}
+            />
+            <p className="text-[13px] font-bold text-foreground font-tajawal">مفتاح — لوحة التحكم</p>
+            <div className="w-11 h-11" />
+          </header>
+        )}
         <div className="p-4">{children}</div>
       </main>
 
@@ -272,3 +287,88 @@ function MoreSheet({
     </Sheet>
   );
 };
+
+function MobileMenuSheet({
+  items,
+  isActive,
+  onNavigate,
+  onSignOut,
+  profile,
+}: {
+  items: AdminNavItem[];
+  isActive: (path: string) => boolean;
+  onNavigate: (path: string) => void;
+  onSignOut: () => void;
+  profile: any;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button
+          aria-label="فتح القائمة"
+          className="flex items-center justify-center h-11 w-11 rounded-xl bg-muted/60 text-foreground hover:bg-muted active:scale-95 transition-all border border-border/40"
+        >
+          <Menu className="h-6 w-6 stroke-[2.2px]" />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[280px] p-0 font-tajawal" dir="rtl">
+        <SheetHeader className="p-5 border-b border-border/40 text-right">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+              <AvatarFallback className="bg-gradient-to-br from-primary/15 to-primary/5 text-primary font-bold text-sm">
+                {profile?.full_name?.charAt(0) || '؟'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <SheetTitle className="text-right text-sm font-bold truncate">
+                {profile?.full_name}
+              </SheetTitle>
+              <span className={cn(
+                'inline-block text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-lg border',
+                profile?.role === 'admin'
+                  ? 'bg-destructive/10 text-destructive border-destructive/20'
+                  : 'bg-accent/10 text-accent border-accent/20'
+              )}>
+                {profile?.role === 'admin' ? 'مدير' : 'مشرف'}
+              </span>
+            </div>
+          </div>
+        </SheetHeader>
+        <nav className="flex-1 p-3 space-y-0.5 overflow-auto">
+          {items.map((item) => {
+            const active = isActive(item.path);
+            return (
+              <button
+                key={item.path}
+                onClick={() => {
+                  setOpen(false);
+                  onNavigate(item.path);
+                }}
+                className={cn(
+                  'flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm transition-all',
+                  active
+                    ? 'bg-primary/10 text-primary font-semibold'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                )}
+              >
+                <item.icon className={cn('h-[20px] w-[20px]', active ? 'stroke-[2.5px]' : 'stroke-[1.8px]')} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="p-3 border-t border-border/40">
+          <button
+            onClick={() => { setOpen(false); onSignOut(); }}
+            className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-all"
+          >
+            <LogOut className="h-[20px] w-[20px] stroke-[1.8px]" />
+            تسجيل الخروج
+          </button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
