@@ -216,75 +216,72 @@ const SignUpPage = () => {
     }
   };
 
-  // Shared input class — soft, rounded, subtle border, premium focus
+  // Shared input class — clean, soft, premium
   const fieldClass =
-    'h-12 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-4 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-colors';
+    'h-[46px] rounded-xl border border-border/50 bg-card/30 px-4 text-[14px] placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-colors';
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-5 pt-10 pb-10 font-tajawal" dir="rtl">
+    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/95 shadow-md">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/95 shadow-md">
             <span className="text-xl font-black text-primary-foreground">م</span>
           </div>
-          <h1 className="text-[26px] font-black tracking-tight text-foreground">
+          <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
             إنشاء <span className="text-primary">حساب</span>
           </h1>
-          <p className="mt-2 text-[13px] text-muted-foreground/80">
+          <p className="mt-2.5 text-[13px] text-muted-foreground/75 leading-relaxed">
             {step === 'form' ? 'أنشئ حسابك في مفتاح بخطوات بسيطة' : 'أدخل رمز التحقق المرسل إليك'}
           </p>
         </div>
 
         {step === 'form' && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-[13px] font-semibold text-foreground/90 block">الاسم الأول</Label>
+                <Label className="text-[12.5px] font-semibold text-foreground/80 block">الاسم الأول</Label>
                 <Input
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="أدخل اسمك الأول"
+                  placeholder="أحمد"
                   className={fieldClass}
                 />
-                {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
+                {errors.firstName && <p className="text-[11px] text-destructive">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-[13px] font-semibold text-foreground/90 block">اسم العائلة</Label>
+                <Label className="text-[12.5px] font-semibold text-foreground/80 block">اسم العائلة</Label>
                 <Input
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="أدخل اسم العائلة"
+                  placeholder="محمد"
                   className={fieldClass}
                 />
-                {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
+                {errors.lastName && <p className="text-[11px] text-destructive">{errors.lastName}</p>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-semibold text-foreground/90 block">رقم الهاتف</Label>
-              <div className="relative">
-                <Phone className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70" />
-                <Input
-                  type="tel"
-                  inputMode="tel"
-                  value={phoneRaw}
-                  onChange={(e) => setPhoneRaw(e.target.value)}
-                  placeholder="7721234567"
-                  className={cn(fieldClass, 'pr-11 text-left')}
-                  dir="ltr"
-                />
-              </div>
+              <Label className="text-[12.5px] font-semibold text-foreground/80 block">رقم الهاتف</Label>
+              <Input
+                type="tel"
+                inputMode="tel"
+                value={phoneRaw}
+                onChange={(e) => setPhoneRaw(e.target.value)}
+                placeholder="7721234567"
+                className={cn(fieldClass, 'text-left')}
+                dir="ltr"
+              />
               {errors.phone ? (
-                <p className="text-xs text-destructive">{errors.phone}</p>
+                <p className="text-[11px] text-destructive">{errors.phone}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground/70 text-left" dir="rtl">سنرسل لك رمز تحقق عبر SMS</p>
+                <p className="text-[11px] text-muted-foreground/60">سنرسل لك رمز تحقق عبر SMS</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-semibold text-foreground/90 block">البريد الإلكتروني</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground/80 block">البريد الإلكتروني</Label>
               <div className="relative">
-                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70" />
+                <Mail className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                 <Input
                   type="email"
                   inputMode="email"
@@ -292,71 +289,65 @@ const SignUpPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
-                  className={cn(fieldClass, 'pr-11 text-left')}
+                  className={cn(fieldClass, 'pr-10 text-left')}
                   dir="ltr"
                 />
               </div>
-              {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+              {errors.email && <p className="text-[11px] text-destructive">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-semibold text-foreground/90 block">كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground/80 block">كلمة المرور</Label>
               <div className="relative">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="أدخل كلمة مرور قوية"
-                  className={cn(fieldClass, 'pr-11 pl-11 text-left')}
-                  dir="ltr"
+                  className={cn(fieldClass, 'pl-10')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password ? (
-                <p className="text-xs text-destructive">{errors.password}</p>
+                <p className="text-[11px] text-destructive">{errors.password}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground/70">6 أحرف على الأقل</p>
+                <p className="text-[11px] text-muted-foreground/60">6 أحرف على الأقل</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[13px] font-semibold text-foreground/90 block">تأكيد كلمة المرور</Label>
-              <div className="relative">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="أعد إدخال كلمة المرور"
-                  className={cn(fieldClass, 'pr-11 text-left')}
-                  dir="ltr"
-                />
-              </div>
-              {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
+              <Label className="text-[12.5px] font-semibold text-foreground/80 block">تأكيد كلمة المرور</Label>
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="أعد إدخال كلمة المرور"
+                className={fieldClass}
+              />
+              {errors.confirmPassword && <p className="text-[11px] text-destructive">{errors.confirmPassword}</p>}
             </div>
 
             <Button
               onClick={handleSignUp}
               disabled={loading}
-              className="w-full h-[50px] rounded-2xl text-[15px] font-bold mt-2"
+              className="w-full h-[46px] rounded-xl text-[14px] font-bold mt-3"
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'إنشاء الحساب'}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إنشاء الحساب'}
             </Button>
 
-            <div className="flex items-center gap-3 pt-1">
-              <div className="flex-1 h-px bg-border/60" />
-              <span className="text-[11px] text-muted-foreground/70">أو</span>
-              <div className="flex-1 h-px bg-border/60" />
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-border/50" />
+              <span className="text-[11px] text-muted-foreground/60">أو</span>
+              <div className="flex-1 h-px bg-border/50" />
             </div>
 
             <Button
@@ -364,13 +355,13 @@ const SignUpPage = () => {
               variant="outline"
               onClick={handleGoogle}
               disabled={googleLoading}
-              className="w-full h-[50px] rounded-2xl text-[14px] font-semibold border-border/60 bg-card/40 hover:bg-card/60"
+              className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-border/50 bg-card/30 hover:bg-card/50"
             >
               {googleLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -381,7 +372,7 @@ const SignUpPage = () => {
               )}
             </Button>
 
-            <p className="text-center text-[13px] text-muted-foreground/80 pt-3">
+            <p className="text-center text-[13px] text-muted-foreground/75 pt-2">
               لديك حساب؟{' '}
               <Link to="/auth" className="text-primary font-bold hover:underline">
                 سجّل دخولك
