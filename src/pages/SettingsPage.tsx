@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 import {
   User, Camera, Phone, Mail, LogOut, MessageCircle, Shield,
   Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft,
-  Lock, ArrowRight,
+  Lock, ArrowRight, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
@@ -52,9 +52,10 @@ const notifLabels: Record<string, string> = {
 
 /* ---------- Reusable premium row primitives ---------- */
 
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="px-1 mb-2.5 text-[12px] font-medium text-muted-foreground/80 tracking-wide">
-    {children}
+const SectionLabel = ({ icon: Icon, children }: { icon?: React.ElementType; children: React.ReactNode }) => (
+  <h2 className="px-1 mb-2.5 flex items-center gap-1.5 text-[12px] font-normal text-muted-foreground/80 tracking-wide">
+    {Icon && <Icon className="h-[13px] w-[13px]" strokeWidth={1.75} />}
+    <span>{children}</span>
   </h2>
 );
 
@@ -263,7 +264,7 @@ const SettingsPage = () => {
         >
           <ArrowRight className="h-5 w-5" strokeWidth={1.75} />
         </button>
-        <h1 className="text-center text-[17px] font-semibold text-foreground tracking-tight">
+        <h1 className="text-center text-[17px] font-medium text-foreground tracking-tight">
           الإعدادات
         </h1>
       </header>
@@ -289,7 +290,7 @@ const SettingsPage = () => {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[15.5px] font-semibold text-foreground truncate">
+              <div className="text-[15.5px] font-medium text-foreground truncate">
                 {fullName || 'بدون اسم'}
               </div>
               <div className="text-[12.5px] text-muted-foreground mt-0.5 truncate" dir="ltr" style={{ textAlign: 'right' }}>
@@ -302,7 +303,7 @@ const SettingsPage = () => {
 
         {/* Account */}
         <section>
-          <SectionLabel>👤 الحساب</SectionLabel>
+          <SectionLabel icon={UserCircle2}>الحساب</SectionLabel>
           <SettingsCard>
             <Row icon={User} label="الاسم" subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
             <Row icon={Mail} label="البريد الإلكتروني" subtext={user.email || 'غير مضاف'} right={arrow} onClick={() => toast('قريباً')} />
@@ -312,7 +313,7 @@ const SettingsPage = () => {
 
         {/* Notifications */}
         <section>
-          <SectionLabel>🔔 الإشعارات</SectionLabel>
+          <SectionLabel icon={BellRing}>الإشعارات</SectionLabel>
           <SettingsCard>
             {Object.entries(notifLabels).map(([key, label], idx, arr) => (
               <Row
@@ -334,7 +335,7 @@ const SettingsPage = () => {
 
         {/* Appearance */}
         <section>
-          <SectionLabel>🎨 المظهر</SectionLabel>
+          <SectionLabel icon={Palette}>المظهر</SectionLabel>
           <SettingsCard className="p-3">
             <div className="grid grid-cols-3 gap-2">
               {([
@@ -363,7 +364,7 @@ const SettingsPage = () => {
 
         {/* Security */}
         <section>
-          <SectionLabel>🔒 الأمان</SectionLabel>
+          <SectionLabel icon={ShieldCheck}>الأمان</SectionLabel>
           <SettingsCard>
             <Row
               icon={Lock}
@@ -378,7 +379,7 @@ const SettingsPage = () => {
 
         {/* Support */}
         <section>
-          <SectionLabel>الدعم والمساعدة</SectionLabel>
+          <SectionLabel icon={LifeBuoy}>الدعم والمساعدة</SectionLabel>
           <SettingsCard>
             <Row
               icon={MessageCircle}
