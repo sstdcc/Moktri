@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LucideIcon, Lock } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { BottomNav } from '@/components/ui/BottomNav';
+
 
 interface LoginRequiredProps {
   icon?: LucideIcon;
@@ -47,7 +47,7 @@ export const LoginRequired = ({
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
       <PageHeader title={pageTitle} showBack={showBack} />
       {prompt}
-      {!hideBottomNav && <BottomNav />}
+      
     </div>
   );
 };
