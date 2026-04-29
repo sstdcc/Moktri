@@ -355,7 +355,7 @@ const SignUpPage = () => {
               variant="outline"
               onClick={handleGoogle}
               disabled={googleLoading}
-              className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-border/50 bg-card/30 hover:bg-card/50"
+              className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.10]"
             >
               {googleLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
