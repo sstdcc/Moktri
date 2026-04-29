@@ -277,15 +277,15 @@ const RequestDetailPage = () => {
                   <div
                     key={i}
                     className={cn(
-                      'flex items-start gap-3 p-5 min-w-0',
+                      'flex items-center gap-3 p-5 min-w-0',
                       item.borderB && 'border-b border-border/40',
                       item.borderL && 'border-l border-border/40',
                     )}
                   >
-                    <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
+                    <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px]" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] text-muted-foreground mb-1">{item.label}</p>
-                      <p className="text-[13px] font-semibold text-foreground truncate">{item.value}</p>
+                      <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-tight">{item.label}</p>
+                      <p className="text-[13px] font-bold text-foreground truncate tracking-tight">{item.value}</p>
                     </div>
                   </div>
                 );
