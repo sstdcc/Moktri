@@ -216,9 +216,9 @@ const SignUpPage = () => {
     }
   };
 
-  // Shared input class — clean, soft, premium
+  // Shared input class — high-contrast, crisp, premium
   const fieldClass =
-    'h-[46px] rounded-xl border border-border/50 bg-card/30 px-4 text-[14px] placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-colors';
+    'h-[48px] rounded-xl border border-white/15 bg-white/[0.06] px-4 text-[14.5px] text-white placeholder:text-white/35 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-white/[0.08] transition-colors';
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
