@@ -241,37 +241,46 @@ const SignUpPage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-[12.5px] font-semibold text-white/90 block">الاسم الأول</Label>
-                <Input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="أحمد"
-                  className={fieldClass}
-                />
+                <div className="relative">
+                  <User className={iconClass} strokeWidth={1.75} />
+                  <Input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="أحمد"
+                    className={fieldClass}
+                  />
+                </div>
                 {errors.firstName && <p className="text-[11px] text-destructive">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-[12.5px] font-semibold text-white/90 block">اسم العائلة</Label>
-                <Input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="محمد"
-                  className={fieldClass}
-                />
+                <div className="relative">
+                  <User className={iconClass} strokeWidth={1.75} />
+                  <Input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="محمد"
+                    className={fieldClass}
+                  />
+                </div>
                 {errors.lastName && <p className="text-[11px] text-destructive">{errors.lastName}</p>}
               </div>
             </div>
 
             <div className="space-y-2">
               <Label className="text-[12.5px] font-semibold text-white/90 block">رقم الهاتف</Label>
-              <Input
-                type="tel"
-                inputMode="tel"
-                value={phoneRaw}
-                onChange={(e) => setPhoneRaw(e.target.value)}
-                placeholder="7721234567"
-                className={cn(fieldClass, 'text-left')}
-                dir="ltr"
-              />
+              <div className="relative">
+                <Phone className={iconClass} strokeWidth={1.75} />
+                <Input
+                  type="tel"
+                  inputMode="tel"
+                  value={phoneRaw}
+                  onChange={(e) => setPhoneRaw(e.target.value)}
+                  placeholder="7721234567"
+                  className={cn(fieldClass, 'text-left')}
+                  dir="ltr"
+                />
+              </div>
               {errors.phone ? (
                 <p className="text-[11px] text-destructive">{errors.phone}</p>
               ) : (
@@ -282,7 +291,7 @@ const SignUpPage = () => {
             <div className="space-y-2">
               <Label className="text-[12.5px] font-semibold text-white/90 block">البريد الإلكتروني</Label>
               <div className="relative">
-                <Mail className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/55" />
+                <Mail className={iconClass} strokeWidth={1.75} />
                 <Input
                   type="email"
                   inputMode="email"
@@ -290,7 +299,7 @@ const SignUpPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@email.com"
-                  className={cn(fieldClass, 'pr-10 text-left')}
+                  className={cn(fieldClass, 'text-left')}
                   dir="ltr"
                 />
               </div>
@@ -300,21 +309,23 @@ const SignUpPage = () => {
             <div className="space-y-2">
               <Label className="text-[12.5px] font-semibold text-white/90 block">كلمة المرور</Label>
               <div className="relative">
+                <Lock className={iconClass} strokeWidth={1.75} />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="أدخل كلمة مرور قوية"
-                  className={cn(fieldClass, 'pl-10')}
+                  className={cn(fieldClass, 'pl-11')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/55 hover:text-foreground transition-colors"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/45 hover:text-white transition-colors"
                   tabIndex={-1}
+                  aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />}
                 </button>
               </div>
               {errors.password ? (
@@ -326,14 +337,17 @@ const SignUpPage = () => {
 
             <div className="space-y-2">
               <Label className="text-[12.5px] font-semibold text-white/90 block">تأكيد كلمة المرور</Label>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="أعد إدخال كلمة المرور"
-                className={fieldClass}
-              />
+              <div className="relative">
+                <Lock className={iconClass} strokeWidth={1.75} />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="أعد إدخال كلمة المرور"
+                  className={fieldClass}
+                />
+              </div>
               {errors.confirmPassword && <p className="text-[11px] text-destructive">{errors.confirmPassword}</p>}
             </div>
 
