@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -145,7 +144,7 @@ const RequestsManagement = () => {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-4">
         <h1 className="text-xl font-bold text-foreground font-tajawal">إدارة طلبات السكن</h1>
 
@@ -255,7 +254,7 @@ const RequestsManagement = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 };
 

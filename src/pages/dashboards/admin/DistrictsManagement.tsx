@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,7 +60,7 @@ const DistrictsManagement = () => {
   }, {});
 
   return (
-    <AdminLayout>
+    <>
       <h1 className="text-2xl font-bold text-foreground mb-4">إدارة الأحياء</h1>
 
       {/* Add form */}
@@ -136,7 +135,7 @@ const DistrictsManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 

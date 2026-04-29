@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -153,7 +152,7 @@ const ReportsManagement = () => {
   };
 
   return (
-    <AdminLayout>
+    <>
       <h1 className="text-2xl font-bold text-foreground mb-4">إدارة البلاغات</h1>
 
       <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-4 pb-1">
@@ -234,7 +233,7 @@ const ReportsManagement = () => {
           )}
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 };
 

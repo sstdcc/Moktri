@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -114,16 +113,16 @@ const AdminDashboardPage = () => {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   return (
-    <AdminLayout>
+    <>
       <h1 className="text-2xl font-bold text-foreground mb-6">نظرة عامة</h1>
 
       {/* Stats Grid */}
@@ -217,7 +216,7 @@ const AdminDashboardPage = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 };
 
