@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, FileQuestion, Clock, CheckCircle2,
+  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, StickyNote,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
@@ -203,37 +203,37 @@ const RequestDetailPage = () => {
           <CardContent className="p-5 space-y-3.5">
             {districtName(request.district_id) && (
               <div className="flex items-center gap-2.5 text-[13px]">
-                <MapPin className="h-4 w-4 text-accent stroke-[2px]" />
+                <MapPin className="h-4 w-4 text-primary stroke-[2px]" />
                 <span className="text-foreground/80">{(() => { const d = districts.find(d => d.id === request.district_id); return d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : ''; })()}{request.neighborhood ? ` — ${request.neighborhood}` : ''}</span>
               </div>
             )}
             {budget && (
               <div className="flex items-center gap-2.5 text-[13px]">
-                <span className="text-accent font-bold text-base">💰</span>
+                <Wallet className="h-4 w-4 text-primary stroke-[2px]" />
                 <span className="font-semibold text-foreground">{budget}</span>
               </div>
             )}
             {request.bedrooms_needed && (
               <div className="flex items-center gap-2.5 text-[13px]">
-                <span className="text-base">🛏</span>
+                <BedDouble className="h-4 w-4 text-primary stroke-[2px]" />
                 <span className="text-foreground/80">{request.bedrooms_needed} غرف نوم</span>
               </div>
             )}
             {request.for_whom && (
               <div className="flex items-center gap-2.5 text-[13px]">
-                <Users className="h-4 w-4 text-accent stroke-[2px]" />
+                <Users className="h-4 w-4 text-primary stroke-[2px]" />
                 <span className="text-foreground/80">{forWhomLabels[request.for_whom] ?? request.for_whom}</span>
               </div>
             )}
             {request.furnishing_preference && request.furnishing_preference !== 'any' && (
               <div className="flex items-center gap-2.5 text-[13px]">
-                <span className="text-base">🛋</span>
+                <Sofa className="h-4 w-4 text-primary stroke-[2px]" />
                 <span className="text-foreground/80">{furnishingLabels[request.furnishing_preference]}</span>
               </div>
             )}
             {request.move_in_date && (
               <div className="flex items-center gap-2.5 text-[13px]">
-                <Calendar className="h-4 w-4 text-accent stroke-[2px]" />
+                <Calendar className="h-4 w-4 text-primary stroke-[2px]" />
                 <span className="text-foreground/80">تاريخ الانتقال: {new Date(request.move_in_date).toLocaleDateString('ar-YE')}</span>
               </div>
             )}
