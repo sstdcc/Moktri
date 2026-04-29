@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,7 +115,7 @@ const UsersManagement = () => {
   };
 
   return (
-    <AdminLayout>
+    <>
       <h1 className="text-2xl font-bold text-foreground mb-4">إدارة المستخدمين</h1>
 
       {/* Stats */}
@@ -262,7 +261,7 @@ const UsersManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 

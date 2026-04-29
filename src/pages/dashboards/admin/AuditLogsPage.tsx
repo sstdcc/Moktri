@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
@@ -111,7 +110,7 @@ const AuditLogsPage = () => {
   });
 
   return (
-    <AdminLayout>
+    <>
       <h1 className="text-2xl font-bold text-foreground mb-4">سجل إجراءات المسؤولين</h1>
 
       <Input
@@ -172,7 +171,7 @@ const AuditLogsPage = () => {
           )}
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 };
 

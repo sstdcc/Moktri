@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -142,7 +141,7 @@ const RentalsReview = () => {
   };
 
   return (
-    <AdminLayout>
+    <>
       <h1 className="text-2xl font-bold text-foreground mb-1">مراجعة عقود الإيجار</h1>
       <p className="text-sm text-muted-foreground mb-4">العروض الخاصة بانتظار الاعتماد قبل اكتمال الإيجار.</p>
 
@@ -219,7 +218,7 @@ const RentalsReview = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </>
   );
 };
 

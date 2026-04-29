@@ -11,6 +11,7 @@ import { AuthGuard } from "@/components/guards/AuthGuard";
 import { AdminGuard } from "@/components/guards/AdminGuard";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { MainLayout } from "@/components/layouts/MainLayout";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 
 // Eager: landing + listings (most visited)
 import HomePage from "./pages/HomePage";
@@ -99,16 +100,16 @@ const App = () => (
                   <Route path="/dashboard/owner" element={<MainLayout><AuthGuard><OwnerDashboard /></AuthGuard></MainLayout>} />
                   <Route path="/dashboard/broker" element={<MainLayout><AuthGuard><BrokerDashboard /></AuthGuard></MainLayout>} />
 
-                  {/* Admin routes */}
-                  <Route path="/dashboard/admin" element={<MainLayout><AdminGuard><AdminDashboardPage /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/listings" element={<MainLayout><AdminGuard><ListingsModeration /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/reports" element={<MainLayout><AdminGuard><ReportsManagement /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/users" element={<MainLayout><AdminGuard><UsersManagement /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/verifications" element={<MainLayout><AdminGuard><VerificationsManagement /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/requests" element={<MainLayout><AdminGuard><RequestsManagement /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/districts" element={<MainLayout><AdminGuard><DistrictsManagement /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/audit-logs" element={<MainLayout><AdminGuard><AuditLogsPage /></AdminGuard></MainLayout>} />
-                  <Route path="/dashboard/admin/rentals" element={<MainLayout><AdminGuard><RentalsReview /></AdminGuard></MainLayout>} />
+                  {/* Admin routes — wrapped in AdminLayout (its own persistent navigation) */}
+                  <Route path="/dashboard/admin" element={<AdminGuard><AdminLayout><AdminDashboardPage /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/listings" element={<AdminGuard><AdminLayout><ListingsModeration /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/reports" element={<AdminGuard><AdminLayout><ReportsManagement /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/users" element={<AdminGuard><AdminLayout><UsersManagement /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/verifications" element={<AdminGuard><AdminLayout><VerificationsManagement /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/requests" element={<AdminGuard><AdminLayout><RequestsManagement /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/districts" element={<AdminGuard><AdminLayout><DistrictsManagement /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/audit-logs" element={<AdminGuard><AdminLayout><AuditLogsPage /></AdminLayout></AdminGuard>} />
+                  <Route path="/dashboard/admin/rentals" element={<AdminGuard><AdminLayout><RentalsReview /></AdminLayout></AdminGuard>} />
 
                   <Route path="/listings/new" element={<MainLayout><AuthGuard><CreateListingPage /></AuthGuard></MainLayout>} />
                   <Route path="/listings/:id/edit" element={<MainLayout><AuthGuard><EditListingPage /></AuthGuard></MainLayout>} />

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { BottomNav } from '@/components/ui/BottomNav';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoginRequired } from '@/components/ui/LoginRequired';
 import { Button } from '@/components/ui/button';
@@ -557,7 +556,6 @@ const NotificationsPage = () => {
         )}
       </div>
 
-      <BottomNav />
     </div>
   );
 };
