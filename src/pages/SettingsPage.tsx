@@ -303,7 +303,7 @@ const SettingsPage = () => {
 
         {/* Account */}
         <section>
-          <SectionLabel>👤 الحساب</SectionLabel>
+          <SectionLabel icon={UserCircle2}>الحساب</SectionLabel>
           <SettingsCard>
             <Row icon={User} label="الاسم" subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
             <Row icon={Mail} label="البريد الإلكتروني" subtext={user.email || 'غير مضاف'} right={arrow} onClick={() => toast('قريباً')} />
@@ -313,7 +313,7 @@ const SettingsPage = () => {
 
         {/* Notifications */}
         <section>
-          <SectionLabel>🔔 الإشعارات</SectionLabel>
+          <SectionLabel icon={BellRing}>الإشعارات</SectionLabel>
           <SettingsCard>
             {Object.entries(notifLabels).map(([key, label], idx, arr) => (
               <Row
@@ -335,7 +335,7 @@ const SettingsPage = () => {
 
         {/* Appearance */}
         <section>
-          <SectionLabel>🎨 المظهر</SectionLabel>
+          <SectionLabel icon={Palette}>المظهر</SectionLabel>
           <SettingsCard className="p-3">
             <div className="grid grid-cols-3 gap-2">
               {([
@@ -364,7 +364,7 @@ const SettingsPage = () => {
 
         {/* Security */}
         <section>
-          <SectionLabel>🔒 الأمان</SectionLabel>
+          <SectionLabel icon={ShieldCheck}>الأمان</SectionLabel>
           <SettingsCard>
             <Row
               icon={Lock}
@@ -379,7 +379,7 @@ const SettingsPage = () => {
 
         {/* Support */}
         <section>
-          <SectionLabel>الدعم والمساعدة</SectionLabel>
+          <SectionLabel icon={LifeBuoy}>الدعم والمساعدة</SectionLabel>
           <SettingsCard>
             <Row
               icon={MessageCircle}
