@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { signInWithOtp, verifyOtp } from '@/lib/auth';
@@ -209,6 +209,12 @@ const AuthPage = () => {
             <Button onClick={handleSendOtp} disabled={loading || !phone.trim()} className="w-full h-12 text-base">
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'إرسال رمز التحقق'}
             </Button>
+            <p className="text-center text-sm text-muted-foreground pt-2">
+              ليس لديك حساب؟{' '}
+              <Link to="/signup" className="text-primary font-bold hover:underline">
+                أنشئ حساب جديد
+              </Link>
+            </p>
           </div>
         )}
 
