@@ -52,9 +52,10 @@ const notifLabels: Record<string, string> = {
 
 /* ---------- Reusable premium row primitives ---------- */
 
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="px-1 mb-2.5 text-[12px] font-medium text-muted-foreground/80 tracking-wide">
-    {children}
+const SectionLabel = ({ icon: Icon, children }: { icon?: React.ElementType; children: React.ReactNode }) => (
+  <h2 className="px-1 mb-2.5 flex items-center gap-1.5 text-[12px] font-normal text-muted-foreground/80 tracking-wide">
+    {Icon && <Icon className="h-[13px] w-[13px]" strokeWidth={1.75} />}
+    <span>{children}</span>
   </h2>
 );
 
