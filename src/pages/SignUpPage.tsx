@@ -9,16 +9,24 @@ import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound } from 'lucide-react';
+import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const RESEND_COOLDOWN = 60;
 
-const signupSchema = z.object({
-  firstName: z.string().trim().min(2, 'الاسم الأول قصير جداً').max(40),
-  lastName: z.string().trim().min(2, 'اسم العائلة قصير جداً').max(40),
-  phone: z.string().trim().min(8, 'رقم الهاتف غير صالح'),
-});
+const signupSchema = z
+  .object({
+    firstName: z.string().trim().min(2, 'الاسم الأول قصير جداً').max(40),
+    lastName: z.string().trim().min(2, 'اسم العائلة قصير جداً').max(40),
+    email: z.string().trim().email('البريد الإلكتروني غير صالح').max(120),
+    phone: z.string().trim().min(8, 'رقم الهاتف غير صالح'),
+    password: z.string().min(6, 'كلمة المرور يجب ألا تقل عن 6 أحرف').max(72),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'كلمتا المرور غير متطابقتين',
+    path: ['confirmPassword'],
+  });
 
 type Step = 'form' | 'otp';
 
