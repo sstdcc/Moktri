@@ -51,8 +51,10 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background font-tajawal flex" dir="rtl">
-      {/* ── Desktop Sidebar ── */}
+    <SidebarProvider>
+      <AppSidebar />
+      <div className="min-h-screen bg-background font-tajawal flex flex-1 w-full" dir="rtl">
+        {/* ── Desktop Sidebar ── */}
       {!isMobile && (
         <aside className="w-[260px] shrink-0 fixed top-0 right-0 h-screen bg-card/95 backdrop-blur-xl border-l border-border/40 flex flex-col z-40"
           style={{ boxShadow: '-4px 0 24px -8px rgba(0,0,0,0.06)' }}
