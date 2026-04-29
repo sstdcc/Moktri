@@ -272,6 +272,66 @@ const SignUpPage = () => {
               <p className="text-xs text-muted-foreground mt-1.5">سنرسل لك رمز تحقق عبر SMS</p>
             </div>
 
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">البريد الإلكتروني</Label>
+              <div className="relative">
+                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                  className="h-11 pr-10 text-left"
+                  dir="ltr"
+                />
+              </div>
+              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">كلمة المرور</Label>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="6 أحرف على الأقل"
+                  className="h-11 pr-10 pl-10 text-left"
+                  dir="ltr"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">تأكيد كلمة المرور</Label>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="أعد إدخال كلمة المرور"
+                  className="h-11 pr-10 text-left"
+                  dir="ltr"
+                />
+              </div>
+              {errors.confirmPassword && <p className="text-xs text-destructive mt-1">{errors.confirmPassword}</p>}
+            </div>
+
             <Button onClick={handleSignUp} disabled={loading} className="w-full h-12 text-base">
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'إنشاء الحساب'}
             </Button>
