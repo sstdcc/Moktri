@@ -284,8 +284,8 @@ const RequestDetailPage = () => {
                   >
                     <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px]" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-tight">{item.label}</p>
-                      <p className="text-[13px] font-bold text-foreground truncate tracking-tight">{item.value}</p>
+                      <p className="text-[11px] text-muted-foreground mb-1 font-normal tracking-tight">{item.label}</p>
+                      <p className="text-[13px] font-medium text-foreground truncate tracking-tight">{item.value}</p>
                     </div>
                   </div>
                 );
