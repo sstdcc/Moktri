@@ -84,6 +84,11 @@ const SignUpPage = () => {
   };
 
   const handleSignUp = async () => {
+    if (!agreed) {
+      setErrors({ agreed: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية' });
+      toast.error('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية');
+      return;
+    }
     const parsed = signupSchema.safeParse({
       firstName, lastName, email, phone: phoneRaw, password, confirmPassword,
     });
