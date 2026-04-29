@@ -231,7 +231,7 @@ const SignUpPage = () => {
           <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
             إنشاء <span className="text-primary">حساب</span>
           </h1>
-          <p className="mt-2.5 text-[13px] text-white/70 leading-relaxed">
+          <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed">
             {step === 'form' ? 'أنشئ حسابك في مفتاح بخطوات بسيطة' : 'أدخل رمز التحقق المرسل إليك'}
           </p>
         </div>
@@ -240,7 +240,7 @@ const SignUpPage = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-[12.5px] font-semibold text-white/90 block">الاسم الأول</Label>
+                <Label className="text-[12.5px] font-semibold text-foreground block">الاسم الأول</Label>
                 <div className="relative">
                   <User className={iconClass} strokeWidth={1.75} />
                   <Input
@@ -253,7 +253,7 @@ const SignUpPage = () => {
                 {errors.firstName && <p className="text-[11px] text-destructive">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] font-semibold text-white/90 block">اسم العائلة</Label>
+                <Label className="text-[12.5px] font-semibold text-foreground block">اسم العائلة</Label>
                 <div className="relative">
                   <User className={iconClass} strokeWidth={1.75} />
                   <Input
@@ -268,7 +268,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-white/90 block">رقم الهاتف</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">رقم الهاتف</Label>
               <div className="relative">
                 <Phone className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -284,12 +284,12 @@ const SignUpPage = () => {
               {errors.phone ? (
                 <p className="text-[11px] text-destructive">{errors.phone}</p>
               ) : (
-                <p className="text-[11px] text-white/55">سنرسل لك رمز تحقق عبر SMS</p>
+                <p className="text-[11px] text-muted-foreground">سنرسل لك رمز تحقق عبر SMS</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-white/90 block">البريد الإلكتروني</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">البريد الإلكتروني</Label>
               <div className="relative">
                 <Mail className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -307,7 +307,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-white/90 block">كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">كلمة المرور</Label>
               <div className="relative">
                 <Lock className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -321,7 +321,7 @@ const SignUpPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/45 hover:text-white transition-colors"
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   tabIndex={-1}
                   aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                 >
@@ -331,12 +331,12 @@ const SignUpPage = () => {
               {errors.password ? (
                 <p className="text-[11px] text-destructive">{errors.password}</p>
               ) : (
-                <p className="text-[11px] text-white/55">6 أحرف على الأقل</p>
+                <p className="text-[11px] text-muted-foreground">6 أحرف على الأقل</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-white/90 block">تأكيد كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">تأكيد كلمة المرور</Label>
               <div className="relative">
                 <Lock className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -360,9 +360,9 @@ const SignUpPage = () => {
             </Button>
 
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-white/15" />
-              <span className="text-[11px] text-white/55">أو</span>
-              <div className="flex-1 h-px bg-white/15" />
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-[11px] text-muted-foreground">أو</span>
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             <Button
@@ -370,7 +370,7 @@ const SignUpPage = () => {
               variant="outline"
               onClick={handleGoogle}
               disabled={googleLoading}
-              className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-white/15 bg-white/[0.06] text-white hover:bg-white/[0.10]"
+              className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-border bg-card text-foreground hover:bg-accent/10"
             >
               {googleLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -387,7 +387,7 @@ const SignUpPage = () => {
               )}
             </Button>
 
-            <p className="text-center text-[13px] text-white/70 pt-2">
+            <p className="text-center text-[13px] text-muted-foreground pt-2">
               لديك حساب؟{' '}
               <Link to="/auth" className="text-primary font-bold hover:underline">
                 سجّل دخولك
