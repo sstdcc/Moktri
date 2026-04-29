@@ -167,124 +167,129 @@ const RequestDetailPage = () => {
     <div className="min-h-screen bg-background pb-28 font-tajawal" dir="rtl">
       <PageHeader title="تفاصيل الطلب" showBack />
 
-      <div className="p-5 space-y-5 max-w-lg mx-auto">
+      <div className="p-5 space-y-6 max-w-lg mx-auto">
         {/* Main summary card */}
         <Card className="overflow-hidden">
-          <CardContent className="p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-[16px] font-extrabold text-foreground tracking-tight">
-                يبحث عن {categoryLabels[request.category] || request.category}
-              </h2>
-              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1', statusColors[request.status ?? 'active'])}>
+          <CardContent className="p-5 space-y-5">
+            <div className="flex items-start justify-between gap-3">
+              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center', statusColors[request.status ?? 'active'])}>
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 {statusLabels[request.status ?? 'active']}
               </Badge>
+              <div
+                onClick={() => navigate(`/profile/${request.requester_id}`)}
+                className="flex items-center gap-3 cursor-pointer group"
+              >
+                <div className="text-right min-w-0">
+                  <p className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate">{requesterName}</p>
+                  {request.created_at && (
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{timeAgo(request.created_at)}</p>
+                  )}
+                </div>
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground shadow-sm shrink-0">
+                  {requesterName.charAt(0)}
+                </div>
+              </div>
             </div>
 
-            <div
-              onClick={() => navigate(`/profile/${request.requester_id}`)}
-              className="flex items-center gap-3.5 cursor-pointer group"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-sm font-bold text-primary shadow-sm">
-                {requesterName.charAt(0)}
+            <div className="pt-4 border-t border-border/50 grid grid-cols-3 gap-3">
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <div className="flex items-center gap-1.5">
+                  <Hash className="h-4 w-4 text-primary stroke-[2px]" />
+                  <span className="text-[11px] text-muted-foreground">رقم الطلب</span>
+                </div>
+                <span className="text-[13px] font-bold text-foreground truncate max-w-full" dir="ltr">#{request.id.slice(0, 6)}</span>
               </div>
-              <div>
-                <p className="text-[14px] font-bold text-foreground group-hover:text-primary transition-colors">{requesterName}</p>
-                {request.created_at && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{timeAgo(request.created_at)}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-border/40 grid grid-cols-3 gap-2 text-center">
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-[10px] text-muted-foreground">رقم الطلب</span>
-                <span className="text-[12px] font-bold text-foreground truncate max-w-full" dir="ltr">#{request.id.slice(0, 6)}</span>
-              </div>
-              <div className="flex flex-col items-center gap-1 border-x border-border/40">
-                <span className="text-[10px] text-muted-foreground">تاريخ الإنشاء</span>
-                <span className="text-[12px] font-bold text-foreground">
+              <div className="flex flex-col items-center gap-1.5 text-center border-x border-border/50">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4 text-primary stroke-[2px]" />
+                  <span className="text-[11px] text-muted-foreground">تاريخ الإنشاء</span>
+                </div>
+                <span className="text-[13px] font-bold text-foreground">
                   {request.created_at ? new Date(request.created_at).toLocaleDateString('ar-YE') : '—'}
                 </span>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-[10px] text-muted-foreground">مشاهدات الطلب</span>
-                <span className="text-[12px] font-bold text-foreground">{request.views_count ?? 0}</span>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="h-4 w-4 text-primary stroke-[2px]" />
+                  <span className="text-[11px] text-muted-foreground">مشاهدات</span>
+                </div>
+                <span className="text-[13px] font-bold text-foreground">{request.views_count ?? 0}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Section title: معلومات الطلب */}
-        <div className="flex items-center gap-2 pt-1">
+        <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-primary" />
-          <h3 className="text-[14px] font-extrabold text-foreground">معلومات الطلب</h3>
+          <h3 className="text-[15px] font-extrabold text-foreground">معلومات الطلب</h3>
         </div>
 
         {/* Request info card */}
         <Card className="overflow-hidden">
-          <CardContent className="p-5">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
-              <div className="flex items-start gap-2.5 min-w-0">
-                <MapPin className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">الموقع</p>
-                  <p className="text-[13px] font-semibold text-foreground truncate">
-                    {(() => {
-                      const d = districts.find(d => d.id === request.district_id);
-                      const base = d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : '—';
-                      return `${base}${request.neighborhood ? ` — ${request.neighborhood}` : ''}`;
-                    })()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 min-w-0">
-                <Wallet className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">الميزانية</p>
-                  <p className="text-[13px] font-semibold text-foreground truncate">{budget ?? '—'}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 min-w-0">
-                <BedDouble className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">عدد الغرف</p>
-                  <p className="text-[13px] font-semibold text-foreground truncate">
-                    {request.bedrooms_needed ? `${request.bedrooms_needed} غرف` : '—'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 min-w-0">
-                <Users className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">نوع الطلب</p>
-                  <p className="text-[13px] font-semibold text-foreground truncate">
-                    {request.for_whom ? (forWhomLabels[request.for_whom] ?? request.for_whom) : '—'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 min-w-0">
-                <Sofa className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">التأثيث</p>
-                  <p className="text-[13px] font-semibold text-foreground truncate">
-                    {request.furnishing_preference ? furnishingLabels[request.furnishing_preference] : '—'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 min-w-0">
-                <Calendar className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">تاريخ الانتقال</p>
-                  <p className="text-[13px] font-semibold text-foreground truncate">
-                    {request.move_in_date ? new Date(request.move_in_date).toLocaleDateString('ar-YE') : '—'}
-                  </p>
-                </div>
-              </div>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-2">
+              {[
+                {
+                  icon: MapPin,
+                  label: 'الموقع',
+                  value: (() => {
+                    const d = districts.find(d => d.id === request.district_id);
+                    const base = d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : '—';
+                    return `${base}${request.neighborhood ? ` — ${request.neighborhood}` : ''}`;
+                  })(),
+                  borderL: true, borderB: true,
+                },
+                {
+                  icon: Wallet,
+                  label: 'الميزانية',
+                  value: budget ?? '—',
+                  borderL: false, borderB: true,
+                },
+                {
+                  icon: BedDouble,
+                  label: 'عدد الغرف',
+                  value: request.bedrooms_needed ? `${request.bedrooms_needed} غرف` : '—',
+                  borderL: true, borderB: true,
+                },
+                {
+                  icon: Users,
+                  label: 'نوع الطلب',
+                  value: request.for_whom ? (forWhomLabels[request.for_whom] ?? request.for_whom) : '—',
+                  borderL: false, borderB: true,
+                },
+                {
+                  icon: Sofa,
+                  label: 'التأثيث',
+                  value: request.furnishing_preference ? furnishingLabels[request.furnishing_preference] : '—',
+                  borderL: true, borderB: false,
+                },
+                {
+                  icon: Calendar,
+                  label: 'تاريخ الانتقال',
+                  value: request.move_in_date ? new Date(request.move_in_date).toLocaleDateString('ar-YE') : '—',
+                  borderL: false, borderB: false,
+                },
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      'flex items-start gap-3 p-5 min-w-0',
+                      item.borderB && 'border-b border-border/40',
+                      item.borderL && 'border-l border-border/40',
+                    )}
+                  >
+                    <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] text-muted-foreground mb-1">{item.label}</p>
+                      <p className="text-[13px] font-semibold text-foreground truncate">{item.value}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -292,15 +297,15 @@ const RequestDetailPage = () => {
         {/* Notes */}
         {request.notes && (
           <>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              <h3 className="text-[14px] font-extrabold text-foreground">ملاحظات</h3>
+              <h3 className="text-[15px] font-extrabold text-foreground">ملاحظات</h3>
             </div>
             <Card className="overflow-hidden">
               <CardContent className="p-5">
-                <div className="flex items-start gap-2.5">
+                <div className="flex items-start gap-3">
                   <FileText className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
-                  <p className="text-[13px] text-foreground/85 leading-[1.8] flex-1">{request.notes}</p>
+                  <p className="text-[13px] text-foreground/85 leading-[1.9] flex-1">{request.notes}</p>
                 </div>
               </CardContent>
             </Card>
