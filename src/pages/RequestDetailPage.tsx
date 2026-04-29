@@ -243,10 +243,6 @@ const RequestDetailPage = () => {
               <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.responses_count ?? 0} رد</span>
               <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.views_count ?? 0} مشاهدة</span>
             </div>
-            <div className="flex items-center gap-5 text-[11px] text-muted-foreground pt-3 border-t border-border/40">
-              <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.responses_count ?? 0} رد</span>
-              <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5 stroke-[1.8px]" /> {request.views_count ?? 0} مشاهدة</span>
-            </div>
           </CardContent>
         </Card>
 
