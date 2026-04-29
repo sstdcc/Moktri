@@ -204,6 +204,11 @@ const SignUpPage = () => {
   };
 
   const handleGoogle = async () => {
+    if (!agreed) {
+      setErrors({ agreed: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية' });
+      toast.error('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية');
+      return;
+    }
     setGoogleLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth('google', {
