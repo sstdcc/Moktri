@@ -171,25 +171,25 @@ const RequestDetailPage = () => {
         {/* Main summary card */}
         <Card className="overflow-hidden">
           <CardContent className="p-5 space-y-5">
-            <div className="flex items-start justify-between gap-3">
-              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center', statusColors[request.status ?? 'active'])}>
-                <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                {statusLabels[request.status ?? 'active']}
-              </Badge>
+            <div className="flex items-center justify-between gap-3">
               <div
                 onClick={() => navigate(`/profile/${request.requester_id}`)}
-                className="flex items-center gap-3 cursor-pointer group"
+                className="flex items-center gap-3 cursor-pointer group min-w-0"
               >
-                <div className="text-right min-w-0">
-                  <p className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate">{requesterName}</p>
-                  {request.created_at && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{timeAgo(request.created_at)}</p>
-                  )}
-                </div>
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground shadow-sm shrink-0">
                   {requesterName.charAt(0)}
                 </div>
+                <div className="text-right min-w-0">
+                  <p className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate tracking-tight">{requesterName}</p>
+                  {request.created_at && (
+                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{timeAgo(request.created_at)}</p>
+                  )}
+                </div>
               </div>
+              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center shrink-0', statusColors[request.status ?? 'active'])}>
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {statusLabels[request.status ?? 'active']}
+              </Badge>
             </div>
 
             <div className="pt-4 border-t border-border/50 grid grid-cols-3 gap-3">
@@ -277,15 +277,15 @@ const RequestDetailPage = () => {
                   <div
                     key={i}
                     className={cn(
-                      'flex items-start gap-3 p-5 min-w-0',
+                      'flex items-center gap-3 p-5 min-w-0',
                       item.borderB && 'border-b border-border/40',
                       item.borderL && 'border-l border-border/40',
                     )}
                   >
-                    <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
+                    <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px]" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] text-muted-foreground mb-1">{item.label}</p>
-                      <p className="text-[13px] font-semibold text-foreground truncate">{item.value}</p>
+                      <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-tight">{item.label}</p>
+                      <p className="text-[13px] font-bold text-foreground truncate tracking-tight">{item.value}</p>
                     </div>
                   </div>
                 );
