@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 import {
   User, Camera, Phone, Mail, LogOut, MessageCircle, Shield,
   Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft,
-  Lock, ArrowRight,
+  Lock, ArrowRight, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
