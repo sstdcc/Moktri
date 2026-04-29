@@ -162,14 +162,22 @@ const SignUpPage = () => {
     try {
       const result = await verifyOtp(phone, otpCode);
 
-      // Apply pending name to the freshly created profile
+      // Apply pending profile data (name, email, password) to the freshly created account
       const pending = sessionStorage.getItem('pending_signup_profile');
       if (pending) {
         try {
-          const { full_name } = JSON.parse(pending);
+          const { full_name, email: pendingEmail, password: pendingPassword } = JSON.parse(pending);
           const { data: { user: u } } = await supabase.auth.getUser();
-          if (u && full_name) {
-            await supabase.from('profiles').update({ full_name }).eq('id', u.id);
+          if (u) {
+            if (pendingEmail || pendingPassword) {
+              await supabase.auth.updateUser({
+                ...(pendingEmail ? { email: pendingEmail } : {}),
+                ...(pendingPassword ? { password: pendingPassword } : {}),
+              });
+            }
+            if (full_name) {
+              await supabase.from('profiles').update({ full_name }).eq('id', u.id);
+            }
           }
         } catch {/* non-fatal */}
         sessionStorage.removeItem('pending_signup_profile');
