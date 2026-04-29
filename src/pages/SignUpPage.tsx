@@ -366,7 +366,7 @@ const SignUpPage = () => {
             <Button
               onClick={handleSignUp}
               disabled={loading}
-              className="w-full h-[46px] rounded-xl text-[14px] font-bold mt-3"
+              className="w-full h-[46px] rounded-xl text-[14px] font-bold mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إنشاء الحساب'}
             </Button>
