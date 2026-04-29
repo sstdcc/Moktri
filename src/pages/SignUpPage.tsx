@@ -10,6 +10,7 @@ import { lovable } from '@/integrations/lovable';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 const RESEND_COOLDOWN = 60;
@@ -55,6 +56,7 @@ const SignUpPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
   const cooldownRef = useRef<ReturnType<typeof setInterval>>();
@@ -82,6 +84,11 @@ const SignUpPage = () => {
   };
 
   const handleSignUp = async () => {
+    if (!agreed) {
+      setErrors({ agreed: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية' });
+      toast.error('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية');
+      return;
+    }
     const parsed = signupSchema.safeParse({
       firstName, lastName, email, phone: phoneRaw, password, confirmPassword,
     });
@@ -197,6 +204,11 @@ const SignUpPage = () => {
   };
 
   const handleGoogle = async () => {
+    if (!agreed) {
+      setErrors({ agreed: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية' });
+      toast.error('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية');
+      return;
+    }
     setGoogleLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth('google', {
@@ -358,6 +370,34 @@ const SignUpPage = () => {
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إنشاء الحساب'}
             </Button>
+
+            <div className="space-y-1.5">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <Checkbox
+                  checked={agreed}
+                  onCheckedChange={(v) => {
+                    setAgreed(v === true);
+                    if (v === true && errors.agreed) {
+                      const { agreed: _omit, ...rest } = errors;
+                      setErrors(rest);
+                    }
+                  }}
+                  className="mt-0.5"
+                  aria-label="الموافقة على الشروط"
+                />
+                <span className="text-[12.5px] text-muted-foreground leading-relaxed">
+                  أوافق على{' '}
+                  <Link to="/terms" target="_blank" className="text-primary font-semibold hover:underline">
+                    الشروط والأحكام
+                  </Link>{' '}
+                  و
+                  <Link to="/privacy" target="_blank" className="text-primary font-semibold hover:underline">
+                    سياسة الخصوصية
+                  </Link>
+                </span>
+              </label>
+              {errors.agreed && <p className="text-[11px] text-destructive pr-7">{errors.agreed}</p>}
+            </div>
 
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-border" />
