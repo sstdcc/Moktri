@@ -308,7 +308,7 @@ const ListingDetailPage = () => {
 
         {/* Price */}
         <p className="mt-2 text-2xl font-extrabold text-accent">
-          {Number(listing.price).toLocaleString('ar-YE')} <span className="text-sm font-normal text-muted-foreground">ريال / {billingLabels[listing.billing_period || 'monthly']}</span>
+          {Number(listing.price).toLocaleString('en-GB')} <span className="text-sm font-normal text-muted-foreground">ريال / {billingLabels[listing.billing_period || 'monthly']}</span>
         </p>
         {listing.is_negotiable && <p className="mt-0.5 text-xs text-muted-foreground">السعر قابل للتفاوض</p>}
 

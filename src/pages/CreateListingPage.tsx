@@ -629,7 +629,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                 <h3 className="text-lg font-black text-foreground font-tajawal mt-1">{form.title}</h3>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-black text-accent font-tajawal">{Number(form.price).toLocaleString('ar-YE')}</span>
+                <span className="text-xl font-black text-accent font-tajawal">{Number(form.price).toLocaleString('en-GB')}</span>
                 <span className="text-xs text-muted-foreground font-tajawal">{form.currency === 'YER' ? 'ر.ي' : '$'}/{billingLabel}</span>
               </div>
               {locationText && <p className="text-sm text-muted-foreground font-tajawal">📍 {locationText}</p>}

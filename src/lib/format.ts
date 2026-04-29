@@ -13,7 +13,7 @@ export const formatPrice = (
   currency = 'YER',
   period?: string | null
 ): string => {
-  const formatted = amount.toLocaleString('ar-YE');
+  const formatted = amount.toLocaleString('en-GB');
   const suffix = period ? ` ${periodLabels[period] || ''}` : '';
   const currencyLabel = currency === 'YER' ? 'ر.ي' : currency;
   return `${formatted} ${currencyLabel}${suffix}`;
