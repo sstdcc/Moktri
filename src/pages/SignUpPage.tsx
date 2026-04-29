@@ -9,16 +9,24 @@ import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound } from 'lucide-react';
+import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const RESEND_COOLDOWN = 60;
 
-const signupSchema = z.object({
-  firstName: z.string().trim().min(2, 'الاسم الأول قصير جداً').max(40),
-  lastName: z.string().trim().min(2, 'اسم العائلة قصير جداً').max(40),
-  phone: z.string().trim().min(8, 'رقم الهاتف غير صالح'),
-});
+const signupSchema = z
+  .object({
+    firstName: z.string().trim().min(2, 'الاسم الأول قصير جداً').max(40),
+    lastName: z.string().trim().min(2, 'اسم العائلة قصير جداً').max(40),
+    email: z.string().trim().email('البريد الإلكتروني غير صالح').max(120),
+    phone: z.string().trim().min(8, 'رقم الهاتف غير صالح'),
+    password: z.string().min(6, 'كلمة المرور يجب ألا تقل عن 6 أحرف').max(72),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'كلمتا المرور غير متطابقتين',
+    path: ['confirmPassword'],
+  });
 
 type Step = 'form' | 'otp';
 
@@ -37,8 +45,12 @@ const SignUpPage = () => {
   const [step, setStep] = useState<Step>('form');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [phoneRaw, setPhoneRaw] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -70,7 +82,9 @@ const SignUpPage = () => {
   };
 
   const handleSignUp = async () => {
-    const parsed = signupSchema.safeParse({ firstName, lastName, phone: phoneRaw });
+    const parsed = signupSchema.safeParse({
+      firstName, lastName, email, phone: phoneRaw, password, confirmPassword,
+    });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       parsed.error.issues.forEach((i) => { fieldErrors[i.path[0] as string] = i.message; });
@@ -87,10 +101,14 @@ const SignUpPage = () => {
     setLoading(true);
     try {
       await signInWithOtp(normalized);
-      // Stash the name to apply after verification.
+      // Stash profile data to apply after verification.
       sessionStorage.setItem(
         'pending_signup_profile',
-        JSON.stringify({ full_name: `${firstName.trim()} ${lastName.trim()}` })
+        JSON.stringify({
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          email: email.trim(),
+          password,
+        })
       );
       setPhone(normalized);
       setStep('otp');
@@ -144,14 +162,22 @@ const SignUpPage = () => {
     try {
       const result = await verifyOtp(phone, otpCode);
 
-      // Apply pending name to the freshly created profile
+      // Apply pending profile data (name, email, password) to the freshly created account
       const pending = sessionStorage.getItem('pending_signup_profile');
       if (pending) {
         try {
-          const { full_name } = JSON.parse(pending);
+          const { full_name, email: pendingEmail, password: pendingPassword } = JSON.parse(pending);
           const { data: { user: u } } = await supabase.auth.getUser();
-          if (u && full_name) {
-            await supabase.from('profiles').update({ full_name }).eq('id', u.id);
+          if (u) {
+            if (pendingEmail || pendingPassword) {
+              await supabase.auth.updateUser({
+                ...(pendingEmail ? { email: pendingEmail } : {}),
+                ...(pendingPassword ? { password: pendingPassword } : {}),
+              });
+            }
+            if (full_name) {
+              await supabase.from('profiles').update({ full_name }).eq('id', u.id);
+            }
           }
         } catch {/* non-fatal */}
         sessionStorage.removeItem('pending_signup_profile');
@@ -244,6 +270,66 @@ const SignUpPage = () => {
               </div>
               {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
               <p className="text-xs text-muted-foreground mt-1.5">سنرسل لك رمز تحقق عبر SMS</p>
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">البريد الإلكتروني</Label>
+              <div className="relative">
+                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                  className="h-11 pr-10 text-left"
+                  dir="ltr"
+                />
+              </div>
+              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">كلمة المرور</Label>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="6 أحرف على الأقل"
+                  className="h-11 pr-10 pl-10 text-left"
+                  dir="ltr"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold mb-1.5 block">تأكيد كلمة المرور</Label>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="أعد إدخال كلمة المرور"
+                  className="h-11 pr-10 text-left"
+                  dir="ltr"
+                />
+              </div>
+              {errors.confirmPassword && <p className="text-xs text-destructive mt-1">{errors.confirmPassword}</p>}
             </div>
 
             <Button onClick={handleSignUp} disabled={loading} className="w-full h-12 text-base">
