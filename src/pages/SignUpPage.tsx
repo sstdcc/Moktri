@@ -56,6 +56,7 @@ const SignUpPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
   const cooldownRef = useRef<ReturnType<typeof setInterval>>();
