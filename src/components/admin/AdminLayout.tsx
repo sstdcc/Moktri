@@ -205,7 +205,8 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
           </div>
         </nav>
       )}
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
