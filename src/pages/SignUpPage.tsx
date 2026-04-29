@@ -371,6 +371,34 @@ const SignUpPage = () => {
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إنشاء الحساب'}
             </Button>
 
+            <div className="space-y-1.5">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <Checkbox
+                  checked={agreed}
+                  onCheckedChange={(v) => {
+                    setAgreed(v === true);
+                    if (v === true && errors.agreed) {
+                      const { agreed: _omit, ...rest } = errors;
+                      setErrors(rest);
+                    }
+                  }}
+                  className="mt-0.5"
+                  aria-label="الموافقة على الشروط"
+                />
+                <span className="text-[12.5px] text-muted-foreground leading-relaxed">
+                  أوافق على{' '}
+                  <Link to="/terms" target="_blank" className="text-primary font-semibold hover:underline">
+                    الشروط والأحكام
+                  </Link>{' '}
+                  و
+                  <Link to="/privacy" target="_blank" className="text-primary font-semibold hover:underline">
+                    سياسة الخصوصية
+                  </Link>
+                </span>
+              </label>
+              {errors.agreed && <p className="text-[11px] text-destructive pr-7">{errors.agreed}</p>}
+            </div>
+
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-border" />
               <span className="text-[11px] text-muted-foreground">أو</span>
