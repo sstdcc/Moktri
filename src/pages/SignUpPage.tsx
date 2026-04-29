@@ -216,10 +216,10 @@ const SignUpPage = () => {
     }
   };
 
-  // Shared tokens — high-contrast, crisp, premium
+  // Shared tokens — themed for both light and dark modes
   const fieldClass =
-    'h-[48px] rounded-xl border border-white/15 bg-white/[0.06] pr-11 pl-4 text-[14.5px] text-white placeholder:text-white/35 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-white/[0.08] transition-colors';
-  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/45 pointer-events-none';
+    'h-[48px] rounded-xl border border-border bg-card pr-11 pl-4 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-accent/5 transition-colors';
+  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground pointer-events-none';
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
