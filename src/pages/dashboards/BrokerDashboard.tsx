@@ -213,7 +213,7 @@ const BrokerDashboard = () => {
                   <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                     {r.districts?.name_ar && <span>📍 {r.districts.name_ar}</span>}
                     {(r.min_price || r.max_price) && (
-                      <span>{r.min_price ? Number(r.min_price).toLocaleString('en-GB') : '٠'} - {r.max_price ? Number(r.max_price).toLocaleString('en-GB') : '∞'} ريال</span>
+                      <span>{r.min_price ? Number(r.min_price).toLocaleString('en-GB') : '0'} - {r.max_price ? Number(r.max_price).toLocaleString('en-GB') : '∞'} ريال</span>
                     )}
                     {r.for_whom && <MiftahBadge variant="active" className="!text-[10px]" />}
                     <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{r.responses_count || 0} رد</span>

@@ -249,7 +249,7 @@ const ListingDetailPage = () => {
         <div className="bg-danger/10 px-4 py-2 text-center text-xs text-danger">⛔ إعلان قديم جداً — قد لا يكون متاحاً</div>
       )}
       {lastUpdatedDays > 45 && lastUpdatedDays <= 90 && (
-        <div className="bg-accent/10 px-4 py-2 text-center text-xs text-accent">⚠️ هذا الإعلان لم يُحدَّث منذ أكثر من ٤٥ يوماً — تحقق من توفره</div>
+        <div className="bg-accent/10 px-4 py-2 text-center text-xs text-accent">⚠️ هذا الإعلان لم يُحدَّث منذ أكثر من 45 يوماً — تحقق من توفره</div>
       )}
 
       {/* Image Gallery */}

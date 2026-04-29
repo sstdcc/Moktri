@@ -154,7 +154,7 @@ const OwnerDashboard = () => {
           <div className="mt-3 rounded-2xl bg-accent/10 border border-accent/30 px-4 py-3 flex items-start gap-2">
             <AlertTriangle className="h-5 w-5 text-accent shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm text-accent font-medium">لديك {staleListings.length} إعلان لم يُحدَّث منذ أكثر من ٤٥ يوماً</p>
+              <p className="text-sm text-accent font-medium">لديك {staleListings.length} إعلان لم يُحدَّث منذ أكثر من 45 يوماً</p>
               <p className="text-xs text-accent/70 mt-0.5">المستأجرون يفضلون الإعلانات المحدّثة</p>
             </div>
           </div>
