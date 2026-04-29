@@ -82,7 +82,9 @@ const SignUpPage = () => {
   };
 
   const handleSignUp = async () => {
-    const parsed = signupSchema.safeParse({ firstName, lastName, phone: phoneRaw });
+    const parsed = signupSchema.safeParse({
+      firstName, lastName, email, phone: phoneRaw, password, confirmPassword,
+    });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       parsed.error.issues.forEach((i) => { fieldErrors[i.path[0] as string] = i.message; });
@@ -99,10 +101,14 @@ const SignUpPage = () => {
     setLoading(true);
     try {
       await signInWithOtp(normalized);
-      // Stash the name to apply after verification.
+      // Stash profile data to apply after verification.
       sessionStorage.setItem(
         'pending_signup_profile',
-        JSON.stringify({ full_name: `${firstName.trim()} ${lastName.trim()}` })
+        JSON.stringify({
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          email: email.trim(),
+          password,
+        })
       );
       setPhone(normalized);
       setStep('otp');
