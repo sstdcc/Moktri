@@ -1,299 +1,208 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { signInWithOtp, verifyOtp } from '@/lib/auth';
+import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Phone, KeyRound, Loader2, ArrowRight, RefreshCw } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 
-const RESEND_COOLDOWN = 60;
-
-type Step = 'phone' | 'otp' | 'onboarding';
+const loginSchema = z.object({
+  email: z.string().trim().email('البريد الإلكتروني غير صالح').max(120),
+  password: z.string().min(6, 'كلمة المرور يجب ألا تقل عن 6 أحرف').max(72),
+});
 
 const AuthPage = () => {
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
-  const [step, setStep] = useState<Step>('phone');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [isNewUser, setIsNewUser] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  const cooldownRef = useRef<ReturnType<typeof setInterval>>();
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, profile, retryProfile } = useAuth();
 
   useEffect(() => {
-    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
-  }, []);
-
-  // Redirect already-authenticated users ONLY on initial phone step.
-  // NEVER redirect during OTP or onboarding — only handleVerify should navigate.
-  useEffect(() => {
-    if (step !== 'phone') return;
     if (user && profile) {
       const returnUrl = searchParams.get('returnUrl') || '/';
       navigate(returnUrl, { replace: true });
     }
-  }, [user, profile, step]);
+  }, [user, profile]);
 
-  const startCooldown = () => {
-    setCooldown(RESEND_COOLDOWN);
-    cooldownRef.current = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) { clearInterval(cooldownRef.current); return 0; }
-        return prev - 1;
+  const handleLogin = async () => {
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      parsed.error.issues.forEach((i) => { fieldErrors[i.path[0] as string] = i.message; });
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
-    }, 1000);
-  };
-
-  const normalizePhone = (raw: string) => {
-    let digits = raw.replace(/[^\d+]/g, '');
-    if (!digits.startsWith('+')) {
-      if (digits.startsWith('00')) digits = '+' + digits.slice(2);
-      else if (digits.startsWith('967')) digits = '+' + digits;
-      else if (digits.startsWith('0')) digits = '+967' + digits.slice(1);
-      else digits = '+967' + digits;
-    }
-    return digits;
-  };
-
-  const BYPASS_PHONES = ['+967777777777', '+967712345678', '+967772867128', '+967737777777'];
-
-  const handleSendOtp = async () => {
-    const normalized = normalizePhone(phone);
-    if (normalized.length < 12) {
-      toast.error('أدخل رقم هاتف صحيح');
-      return;
-    }
-
-    // Dev-only bypass: skip OTP and auto-login (DEV_BYPASS_PHONES is empty in production)
-    if (BYPASS_PHONES.includes(normalized)) {
-      setLoading(true);
-      try {
-        const result = await verifyOtp(normalized, '000000');
-        toast.success('تم تسجيل الدخول');
-        retryProfile();
-        const returnUrl = searchParams.get('returnUrl') || '/';
-        navigate(returnUrl, { replace: true });
-      } catch {
-        toast.error('تعذر تسجيل الدخول التجريبي');
-      } finally {
-        setLoading(false);
+      if (error) {
+        const msg = /invalid/i.test(error.message)
+          ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
+          : /confirm/i.test(error.message)
+          ? 'يجب تأكيد البريد الإلكتروني أولاً'
+          : 'تعذر تسجيل الدخول، حاول مرة أخرى';
+        toast.error(msg);
+        setErrors({ password: msg });
+        return;
       }
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signInWithOtp(normalized);
-      setPhone(normalized);
-      setStep('otp');
-      startCooldown();
-      toast.success('تم إرسال رمز التحقق');
+      toast.success('تم تسجيل الدخول بنجاح');
+      retryProfile();
+      const returnUrl = searchParams.get('returnUrl') || '/';
+      navigate(returnUrl, { replace: true });
     } catch {
-      toast.error('تعذر إكمال العملية، حاول مرة أخرى');
+      toast.error('تعذر تسجيل الدخول، حاول مرة أخرى');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResend = async () => {
-    if (cooldown > 0) return;
-    setLoading(true);
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
     try {
-      await signInWithOtp(phone);
-      startCooldown();
-      toast.success('تم إعادة إرسال رمز التحقق');
-    } catch {
-      toast.error('تعذر إكمال العملية، حاول مرة أخرى');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOtpChange = (index: number, value: string) => {
-    const digits = value.replace(/\D/g, '');
-    if (!digits && value !== '') return;
-    if (digits.length > 1) {
-      setOtp((prev) => {
-        const n = [...prev];
-        for (let k = 0; k < 6 - index && k < digits.length; k++) n[index + k] = digits[k];
-        return n;
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: `${window.location.origin}/complete-profile`,
       });
-      const focusIdx = Math.min(index + digits.length, 5);
-      otpRefs.current[focusIdx]?.focus();
-      return;
-    }
-    setOtp((prev) => {
-      const n = [...prev];
-      n[index] = digits.slice(-1);
-      return n;
-    });
-    if (digits && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (!pasted) return;
-    setOtp((prev) => {
-      const n = [...prev];
-      for (let i = 0; i < 6; i++) n[i] = pasted[i] || '';
-      return n;
-    });
-    const focusIdx = Math.min(pasted.length, 5);
-    otpRefs.current[focusIdx]?.focus();
-  };
-
-  const otpCode = otp.join('');
-
-  // Auto-submit when 6 digits entered
-  useEffect(() => {
-    if (step === 'otp' && otpCode.length === 6 && !loading) {
-      handleVerify();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [otpCode, step]);
-
-  const handleVerify = async () => {
-    if (otpCode.length < 6) return;
-    setLoading(true);
-    try {
-      const result = await verifyOtp(phone, otpCode);
-      if (result.isNew) {
-        setIsNewUser(true);
-        setStep('onboarding');
-        toast.success('تم التحقق بنجاح!');
-      } else {
-        toast.success('تم تسجيل الدخول بنجاح');
-        retryProfile();
-        const returnUrl = searchParams.get('returnUrl') || '/';
-        navigate(returnUrl, { replace: true });
+      if (result.error) {
+        toast.error('تعذر تسجيل الدخول بـ Google');
+        setGoogleLoading(false);
+        return;
       }
+      if (result.redirected) return;
+      navigate('/complete-profile', { replace: true });
     } catch {
-      toast.error('الرمز غير صحيح أو منتهي الصلاحية');
-    } finally {
-      setLoading(false);
+      toast.error('تعذر تسجيل الدخول بـ Google');
+      setGoogleLoading(false);
     }
   };
+
+  const fieldClass =
+    'h-[48px] rounded-xl border border-border bg-card pr-11 pl-4 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-accent/5 transition-colors';
+  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground pointer-events-none';
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 font-tajawal" dir="rtl">
+    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
-        {/* Logo — hidden during onboarding */}
-        {step !== 'onboarding' && (
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg">
-              <span className="text-2xl font-black text-primary-foreground">م</span>
-            </div>
-            <h1 className="text-3xl font-black text-primary">مفتاح</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {step === 'phone' && 'سجّل دخولك عبر رقم الهاتف'}
-              {step === 'otp' && 'أدخل رمز التحقق المرسل'}
-            </p>
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/95 shadow-md">
+            <span className="text-xl font-black text-primary-foreground">م</span>
           </div>
-        )}
+          <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
+            تسجيل <span className="text-primary">الدخول</span>
+          </h1>
+          <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed">
+            مرحباً بعودتك إلى مفتاح
+          </p>
+        </div>
 
-        {/* ─── Phone Input ─── */}
-        {step === 'phone' && (
-          <div className="space-y-4">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label className="text-[12.5px] font-semibold text-foreground block">البريد الإلكتروني</Label>
             <div className="relative">
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-              </div>
+              <Mail className={iconClass} strokeWidth={1.75} />
               <Input
-                type="tel"
-                placeholder="مثال: 772123456"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="pr-10 text-left"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@email.com"
+                className={cn(fieldClass, 'text-left')}
                 dir="ltr"
-                inputMode="tel"
-                aria-label="رقم الهاتف"
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              أدخل رقمك اليمني وسنرسل لك رمز تحقق عبر SMS
-            </p>
-            <Button onClick={handleSendOtp} disabled={loading || !phone.trim()} className="w-full h-12 text-base">
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'إرسال رمز التحقق'}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground pt-2">
-              ليس لديك حساب؟{' '}
-              <Link to="/signup" className="text-primary font-bold hover:underline">
-                أنشئ حساب جديد
+            {errors.email && <p className="text-[11px] text-destructive">{errors.email}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-[12.5px] font-semibold text-foreground block">كلمة المرور</Label>
+              <Link to="/forgot-password" className="text-[11.5px] text-primary font-semibold hover:underline">
+                نسيت كلمة المرور؟
               </Link>
-            </p>
-          </div>
-        )}
-
-        {/* ─── OTP Input ─── */}
-        {step === 'otp' && (
-          <div className="space-y-5">
-            <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-2">
-              <KeyRound className="h-4 w-4 text-accent shrink-0" />
-              <p className="text-xs text-muted-foreground">
-                تم إرسال الرمز إلى <span className="font-semibold text-foreground ltr inline-block" dir="ltr">{phone}</span>
-              </p>
             </div>
-            <div className="flex gap-2 justify-center" dir="ltr" onPaste={handleOtpPaste}>
-              {otp.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={(el) => { otpRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(i, e.target.value)}
-                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className={cn(
-                    'h-12 w-12 rounded-xl border-2 bg-card text-center text-xl font-bold transition-all duration-200 outline-none',
-                    digit ? 'border-accent text-foreground' : 'border-border text-muted-foreground',
-                    'focus:border-primary focus:ring-2 focus:ring-primary/20'
-                  )}
-                  aria-label={`رقم ${i + 1}`}
-                />
-              ))}
-            </div>
-            <Button onClick={handleVerify} disabled={loading || otpCode.length < 6} className="w-full h-12 text-base">
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'تأكيد'}
-            </Button>
-            <div className="flex items-center justify-between pt-1">
+            <div className="relative">
+              <Lock className={iconClass} strokeWidth={1.75} />
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className={cn(fieldClass, 'pl-11')}
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              />
               <button
-                onClick={() => { setStep('phone'); setOtp(Array(6).fill('')); }}
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] px-1"
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                tabIndex={-1}
+                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
               >
-                <ArrowRight className="h-3.5 w-3.5" />
-                تغيير الرقم
-              </button>
-              <button
-                onClick={handleResend}
-                disabled={cooldown > 0 || loading}
-                className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 transition-colors disabled:opacity-50 min-h-[44px] px-1"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                {cooldown > 0 ? `إعادة الإرسال (${cooldown})` : 'إعادة الإرسال'}
+                {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />}
               </button>
             </div>
+            {errors.password && <p className="text-[11px] text-destructive">{errors.password}</p>}
           </div>
-        )}
 
-        {/* ─── Onboarding Flow ─── */}
-        {step === 'onboarding' && <OnboardingFlow />}
+          <Button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full h-[46px] rounded-xl text-[14px] font-bold mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تسجيل الدخول'}
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[11px] text-muted-foreground">أو</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGoogle}
+            disabled={googleLoading}
+            className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-border bg-card text-foreground hover:bg-accent/10"
+          >
+            {googleLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <svg className="h-4 w-4" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                المتابعة بحساب Google
+              </>
+            )}
+          </Button>
+
+          <p className="text-center text-[13px] text-muted-foreground pt-2">
+            ليس لديك حساب؟{' '}
+            <Link to="/signup" className="text-primary font-bold hover:underline">
+              إنشاء حساب
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
