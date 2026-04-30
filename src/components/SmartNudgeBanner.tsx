@@ -40,14 +40,15 @@ const SmartNudgeBanner = () => {
     });
   };
 
-  // Split nudge message into title + subtitle (first sentence as title)
-  const splitMessage = (msg: string) => {
-    // try to split on common separators; otherwise use whole message as title
-    const parts = msg.split(/\s+(?:ل|حتى|كي)\s+/);
-    if (parts.length >= 2) {
-      return { title: parts[0].trim(), subtitle: 'ل' + parts.slice(1).join(' ').trim() };
-    }
-    return { title: msg, subtitle: '' };
+  // Explicit title/subtitle pairs per nudge for clean hierarchy
+  const splitByNudgeId = (id: string, fallback: string): { title: string; subtitle: string } => {
+    const map: Record<string, { title: string; subtitle: string }> = {
+      'whatsapp': { title: 'أضف رقم واتساب', subtitle: 'ليتواصل معك الآخرون بسهولة' },
+      'first-listing': { title: 'ابدأ بإضافة أول إعلان', subtitle: 'اعرض عقارك ليصل إلى المستأجرين' },
+      'first-request': { title: 'انشر طلب سكن', subtitle: 'لتجد خيارات أسرع' },
+      'complete-profile': { title: 'أكمل ملفك الشخصي', subtitle: 'لزيادة فرص التفاعل والثقة' },
+    };
+    return map[id] ?? { title: fallback, subtitle: '' };
   };
 
   return (
