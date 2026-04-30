@@ -446,7 +446,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                     if (raw === '') { update('price', ''); return; }
                     if (!/^\d*\.?\d*$/.test(raw)) return;
                     const num = Number(raw);
-                    update('price', Number.isNaN(num) ? '' : (raw.endsWith('.') ? (raw as any) : num));
+                    if (!Number.isNaN(num)) update('price', num);
                   }}
                   placeholder="0"
                   className="flex-1 font-tajawal"
