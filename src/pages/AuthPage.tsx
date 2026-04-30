@@ -91,27 +91,27 @@ const AuthPage = () => {
   };
 
   const fieldClass =
-    'h-[48px] rounded-xl border border-border bg-card pr-11 pl-4 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-accent/5 transition-colors';
-  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground pointer-events-none';
+    'h-12 rounded-xl border border-border/70 bg-muted/40 dark:bg-muted/30 pr-11 pl-4 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/50 focus-visible:bg-background transition-colors';
+  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70 pointer-events-none';
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
+    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-16 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/95 shadow-md">
-            <span className="text-xl font-black text-primary-foreground">م</span>
+        <div className="mb-12 text-center">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
+            <span className="text-xl font-bold text-primary-foreground">م</span>
           </div>
-          <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
-            تسجيل <span className="text-primary">الدخول</span>
+          <h1 className="text-[26px] font-semibold tracking-tight leading-tight text-foreground">
+            تسجيل الدخول
           </h1>
-          <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-[13.5px] font-normal text-muted-foreground/90">
             مرحباً بعودتك إلى مفتاح
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-[12.5px] font-semibold text-foreground block">البريد الإلكتروني</Label>
+            <Label className="text-[12.5px] font-medium text-foreground/90 block">البريد الإلكتروني</Label>
             <div className="relative">
               <Mail className={iconClass} strokeWidth={1.75} />
               <Input
@@ -130,7 +130,7 @@ const AuthPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[12.5px] font-semibold text-foreground block">كلمة المرور</Label>
+            <Label className="text-[12.5px] font-medium text-foreground/90 block">كلمة المرور</Label>
             <div className="relative">
               <Lock className={iconClass} strokeWidth={1.75} />
               <Input
@@ -145,18 +145,18 @@ const AuthPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors"
                 tabIndex={-1}
                 aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
               >
                 {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />}
               </button>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-1">
               {errors.password ? (
                 <p className="text-[11px] text-destructive">{errors.password}</p>
               ) : <span />}
-              <Link to="/forgot-password" className="text-[11.5px] text-primary font-semibold hover:underline">
+              <Link to="/forgot-password" className="text-[11.5px] text-primary/90 font-medium hover:underline">
                 نسيت كلمة المرور؟
               </Link>
             </div>
@@ -165,29 +165,28 @@ const AuthPage = () => {
           <Button
             onClick={handleLogin}
             disabled={loading}
-            className="w-full h-[46px] rounded-xl text-[14px] font-bold mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none"
+            className="w-full h-12 rounded-xl text-[14.5px] font-semibold mt-4 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none active:scale-100"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تسجيل الدخول'}
           </Button>
 
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-[11px] text-muted-foreground">أو</span>
-            <div className="flex-1 h-px bg-border" />
+          <div className="flex items-center gap-3 py-1">
+            <div className="flex-1 h-px bg-border/70" />
+            <span className="text-[11px] text-muted-foreground/80">أو</span>
+            <div className="flex-1 h-px bg-border/70" />
           </div>
 
           <Button
             type="button"
-            variant="outline"
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-border bg-card text-foreground hover:bg-accent/10"
+            className="w-full h-12 rounded-xl text-[14px] font-medium border-0 bg-foreground text-background hover:bg-foreground/90 shadow-none active:scale-100"
           >
             {googleLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <svg className="h-4 w-4" viewBox="0 0 24 24">
+                <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -198,9 +197,9 @@ const AuthPage = () => {
             )}
           </Button>
 
-          <p className="text-center text-[13px] text-muted-foreground pt-2">
+          <p className="text-center text-[13px] font-normal text-muted-foreground/90 pt-4">
             ليس لديك حساب؟{' '}
-            <Link to="/signup" className="text-primary font-bold hover:underline">
+            <Link to="/signup" className="text-primary font-medium hover:underline">
               إنشاء حساب
             </Link>
           </p>
