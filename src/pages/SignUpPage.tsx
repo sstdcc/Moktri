@@ -138,12 +138,12 @@ const SignUpPage = () => {
         }
         toast.success('تم إنشاء الحساب (وضع التطوير - تخطي OTP)');
         retryProfile();
-        // Same post-verification flow as production: go to onboarding
-        // (account type selection) before entering the app.
+        // Same post-verification flow as production: account-type selection
+        // before entering the app.
         const returnUrl = searchParams.get('returnUrl');
         const target = returnUrl
-          ? `/complete-profile?returnUrl=${encodeURIComponent(returnUrl)}`
-          : '/complete-profile';
+          ? `/onboarding?returnUrl=${encodeURIComponent(returnUrl)}`
+          : '/onboarding';
         navigate(target, { replace: true });
         return;
       }
