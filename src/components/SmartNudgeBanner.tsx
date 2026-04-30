@@ -54,7 +54,7 @@ const SmartNudgeBanner = () => {
   return (
     <div className="space-y-3" dir="rtl">
       {visible.map((nudge) => {
-        const { title, subtitle } = splitMessage(nudge.message);
+        const { title, subtitle } = splitByNudgeId(nudge.id, nudge.message);
         return (
           <div
             key={nudge.id}
