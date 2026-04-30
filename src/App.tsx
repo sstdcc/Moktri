@@ -24,6 +24,7 @@ const RequestDetailPage = lazy(() => import("./pages/RequestDetailPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const DashboardRedirect = lazy(() => import("./pages/DashboardRedirect"));
 const RenterDashboard = lazy(() => import("./pages/dashboards/RenterDashboard"));
 const OwnerDashboard = lazy(() => import("./pages/dashboards/OwnerDashboard"));
@@ -77,6 +78,7 @@ const App = () => (
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/signup" element={<SignUpPage />} />
                   <Route path="/complete-profile" element={<CompleteProfilePage />} />
+                  <Route path="/onboarding" element={<OnboardingPage />} />
 
                   {/* All other pages wrapped in MainLayout with sidebar */}
                   <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
