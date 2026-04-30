@@ -59,24 +59,22 @@ export const UserRatingsSection = ({ userId, userName }: Props) => {
   return (
     <Card>
       <CardContent className="p-5">
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="min-w-0">
-            <h3 className="font-cairo font-semibold text-base mb-1.5">التقييمات</h3>
-            <div dir="ltr" className="flex items-center gap-2 flex-wrap">
-              <RatingStars value={stats.average} size="sm" readOnly />
-              <span className="text-sm font-semibold leading-none text-foreground">
-                {stats.average.toFixed(1)}
-              </span>
-              <span className="text-xs text-muted-foreground leading-none">
-                ({stats.total})
-              </span>
-            </div>
+        <div className="flex items-center gap-3 mb-4 flex-nowrap">
+          <h3 className="font-cairo font-semibold text-base shrink-0 leading-none">التقييمات</h3>
+          <div dir="ltr" className="flex items-center gap-2 min-w-0 flex-1">
+            <RatingStars value={stats.average} size="sm" readOnly />
+            <span className="text-sm font-semibold leading-none text-foreground">
+              {stats.average.toFixed(1)}
+            </span>
+            <span className="text-xs text-muted-foreground leading-none">
+              ({stats.total})
+            </span>
           </div>
           {user && !isSelf && (
             <Button
               size="sm"
               onClick={() => setDialogOpen(true)}
-              className="shrink-0 h-9 px-4 rounded-xl gap-1.5 text-xs font-semibold"
+              className="shrink-0 w-auto h-9 px-4 rounded-xl gap-1.5 text-xs font-semibold"
             >
               <MessageSquarePlus className="h-4 w-4" />
               قيّم
