@@ -78,6 +78,7 @@ const App = () => (
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/signup" element={<SignUpPage />} />
                   <Route path="/complete-profile" element={<CompleteProfilePage />} />
+                  <Route path="/onboarding" element={<OnboardingPage />} />
 
                   {/* All other pages wrapped in MainLayout with sidebar */}
                   <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
