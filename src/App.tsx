@@ -23,6 +23,8 @@ const HousingRequestsPage = lazy(() => import("./pages/HousingRequestsPage"));
 const RequestDetailPage = lazy(() => import("./pages/RequestDetailPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const DashboardRedirect = lazy(() => import("./pages/DashboardRedirect"));
@@ -77,6 +79,8 @@ const App = () => (
                   {/* Auth page - no sidebar */}
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/complete-profile" element={<CompleteProfilePage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
 
