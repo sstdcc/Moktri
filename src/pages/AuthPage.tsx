@@ -117,11 +117,24 @@ const AuthPage = () => {
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-    if (value && index < 5) {
+    const digits = value.replace(/\D/g, '');
+    if (!digits && value !== '') return;
+    if (digits.length > 1) {
+      setOtp((prev) => {
+        const n = [...prev];
+        for (let k = 0; k < 6 - index && k < digits.length; k++) n[index + k] = digits[k];
+        return n;
+      });
+      const focusIdx = Math.min(index + digits.length, 5);
+      otpRefs.current[focusIdx]?.focus();
+      return;
+    }
+    setOtp((prev) => {
+      const n = [...prev];
+      n[index] = digits.slice(-1);
+      return n;
+    });
+    if (digits && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
   };
@@ -135,16 +148,25 @@ const AuthPage = () => {
   const handleOtpPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    const newOtp = [...otp];
-    for (let i = 0; i < 6; i++) {
-      newOtp[i] = pasted[i] || '';
-    }
-    setOtp(newOtp);
+    if (!pasted) return;
+    setOtp((prev) => {
+      const n = [...prev];
+      for (let i = 0; i < 6; i++) n[i] = pasted[i] || '';
+      return n;
+    });
     const focusIdx = Math.min(pasted.length, 5);
     otpRefs.current[focusIdx]?.focus();
   };
 
   const otpCode = otp.join('');
+
+  // Auto-submit when 6 digits entered
+  useEffect(() => {
+    if (step === 'otp' && otpCode.length === 6 && !loading) {
+      handleVerify();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpCode, step]);
 
   const handleVerify = async () => {
     if (otpCode.length < 6) return;
