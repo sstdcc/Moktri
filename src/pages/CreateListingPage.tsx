@@ -437,8 +437,20 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
             <div>
               <Label className="text-sm font-bold mb-2 block font-tajawal">السعر *</Label>
               <div className="flex gap-2">
-                <Input type="number" value={form.price} onChange={e => update('price', e.target.value ? Number(e.target.value) : '')}
-                  placeholder="0" className="flex-1 font-tajawal" />
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  value={form.price}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/,/g, '.');
+                    if (raw === '') { update('price', ''); return; }
+                    if (!/^\d*\.?\d*$/.test(raw)) return;
+                    const num = Number(raw);
+                    update('price', Number.isNaN(num) ? '' : (raw.endsWith('.') ? (raw as any) : num));
+                  }}
+                  placeholder="0"
+                  className="flex-1 font-tajawal"
+                />
                 <div className="flex rounded-xl border border-border overflow-hidden">
                   {['YER', 'USD'].map(c => (
                     <button key={c} type="button" onClick={() => update('currency', c)}
