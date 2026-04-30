@@ -258,10 +258,11 @@ const SignUpPage = () => {
 
       toast.success('تم إنشاء الحساب بنجاح');
       retryProfile();
-      const returnUrl = searchParams.get('returnUrl') || '/';
-      // New users land at home; OnboardingFlow on /auth handles role selection for those who used /auth path.
-      // For /signup we send them straight in — they can pick role in dashboard later.
-      navigate(returnUrl, { replace: true });
+      const returnUrl = searchParams.get('returnUrl');
+      const target = returnUrl
+        ? `/onboarding?returnUrl=${encodeURIComponent(returnUrl)}`
+        : '/onboarding';
+      navigate(target, { replace: true });
     } catch {
       toast.error('الرمز غير صحيح أو منتهي الصلاحية');
     } finally {
