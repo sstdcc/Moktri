@@ -65,12 +65,20 @@ const SignUpPage = () => {
   const [searchParams] = useSearchParams();
   const { user, profile, retryProfile } = useAuth();
 
-  // Already signed in? Skip to dashboard.
+  // Already signed in? Send to onboarding if profile not completed, else to returnUrl/home.
   useEffect(() => {
     if (step !== 'form') return;
     if (user && profile) {
-      const returnUrl = searchParams.get('returnUrl') || '/';
-      navigate(returnUrl, { replace: true });
+      const returnUrl = searchParams.get('returnUrl');
+      const needsOnboarding = !profile.full_name || profile.full_name.trim() === '';
+      if (needsOnboarding) {
+        const target = returnUrl
+          ? `/onboarding?returnUrl=${encodeURIComponent(returnUrl)}`
+          : '/onboarding';
+        navigate(target, { replace: true });
+      } else {
+        navigate(returnUrl || '/', { replace: true });
+      }
     }
   }, [user, profile, step]);
 
