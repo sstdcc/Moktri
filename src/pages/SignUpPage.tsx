@@ -138,8 +138,13 @@ const SignUpPage = () => {
         }
         toast.success('تم إنشاء الحساب (وضع التطوير - تخطي OTP)');
         retryProfile();
-        const returnUrl = searchParams.get('returnUrl') || '/';
-        navigate(returnUrl, { replace: true });
+        // Same post-verification flow as production: go to onboarding
+        // (account type selection) before entering the app.
+        const returnUrl = searchParams.get('returnUrl');
+        const target = returnUrl
+          ? `/complete-profile?returnUrl=${encodeURIComponent(returnUrl)}`
+          : '/complete-profile';
+        navigate(target, { replace: true });
         return;
       }
 
