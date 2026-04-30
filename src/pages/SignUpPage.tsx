@@ -107,10 +107,12 @@ const SignUpPage = () => {
 
     setLoading(true);
     try {
-      // ── DEV-ONLY OTP BYPASS ──
-      // In development we skip the SMS round-trip to avoid Twilio costs.
-      // Production behavior (import.meta.env.DEV === false) is untouched.
-      if (import.meta.env.DEV) {
+      // ── DEV / PREVIEW OTP BYPASS ──
+      // Skip SMS in local dev AND on Lovable preview hosts to avoid Twilio costs.
+      // Real production custom domains still require OTP.
+      const host = typeof window !== 'undefined' ? window.location.hostname : '';
+      const isPreviewHost = /lovableproject\.com$|lovable\.app$/.test(host);
+      if (import.meta.env.DEV || isPreviewHost) {
         const fullName = `${firstName.trim()} ${lastName.trim()}`;
         const { error: signUpErr } = await supabase.auth.signUp({
           email: email.trim(),
