@@ -115,47 +115,6 @@ const SignUpPage = () => {
 
     setLoading(true);
     try {
-      // ── DEV / PREVIEW OTP BYPASS ──
-      // Skip SMS in local dev AND on Lovable preview hosts to avoid Twilio costs.
-      // Real production custom domains still require OTP.
-      const host = typeof window !== 'undefined' ? window.location.hostname : '';
-      const isPreviewHost = /lovableproject\.com$|lovable\.app$/.test(host);
-      if (import.meta.env.DEV || isPreviewHost) {
-        const fullName = `${firstName.trim()} ${lastName.trim()}`;
-        const { error: signUpErr } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: { full_name: fullName, phone: normalized },
-          },
-        });
-        if (signUpErr) {
-          toast.error(signUpErr.message || 'تعذر إنشاء الحساب');
-          return;
-        }
-        // Ensure session (in case email confirmation is off this is already signed in;
-        // otherwise sign in immediately with the just-set password).
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          await supabase.auth.signInWithPassword({ email: email.trim(), password });
-        }
-        const { data: { user: u } } = await supabase.auth.getUser();
-        if (u) {
-          await supabase.from('profiles').update({ full_name: fullName, phone: normalized }).eq('id', u.id);
-        }
-        toast.success('تم إنشاء الحساب (وضع التطوير - تخطي OTP)');
-        retryProfile();
-        // Same post-verification flow as production: account-type selection
-        // before entering the app.
-        const returnUrl = searchParams.get('returnUrl');
-        const target = returnUrl
-          ? `/onboarding?returnUrl=${encodeURIComponent(returnUrl)}`
-          : '/onboarding';
-        navigate(target, { replace: true });
-        return;
-      }
-
       await signInWithOtp(normalized);
       // Stash profile data to apply after verification.
       sessionStorage.setItem(
