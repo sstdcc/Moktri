@@ -60,11 +60,11 @@ const SmartNudgeBanner = () => {
             key={nudge.id}
             className="relative rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition-all hover:shadow-md"
           >
-            {/* Header row: title + close button on the same line */}
+            {/* Row 1: text (right) + close button (left) on a single line */}
             <div className="flex items-center justify-between gap-3">
-              <h3 className="flex-1 min-w-0 text-[15px] font-semibold text-foreground leading-tight truncate">
-                {title}
-              </h3>
+              <p className="flex-1 min-w-0 text-[15px] font-semibold text-foreground leading-tight truncate">
+                {title}{subtitle ? ` ${subtitle}` : ''}
+              </p>
               <button
                 onClick={() => dismiss(nudge.id)}
                 className="-my-1 -ml-1 inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
@@ -74,17 +74,10 @@ const SmartNudgeBanner = () => {
               </button>
             </div>
 
-            {/* Subtitle */}
-            {subtitle && (
-              <p className="mt-2 text-[13px] text-muted-foreground leading-relaxed">
-                {subtitle}
-              </p>
-            )}
-
-            {/* Primary CTA */}
+            {/* Row 2: CTA */}
             <button
               onClick={() => navigate(nudge.path)}
-              className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:brightness-105 active:scale-[0.98]"
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:brightness-105 active:scale-[0.98]"
             >
               {nudge.actionLabel}
               <ArrowLeft className="h-4 w-4" />
