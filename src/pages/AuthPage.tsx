@@ -178,9 +178,10 @@ const AuthPage = () => {
 
           <Button
             type="button"
+            variant="secondary"
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="w-full h-12 rounded-xl text-[14px] font-medium border-0 bg-foreground text-background hover:bg-foreground/90 shadow-none active:scale-100"
+            className="w-full h-12 rounded-xl text-[14px] font-medium border border-border/60 bg-card text-foreground/90 hover:bg-muted/50 shadow-none active:scale-100"
           >
             {googleLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
