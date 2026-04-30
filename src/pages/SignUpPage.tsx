@@ -441,10 +441,10 @@ const SignUpPage = () => {
 
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={handleGoogle}
               disabled={googleLoading}
-              className="w-full h-[46px] rounded-xl text-[13.5px] font-semibold border-border bg-card text-foreground hover:bg-accent/10"
+              className="w-full h-12 rounded-xl text-[14px] font-medium border border-border/60 bg-card text-foreground/90 hover:bg-muted/50 shadow-none active:scale-100"
             >
               {googleLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
