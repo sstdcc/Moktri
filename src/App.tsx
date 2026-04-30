@@ -24,6 +24,7 @@ const RequestDetailPage = lazy(() => import("./pages/RequestDetailPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
 const CompleteProfilePage = lazy(() => import("./pages/CompleteProfilePage"));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const DashboardRedirect = lazy(() => import("./pages/DashboardRedirect"));
 const RenterDashboard = lazy(() => import("./pages/dashboards/RenterDashboard"));
 const OwnerDashboard = lazy(() => import("./pages/dashboards/OwnerDashboard"));
