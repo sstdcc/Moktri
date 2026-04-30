@@ -107,6 +107,40 @@ const SignUpPage = () => {
 
     setLoading(true);
     try {
+      // ── DEV-ONLY OTP BYPASS ──
+      // In development we skip the SMS round-trip to avoid Twilio costs.
+      // Production behavior (import.meta.env.DEV === false) is untouched.
+      if (import.meta.env.DEV) {
+        const fullName = `${firstName.trim()} ${lastName.trim()}`;
+        const { error: signUpErr } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { full_name: fullName, phone: normalized },
+          },
+        });
+        if (signUpErr) {
+          toast.error(signUpErr.message || 'تعذر إنشاء الحساب');
+          return;
+        }
+        // Ensure session (in case email confirmation is off this is already signed in;
+        // otherwise sign in immediately with the just-set password).
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        }
+        const { data: { user: u } } = await supabase.auth.getUser();
+        if (u) {
+          await supabase.from('profiles').update({ full_name: fullName, phone: normalized }).eq('id', u.id);
+        }
+        toast.success('تم إنشاء الحساب (وضع التطوير - تخطي OTP)');
+        retryProfile();
+        const returnUrl = searchParams.get('returnUrl') || '/';
+        navigate(returnUrl, { replace: true });
+        return;
+      }
+
       await signInWithOtp(normalized);
       // Stash profile data to apply after verification.
       sessionStorage.setItem(
