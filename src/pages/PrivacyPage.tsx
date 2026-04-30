@@ -1,12 +1,13 @@
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 const PrivacyPage = () => {
   usePageTitle();
 
   return (
     <div className="min-h-screen bg-background font-tajawal" dir="rtl">
+      <PageHeader title="سياسة الخصوصية" showBack fallbackPath="/settings" />
       <div className="p-4 max-w-2xl mx-auto space-y-6">
-        <h1 className="text-2xl font-black text-foreground">سياسة الخصوصية</h1>
         <p className="text-xs text-muted-foreground">آخر تحديث: مارس 2026</p>
 
         <div className="space-y-4 text-sm text-foreground leading-relaxed">
