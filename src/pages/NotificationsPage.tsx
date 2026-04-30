@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
   BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
-  SlidersHorizontal, ChevronDown, Menu,
+  SlidersHorizontal, ChevronDown,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
@@ -420,14 +420,6 @@ const NotificationsPage = () => {
           <h1 className="text-[26px] font-extrabold text-foreground font-tajawal leading-tight">
             الإشعارات
           </h1>
-          <button
-            type="button"
-            aria-label="القائمة"
-            onClick={() => navigate(-1)}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-card border border-border/60 text-foreground shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-all hover:bg-muted active:scale-95"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
         </div>
       </header>
 

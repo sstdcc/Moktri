@@ -258,7 +258,12 @@ const SettingsPage = () => {
       {/* Minimal centered header */}
       <header className="relative px-4 pt-7 pb-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            const state = window.history.state as { idx?: number } | null;
+            const idx = state && typeof state.idx === 'number' ? state.idx : 0;
+            if (idx > 0) navigate(-1);
+            else navigate('/', { replace: true });
+          }}
           className="absolute right-4 top-1/2 -translate-y-1/2 mt-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 transition-colors"
           aria-label="رجوع"
         >

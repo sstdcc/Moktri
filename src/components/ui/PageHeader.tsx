@@ -5,26 +5,43 @@ import { useAuth } from '@/contexts/AuthContext';
 interface PageHeaderProps {
   title: string;
   showBack?: boolean;
-  /** Safe fallback when there is no history to go back to. Defaults to "/" (or role-aware dashboard if user is signed in). */
+  /** Safe fallback when there is no history to go back to. Defaults to a role-aware home. */
   fallbackPath?: string;
   action?: React.ReactNode;
 }
+
+/**
+ * Robust back navigation:
+ * - `window.history.length` is unreliable in SPAs (often >1 even on first load).
+ * - We use the History API's `state.idx` (set by react-router) when available
+ *   to detect whether there is a real previous in-app entry.
+ * - If not, we fall back to a safe in-app route so the user is never sent
+ *   outside the app or stuck.
+ */
+const goBackSafely = (
+  navigate: ReturnType<typeof useNavigate>,
+  fallbackPath: string,
+) => {
+  try {
+    const state = window.history.state as { idx?: number } | null;
+    const idx = state && typeof state.idx === 'number' ? state.idx : 0;
+    if (idx > 0) {
+      navigate(-1);
+      return;
+    }
+  } catch {
+    // ignore – fall through to fallback
+  }
+  navigate(fallbackPath, { replace: true });
+};
 
 export const PageHeader = ({ title, showBack = false, fallbackPath, action }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const handleBack = () => {
-    // Safe navigation: prefer history, fallback to a known safe route.
-    if (window.history.length > 1) {
-      navigate(-1);
-      return;
-    }
-    if (fallbackPath) {
-      navigate(fallbackPath);
-      return;
-    }
-    navigate(user ? '/dashboard' : '/');
+    const fallback = fallbackPath ?? (user ? '/dashboard' : '/');
+    goBackSafely(navigate, fallback);
   };
 
   return (
