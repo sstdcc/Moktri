@@ -442,10 +442,11 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                   inputMode="decimal"
                   value={form.price}
                   onChange={e => {
-                    const raw = e.target.value.replace(/,/g, '.');
+                    const raw = e.target.value;
                     if (raw === '') { update('price', ''); return; }
-                    if (!/^\d*\.?\d*$/.test(raw)) return;
-                    const num = Number(raw);
+                    if (!/^\d*([.,]\d*)?$/.test(raw)) return;
+                    const normalized = raw.replace(',', '.');
+                    const num = Number(normalized);
                     if (!Number.isNaN(num)) update('price', num);
                   }}
                   placeholder="0"
