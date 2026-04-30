@@ -23,7 +23,7 @@ export const RatingStars = ({ value, onChange, size = 'md', readOnly, className 
             disabled={readOnly}
             onClick={() => onChange?.(star)}
             className={cn(
-              'transition-transform',
+              'inline-flex items-center justify-center leading-none transition-transform',
               !readOnly && 'hover:scale-110 cursor-pointer',
               readOnly && 'cursor-default',
             )}
