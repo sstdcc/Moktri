@@ -143,11 +143,25 @@ const SignUpPage = () => {
   };
 
   const handleOtpChange = (i: number, v: string) => {
-    if (!/^\d*$/.test(v)) return;
-    const n = [...otp];
-    n[i] = v.slice(-1);
-    setOtp(n);
-    if (v && i < 5) otpRefs.current[i + 1]?.focus();
+    // Support browsers/autofill that deliver multiple digits to one input
+    const digits = v.replace(/\D/g, '');
+    if (!digits && v !== '') return;
+    if (digits.length > 1) {
+      setOtp((prev) => {
+        const n = [...prev];
+        for (let k = 0; k < 6 - i && k < digits.length; k++) n[i + k] = digits[k];
+        return n;
+      });
+      const focusIdx = Math.min(i + digits.length, 5);
+      otpRefs.current[focusIdx]?.focus();
+      return;
+    }
+    setOtp((prev) => {
+      const n = [...prev];
+      n[i] = digits.slice(-1);
+      return n;
+    });
+    if (digits && i < 5) otpRefs.current[i + 1]?.focus();
   };
   const handleOtpKey = (i: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !otp[i] && i > 0) otpRefs.current[i - 1]?.focus();
@@ -155,13 +169,24 @@ const SignUpPage = () => {
   const handleOtpPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    const n = [...otp];
-    for (let i = 0; i < 6; i++) n[i] = pasted[i] || '';
-    setOtp(n);
+    if (!pasted) return;
+    setOtp((prev) => {
+      const n = [...prev];
+      for (let i = 0; i < 6; i++) n[i] = pasted[i] || '';
+      return n;
+    });
     otpRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
   const otpCode = otp.join('');
+
+  // Auto-submit when 6 digits are entered
+  useEffect(() => {
+    if (step === 'otp' && otpCode.length === 6 && !loading) {
+      handleVerify();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpCode, step]);
 
   const handleVerify = async () => {
     if (otpCode.length < 6) return;
