@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Lightbulb } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
 import { useSmartNudges } from '@/hooks/useSmartNudges';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -40,31 +40,57 @@ const SmartNudgeBanner = () => {
     });
   };
 
+  // Split nudge message into title + subtitle (first sentence as title)
+  const splitMessage = (msg: string) => {
+    // try to split on common separators; otherwise use whole message as title
+    const parts = msg.split(/\s+(?:ل|حتى|كي)\s+/);
+    if (parts.length >= 2) {
+      return { title: parts[0].trim(), subtitle: 'ل' + parts.slice(1).join(' ').trim() };
+    }
+    return { title: msg, subtitle: '' };
+  };
+
   return (
-    <div className="space-y-2" dir="rtl">
-      {visible.map((nudge) => (
-        <div
-          key={nudge.id}
-          className="flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-3 transition-all"
-        >
-          <Lightbulb className="h-4 w-4 text-accent mt-0.5 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-foreground leading-relaxed">{nudge.message}</p>
+    <div className="space-y-3" dir="rtl">
+      {visible.map((nudge) => {
+        const { title, subtitle } = splitMessage(nudge.message);
+        return (
+          <div
+            key={nudge.id}
+            className="relative rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition-all hover:shadow-md"
+          >
+            {/* Top row: close button aligned with title area */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-foreground leading-tight">
+                  {title}
+                </h3>
+                {subtitle && (
+                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => dismiss(nudge.id)}
+                className="-mt-1 -ml-1 inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
+                aria-label="إغلاق"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Primary CTA */}
             <button
               onClick={() => navigate(nudge.path)}
-              className="mt-1.5 text-xs font-bold text-accent hover:underline"
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:brightness-105 active:scale-[0.98]"
             >
-              {nudge.actionLabel} ←
+              {nudge.actionLabel}
+              <ArrowLeft className="h-4 w-4" />
             </button>
           </div>
-          <button
-            onClick={() => dismiss(nudge.id)}
-            className="p-1 rounded-lg hover:bg-accent/10 text-muted-foreground shrink-0"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
