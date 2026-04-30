@@ -439,15 +439,12 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
               <div className="flex gap-2">
                 <Input
                   type="text"
-                  inputMode="decimal"
-                  value={form.price}
+                  inputMode="numeric"
+                  value={form.price === '' ? '' : Number(form.price).toLocaleString('en-GB')}
                   onChange={e => {
-                    const raw = e.target.value;
-                    if (raw === '') { update('price', ''); return; }
-                    if (!/^\d*([.,]\d*)?$/.test(raw)) return;
-                    const normalized = raw.replace(',', '.');
-                    const num = Number(normalized);
-                    if (!Number.isNaN(num)) update('price', num);
+                    const digits = e.target.value.replace(/[^\d]/g, '');
+                    if (digits === '') { update('price', ''); return; }
+                    update('price', Number(digits));
                   }}
                   placeholder="0"
                   className="flex-1 font-tajawal"
