@@ -1,9 +1,12 @@
 import { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 
 export const MainLayout = ({ children }: { children: ReactNode }) => {
   const isMobile = useIsMobile();
