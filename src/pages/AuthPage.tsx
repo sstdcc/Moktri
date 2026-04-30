@@ -130,12 +130,7 @@ const AuthPage = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-[12.5px] font-semibold text-foreground block">كلمة المرور</Label>
-              <Link to="/forgot-password" className="text-[11.5px] text-primary font-semibold hover:underline">
-                نسيت كلمة المرور؟
-              </Link>
-            </div>
+            <Label className="text-[12.5px] font-semibold text-foreground block">كلمة المرور</Label>
             <div className="relative">
               <Lock className={iconClass} strokeWidth={1.75} />
               <Input
@@ -157,7 +152,14 @@ const AuthPage = () => {
                 {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />}
               </button>
             </div>
-            {errors.password && <p className="text-[11px] text-destructive">{errors.password}</p>}
+            <div className="flex items-center justify-between">
+              {errors.password ? (
+                <p className="text-[11px] text-destructive">{errors.password}</p>
+              ) : <span />}
+              <Link to="/forgot-password" className="text-[11.5px] text-primary font-semibold hover:underline">
+                نسيت كلمة المرور؟
+              </Link>
+            </div>
           </div>
 
           <Button
