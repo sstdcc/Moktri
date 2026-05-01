@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { ExternalLink, Check, X } from 'lucide-react';
+import { ExternalLink, Check, X, BadgeCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { ErrorState } from '@/components/ui/ErrorState';
 
@@ -224,8 +224,8 @@ const ListingsModeration = () => {
                     <Badge variant="outline" className="text-[10px]">{categoryMap[l.category] ?? l.category}</Badge>
                     {isStale && <Badge className="bg-orange-500 text-white dark:bg-orange-500/20 dark:text-orange-300 text-[10px]">قديم</Badge>}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {l.owner?.full_name} {l.owner?.is_verified && '✓'} · {l.district?.name_ar ?? '—'} · {l.price} ر.ي
+                  <p className="text-xs text-muted-foreground mt-0.5 inline-flex items-center gap-1 flex-wrap">
+                    <span>{l.owner?.full_name}</span>{l.owner?.is_verified && <BadgeCheck className="h-3 w-3 text-success inline" />}<span>· {l.district?.name_ar ?? '—'} · {l.price} ر.ي</span>
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {l.created_at ? format(new Date(l.created_at), 'dd MMM yyyy', { locale: ar }) : ''}

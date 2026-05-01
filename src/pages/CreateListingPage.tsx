@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { 
   DoorOpen, Building2, Home, Layers, Store, Briefcase, Users, HeartHandshake, GraduationCap,
   Check, ArrowLeft, ArrowRight, Camera, X, Droplets, Zap, ParkingCircle, Wifi,
-  Minus, Plus, Sofa, Armchair, Package, Loader2
+  Minus, Plus, Sofa, Armchair, Package, Loader2, MapPin, Bed, Bath, UtensilsCrossed, Ruler
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -642,14 +642,14 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                 <span className="text-xl font-black text-accent font-tajawal">{Number(form.price).toLocaleString('en-GB')}</span>
                 <span className="text-xs text-muted-foreground font-tajawal">{form.currency === 'YER' ? 'ر.ي' : '$'}/{billingLabel}</span>
               </div>
-              {locationText && <p className="text-sm text-muted-foreground font-tajawal">📍 {locationText}</p>}
+              {locationText && <p className="text-sm text-muted-foreground font-tajawal flex items-center gap-1"><MapPin className="h-4 w-4 shrink-0" /> {locationText}</p>}
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
-                {form.bedrooms > 0 && <span className="text-xs text-muted-foreground font-tajawal">🛏 {form.bedrooms} غرف نوم</span>}
-                {form.bathrooms > 0 && <span className="text-xs text-muted-foreground font-tajawal">🚿 {form.bathrooms} حمام</span>}
-                {form.kitchens > 0 && <span className="text-xs text-muted-foreground font-tajawal">🍳 {form.kitchens} مطبخ</span>}
-                {form.property_size && <span className="text-xs text-muted-foreground font-tajawal">📐 {form.property_size} م²</span>}
-                <span className="text-xs text-muted-foreground font-tajawal">🪑 {furnishingLabel}</span>
+                {form.bedrooms > 0 && <span className="text-xs text-muted-foreground font-tajawal flex items-center gap-1"><Bed className="h-3.5 w-3.5 shrink-0" /> {form.bedrooms} غرف نوم</span>}
+                {form.bathrooms > 0 && <span className="text-xs text-muted-foreground font-tajawal flex items-center gap-1"><Bath className="h-3.5 w-3.5 shrink-0" /> {form.bathrooms} حمام</span>}
+                {form.kitchens > 0 && <span className="text-xs text-muted-foreground font-tajawal flex items-center gap-1"><UtensilsCrossed className="h-3.5 w-3.5 shrink-0" /> {form.kitchens} مطبخ</span>}
+                {form.property_size && <span className="text-xs text-muted-foreground font-tajawal flex items-center gap-1"><Ruler className="h-3.5 w-3.5 shrink-0" /> {form.property_size} م²</span>}
+                <span className="text-xs text-muted-foreground font-tajawal flex items-center gap-1"><Armchair className="h-3.5 w-3.5 shrink-0" /> {furnishingLabel}</span>
               </div>
               
               {form.description && <p className="text-sm text-foreground border-t border-border pt-3 font-tajawal">{form.description}</p>}

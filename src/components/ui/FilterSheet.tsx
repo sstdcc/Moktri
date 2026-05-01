@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, X, Droplets, Zap, ParkingCircle, Wifi, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const categories = [
@@ -81,11 +81,11 @@ export const FilterSheet = ({ onApply, initialValues }: FilterSheetProps) => {
     </div>
   );
 
-  const amenities = [
-    { key: 'hasWater' as const, label: 'ماء 💧' },
-    { key: 'hasElectricity' as const, label: 'كهرباء ⚡' },
-    { key: 'hasParking' as const, label: 'موقف 🅿️' },
-    { key: 'hasInternet' as const, label: 'إنترنت 🌐' },
+  const amenities: { key: 'hasWater' | 'hasElectricity' | 'hasParking' | 'hasInternet'; label: string; icon: LucideIcon }[] = [
+    { key: 'hasWater', label: 'ماء', icon: Droplets },
+    { key: 'hasElectricity', label: 'كهرباء', icon: Zap },
+    { key: 'hasParking', label: 'موقف', icon: ParkingCircle },
+    { key: 'hasInternet', label: 'إنترنت', icon: Wifi },
   ];
 
   return (
@@ -176,20 +176,23 @@ export const FilterSheet = ({ onApply, initialValues }: FilterSheetProps) => {
           <div>
             <p className="mb-2 text-sm font-medium">المرافق</p>
             <div className="flex flex-wrap gap-2">
-              {amenities.map(a => (
-                <button
-                  key={a.key}
-                  onClick={() => toggleAmenity(a.key)}
-                  className={cn(
-                    'rounded-full border px-3 py-1 text-xs transition-colors',
-                    filters[a.key]
-                      ? 'border-success bg-success/10 text-success'
-                      : 'border-border bg-card text-foreground'
-                  )}
-                >
-                  {a.label}
-                </button>
-              ))}
+              {amenities.map(a => {
+                const Icon = a.icon;
+                return (
+                  <button
+                    key={a.key}
+                    onClick={() => toggleAmenity(a.key)}
+                    className={cn(
+                      'rounded-full border px-3 py-1 text-xs transition-colors inline-flex items-center gap-1',
+                      filters[a.key]
+                        ? 'border-success bg-success/10 text-success'
+                        : 'border-border bg-card text-foreground'
+                    )}
+                  >
+                    <Icon className="h-3 w-3" /> {a.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

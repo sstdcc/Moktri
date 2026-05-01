@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, CheckCircle, Eye, Phone, MessageSquare, Plus, MoreVertical, AlertTriangle, Heart, Clock, Shield, ArrowLeft, Crown, Users, Home as HomeIcon } from 'lucide-react';
+import { Building2, CheckCircle, Eye, Phone, MessageSquare, Plus, MoreVertical, AlertTriangle, Heart, Clock, Shield, ArrowLeft, Crown, Users, Home as HomeIcon, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -211,7 +211,7 @@ const BrokerDashboard = () => {
                     <span className="text-sm font-semibold text-foreground">يبحث عن {categoryLabels[r.category] || r.category}</span>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
-                    {r.districts?.name_ar && <span>📍 {r.districts.name_ar}</span>}
+                    {r.districts?.name_ar && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {r.districts.name_ar}</span>}
                     {(r.min_price || r.max_price) && (
                       <span>{r.min_price ? Number(r.min_price).toLocaleString('en-GB') : '0'} - {r.max_price ? Number(r.max_price).toLocaleString('en-GB') : '∞'} ريال</span>
                     )}

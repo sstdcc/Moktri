@@ -146,7 +146,7 @@ const EditListingPage = () => {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" className="w-full gap-2 border-border text-foreground">
-                  <CheckCircle className="h-4 w-4 text-success" /> تعيين كمؤجر ✓
+                  <CheckCircle className="h-4 w-4 text-success" /> تعيين كمؤجر
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent className="font-tajawal">
