@@ -2,20 +2,20 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const pageTitles: Record<string, string> = {
-  '/': 'مفتاح - سوق الإيجارات في تعز',
-  '/listings': 'الإعلانات | مفتاح',
-  '/requests': 'طلبات السكن | مفتاح',
-  '/favorites': 'المفضلة | مفتاح',
-  '/settings': 'الإعدادات | مفتاح',
-  '/notifications': 'الإشعارات | مفتاح',
-  '/auth': 'تسجيل الدخول | مفتاح',
-  '/verify': 'التوثيق | مفتاح',
-  '/dashboard': 'لوحة التحكم | مفتاح',
-  '/dashboard/owner': 'لوحة المالك | مفتاح',
-  '/dashboard/broker': 'لوحة الدلال | مفتاح',
-  '/dashboard/renter': 'لوحة المستأجر | مفتاح',
-  '/dashboard/admin': 'لوحة الإدارة | مفتاح',
-  '/requests/new': 'طلب سكن جديد | مفتاح',
+  '/': 'Moktari (مُكتري) - سوق الإيجارات في تعز',
+  '/listings': 'الإعلانات | مُكتري',
+  '/requests': 'طلبات السكن | مُكتري',
+  '/favorites': 'المفضلة | مُكتري',
+  '/settings': 'الإعدادات | مُكتري',
+  '/notifications': 'الإشعارات | مُكتري',
+  '/auth': 'تسجيل الدخول | مُكتري',
+  '/verify': 'التوثيق | مُكتري',
+  '/dashboard': 'لوحة التحكم | مُكتري',
+  '/dashboard/owner': 'لوحة المالك | مُكتري',
+  '/dashboard/broker': 'لوحة الدلال | مُكتري',
+  '/dashboard/renter': 'لوحة المستأجر | مُكتري',
+  '/dashboard/admin': 'لوحة الإدارة | مُكتري',
+  '/requests/new': 'طلب سكن جديد | مُكتري',
 };
 
 export const usePageTitle = () => {
@@ -26,15 +26,15 @@ export const usePageTitle = () => {
     if (title) {
       document.title = title;
     } else if (pathname.startsWith('/listings/')) {
-      document.title = 'تفاصيل الإعلان | مفتاح';
+      document.title = 'تفاصيل الإعلان | مُكتري';
     } else if (pathname.startsWith('/requests/')) {
-      document.title = 'تفاصيل الطلب | مفتاح';
+      document.title = 'تفاصيل الطلب | مُكتري';
     } else if (pathname.startsWith('/profile/')) {
-      document.title = 'الملف الشخصي | مفتاح';
+      document.title = 'الملف الشخصي | مُكتري';
     } else if (pathname.startsWith('/dashboard/admin')) {
-      document.title = 'لوحة الإدارة | مفتاح';
+      document.title = 'لوحة الإدارة | مُكتري';
     } else {
-      document.title = 'مفتاح - سوق الإيجارات في تعز';
+      document.title = 'Moktari (مُكتري) - سوق الإيجارات في تعز';
     }
   }, [pathname]);
 };

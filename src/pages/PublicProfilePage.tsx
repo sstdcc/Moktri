@@ -122,7 +122,7 @@ const PublicProfilePage = () => {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-lg font-bold truncate">{profile.full_name || 'مستخدم مفتاح'}</h2>
+                      <h2 className="text-lg font-bold truncate">{profile.full_name || 'مستخدم مُكتري'}</h2>
                       {profile.verification_badge === 'verified' && <VerifiedBadge size="lg" />}
                     </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">

@@ -31,7 +31,7 @@ const OnboardingPage = () => {
             <span className="text-xl font-black text-primary-foreground">م</span>
           </div>
           <h1 className="text-[24px] font-black tracking-tight text-foreground">
-            مرحباً بك في <span className="text-primary">مفتاح</span>
+            مرحباً بك في <span className="text-primary">Moktari (مُكتري)</span>
           </h1>
           <p className="mt-2 text-[13px] text-muted-foreground">خطوة أخيرة لإكمال حسابك</p>
         </div>

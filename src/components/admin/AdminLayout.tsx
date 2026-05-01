@@ -81,7 +81,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
                 </span>
               </div>
             </div>
-            <p className="text-[11px] font-semibold text-primary/60 mt-3 tracking-wide">مفتاح — لوحة التحكم</p>
+            <p className="text-[11px] font-semibold text-primary/60 mt-3 tracking-wide">مُكتري — لوحة التحكم</p>
           </div>
 
           {/* Nav */}
@@ -136,7 +136,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
               aria-label="فتح القائمة"
               className="flex items-center justify-center h-11 w-11 rounded-xl bg-muted/60 text-foreground hover:bg-muted active:scale-95 transition-all border border-border/40 [&_svg]:!size-6"
             />
-            <p className="text-[13px] font-bold text-foreground font-tajawal">مفتاح — لوحة التحكم</p>
+            <p className="text-[13px] font-bold text-foreground font-tajawal">مُكتري — لوحة التحكم</p>
             <div className="w-11 h-11" />
           </header>
         )}

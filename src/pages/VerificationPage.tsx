@@ -184,7 +184,7 @@ const VerificationPage = () => {
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-accent">قيد المراجعة</h2>
-                    <p className="text-sm text-muted-foreground mt-1">طلبك تحت المراجعة من فريق مفتاح</p>
+                    <p className="text-sm text-muted-foreground mt-1">طلبك تحت المراجعة من فريق مُكتري</p>
                   </div>
                 </CardContent>
               </Card>
