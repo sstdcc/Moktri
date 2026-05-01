@@ -71,7 +71,7 @@ const OnboardingFlow = () => {
         throw error;
       }
 
-      toast.success('مرحباً بك في مفتاح!');
+      toast.success('مرحباً بك في مُكتري!');
       retryProfile();
 
       const returnUrl = searchParams.get('returnUrl');
@@ -108,7 +108,7 @@ const OnboardingFlow = () => {
       {/* ─── Step 1: Intent ─── */}
       <div className={cn('transition-all duration-300', step === 1 ? 'block' : 'hidden')}>
         <h2 className="text-xl font-bold text-foreground text-center mb-1">
-          كيف تريد استخدام مفتاح؟
+          كيف تريد استخدام مُكتري؟
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-6">اختر ما يناسبك وبإمكانك التغيير لاحقاً</p>
 

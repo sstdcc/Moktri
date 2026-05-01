@@ -278,7 +278,7 @@ const SignUpPage = () => {
             إنشاء <span className="text-primary">حساب</span>
           </h1>
           <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed">
-            {step === 'form' ? 'أنشئ حسابك في مفتاح بخطوات بسيطة' : 'أدخل رمز التحقق المرسل إليك'}
+            {step === 'form' ? 'أنشئ حسابك في Moktari (مُكتري) بخطوات بسيطة' : 'أدخل رمز التحقق المرسل إليك'}
           </p>
         </div>
 

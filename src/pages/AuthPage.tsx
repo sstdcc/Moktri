@@ -105,7 +105,7 @@ const AuthPage = () => {
             تسجيل الدخول
           </h1>
           <p className="mt-3 text-[13.5px] font-normal text-muted-foreground/90">
-            مرحباً بعودتك إلى مفتاح
+            مرحباً بعودتك إلى Moktari (مُكتري)
           </p>
         </div>
 

@@ -128,7 +128,8 @@ const HomePage = () => {
 
         <div className="relative z-10">
           <div className="animate-fade-in">
-            <h1 className="text-5xl font-black text-primary-foreground tracking-tight drop-shadow-lg">مفتاح</h1>
+            <h1 className="text-5xl font-black text-primary-foreground tracking-tight drop-shadow-lg">Moktari</h1>
+            <p className="mt-1 text-base font-bold text-primary-foreground/90 tracking-tight">مُكتري</p>
             <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
               تعز • اليمن
             </span>
@@ -306,7 +307,7 @@ const HomePage = () => {
       {/* HOW IT WORKS */}
       <section className="px-5 py-7">
         <div className="rounded-3xl border border-border/40 bg-card p-6 shadow-card">
-          <SectionTitle title="كيف يعمل مفتاح؟" />
+          <SectionTitle title="كيف يعمل مُكتري؟" />
           <div className="flex flex-col gap-5 mt-3">
             {steps.map((step, idx) => {
               const StepIcon = step.icon;
