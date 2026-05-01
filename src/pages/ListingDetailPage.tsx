@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2, MessageCircle } from 'lucide-react';
+import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2, MessageCircle, Check, X as XIcon } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -343,10 +343,10 @@ const ListingDetailPage = () => {
         <div className="mt-4 flex flex-wrap gap-2">
           {amenities.map(a => (
             <span key={a.label} className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium',
+              'rounded-full px-3 py-1 text-xs font-medium inline-flex items-center gap-1',
               a.available ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
             )}>
-              {a.available ? '✓' : '✗'} {a.label}
+              {a.available ? <Check className="h-3 w-3" /> : <XIcon className="h-3 w-3" />} {a.label}
             </span>
           ))}
         </div>
@@ -395,8 +395,8 @@ const ListingDetailPage = () => {
         )}
 
         {/* Report */}
-        <button onClick={() => setReportOpen(true)} className="mt-4 text-xs text-muted-foreground hover:text-danger">
-          ⚑ الإبلاغ عن هذا الإعلان
+        <button onClick={() => setReportOpen(true)} className="mt-4 text-xs text-muted-foreground hover:text-danger inline-flex items-center gap-1">
+          <Flag className="h-3 w-3" /> الإبلاغ عن هذا الإعلان
         </button>
 
         {/* Similar listings */}

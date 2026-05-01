@@ -228,7 +228,7 @@ const OwnerDashboard = () => {
                       {statusLabelOverride[l.status || ''] && (
                         <span className="text-[10px] text-accent font-bold">{statusLabelOverride[l.status || '']}</span>
                       )}
-                      {isStale && <span className="text-[10px] text-accent font-medium">⚠ يحتاج تحديث</span>}
+                      {isStale && <span className="text-[10px] text-accent font-medium inline-flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> يحتاج تحديث</span>}
                     </div>
                     {l.status === 'reserved' && (
                       <button
