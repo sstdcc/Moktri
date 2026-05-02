@@ -126,7 +126,7 @@ const AdminDashboardPage = () => {
       <h1 className="text-2xl font-bold text-foreground mb-6">نظرة عامة</h1>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {statCards.map((stat) => (
           <Card key={stat.label} className="rounded-2xl shadow-sm">
             <CardContent className="p-4">
