@@ -108,7 +108,7 @@ const HousingRequestsPage = () => {
                     onAction={() => navigate('/requests/new')}
                   />
                 ) : (
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {myRequests.map((r) => (
                       <RequestCard key={r.id} request={r} districts={districts} />
                     ))}
@@ -128,7 +128,7 @@ const HousingRequestsPage = () => {
                 {otherRequests.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-6">لا توجد طلبات حالياً</p>
                 ) : (
-                  <div className="space-y-3 mt-2">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-2">
                     {otherRequests.map((r) => (
                       <RequestCard key={r.id} request={r} districts={districts} />
                     ))}

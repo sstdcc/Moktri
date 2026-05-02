@@ -128,7 +128,7 @@ const FavoritesPage = () => {
 
       <div className="p-4">
         {loading ? (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="space-y-3">
                 <Skeleton className="h-44 w-full rounded-2xl" />
@@ -154,7 +154,7 @@ const FavoritesPage = () => {
             onAction={() => navigate('/listings')}
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {items.map(item => (
               <ListingCard
                 key={item.id}
