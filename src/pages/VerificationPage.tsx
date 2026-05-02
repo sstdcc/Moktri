@@ -146,7 +146,7 @@ const VerificationPage = () => {
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
       <PageHeader title="التوثيق" showBack />
 
-      <div className="p-4 max-w-lg mx-auto md:max-w-none md:mx-0">
+      <div className="w-full p-4">
         {loading ? (
           <div className="space-y-4">
             <Skeleton className="h-32 w-full rounded-xl" />
