@@ -23,27 +23,31 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
       <div className="min-h-screen flex w-full overflow-x-hidden" dir="rtl">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          <header className="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-border/40 bg-card/80 backdrop-blur-xl px-2"
+          <header className="sticky top-0 z-40 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl"
             style={{ boxShadow: '0 1px 8px -4px rgba(0,0,0,0.06)' }}
           >
-            <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
-            {user && (
-              <button
-                onClick={() => navigate('/notifications')}
-                aria-label="الإشعارات"
-                className="relative h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
-              >
-                <Bell className="!size-6" strokeWidth={1.8} />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 left-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground ring-2 ring-card">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </button>
-            )}
+            <div className="mx-auto flex h-full w-full max-w-screen-2xl items-center justify-between px-2 lg:px-6">
+              <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
+              {user && (
+                <button
+                  onClick={() => navigate('/notifications')}
+                  aria-label="الإشعارات"
+                  className="relative h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
+                >
+                  <Bell className="!size-6" strokeWidth={1.8} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 left-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground ring-2 ring-card">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
           </header>
           <main className={showBottomNav ? 'flex-1 pb-24' : 'flex-1'}>
-            {children}
+            <div className="mx-auto w-full max-w-screen-2xl">
+              {children}
+            </div>
           </main>
           {showBottomNav && <BottomNav />}
         </div>
