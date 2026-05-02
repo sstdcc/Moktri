@@ -52,8 +52,8 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <div className="min-h-screen bg-background font-tajawal flex flex-1 w-full" dir="rtl">
+      {isMobile && <AppSidebar />}
+      <div className="min-h-screen bg-background font-tajawal flex flex-1 min-w-0 w-full" dir="rtl">
         {/* ── Desktop Sidebar ── */}
       {!isMobile && (
         <aside className="w-[260px] shrink-0 fixed top-0 right-0 h-screen bg-card/95 backdrop-blur-xl border-l border-border/40 flex flex-col z-40"
@@ -125,7 +125,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
       {/* Main content */}
       <main
         className={cn(
-          'flex-1 overflow-auto',
+          'flex-1 min-w-0 w-full overflow-auto',
           !isMobile ? 'mr-[260px]' : 'pb-24 pt-[60px]'
         )}
       >
@@ -140,7 +140,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
             <div className="w-11 h-11" />
           </header>
         )}
-        <div className="w-full p-4 lg:p-6">{children}</div>
+        <div className="w-full min-w-0 p-4 lg:p-6">{children}</div>
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
@@ -149,7 +149,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
           className="fixed bottom-3 left-3 right-3 z-50 pb-safe"
         >
           <div
-            className="mx-auto rounded-2xl border border-border/30 bg-card/75 backdrop-blur-xl backdrop-saturate-150"
+            className="rounded-2xl border border-border/30 bg-card/75 backdrop-blur-xl backdrop-saturate-150"
             style={{
               boxShadow: '0 8px 32px -8px rgba(0,0,0,0.12), 0 2px 8px -2px rgba(0,0,0,0.06)',
             }}
