@@ -240,9 +240,9 @@ const SettingsPage = () => {
     return (
       <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
         <div className="px-4 pt-6 pb-4">
-          <Skeleton className="h-7 w-32 mx-auto rounded-md" />
+          <Skeleton className="h-7 w-32 rounded-md" />
         </div>
-        <div className="p-4 space-y-5 max-w-lg mx-auto md:max-w-none md:mx-0">
+        <div className="w-full p-4 space-y-5">
           <Skeleton className="h-20 w-full rounded-2xl" />
           <Skeleton className="h-40 w-full rounded-2xl" />
           <Skeleton className="h-32 w-full rounded-2xl" />
@@ -274,7 +274,7 @@ const SettingsPage = () => {
         </h1>
       </header>
 
-      <div className="px-4 max-w-lg mx-auto md:max-w-none md:mx-0 space-y-7 pt-4">
+      <div className="w-full px-4 space-y-7 pt-4">
         {/* Profile summary card */}
         <SettingsCard>
           <button
