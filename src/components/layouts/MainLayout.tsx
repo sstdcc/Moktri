@@ -26,7 +26,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
           <header className="sticky top-0 z-40 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl"
             style={{ boxShadow: '0 1px 8px -4px rgba(0,0,0,0.06)' }}
           >
-            <div className="mx-auto flex h-full w-full max-w-screen-2xl items-center justify-between px-2 lg:px-6">
+            <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between px-2 lg:px-6">
               <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
               {user && (
                 <button
@@ -45,7 +45,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
             </div>
           </header>
           <main className={showBottomNav ? 'flex-1 pb-24' : 'flex-1'}>
-            <div className="mx-auto w-full max-w-screen-2xl">
+            <div className="mx-auto w-full max-w-6xl">
               {children}
             </div>
           </main>
