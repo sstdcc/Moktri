@@ -117,7 +117,7 @@ const AuditLogsPage = () => {
         placeholder="بحث (إجراء، نوع، مسؤول، معرف)"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 max-w-md"
+        className="mb-4 max-w-md md:max-w-xl"
       />
 
       {loading ? (

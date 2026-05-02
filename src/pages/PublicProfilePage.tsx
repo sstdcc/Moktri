@@ -80,7 +80,7 @@ const PublicProfilePage = () => {
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
       <PageHeader title="الملف الشخصي" showBack />
 
-      <div className="p-4 max-w-lg mx-auto">
+      <div className="p-4 max-w-lg mx-auto md:max-w-none md:mx-0">
         {loading ? (
           <div className="space-y-4">
             <div className="flex items-center gap-4">
