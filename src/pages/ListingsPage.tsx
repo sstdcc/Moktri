@@ -247,7 +247,7 @@ const ListingsPage = () => {
         {error && listings.length === 0 ? (
           <ErrorState onRetry={() => fetchListings(0)} />
         ) : loading && listings.length === 0 ? (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-72 animate-pulse rounded-xl bg-muted" />
             ))}
