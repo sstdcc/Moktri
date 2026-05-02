@@ -140,7 +140,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
             <div className="w-11 h-11" />
           </header>
         )}
-        <div className="mx-auto w-full max-w-screen-xl p-4 lg:p-6">{children}</div>
+        <div className="w-full p-4 lg:p-6">{children}</div>
       </main>
 
       {/* ── Mobile Bottom Nav ── */}

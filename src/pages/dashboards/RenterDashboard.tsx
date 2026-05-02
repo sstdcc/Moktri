@@ -64,7 +64,7 @@ const RenterDashboard = () => {
     <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
       <PageHeader title="لوحة التحكم" />
 
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 pt-4 space-y-5">
+      <div className="w-full px-4 md:px-6 pt-4 space-y-5">
         <div>
           <h1 className="text-2xl font-black text-foreground">مرحباً، {profile?.full_name}</h1>
           <p className="text-xs text-muted-foreground mt-1">{today}</p>
