@@ -167,7 +167,7 @@ const RequestDetailPage = () => {
     <div className="min-h-screen bg-background pb-28 font-tajawal" dir="rtl">
       <PageHeader title="تفاصيل الطلب" showBack />
 
-      <div className="p-5 space-y-6 max-w-lg mx-auto md:max-w-4xl">
+      <div className="p-5 space-y-6 max-w-lg mx-auto md:max-w-none md:mx-0">
         {/* Main summary card */}
         <Card className="overflow-hidden">
           <CardContent className="p-5 space-y-5">
