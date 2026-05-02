@@ -374,7 +374,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         <Progress value={((step + 1) / 4) * 100} className="h-1.5" />
       </div>
 
-      <div className="px-4 pt-6 max-w-lg mx-auto">
+      <div className="px-4 pt-6 max-w-lg mx-auto md:max-w-4xl">
 
         {/* STEP 0 */}
         {step === 0 && (

@@ -102,7 +102,7 @@ const CreateRequestPage = () => {
     <div className="min-h-screen bg-background font-tajawal pb-24" dir="rtl">
       <PageHeader title="طلب سكن جديد" showBack />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-lg mx-auto md:max-w-4xl px-4 py-6 space-y-5">
         {/* Category */}
         <div className="space-y-2">
           <Label className="text-sm font-semibold">نوع العقار المطلوب *</Label>
