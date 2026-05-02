@@ -117,7 +117,7 @@ const AuditLogsPage = () => {
         placeholder="بحث (إجراء، نوع، مسؤول، معرف)"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 max-w-md md:max-w-xl"
+        className="mb-4 w-full"
       />
 
       {loading ? (
@@ -164,7 +164,7 @@ const AuditLogsPage = () => {
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="mx-auto mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              className="mt-2 block rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
               {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
             </button>
