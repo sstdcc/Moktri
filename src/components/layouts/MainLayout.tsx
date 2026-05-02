@@ -46,7 +46,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
             </div>
           </header>
           <main className={showBottomNav ? 'flex-1 pb-24 min-w-0 w-full' : 'flex-1 min-w-0 w-full'}>
-            <div className="w-full md:px-6">
+            <div className="w-full min-w-0">
               {children}
             </div>
           </main>
