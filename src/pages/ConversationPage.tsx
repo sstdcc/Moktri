@@ -128,6 +128,53 @@ const ConversationPage = () => {
 
   useEffect(() => { scrollToBottom(); }, [messages]);
 
+  const handleConfirmDeal = async () => {
+    if (!user || !listingId || confirmingDeal) return;
+    if (user.id !== ownerId) return;
+    if (!confirm('تأكيد الاتفاق وتعيين الإعلان كمؤجَّر؟')) return;
+    setConfirmingDeal(true);
+    try {
+      // 1) Mark listing as rented
+      const { error: lErr } = await supabase
+        .from('listings')
+        .update({ status: 'rented' as any, last_updated_at: new Date().toISOString() })
+        .eq('id', listingId);
+      if (lErr) throw lErr;
+
+      // 2) Reject all other pending requests for this listing
+      await (supabase as any)
+        .from('listing_requests')
+        .update({ status: 'rejected' })
+        .eq('listing_id', listingId)
+        .eq('status', 'pending')
+        .neq('requester_id', userId);
+
+      // 3) Mark accepted request for this conversation's requester as accepted (in case it was still pending)
+      await (supabase as any)
+        .from('listing_requests')
+        .update({ status: 'accepted' })
+        .eq('listing_id', listingId)
+        .eq('requester_id', userId)
+        .in('status', ['pending', 'accepted']);
+
+      // 4) Notify the requester
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'private_offer_accepted' as any,
+        title_ar: 'تم تأكيد الاتفاق',
+        body_ar: `تم تأكيد الاتفاق على: ${listingTitle}`,
+        link: `/chat/${conversationId}`,
+      });
+
+      setListingStatus('rented');
+      toast.success('تم تأكيد الاتفاق');
+    } catch (e: any) {
+      toast.error(e?.message || 'حدث خطأ');
+    } finally {
+      setConfirmingDeal(false);
+    }
+  };
+
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
     setSending(true);
