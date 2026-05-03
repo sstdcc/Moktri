@@ -120,7 +120,19 @@ const ListingDetailPage = () => {
         });
       }
 
-      // 4) Notify owner
+      // 4) Create listing_request record (typed link to listing + owner)
+      await supabase.from('listing_requests' as any).insert({
+        listing_id: listing.id,
+        owner_id: listing.owner_id,
+        requester_id: user.id,
+        conversation_id: convId,
+        type: isNegotiate ? 'negotiate' : 'request',
+        message: autoMessage,
+        offered_price: isNegotiate ? Number(listing.price) : null,
+        status: 'pending',
+      });
+
+      // 5) Notify owner
       await supabase.from('notifications').insert({
         user_id: listing.owner_id,
         type: 'private_offer_request' as any,
