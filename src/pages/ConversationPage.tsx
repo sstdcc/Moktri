@@ -216,15 +216,15 @@ const ConversationPage = () => {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-4 bg-muted/30">
-        <div className="max-w-3xl mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+        <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
           ) : (
             groups.map((g, gi) => (
-              <div key={gi} className="space-y-3">
+              <div key={gi} className="flex flex-col mt-4 first:mt-0">
                 {/* Date separator */}
-                <div className="flex justify-center">
+                <div className="flex justify-center mb-3">
                   <span className="text-[11px] text-muted-foreground bg-card/80 backdrop-blur px-3 py-1 rounded-full border border-border/50 shadow-sm">
                     {formatDateLabel(g.date)}
                   </span>
@@ -233,33 +233,37 @@ const ConversationPage = () => {
                 {g.items.map((block, bi) => {
                   const isMine = block[0].sender_id === user?.id;
                   return (
-                    <div key={bi} className={cn('flex flex-col gap-1', isMine ? 'items-start' : 'items-end')}>
+                    <div key={bi} className={cn('flex flex-col mt-3 first:mt-0', isMine ? 'items-start' : 'items-end')}>
                       {block.map((msg, mi) => {
                         const isFirst = mi === 0;
                         const isLast = mi === block.length - 1;
+                        const time = formatTime(msg.created_at);
                         return (
                           <div
                             key={msg.id}
                             className={cn(
-                              'max-w-[75%] sm:max-w-[65%] px-3.5 py-2 shadow-sm animate-fade-in',
+                              'relative max-w-[70%] px-3 pt-2 pb-1.5 shadow-sm animate-fade-in mt-0.5 first:mt-0',
                               'rounded-2xl',
                               isMine
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-card text-foreground border border-border/50',
-                              // Tail shaping
-                              isMine && isLast && 'rounded-br-md',
-                              !isMine && isLast && 'rounded-bl-md',
-                              isMine && !isFirst && 'rounded-tr-md',
-                              !isMine && !isFirst && 'rounded-tl-md'
+                              isMine && isFirst && 'rounded-br-sm',
+                              !isMine && isFirst && 'rounded-bl-sm',
+                              isMine && isLast && 'rounded-tr-sm',
+                              !isMine && isLast && 'rounded-tl-sm',
+                              isMine && !isFirst && !isLast && 'rounded-r-sm',
+                              !isMine && !isFirst && !isLast && 'rounded-l-sm'
                             )}
                           >
-                            <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words">{msg.message}</p>
-                            <p className={cn(
-                              'text-[10px] mt-1 text-end',
-                              isMine ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                            )}>
-                              {formatTime(msg.created_at)}
+                            <p className="text-[14px] leading-snug whitespace-pre-wrap break-words pe-12">
+                              {msg.message}
                             </p>
+                            <span className={cn(
+                              'absolute bottom-1 left-2 text-[10px] leading-none opacity-60 select-none',
+                              isMine ? 'text-primary-foreground' : 'text-muted-foreground'
+                            )}>
+                              {time}
+                            </span>
                           </div>
                         );
                       })}
@@ -274,24 +278,26 @@ const ConversationPage = () => {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border/50 bg-card/95 backdrop-blur-xl px-3 sm:px-6 py-3 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
-        <div className="max-w-3xl mx-auto flex items-center gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="اكتب رسالة..."
-            className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-          />
-          <Button
-            size="icon"
-            onClick={sendMessage}
-            disabled={!newMessage.trim() || sending}
-            className="rounded-full h-12 w-12 shrink-0 shadow-md hover:shadow-lg transition-all active:scale-95"
-          >
-            {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5 -scale-x-100" />}
-          </Button>
+      <div className="border-t border-border/50 bg-card/95 backdrop-blur-xl px-2 sm:px-6 py-2 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="اكتب رسالة..."
+              className="flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            <Button
+              size="icon"
+              onClick={sendMessage}
+              disabled={!newMessage.trim() || sending}
+              className="rounded-full h-9 w-9 shrink-0 transition-all active:scale-95"
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 -scale-x-100" />}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
