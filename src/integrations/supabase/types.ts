@@ -320,6 +320,48 @@ export type Database = {
           },
         ]
       }
+      listing_requests: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          id: string
+          listing_id: string
+          message: string | null
+          offered_price: number | null
+          owner_id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["listing_request_status"]
+          type: Database["public"]["Enums"]["listing_request_type"]
+          updated_at: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          message?: string | null
+          offered_price?: number | null
+          owner_id: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["listing_request_status"]
+          type?: Database["public"]["Enums"]["listing_request_type"]
+          updated_at?: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          message?: string | null
+          offered_price?: number | null
+          owner_id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["listing_request_status"]
+          type?: Database["public"]["Enums"]["listing_request_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listings: {
         Row: {
           allowed_for: Database["public"]["Enums"]["allowed_for_type"] | null
@@ -1004,6 +1046,8 @@ export type Database = {
         | "shared"
         | "family"
         | "student"
+      listing_request_status: "pending" | "accepted" | "rejected" | "cancelled"
+      listing_request_type: "request" | "negotiate"
       listing_status:
         | "draft"
         | "pending_review"
@@ -1192,6 +1236,8 @@ export const Constants = {
         "family",
         "student",
       ],
+      listing_request_status: ["pending", "accepted", "rejected", "cancelled"],
+      listing_request_type: ["request", "negotiate"],
       listing_status: [
         "draft",
         "pending_review",
