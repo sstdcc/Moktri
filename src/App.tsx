@@ -99,6 +99,7 @@ const App = () => (
                   <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
                   <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
                   <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
+                  <Route path="/chat/user/:userId" element={<MainLayout><AuthGuard><ChatUserPage /></AuthGuard></MainLayout>} />
                   <Route path="/chat/:id" element={<MainLayout><AuthGuard><ConversationPage /></AuthGuard></MainLayout>} />
 
                   {/* Protected routes */}
