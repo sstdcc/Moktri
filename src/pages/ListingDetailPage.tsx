@@ -300,7 +300,7 @@ const ListingDetailPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 font-tajawal overflow-x-hidden">
+    <div className="min-h-screen bg-background pb-[200px] font-tajawal overflow-x-hidden">
       {/* Header with favorite */}
       <PageHeader
         title="تفاصيل العرض"
