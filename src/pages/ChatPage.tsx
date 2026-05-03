@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { MessageSquare, Search, Camera, MoreVertical, Trash2, Check, CheckCheck } from 'lucide-react';
+import { MessageSquare, Search, MoreVertical, Check, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -12,7 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { toast } from 'sonner';
 import { usePresence } from '@/contexts/PresenceContext';
 
 interface ConversationItem {
