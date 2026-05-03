@@ -450,12 +450,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                   className="flex-1 font-tajawal"
                 />
                 <div className="flex rounded-xl border border-border overflow-hidden">
-                  {['YER', 'USD'].map(c => (
-                    <button key={c} type="button" onClick={() => update('currency', c)}
-                      className={cn('px-3 py-2 text-xs font-bold transition-all duration-200', form.currency === c ? 'bg-accent text-white' : 'bg-card text-muted-foreground')}>
-                      {c === 'YER' ? 'ريال' : 'دولار'}
-                    </button>
-                  ))}
+                  <div className="px-3 py-2 text-xs font-bold bg-accent text-white">ريال</div>
                 </div>
               </div>
               <div className="flex gap-2 mt-3">
