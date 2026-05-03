@@ -91,28 +91,6 @@ const ListingDetailPage = () => {
         ? `مرحباً، أرغب بالتفاوض على إعلان: ${listing.title}`
         : `مرحباً، أرغب بطلب السكن للإعلان: ${listing.title}`;
 
-      // 1) Create housing request
-      const { data: hr, error: hrErr } = await supabase
-        .from('housing_requests')
-        .insert({
-          requester_id: user.id,
-          category: listing.category as any,
-          district_id: listing.district_id,
-          neighborhood: listing.neighborhood,
-          governorate: listing.governorate,
-          city_name: listing.city_name,
-          min_price: isNegotiate ? null : Number(listing.price),
-          max_price: Number(listing.price),
-          currency: listing.currency || 'YER',
-          bedrooms_needed: listing.bedrooms,
-          furnishing_preference: 'any' as any,
-          notes: autoMessage,
-          status: 'active' as any,
-        })
-        .select('id')
-        .single();
-      if (hrErr) throw hrErr;
-
       // 2) Find or create conversation
       let convId: string | null = null;
       const { data: existingConv } = await supabase
