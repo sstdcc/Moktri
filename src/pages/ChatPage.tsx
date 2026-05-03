@@ -83,62 +83,32 @@ const getAvatarColor = (name: string) => {
 type FilterMode = 'all' | 'unread';
 
 interface RowProps {
-  conv: ConversationItem;
+  group: UserGroupItem;
   currentUserId: string;
-  onOpen: (c: ConversationItem) => void;
-  onDelete: (c: ConversationItem) => void;
+  onOpen: (g: UserGroupItem) => void;
 }
 
-const ConversationRow = ({ conv, currentUserId, onOpen, onDelete }: RowProps) => {
-  const [translateX, setTranslateX] = useState(0);
-  const [startX, setStartX] = useState<number | null>(null);
-  const isUnread = conv.unread_count > 0;
-  const palette = getAvatarColor(conv.other_name);
-  const isMine = conv.last_message_sender_id === currentUserId;
-  const otherUserId = conv.owner_id === currentUserId ? conv.user_id : conv.owner_id;
+const UserGroupRow = ({ group, currentUserId, onOpen }: RowProps) => {
+  const isUnread = group.unread_count > 0;
+  const palette = getAvatarColor(group.other_name);
+  const isMine = group.last_message_sender_id === currentUserId;
   const { isOnline } = usePresence();
-  const online = isOnline(otherUserId);
-
-  const handleTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (startX === null) return;
-    const delta = e.touches[0].clientX - startX;
-    if (delta > 0) setTranslateX(Math.min(delta, 88));
-  };
-  const handleTouchEnd = () => {
-    setTranslateX(translateX > 50 ? 80 : 0);
-    setStartX(null);
-  };
+  const online = isOnline(group.other_id);
 
   return (
     <div className="relative overflow-hidden">
-      {/* Delete action */}
-      <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-        <button
-          onClick={() => onDelete(conv)}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive text-destructive-foreground active:scale-95 transition-transform"
-          aria-label="حذف"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
-
       <button
-        onClick={() => onOpen(conv)}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{ transform: `translateX(${translateX}px)` }}
+        onClick={() => onOpen(group)}
         className="relative w-full text-right flex items-center gap-3 px-4 py-3 bg-card transition-colors active:bg-muted/60"
       >
-        {/* Avatar - 56px like WhatsApp */}
+        {/* Avatar */}
         <div className="relative shrink-0">
           <div className={cn('flex h-14 w-14 items-center justify-center rounded-full overflow-hidden', palette.bg)}>
-            {conv.other_avatar ? (
-              <img src={conv.other_avatar} alt={conv.other_name} className="h-full w-full object-cover" />
+            {group.other_avatar ? (
+              <img src={group.other_avatar} alt={group.other_name} className="h-full w-full object-cover" />
             ) : (
               <span className={cn('text-xl font-semibold font-tajawal', palette.fg)}>
-                {conv.other_name.charAt(0)}
+                {group.other_name.charAt(0)}
               </span>
             )}
           </div>
@@ -150,47 +120,46 @@ const ConversationRow = ({ conv, currentUserId, onOpen, onDelete }: RowProps) =>
           )}
         </div>
 
-        {/* Content with bottom divider like WhatsApp */}
         <div className="flex-1 min-w-0 flex flex-col justify-center border-b border-border/50 py-2 -my-2">
-          {/* Top row: Name + Time */}
           <div className="flex items-center justify-between gap-2 mb-0.5">
-            <p className={cn(
-              'text-[16px] truncate font-tajawal text-foreground',
-              isUnread ? 'font-bold' : 'font-semibold'
-            )}>
-              {conv.other_name}
-            </p>
-            {conv.last_message_at && (
+            <div className="flex items-center gap-2 min-w-0">
+              <p className={cn(
+                'text-[16px] truncate font-tajawal text-foreground',
+                isUnread ? 'font-bold' : 'font-semibold'
+              )}>
+                {group.other_name}
+              </p>
+              {group.conversations_count > 1 && (
+                <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                  {group.conversations_count} محادثات
+                </span>
+              )}
+            </div>
+            {group.last_message_at && (
               <span className={cn(
                 'text-[12px] shrink-0 font-tajawal',
                 isUnread ? 'text-primary font-semibold' : 'text-muted-foreground'
               )}>
-                {formatTime(conv.last_message_at)}
+                {formatTime(group.last_message_at)}
               </span>
             )}
           </div>
 
-          {/* Bottom row: Last message + Unread badge */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1 min-w-0 flex-1">
-              {/* Read receipts for own messages */}
-              {isMine && conv.last_message && (
-                conv.last_message_is_read ? (
-                  <CheckCheck className="h-4 w-4 text-primary shrink-0" />
-                ) : (
-                  <CheckCheck className="h-4 w-4 text-muted-foreground shrink-0" />
-                )
+              {isMine && group.last_message && (
+                <CheckCheck className={cn('h-4 w-4 shrink-0', group.last_message_is_read ? 'text-primary' : 'text-muted-foreground')} />
               )}
               <p className={cn(
                 'text-[14px] truncate font-tajawal',
                 isUnread ? 'text-foreground/90 font-medium' : 'text-muted-foreground'
               )}>
-                {conv.last_message || conv.listing_title}
+                {group.last_message || group.last_listing_title}
               </p>
             </div>
             {isUnread && (
               <span className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground shrink-0">
-                {conv.unread_count > 99 ? '99+' : conv.unread_count}
+                {group.unread_count > 99 ? '99+' : group.unread_count}
               </span>
             )}
           </div>
