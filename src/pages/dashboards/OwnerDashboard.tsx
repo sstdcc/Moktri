@@ -138,7 +138,6 @@ const OwnerDashboard = () => {
         <SmartNudgeBanner />
         <ProfileCompletionCard />
         <PendingRatings />
-        <IncomingListingRequests />
 
         {/* Verification banner */}
         {!profile?.is_verified && (
