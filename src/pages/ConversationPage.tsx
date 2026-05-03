@@ -69,18 +69,20 @@ const ConversationPage = () => {
     if (!conv) { setLoading(false); return; }
     setOwnerId(conv.owner_id);
     setUserId(conv.user_id);
+    setListingId(conv.listing_id);
 
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
     const [profileRes, listingRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      supabase.from('listings').select('title').eq('id', conv.listing_id).single(),
+      supabase.from('listings').select('title, status').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
+    setListingStatus((listingRes.data as any)?.status ?? '');
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
