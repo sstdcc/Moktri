@@ -244,6 +244,7 @@ const ChatPage = () => {
         user_id: conv.user_id,
         created_at: conv.created_at,
         listing_title: listingRes.data?.title ?? 'إعلان',
+        other_id: otherId,
         other_name: profileRes.data?.full_name ?? 'مستخدم',
         other_avatar: profileRes.data?.avatar_url ?? null,
         last_message: lastMsg?.message ?? null,
