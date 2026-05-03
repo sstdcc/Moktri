@@ -22,12 +22,26 @@ interface ConversationItem {
   user_id: string;
   created_at: string;
   listing_title: string;
+  other_id: string;
   other_name: string;
   other_avatar: string | null;
   last_message: string | null;
   last_message_at: string | null;
   last_message_sender_id: string | null;
   last_message_is_read: boolean;
+  unread_count: number;
+}
+
+interface UserGroupItem {
+  other_id: string;
+  other_name: string;
+  other_avatar: string | null;
+  conversations_count: number;
+  last_message: string | null;
+  last_message_at: string | null;
+  last_message_sender_id: string | null;
+  last_message_is_read: boolean;
+  last_listing_title: string;
   unread_count: number;
 }
 
