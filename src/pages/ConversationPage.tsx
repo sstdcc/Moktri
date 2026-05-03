@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, ArrowRight } from 'lucide-react';
+import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 
@@ -45,6 +46,9 @@ const ConversationPage = () => {
   const [listingTitle, setListingTitle] = useState('');
   const [ownerId, setOwnerId] = useState('');
   const [userId, setUserId] = useState('');
+  const [listingId, setListingId] = useState('');
+  const [listingStatus, setListingStatus] = useState<string>('');
+  const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef(crypto.randomUUID());
 
@@ -65,18 +69,20 @@ const ConversationPage = () => {
     if (!conv) { setLoading(false); return; }
     setOwnerId(conv.owner_id);
     setUserId(conv.user_id);
+    setListingId(conv.listing_id);
 
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
     const [profileRes, listingRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      supabase.from('listings').select('title').eq('id', conv.listing_id).single(),
+      supabase.from('listings').select('title, status').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
+    setListingStatus((listingRes.data as any)?.status ?? '');
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -121,6 +127,53 @@ const ConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => { scrollToBottom(); }, [messages]);
+
+  const handleConfirmDeal = async () => {
+    if (!user || !listingId || confirmingDeal) return;
+    if (user.id !== ownerId) return;
+    if (!confirm('تأكيد الاتفاق وتعيين الإعلان كمؤجَّر؟')) return;
+    setConfirmingDeal(true);
+    try {
+      // 1) Mark listing as rented
+      const { error: lErr } = await supabase
+        .from('listings')
+        .update({ status: 'rented' as any, last_updated_at: new Date().toISOString() })
+        .eq('id', listingId);
+      if (lErr) throw lErr;
+
+      // 2) Reject all other pending requests for this listing
+      await (supabase as any)
+        .from('listing_requests')
+        .update({ status: 'rejected' })
+        .eq('listing_id', listingId)
+        .eq('status', 'pending')
+        .neq('requester_id', userId);
+
+      // 3) Mark accepted request for this conversation's requester as accepted (in case it was still pending)
+      await (supabase as any)
+        .from('listing_requests')
+        .update({ status: 'accepted' })
+        .eq('listing_id', listingId)
+        .eq('requester_id', userId)
+        .in('status', ['pending', 'accepted']);
+
+      // 4) Notify the requester
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'private_offer_accepted' as any,
+        title_ar: 'تم تأكيد الاتفاق',
+        body_ar: `تم تأكيد الاتفاق على: ${listingTitle}`,
+        link: `/chat/${conversationId}`,
+      });
+
+      setListingStatus('rented');
+      toast.success('تم تأكيد الاتفاق');
+    } catch (e: any) {
+      toast.error(e?.message || 'حدث خطأ');
+    } finally {
+      setConfirmingDeal(false);
+    }
+  };
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
@@ -213,6 +266,17 @@ const ConversationPage = () => {
             {online ? 'متصل الآن' : listingTitle}
           </p>
         </div>
+
+        {user?.id === ownerId && listingStatus === 'negotiating' && (
+          <button
+            onClick={handleConfirmDeal}
+            disabled={confirmingDeal}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+          >
+            {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            تم الاتفاق
+          </button>
+        )}
       </header>
 
       {/* Messages */}
