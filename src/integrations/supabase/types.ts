@@ -1058,6 +1058,7 @@ export type Database = {
         | "rejected"
         | "private_offer"
         | "reserved"
+        | "negotiating"
       notification_type:
         | "new_response"
         | "listing_expiring"
@@ -1248,6 +1249,7 @@ export const Constants = {
         "rejected",
         "private_offer",
         "reserved",
+        "negotiating",
       ],
       notification_type: [
         "new_response",
