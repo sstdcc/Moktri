@@ -446,13 +446,12 @@ const ChatPage = () => {
           </div>
         ) : (
           <div>
-            {filtered.map((conv) => (
-              <ConversationRow
-                key={conv.id}
-                conv={conv}
+            {filtered.map((g) => (
+              <UserGroupRow
+                key={g.other_id}
+                group={g}
                 currentUserId={user?.id ?? ''}
                 onOpen={handleOpen}
-                onDelete={handleDelete}
               />
             ))}
           </div>
