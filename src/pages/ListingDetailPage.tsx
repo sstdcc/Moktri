@@ -430,13 +430,11 @@ const ListingDetailPage = () => {
       {(!user || user.id !== listing?.owner_id) && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card p-3 pb-safe flex gap-2">
           <button
-            onClick={() => {
-              console.log(listing.is_negotiable ? 'تفاوض clicked' : 'طلب السكن clicked', { listingId: listing.id });
-              toast.info(listing.is_negotiable ? 'تفاوض — قريباً' : 'طلب السكن — قريباً');
-            }}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={handlePrimaryAction}
+            disabled={primaryActionLoading}
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
-            {listing.is_negotiable ? 'تفاوض' : 'طلب السكن'}
+            {primaryActionLoading ? '...' : (listing.is_negotiable ? 'تفاوض' : 'طلب السكن')}
           </button>
           <button
             onClick={handleOpenChat}
