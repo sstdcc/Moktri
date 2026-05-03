@@ -2,11 +2,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePresence } from '@/contexts/PresenceContext';
 
 interface ChatMessage {
   id: string;
@@ -17,41 +17,45 @@ interface ChatMessage {
   created_at: string;
 }
 
-const getRelativeTime = (dateStr: string) => {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'الآن';
-  if (mins < 60) return `${mins} د`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} س`;
-  const days = Math.floor(hours / 24);
-  return `${days} يوم`;
+const formatTime = (dateStr: string) =>
+  new Date(dateStr).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+const formatDateLabel = (dateStr: string) => {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return 'اليوم';
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return 'أمس';
+  return d.toLocaleDateString('ar', { day: '2-digit', month: 'long', year: 'numeric' });
 };
 
 const ConversationPage = () => {
   const { id: conversationId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isOnline } = usePresence();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [otherName, setOtherName] = useState('');
+  const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
+  const [otherId, setOtherId] = useState('');
   const [listingTitle, setListingTitle] = useState('');
   const [ownerId, setOwnerId] = useState('');
   const [userId, setUserId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef(crypto.randomUUID());
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
   };
 
   const loadData = useCallback(async () => {
     if (!user || !conversationId) return;
     setLoading(true);
 
-    // Get conversation info
     const { data: conv } = await supabase
       .from('listing_conversations')
       .select('*')
@@ -62,19 +66,20 @@ const ConversationPage = () => {
     setOwnerId(conv.owner_id);
     setUserId(conv.user_id);
 
-    const otherId = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
+    const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
+    setOtherId(other);
     const [profileRes, listingRes, msgsRes] = await Promise.all([
-      supabase.from('profiles').select('full_name').eq('id', otherId).single(),
+      supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('listings').select('title').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
+    setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
-    // Mark as read
     await supabase
       .from('listing_messages')
       .update({ is_read: true })
@@ -82,7 +87,6 @@ const ConversationPage = () => {
       .neq('sender_id', user.id)
       .eq('is_read', false);
 
-    // Mark notifications as read
     await supabase
       .from('notifications')
       .update({ is_read: true })
@@ -93,7 +97,6 @@ const ConversationPage = () => {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Realtime
   useEffect(() => {
     if (!conversationId || !user) return;
     const channel = supabase
@@ -155,51 +158,139 @@ const ConversationPage = () => {
 
   if (loading) return <LoadingSpinner />;
 
+  const online = otherId && isOnline(otherId);
+  const initial = otherName.charAt(0) || '؟';
+
+  // Group messages by date and by consecutive sender
+  const groups: { date: string; items: ChatMessage[][] }[] = [];
+  let lastDate = '';
+  let lastSender = '';
+  for (const m of messages) {
+    const dateKey = new Date(m.created_at).toDateString();
+    if (dateKey !== lastDate) {
+      groups.push({ date: m.created_at, items: [[m]] });
+      lastDate = dateKey;
+      lastSender = m.sender_id;
+    } else {
+      const g = groups[groups.length - 1];
+      if (m.sender_id === lastSender) {
+        g.items[g.items.length - 1].push(m);
+      } else {
+        g.items.push([m]);
+        lastSender = m.sender_id;
+      }
+    }
+  }
+
   return (
-    <div className="flex flex-col h-screen bg-background font-tajawal" dir="rtl">
-      <PageHeader title={otherName} showBack />
-      <p className="text-xs text-muted-foreground text-center py-1 border-b border-border bg-card">{listingTitle}</p>
+    <div className="flex flex-col h-[100dvh] bg-background font-tajawal" dir="rtl">
+      {/* Header */}
+      <header className="sticky top-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+        <button
+          onClick={() => navigate(-1)}
+          aria-label="رجوع"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted active:scale-95"
+        >
+          <ArrowRight className="h-5 w-5" />
+        </button>
+
+        <div className="relative shrink-0">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
+            {otherAvatar ? (
+              <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-base">{initial}</span>
+            )}
+          </div>
+          {online && (
+            <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 flex flex-col">
+          <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
+          <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
+            {online ? 'متصل الآن' : listingTitle}
+          </p>
+        </div>
+      </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
-        ) : (
-          messages.map((msg) => {
-            const isMine = msg.sender_id === user?.id;
-            return (
-              <div key={msg.id} className={cn('flex', isMine ? 'justify-start' : 'justify-end')}>
-                <div className={cn(
-                  'max-w-[75%] rounded-2xl px-4 py-2.5',
-                  isMine
-                    ? 'bg-accent text-white rounded-br-sm'
-                    : 'bg-muted text-foreground rounded-bl-sm'
-                )}>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-                  <p className={cn('text-[10px] mt-1', isMine ? 'text-white/60' : 'text-muted-foreground')}>
-                    {getRelativeTime(msg.created_at)}
-                  </p>
+      <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-4 bg-muted/30">
+        <div className="max-w-3xl mx-auto space-y-4">
+          {messages.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
+          ) : (
+            groups.map((g, gi) => (
+              <div key={gi} className="space-y-3">
+                {/* Date separator */}
+                <div className="flex justify-center">
+                  <span className="text-[11px] text-muted-foreground bg-card/80 backdrop-blur px-3 py-1 rounded-full border border-border/50 shadow-sm">
+                    {formatDateLabel(g.date)}
+                  </span>
                 </div>
+
+                {g.items.map((block, bi) => {
+                  const isMine = block[0].sender_id === user?.id;
+                  return (
+                    <div key={bi} className={cn('flex flex-col gap-1', isMine ? 'items-start' : 'items-end')}>
+                      {block.map((msg, mi) => {
+                        const isFirst = mi === 0;
+                        const isLast = mi === block.length - 1;
+                        return (
+                          <div
+                            key={msg.id}
+                            className={cn(
+                              'max-w-[75%] sm:max-w-[65%] px-3.5 py-2 shadow-sm animate-fade-in',
+                              'rounded-2xl',
+                              isMine
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-card text-foreground border border-border/50',
+                              // Tail shaping
+                              isMine && isLast && 'rounded-br-md',
+                              !isMine && isLast && 'rounded-bl-md',
+                              isMine && !isFirst && 'rounded-tr-md',
+                              !isMine && !isFirst && 'rounded-tl-md'
+                            )}
+                          >
+                            <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words">{msg.message}</p>
+                            <p className={cn(
+                              'text-[10px] mt-1 text-end',
+                              isMine ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            )}>
+                              {formatTime(msg.created_at)}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })
-        )}
-        <div ref={messagesEndRef} />
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input */}
-      <div className="border-t border-border p-3 bg-card">
-        <div className="flex items-center gap-2">
+      <div className="border-t border-border/50 bg-card/95 backdrop-blur-xl px-3 sm:px-6 py-3 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
+        <div className="max-w-3xl mx-auto flex items-center gap-2">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="اكتب رسالتك..."
-            className="flex-1 rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
+            placeholder="اكتب رسالة..."
+            className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           />
-          <Button size="icon" onClick={sendMessage} disabled={!newMessage.trim() || sending} className="rounded-xl h-10 w-10 shrink-0">
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          <Button
+            size="icon"
+            onClick={sendMessage}
+            disabled={!newMessage.trim() || sending}
+            className="rounded-full h-12 w-12 shrink-0 shadow-md hover:shadow-lg transition-all active:scale-95"
+          >
+            {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5 -scale-x-100" />}
           </Button>
         </div>
       </div>
