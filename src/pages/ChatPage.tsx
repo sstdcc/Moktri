@@ -304,26 +304,63 @@ const ChatPage = () => {
     };
   }, [user, fetchConversations]);
 
+  // Group conversations by other user (owner/broker)
+  const groups = useMemo<UserGroupItem[]>(() => {
+    const map = new Map<string, UserGroupItem>();
+    for (const c of conversations) {
+      const existing = map.get(c.other_id);
+      if (!existing) {
+        map.set(c.other_id, {
+          other_id: c.other_id,
+          other_name: c.other_name,
+          other_avatar: c.other_avatar,
+          conversations_count: 1,
+          last_message: c.last_message,
+          last_message_at: c.last_message_at,
+          last_message_sender_id: c.last_message_sender_id,
+          last_message_is_read: c.last_message_is_read,
+          last_listing_title: c.listing_title,
+          unread_count: c.unread_count,
+        });
+      } else {
+        existing.conversations_count += 1;
+        existing.unread_count += c.unread_count;
+        if (c.last_message_at && (!existing.last_message_at || new Date(c.last_message_at) > new Date(existing.last_message_at))) {
+          existing.last_message = c.last_message;
+          existing.last_message_at = c.last_message_at;
+          existing.last_message_sender_id = c.last_message_sender_id;
+          existing.last_message_is_read = c.last_message_is_read;
+          existing.last_listing_title = c.listing_title;
+        }
+      }
+    }
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(b.last_message_at!).getTime() - new Date(a.last_message_at!).getTime()
+    );
+  }, [conversations]);
+
   const filtered = useMemo(() => {
-    let list = conversations;
-    if (filter === 'unread') list = list.filter(c => c.unread_count > 0);
+    let list = groups;
+    if (filter === 'unread') list = list.filter(g => g.unread_count > 0);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
-        c => c.other_name.toLowerCase().includes(q) ||
-             c.listing_title.toLowerCase().includes(q) ||
-             (c.last_message?.toLowerCase().includes(q) ?? false)
+        g => g.other_name.toLowerCase().includes(q) ||
+             g.last_listing_title.toLowerCase().includes(q) ||
+             (g.last_message?.toLowerCase().includes(q) ?? false)
       );
     }
     return list;
-  }, [conversations, filter, search]);
+  }, [groups, filter, search]);
 
-  const handleDelete = async (conv: ConversationItem) => {
-    setConversations(prev => prev.filter(c => c.id !== conv.id));
-    toast.success('تم حذف المحادثة');
+  const handleOpen = (g: UserGroupItem) => {
+    if (g.conversations_count === 1) {
+      // Single conversation — go straight to chat
+      const conv = conversations.find(c => c.other_id === g.other_id);
+      if (conv) { navigate(`/chat/${conv.id}`); return; }
+    }
+    navigate(`/chat/user/${g.other_id}`);
   };
-
-  const handleOpen = (conv: ConversationItem) => navigate(`/chat/${conv.id}`);
 
   return (
     <div className="min-h-screen bg-card font-tajawal pb-24" dir="rtl">
