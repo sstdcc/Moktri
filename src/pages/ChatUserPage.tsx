@@ -92,7 +92,7 @@ const ChatUserPage = () => {
         id: conv.id,
         listing_id: conv.listing_id,
         listing_title: listingRes.data?.title ?? 'إعلان',
-        listing_image: imgRes.data?.[0]?.image_url ?? null,
+        listing_image: imgRes.data?.[0]?.url ?? null,
         last_message: lastMsg?.message ?? null,
         last_message_at: lastMsg?.created_at ?? conv.created_at,
         last_message_sender_id: lastMsg?.sender_id ?? null,
