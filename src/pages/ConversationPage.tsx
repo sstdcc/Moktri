@@ -266,6 +266,17 @@ const ConversationPage = () => {
             {online ? 'متصل الآن' : listingTitle}
           </p>
         </div>
+
+        {user?.id === ownerId && listingStatus === 'negotiating' && (
+          <button
+            onClick={handleConfirmDeal}
+            disabled={confirmingDeal}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+          >
+            {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            تم الاتفاق
+          </button>
+        )}
       </header>
 
       {/* Messages */}
