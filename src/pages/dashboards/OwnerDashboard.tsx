@@ -32,12 +32,13 @@ const statusTabs = [
 const statusBadgeMap: Record<string, any> = {
   active: 'active', paused: 'pending', rented: 'rented', draft: 'expired',
   pending_review: 'pending', expired: 'expired', rejected: 'rejected',
-  private_offer: 'pending', reserved: 'pending',
+  private_offer: 'pending', reserved: 'pending', negotiating: 'pending',
 };
 
 const statusLabelOverride: Record<string, string> = {
   private_offer: 'عرض خاص — بانتظار رد المستأجر',
   reserved: 'بانتظار تأكيد التسليم',
+  negotiating: 'قيد التفاوض',
 };
 
 interface ListingWithImage extends Listing {
