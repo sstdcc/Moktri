@@ -51,6 +51,7 @@ const VerificationPage = lazy(() => import("./pages/VerificationPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const ChatPage = lazy(() => import("./pages/ChatPage"));
+const ChatUserPage = lazy(() => import("./pages/ChatUserPage"));
 const ConversationPage = lazy(() => import("./pages/ConversationPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
