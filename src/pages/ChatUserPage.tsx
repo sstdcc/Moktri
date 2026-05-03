@@ -83,7 +83,7 @@ const ChatUserPage = () => {
     for (const conv of convs) {
       const [listingRes, imgRes, msgRes, unreadRes] = await Promise.all([
         supabase.from('listings').select('title').eq('id', conv.listing_id).single(),
-        supabase.from('listing_images').select('image_url').eq('listing_id', conv.listing_id).order('display_order', { ascending: true }).limit(1),
+        supabase.from('listing_images').select('url').eq('listing_id', conv.listing_id).order('sort_order', { ascending: true }).limit(1),
         supabase.from('listing_messages').select('message, created_at, sender_id, is_read').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
         supabase.from('listing_messages').select('id', { count: 'exact', head: true }).eq('conversation_id', conv.id).neq('sender_id', user.id).eq('is_read', false),
       ]);
