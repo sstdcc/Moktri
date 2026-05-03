@@ -300,7 +300,7 @@ const ListingDetailPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 font-tajawal overflow-x-hidden">
+    <div className="min-h-screen bg-background pb-[200px] font-tajawal overflow-x-hidden">
       {/* Header with favorite */}
       <PageHeader
         title="تفاصيل العرض"
@@ -507,7 +507,7 @@ const ListingDetailPage = () => {
 
       {/* Sticky contact bar */}
       {(!user || user.id !== listing?.owner_id) && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card p-3 pb-safe flex gap-2">
+        <div className="fixed left-0 right-0 z-40 border-t border-border bg-card p-3 flex gap-2 bottom-[calc(96px+env(safe-area-inset-bottom))]">
           <button
             onClick={handlePrimaryAction}
             disabled={primaryActionLoading}
