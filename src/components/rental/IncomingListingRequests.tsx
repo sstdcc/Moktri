@@ -51,6 +51,15 @@ export const IncomingListingRequests = () => {
       toast.error('حدث خطأ');
     } else {
       setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status } : r));
+
+      // On accept: move listing to "negotiating" (not rented yet)
+      if (status === 'accepted') {
+        await supabase
+          .from('listings')
+          .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
+          .eq('id', req.listing_id);
+      }
+
       // Notify requester
       await supabase.from('notifications').insert({
         user_id: req.requester_id,
@@ -59,7 +68,7 @@ export const IncomingListingRequests = () => {
         body_ar: `بشأن: ${req.listing?.title || ''}`,
         link: req.conversation_id ? `/chat/${req.conversation_id}` : `/listings/${req.listing_id}`,
       });
-      toast.success(status === 'accepted' ? 'تم القبول' : 'تم الرفض');
+      toast.success(status === 'accepted' ? 'تم القبول — جاري التفاوض' : 'تم الرفض');
     }
     setActingId(null);
   };
