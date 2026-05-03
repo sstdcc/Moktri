@@ -71,6 +71,95 @@ const ListingDetailPage = () => {
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [similarListings, setSimilarListings] = useState<any[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+  const [primaryActionLoading, setPrimaryActionLoading] = useState(false);
+
+  const handlePrimaryAction = async () => {
+    if (!listing) return;
+    if (!user) {
+      toast.info('سجل دخولك للمتابعة');
+      navigate(`/auth?returnUrl=/listings/${id}`);
+      return;
+    }
+    if (user.id === listing.owner_id) {
+      toast.info('لا يمكنك تنفيذ هذا الإجراء على إعلانك');
+      return;
+    }
+    setPrimaryActionLoading(true);
+    try {
+      const isNegotiate = !!listing.is_negotiable;
+      const autoMessage = isNegotiate
+        ? `مرحباً، أرغب بالتفاوض على إعلان: ${listing.title}`
+        : `مرحباً، أرغب بطلب السكن للإعلان: ${listing.title}`;
+
+      // 1) Create housing request
+      const { data: hr, error: hrErr } = await supabase
+        .from('housing_requests')
+        .insert({
+          requester_id: user.id,
+          category: listing.category as any,
+          district_id: listing.district_id,
+          neighborhood: listing.neighborhood,
+          governorate: listing.governorate,
+          city_name: listing.city_name,
+          min_price: isNegotiate ? null : Number(listing.price),
+          max_price: Number(listing.price),
+          currency: listing.currency || 'YER',
+          bedrooms_needed: listing.bedrooms,
+          furnishing_preference: 'any' as any,
+          notes: autoMessage,
+          status: 'active' as any,
+        })
+        .select('id')
+        .single();
+      if (hrErr) throw hrErr;
+
+      // 2) Find or create conversation
+      let convId: string | null = null;
+      const { data: existingConv } = await supabase
+        .from('listing_conversations')
+        .select('id')
+        .eq('listing_id', listing.id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (existingConv) {
+        convId = existingConv.id;
+      } else {
+        const { data: created, error: convErr } = await supabase
+          .from('listing_conversations')
+          .insert({ listing_id: listing.id, owner_id: listing.owner_id, user_id: user.id })
+          .select('id')
+          .single();
+        if (convErr) throw convErr;
+        convId = created.id;
+      }
+
+      // 3) Send auto message in conversation
+      if (convId) {
+        await supabase.from('listing_messages').insert({
+          conversation_id: convId,
+          sender_id: user.id,
+          message: autoMessage,
+        });
+      }
+
+      // 4) Notify owner
+      await supabase.from('notifications').insert({
+        user_id: listing.owner_id,
+        type: 'private_offer_request' as any,
+        title_ar: isNegotiate ? 'طلب تفاوض جديد' : 'طلب سكن جديد',
+        body_ar: `${user.user_metadata?.full_name || 'مستخدم'} ${isNegotiate ? 'يرغب بالتفاوض على' : 'قدّم طلب سكن لـ'} "${listing.title}"`,
+        link: convId ? `/chat/${convId}` : `/listings/${listing.id}`,
+      });
+
+      toast.success(isNegotiate ? 'تم إرسال طلب التفاوض' : 'تم إرسال طلب السكن');
+      if (convId) navigate(`/chat/${convId}`);
+    } catch (err: any) {
+      console.error('primary action error', err);
+      toast.error(err?.message || 'حدث خطأ، حاول مجدداً');
+    } finally {
+      setPrimaryActionLoading(false);
+    }
+  };
   const [emblaRef, emblaApi] = useEmblaCarousel({ direction: 'rtl', loop: true });
 
   useEffect(() => {
@@ -430,13 +519,11 @@ const ListingDetailPage = () => {
       {(!user || user.id !== listing?.owner_id) && (
         <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card p-3 pb-safe flex gap-2">
           <button
-            onClick={() => {
-              console.log(listing.is_negotiable ? 'تفاوض clicked' : 'طلب السكن clicked', { listingId: listing.id });
-              toast.info(listing.is_negotiable ? 'تفاوض — قريباً' : 'طلب السكن — قريباً');
-            }}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            onClick={handlePrimaryAction}
+            disabled={primaryActionLoading}
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
-            {listing.is_negotiable ? 'تفاوض' : 'طلب السكن'}
+            {primaryActionLoading ? '...' : (listing.is_negotiable ? 'تفاوض' : 'طلب السكن')}
           </button>
           <button
             onClick={handleOpenChat}
