@@ -51,13 +51,52 @@ export default function ListingRequestsPage() {
     if (!user) return;
     const load = async () => {
       setLoading(true);
-      const { data, error } = await (supabase as any)
+      console.log('user.id:', user.id);
+
+      // Step 1: simple query without joins (no FK declared between listing_requests and profiles/listings)
+      const { data, error } = await supabase
         .from('listing_requests')
-        .select('*, requester:profiles!requester_id(full_name, avatar_url), listing:listings!listing_id(title)')
+        .select('*')
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
-      if (error) toast.error('تعذر تحميل الطلبات');
-      setItems((data || []) as ListingRequest[]);
+
+      console.log('listing_requests error:', error);
+      console.log('listing_requests data:', data);
+
+      if (error) {
+        toast.error('تعذر تحميل الطلبات');
+        setLoading(false);
+        return;
+      }
+
+      const rows = (data || []) as any[];
+
+      // Step 2: manually fetch related profiles + listings
+      const requesterIds = Array.from(new Set(rows.map(r => r.requester_id).filter(Boolean)));
+      const listingIds = Array.from(new Set(rows.map(r => r.listing_id).filter(Boolean)));
+
+      const [profilesRes, listingsRes] = await Promise.all([
+        requesterIds.length
+          ? supabase.from('profiles').select('id, full_name, avatar_url').in('id', requesterIds)
+          : Promise.resolve({ data: [], error: null } as any),
+        listingIds.length
+          ? supabase.from('listings').select('id, title').in('id', listingIds)
+          : Promise.resolve({ data: [], error: null } as any),
+      ]);
+
+      console.log('profiles error:', profilesRes.error, 'data:', profilesRes.data);
+      console.log('listings error:', listingsRes.error, 'data:', listingsRes.data);
+
+      const profileMap = new Map((profilesRes.data || []).map((p: any) => [p.id, p]));
+      const listingMap = new Map((listingsRes.data || []).map((l: any) => [l.id, l]));
+
+      const merged: ListingRequest[] = rows.map(r => ({
+        ...r,
+        requester: profileMap.get(r.requester_id) || null,
+        listing: listingMap.get(r.listing_id) || null,
+      }));
+
+      setItems(merged);
       setLoading(false);
     };
     load();
