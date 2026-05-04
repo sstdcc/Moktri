@@ -34,7 +34,9 @@ export const IncomingListingRequests = () => {
         .from('listing_requests')
         .select('*, requester:profiles!requester_id(full_name, avatar_url), listing:listings!listing_id(title)')
         .eq('owner_id', user.id)
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
+      console.log('listing_requests fetched:', data);
       setRequests((data || []) as IncomingRequest[]);
       setLoading(false);
     };
@@ -73,19 +75,23 @@ export const IncomingListingRequests = () => {
     setActingId(null);
   };
 
-  if (loading) return null;
-
   const pending = requests.filter(r => r.status === 'pending');
-  if (pending.length === 0 && requests.length === 0) return null;
 
   return (
     <div className="mt-6">
       <div className="flex items-center gap-2 mb-3">
         <Inbox className="h-4 w-4 text-accent" />
-        <h2 className="text-sm font-bold text-foreground">الطلبات الواردة ({pending.length})</h2>
+        <h2 className="text-sm font-bold text-foreground">الطلبات الواردة</h2>
       </div>
+      <p className="mb-3 text-xs font-bold text-muted-foreground">عدد الطلبات: {requests.length}</p>
+      {loading && (
+        <p className="text-sm text-muted-foreground">جاري تحميل الطلبات...</p>
+      )}
+      {!loading && pending.length === 0 && (
+        <p className="text-sm text-muted-foreground">لا توجد طلبات واردة</p>
+      )}
       <div className="space-y-2">
-        {(pending.length > 0 ? pending : requests.slice(0, 3)).map(req => (
+        {pending.map(req => (
           <div key={req.id} className="rounded-2xl border border-border bg-card p-3 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center">
