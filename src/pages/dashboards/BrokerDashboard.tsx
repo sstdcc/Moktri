@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionTitle } from '@/components/ui/SectionTitle';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { IncomingListingRequests } from '@/components/rental/IncomingListingRequests';
 import { cn } from '@/lib/utils';
 import type { Listing, HousingRequest } from '@/types/database';
 
@@ -196,6 +197,8 @@ const BrokerDashboard = () => {
             })
           )}
         </div>
+
+        <IncomingListingRequests />
 
         {/* Housing Requests */}
         <div className="mt-8">
