@@ -5,7 +5,7 @@ import { useUnreadChats } from '@/hooks/useUnreadChats';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
-  FileText, Shield, LogOut, MessageSquare,
+  FileText, Shield, LogOut, MessageSquare, Inbox,
 } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import {
