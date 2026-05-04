@@ -20,6 +20,7 @@ import ListingsPage from "./pages/ListingsPage";
 // Lazy-loaded pages
 const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
 const HousingRequestsPage = lazy(() => import("./pages/HousingRequestsPage"));
+const ListingRequestsPage = lazy(() => import("./pages/ListingRequestsPage"));
 const RequestDetailPage = lazy(() => import("./pages/RequestDetailPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
@@ -90,6 +91,7 @@ const App = () => (
                   <Route path="/listings" element={<MainLayout><ListingsPage /></MainLayout>} />
                   <Route path="/listings/:id" element={<MainLayout><ListingDetailPage /></MainLayout>} />
                   <Route path="/requests" element={<MainLayout><HousingRequestsPage /></MainLayout>} />
+                  <Route path="/listing-requests" element={<MainLayout><AuthGuard><ListingRequestsPage /></AuthGuard></MainLayout>} />
                   <Route path="/requests/:id" element={<MainLayout><RequestDetailPage /></MainLayout>} />
                   <Route path="/profile/:id" element={<MainLayout><PublicProfilePage /></MainLayout>} />
                   <Route path="/notifications" element={<MainLayout><AuthGuard><NotificationsPage /></AuthGuard></MainLayout>} />

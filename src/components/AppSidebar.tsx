@@ -5,7 +5,7 @@ import { useUnreadChats } from '@/hooks/useUnreadChats';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
-  FileText, Shield, LogOut, MessageSquare,
+  FileText, Shield, LogOut, MessageSquare, Inbox,
 } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import {
@@ -40,11 +40,13 @@ const getRoleDashboardItems = (role?: string) => {
     case 'owner':
       return [
         { title: 'لوحة التحكم', url: '/dashboard/owner', icon: LayoutDashboard },
+        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
         { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
       ];
     case 'broker':
       return [
         { title: 'لوحة التحكم', url: '/dashboard/broker', icon: LayoutDashboard },
+        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
         { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
       ];
     case 'renter':
