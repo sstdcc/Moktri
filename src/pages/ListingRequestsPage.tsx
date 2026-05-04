@@ -108,7 +108,7 @@ export default function ListingRequestsPage() {
         <EmptyState
           icon={Inbox}
           title="لا توجد طلبات"
-          description="لم يتم العثور على أي طلبات في هذه الحالة"
+          subtitle="لم يتم العثور على أي طلبات في هذه الحالة"
         />
       );
     }
