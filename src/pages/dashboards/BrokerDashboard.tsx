@@ -198,6 +198,8 @@ const BrokerDashboard = () => {
           )}
         </div>
 
+        <IncomingListingRequests />
+
         {/* Housing Requests */}
         <div className="mt-8">
           <SectionTitle title="طلبات السكن الجديدة" action={{ label: 'عرض الكل', href: '/requests' }} />
