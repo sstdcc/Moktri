@@ -91,6 +91,7 @@ const App = () => (
                   <Route path="/listings" element={<MainLayout><ListingsPage /></MainLayout>} />
                   <Route path="/listings/:id" element={<MainLayout><ListingDetailPage /></MainLayout>} />
                   <Route path="/requests" element={<MainLayout><HousingRequestsPage /></MainLayout>} />
+                  <Route path="/listing-requests" element={<MainLayout><AuthGuard><ListingRequestsPage /></AuthGuard></MainLayout>} />
                   <Route path="/requests/:id" element={<MainLayout><RequestDetailPage /></MainLayout>} />
                   <Route path="/profile/:id" element={<MainLayout><PublicProfilePage /></MainLayout>} />
                   <Route path="/notifications" element={<MainLayout><AuthGuard><NotificationsPage /></AuthGuard></MainLayout>} />
