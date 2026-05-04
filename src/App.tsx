@@ -20,6 +20,7 @@ import ListingsPage from "./pages/ListingsPage";
 // Lazy-loaded pages
 const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
 const HousingRequestsPage = lazy(() => import("./pages/HousingRequestsPage"));
+const ListingRequestsPage = lazy(() => import("./pages/ListingRequestsPage"));
 const RequestDetailPage = lazy(() => import("./pages/RequestDetailPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
