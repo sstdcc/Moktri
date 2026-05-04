@@ -40,11 +40,13 @@ const getRoleDashboardItems = (role?: string) => {
     case 'owner':
       return [
         { title: 'لوحة التحكم', url: '/dashboard/owner', icon: LayoutDashboard },
+        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
         { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
       ];
     case 'broker':
       return [
         { title: 'لوحة التحكم', url: '/dashboard/broker', icon: LayoutDashboard },
+        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
         { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
       ];
     case 'renter':
