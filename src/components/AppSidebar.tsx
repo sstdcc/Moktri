@@ -84,6 +84,7 @@ export function AppSidebar() {
   const { user, profile, signOut } = useAuth();
   const unreadCount = useUnreadCount();
   const unreadChats = useUnreadChats();
+  const pendingListingRequests = usePendingListingRequests();
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
