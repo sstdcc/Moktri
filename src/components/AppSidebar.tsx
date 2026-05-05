@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { useUnreadChats } from '@/hooks/useUnreadChats';
+import { usePendingListingRequests } from '@/hooks/usePendingListingRequests';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
@@ -83,6 +84,7 @@ export function AppSidebar() {
   const { user, profile, signOut } = useAuth();
   const unreadCount = useUnreadCount();
   const unreadChats = useUnreadChats();
+  const pendingListingRequests = usePendingListingRequests();
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
@@ -215,11 +217,16 @@ export function AppSidebar() {
                             : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                         )}
                       >
-                        <div className="flex items-center justify-center w-5 h-5 shrink-0">
+                        <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
                           <item.icon className={cn(
                             'h-[18px] w-[18px]',
                             active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
                           )} />
+                          {item.url === '/listing-requests' && pendingListingRequests > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar">
+                              {pendingListingRequests > 99 ? '99+' : pendingListingRequests}
+                            </span>
+                          )}
                         </div>
                         {!collapsed && <span>{item.title}</span>}
                       </SidebarMenuButton>
