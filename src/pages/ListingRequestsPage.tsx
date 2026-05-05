@@ -126,25 +126,16 @@ export default function ListingRequestsPage() {
         .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
         .eq('id', req.listing_id);
     }
-    const notifPayload = {
+    // Mirror the working pattern (e.g. PrivateOffersForRenter): plain insert, no .select() chained,
+    // since the SELECT RLS only allows owners of the notification (the requester) to read it back.
+    await supabase.from('notifications').insert({
       user_id: req.requester_id,
       type: status === 'accepted' ? 'private_offer_accepted' as any : 'private_offer_rejected' as any,
       title_ar: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
       body_ar: `بشأن: ${req.listing?.title || ''}`,
       link: req.conversation_id ? `/chat/${req.conversation_id}` : `/listings/${req.listing_id}`,
-    };
-    console.log('notif requester_id:', req.requester_id);
-    const { data: notifData, error: notifError } = await supabase
-      .from('notifications')
-      .insert(notifPayload)
-      .select();
-    console.log('notification insert result:', notifData);
-    console.log('notification error:', notifError);
-    if (notifError) {
-      toast.error(`فشل إرسال الإشعار: ${notifError.message}`);
-    } else {
-      toast.success(status === 'accepted' ? 'تم القبول — جاري التفاوض' : 'تم الرفض');
-    }
+    });
+    toast.success(status === 'accepted' ? 'تم القبول — جاري التفاوض' : 'تم الرفض');
     setActingId(null);
   };
 
