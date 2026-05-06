@@ -348,6 +348,27 @@ const RequestDetailPage = () => {
           </div>
         )}
 
+        {/* Housing request offers (visible to requester and the offering owners) */}
+        {user && (
+          <HousingRequestOffersList housingRequestId={request.id} onChange={fetchData} />
+        )}
+
+        {/* Send-offer button for owners/brokers */}
+        {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
+          <>
+            <Button onClick={() => setOfferOpen(true)} variant="outline" className="w-full gap-2 border-accent/30 text-accent hover:bg-accent/10">
+              <Gift className="h-4 w-4" /> إرسال عرض
+            </Button>
+            <SendHousingOfferDialog
+              open={offerOpen}
+              onOpenChange={setOfferOpen}
+              housingRequestId={request.id}
+              requesterId={request.requester_id}
+              onSent={fetchData}
+            />
+          </>
+        )}
+
         {/* Response form for owners/brokers */}
         {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
           <>
