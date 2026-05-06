@@ -48,6 +48,8 @@ const ConversationPage = () => {
   const [userId, setUserId] = useState('');
   const [listingId, setListingId] = useState('');
   const [listingStatus, setListingStatus] = useState<string>('');
+  const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
+  const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef(crypto.randomUUID());
