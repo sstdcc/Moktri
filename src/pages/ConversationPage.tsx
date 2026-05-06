@@ -132,46 +132,33 @@ const ConversationPage = () => {
 
   useEffect(() => { scrollToBottom(); }, [messages]);
 
+  const isOwnerSide = !!user && user.id === ownerId;
+  const isTenantSide = !!user && user.id === userId;
+  const myConfirmed = isOwnerSide ? !!ownerConfirmedAt : !!tenantConfirmedAt;
+  const otherConfirmed = isOwnerSide ? !!tenantConfirmedAt : !!ownerConfirmedAt;
+  const isRented = listingStatus === 'rented';
+  const showConfirmSection = (listingStatus === 'negotiating' || isRented) && (isOwnerSide || isTenantSide);
+
   const handleConfirmDeal = async () => {
-    if (!user || !listingId || confirmingDeal) return;
-    if (user.id !== ownerId) return;
-    if (!confirm('تأكيد الاتفاق وتعيين الإعلان كمؤجَّر؟')) return;
+    if (!user || !listingId || !conversationId || confirmingDeal) return;
+    if (myConfirmed) return;
+    const msg = isOwnerSide ? 'تأكيد التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
+    if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
-      // 1) Mark listing as rented
-      const { error: lErr } = await supabase
-        .from('listings')
-        .update({ status: 'rented' as any, last_updated_at: new Date().toISOString() })
-        .eq('id', listingId);
-      if (lErr) throw lErr;
-
-      // 2) Reject all other pending requests for this listing
-      await (supabase as any)
-        .from('listing_requests')
-        .update({ status: 'rejected' })
-        .eq('listing_id', listingId)
-        .eq('status', 'pending')
-        .neq('requester_id', userId);
-
-      // 3) Mark accepted request for this conversation's requester as accepted (in case it was still pending)
-      await (supabase as any)
-        .from('listing_requests')
-        .update({ status: 'accepted' })
-        .eq('listing_id', listingId)
-        .eq('requester_id', userId)
-        .in('status', ['pending', 'accepted']);
-
-      // 4) Notify the requester
-      await supabase.from('notifications').insert({
-        user_id: userId,
-        type: 'private_offer_accepted' as any,
-        title_ar: 'تم تأكيد الاتفاق',
-        body_ar: `تم تأكيد الاتفاق على: ${listingTitle}`,
-        link: `/chat/${conversationId}`,
+      const { data, error } = await (supabase as any).rpc('confirm_rental_deal', {
+        _listing_id: listingId,
+        _conversation_id: conversationId,
       });
-
-      setListingStatus('rented');
-      toast.success('تم تأكيد الاتفاق');
+      if (error) throw error;
+      const nowIso = new Date().toISOString();
+      if (isOwnerSide) setOwnerConfirmedAt(nowIso); else setTenantConfirmedAt(nowIso);
+      if (data?.both_confirmed) {
+        setListingStatus('rented');
+        toast.success('تم تأكيد الاتفاق وتأجير الإعلان');
+      } else {
+        toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
+      }
     } catch (e: any) {
       toast.error(e?.message || 'حدث خطأ');
     } finally {
