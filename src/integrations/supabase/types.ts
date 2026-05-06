@@ -107,6 +107,45 @@ export type Database = {
           },
         ]
       }
+      housing_request_offers: {
+        Row: {
+          created_at: string
+          housing_request_id: string
+          id: string
+          listing_id: string
+          message: string | null
+          owner_id: string
+          proposed_price: number | null
+          requester_id: string
+          status: Database["public"]["Enums"]["housing_request_offer_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          housing_request_id: string
+          id?: string
+          listing_id: string
+          message?: string | null
+          owner_id: string
+          proposed_price?: number | null
+          requester_id: string
+          status?: Database["public"]["Enums"]["housing_request_offer_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          housing_request_id?: string
+          id?: string
+          listing_id?: string
+          message?: string | null
+          owner_id?: string
+          proposed_price?: number | null
+          requester_id?: string
+          status?: Database["public"]["Enums"]["housing_request_offer_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       housing_requests: {
         Row: {
           bedrooms_needed: number | null
@@ -948,6 +987,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_housing_request_offer: {
+        Args: { _offer_id: string }
+        Returns: undefined
+      }
       admin_get_user_contact: {
         Args: { _user_id: string }
         Returns: {
@@ -1029,6 +1072,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      reject_housing_request_offer: {
+        Args: { _offer_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       allowed_for_type: "family" | "bachelors" | "students" | "all"
@@ -1036,6 +1083,7 @@ export type Database = {
       for_whom_type: "family" | "bachelors" | "students"
       furnishing_preference: "any" | "furnished" | "unfurnished"
       furnishing_type: "furnished" | "semi_furnished" | "unfurnished"
+      housing_request_offer_status: "pending" | "accepted" | "rejected"
       listing_category:
         | "room"
         | "apartment"
@@ -1226,6 +1274,7 @@ export const Constants = {
       for_whom_type: ["family", "bachelors", "students"],
       furnishing_preference: ["any", "furnished", "unfurnished"],
       furnishing_type: ["furnished", "semi_furnished", "unfurnished"],
+      housing_request_offer_status: ["pending", "accepted", "rejected"],
       listing_category: [
         "room",
         "apartment",
