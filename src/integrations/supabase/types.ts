@@ -144,7 +144,36 @@ export type Database = {
           status?: Database["public"]["Enums"]["housing_request_offer_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "housing_request_offers_housing_request_id_fkey"
+            columns: ["housing_request_id"]
+            isOneToOne: false
+            referencedRelation: "housing_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "housing_request_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "housing_request_offers_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "housing_request_offers_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       housing_requests: {
         Row: {
