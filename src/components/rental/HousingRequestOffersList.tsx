@@ -163,20 +163,20 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
               {o.message && <p className="text-[12px] text-foreground/85 leading-[1.7]">{o.message}</p>}
               {o.created_at && <p className="text-[10px] text-muted-foreground">{timeAgo(o.created_at)}</p>}
               {canAct && (
-                <div className="flex gap-2 pt-1">
-                  <Button size="sm" onClick={() => accept(o)} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
+                <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); accept(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
                     {actingId === o.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} قبول
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => reject(o)} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); reject(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
                     <X className="h-3 w-3" /> رفض
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => openChat(o)} className="h-8 gap-1 text-xs">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openChat(o); }} className="h-8 gap-1 text-xs">
                     <MessageSquare className="h-3 w-3" /> محادثة
                   </Button>
                 </div>
               )}
               {!canAct && o.status === 'accepted' && user?.id === o.requester_id && (
-                <Button size="sm" variant="outline" onClick={() => openChat(o)} className="h-8 gap-1 text-xs">
+                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openChat(o); }} className="h-8 gap-1 text-xs">
                   <MessageSquare className="h-3 w-3" /> فتح المحادثة
                 </Button>
               )}
