@@ -258,17 +258,30 @@ const ConversationPage = () => {
           </p>
         </div>
 
-        {user?.id === ownerId && listingStatus === 'negotiating' && (
-          <button
-            onClick={handleConfirmDeal}
-            disabled={confirmingDeal}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
-          >
-            {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-            تم الاتفاق
-          </button>
+        {showConfirmSection && (
+          isRented ? (
+            <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-bold px-3 py-2">
+              <CheckCircle2 className="h-3.5 w-3.5" /> تم التأجير
+            </span>
+          ) : (
+            <button
+              onClick={handleConfirmDeal}
+              disabled={confirmingDeal || myConfirmed}
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+            >
+              {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+              {myConfirmed ? 'بانتظار الطرف الآخر' : (isOwnerSide ? 'تم التأجير' : 'أؤكد الاتفاق')}
+            </button>
+          )
         )}
       </header>
+
+      {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
+        <div className="px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
+          {myConfirmed && !otherConfirmed && 'تم تسجيل تأكيدك — بانتظار تأكيد الطرف الآخر'}
+          {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
