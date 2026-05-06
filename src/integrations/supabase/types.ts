@@ -461,6 +461,7 @@ export type Database = {
           moderation_note: string | null
           neighborhood: string | null
           offered_at: string | null
+          owner_confirmed_at: string | null
           owner_id: string
           price: number
           property_size: number | null
@@ -469,6 +470,8 @@ export type Database = {
           reserved_for_user_id: string | null
           source_request_id: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
+          tenant_confirmed_at: string | null
+          tenant_confirmed_by: string | null
           title: string
           views_count: number | null
           whatsapp_clicks: number | null
@@ -503,6 +506,7 @@ export type Database = {
           moderation_note?: string | null
           neighborhood?: string | null
           offered_at?: string | null
+          owner_confirmed_at?: string | null
           owner_id: string
           price: number
           property_size?: number | null
@@ -511,6 +515,8 @@ export type Database = {
           reserved_for_user_id?: string | null
           source_request_id?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
+          tenant_confirmed_at?: string | null
+          tenant_confirmed_by?: string | null
           title: string
           views_count?: number | null
           whatsapp_clicks?: number | null
@@ -545,6 +551,7 @@ export type Database = {
           moderation_note?: string | null
           neighborhood?: string | null
           offered_at?: string | null
+          owner_confirmed_at?: string | null
           owner_id?: string
           price?: number
           property_size?: number | null
@@ -553,6 +560,8 @@ export type Database = {
           reserved_for_user_id?: string | null
           source_request_id?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
+          tenant_confirmed_at?: string | null
+          tenant_confirmed_by?: string | null
           title?: string
           views_count?: number | null
           whatsapp_clicks?: number | null
@@ -1049,6 +1058,10 @@ export type Database = {
           verification_badge: Database["public"]["Enums"]["verification_badge_status"]
           whatsapp_number: string
         }[]
+      }
+      confirm_rental_deal: {
+        Args: { _conversation_id: string; _listing_id: string }
+        Returns: Json
       }
       expire_stale_records: { Args: never; Returns: undefined }
       find_user_id_by_phone: { Args: { _phone: string }; Returns: string }

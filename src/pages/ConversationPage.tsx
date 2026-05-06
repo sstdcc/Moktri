@@ -48,6 +48,8 @@ const ConversationPage = () => {
   const [userId, setUserId] = useState('');
   const [listingId, setListingId] = useState('');
   const [listingStatus, setListingStatus] = useState<string>('');
+  const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
+  const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef(crypto.randomUUID());
@@ -75,7 +77,7 @@ const ConversationPage = () => {
     setOtherId(other);
     const [profileRes, listingRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      supabase.from('listings').select('title, status').eq('id', conv.listing_id).single(),
+      supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
@@ -83,6 +85,8 @@ const ConversationPage = () => {
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
     setListingStatus((listingRes.data as any)?.status ?? '');
+    setOwnerConfirmedAt((listingRes.data as any)?.owner_confirmed_at ?? null);
+    setTenantConfirmedAt((listingRes.data as any)?.tenant_confirmed_at ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -128,46 +132,33 @@ const ConversationPage = () => {
 
   useEffect(() => { scrollToBottom(); }, [messages]);
 
+  const isOwnerSide = !!user && user.id === ownerId;
+  const isTenantSide = !!user && user.id === userId;
+  const myConfirmed = isOwnerSide ? !!ownerConfirmedAt : !!tenantConfirmedAt;
+  const otherConfirmed = isOwnerSide ? !!tenantConfirmedAt : !!ownerConfirmedAt;
+  const isRented = listingStatus === 'rented';
+  const showConfirmSection = (listingStatus === 'negotiating' || isRented) && (isOwnerSide || isTenantSide);
+
   const handleConfirmDeal = async () => {
-    if (!user || !listingId || confirmingDeal) return;
-    if (user.id !== ownerId) return;
-    if (!confirm('تأكيد الاتفاق وتعيين الإعلان كمؤجَّر؟')) return;
+    if (!user || !listingId || !conversationId || confirmingDeal) return;
+    if (myConfirmed) return;
+    const msg = isOwnerSide ? 'تأكيد التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
+    if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
-      // 1) Mark listing as rented
-      const { error: lErr } = await supabase
-        .from('listings')
-        .update({ status: 'rented' as any, last_updated_at: new Date().toISOString() })
-        .eq('id', listingId);
-      if (lErr) throw lErr;
-
-      // 2) Reject all other pending requests for this listing
-      await (supabase as any)
-        .from('listing_requests')
-        .update({ status: 'rejected' })
-        .eq('listing_id', listingId)
-        .eq('status', 'pending')
-        .neq('requester_id', userId);
-
-      // 3) Mark accepted request for this conversation's requester as accepted (in case it was still pending)
-      await (supabase as any)
-        .from('listing_requests')
-        .update({ status: 'accepted' })
-        .eq('listing_id', listingId)
-        .eq('requester_id', userId)
-        .in('status', ['pending', 'accepted']);
-
-      // 4) Notify the requester
-      await supabase.from('notifications').insert({
-        user_id: userId,
-        type: 'private_offer_accepted' as any,
-        title_ar: 'تم تأكيد الاتفاق',
-        body_ar: `تم تأكيد الاتفاق على: ${listingTitle}`,
-        link: `/chat/${conversationId}`,
+      const { data, error } = await (supabase as any).rpc('confirm_rental_deal', {
+        _listing_id: listingId,
+        _conversation_id: conversationId,
       });
-
-      setListingStatus('rented');
-      toast.success('تم تأكيد الاتفاق');
+      if (error) throw error;
+      const nowIso = new Date().toISOString();
+      if (isOwnerSide) setOwnerConfirmedAt(nowIso); else setTenantConfirmedAt(nowIso);
+      if (data?.both_confirmed) {
+        setListingStatus('rented');
+        toast.success('تم تأكيد الاتفاق وتأجير الإعلان');
+      } else {
+        toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
+      }
     } catch (e: any) {
       toast.error(e?.message || 'حدث خطأ');
     } finally {
@@ -267,17 +258,30 @@ const ConversationPage = () => {
           </p>
         </div>
 
-        {user?.id === ownerId && listingStatus === 'negotiating' && (
-          <button
-            onClick={handleConfirmDeal}
-            disabled={confirmingDeal}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
-          >
-            {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-            تم الاتفاق
-          </button>
+        {showConfirmSection && (
+          isRented ? (
+            <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-bold px-3 py-2">
+              <CheckCircle2 className="h-3.5 w-3.5" /> تم التأجير
+            </span>
+          ) : (
+            <button
+              onClick={handleConfirmDeal}
+              disabled={confirmingDeal || myConfirmed}
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+            >
+              {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+              {myConfirmed ? 'بانتظار الطرف الآخر' : (isOwnerSide ? 'تم التأجير' : 'أؤكد الاتفاق')}
+            </button>
+          )
         )}
       </header>
+
+      {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
+        <div className="px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
+          {myConfirmed && !otherConfirmed && 'تم تسجيل تأكيدك — بانتظار تأكيد الطرف الآخر'}
+          {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
