@@ -83,6 +83,7 @@ const RequestDetailPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [fulfillOpen, setFulfillOpen] = useState(false);
+  const [offerOpen, setOfferOpen] = useState(false);
 
   const districtName = (dId: string | null) => districts.find(d => d.id === dId)?.name_ar ?? '';
 
