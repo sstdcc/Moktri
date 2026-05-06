@@ -17,9 +17,11 @@ import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
 import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
+import { SendHousingOfferDialog } from '@/components/rental/SendHousingOfferDialog';
+import { HousingRequestOffersList } from '@/components/rental/HousingRequestOffersList';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home,
+  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home, Gift,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
