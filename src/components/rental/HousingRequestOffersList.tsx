@@ -143,10 +143,17 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
       {offers.map(o => {
         const canAct = user?.id === o.requester_id && o.status === 'pending';
         return (
-          <Card key={o.id} className="overflow-hidden">
+          <Card
+            key={o.id}
+            className="overflow-hidden cursor-pointer transition-colors hover:border-accent/40"
+            onClick={() => navigate(`/listings/${o.listing_id}`)}
+          >
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[13px] font-bold truncate flex-1">{o.listing?.title ?? 'إعلان'}</p>
+                <p
+                  className="text-[13px] font-bold truncate flex-1 hover:text-accent"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/listings/${o.listing_id}`); }}
+                >{o.listing?.title ?? 'إعلان'}</p>
                 <Badge className={cn('text-[10px] font-bold rounded-md px-2 py-0.5', statusColors[o.status])}>{statusLabels[o.status]}</Badge>
               </div>
               <p className="text-[11px] text-muted-foreground">من: {o.owner?.full_name ?? 'المالك'}</p>
@@ -156,20 +163,20 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
               {o.message && <p className="text-[12px] text-foreground/85 leading-[1.7]">{o.message}</p>}
               {o.created_at && <p className="text-[10px] text-muted-foreground">{timeAgo(o.created_at)}</p>}
               {canAct && (
-                <div className="flex gap-2 pt-1">
-                  <Button size="sm" onClick={() => accept(o)} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
+                <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                  <Button size="sm" onClick={(e) => { e.stopPropagation(); accept(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
                     {actingId === o.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} قبول
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => reject(o)} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); reject(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
                     <X className="h-3 w-3" /> رفض
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => openChat(o)} className="h-8 gap-1 text-xs">
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openChat(o); }} className="h-8 gap-1 text-xs">
                     <MessageSquare className="h-3 w-3" /> محادثة
                   </Button>
                 </div>
               )}
               {!canAct && o.status === 'accepted' && user?.id === o.requester_id && (
-                <Button size="sm" variant="outline" onClick={() => openChat(o)} className="h-8 gap-1 text-xs">
+                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openChat(o); }} className="h-8 gap-1 text-xs">
                   <MessageSquare className="h-3 w-3" /> فتح المحادثة
                 </Button>
               )}
