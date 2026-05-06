@@ -17,9 +17,11 @@ import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
 import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
+import { SendHousingOfferDialog } from '@/components/rental/SendHousingOfferDialog';
+import { HousingRequestOffersList } from '@/components/rental/HousingRequestOffersList';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home,
+  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home, Gift,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
@@ -81,6 +83,7 @@ const RequestDetailPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [fulfillOpen, setFulfillOpen] = useState(false);
+  const [offerOpen, setOfferOpen] = useState(false);
 
   const districtName = (dId: string | null) => districts.find(d => d.id === dId)?.name_ar ?? '';
 
@@ -343,6 +346,27 @@ const RequestDetailPage = () => {
               </div>
             )}
           </div>
+        )}
+
+        {/* Housing request offers (visible to requester and the offering owners) */}
+        {user && (
+          <HousingRequestOffersList housingRequestId={request.id} onChange={fetchData} />
+        )}
+
+        {/* Send-offer button for owners/brokers */}
+        {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
+          <>
+            <Button onClick={() => setOfferOpen(true)} variant="outline" className="w-full gap-2 border-accent/30 text-accent hover:bg-accent/10">
+              <Gift className="h-4 w-4" /> إرسال عرض
+            </Button>
+            <SendHousingOfferDialog
+              open={offerOpen}
+              onOpenChange={setOfferOpen}
+              housingRequestId={request.id}
+              requesterId={request.requester_id}
+              onSent={fetchData}
+            />
+          </>
         )}
 
         {/* Response form for owners/brokers */}
