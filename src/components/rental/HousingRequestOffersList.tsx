@@ -143,10 +143,17 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
       {offers.map(o => {
         const canAct = user?.id === o.requester_id && o.status === 'pending';
         return (
-          <Card key={o.id} className="overflow-hidden">
+          <Card
+            key={o.id}
+            className="overflow-hidden cursor-pointer transition-colors hover:border-accent/40"
+            onClick={() => navigate(`/listings/${o.listing_id}`)}
+          >
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[13px] font-bold truncate flex-1">{o.listing?.title ?? 'إعلان'}</p>
+                <p
+                  className="text-[13px] font-bold truncate flex-1 hover:text-accent"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/listings/${o.listing_id}`); }}
+                >{o.listing?.title ?? 'إعلان'}</p>
                 <Badge className={cn('text-[10px] font-bold rounded-md px-2 py-0.5', statusColors[o.status])}>{statusLabels[o.status]}</Badge>
               </div>
               <p className="text-[11px] text-muted-foreground">من: {o.owner?.full_name ?? 'المالك'}</p>
