@@ -77,7 +77,7 @@ const ConversationPage = () => {
     setOtherId(other);
     const [profileRes, listingRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      supabase.from('listings').select('title, status').eq('id', conv.listing_id).single(),
+      supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
@@ -85,6 +85,8 @@ const ConversationPage = () => {
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
     setListingStatus((listingRes.data as any)?.status ?? '');
+    setOwnerConfirmedAt((listingRes.data as any)?.owner_confirmed_at ?? null);
+    setTenantConfirmedAt((listingRes.data as any)?.tenant_confirmed_at ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
