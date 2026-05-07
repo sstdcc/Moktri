@@ -227,7 +227,7 @@ const ConversationPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-background font-tajawal" dir="rtl">
+    <div className="flex flex-col h-[calc(100dvh-3.5rem-6rem)] md:h-[calc(100dvh-3.5rem)] bg-background font-tajawal" dir="rtl">
       {/* Header */}
       <header className="sticky top-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
         <button
