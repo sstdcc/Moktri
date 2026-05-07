@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,110 +6,109 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 210 40% 14%;
+    /* Warm off-white background, pure white cards */
+    --background: 42 23% 95%;
+    --foreground: 220 39% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 40% 14%;
+    --card-foreground: 220 39% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 40% 14%;
+    --popover-foreground: 220 39% 11%;
 
-    --primary: 207 56% 28%;
+    /* Deep navy primary */
+    --primary: 218 50% 12%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 218 18% 94%;
-    --secondary-foreground: 207 56% 28%;
+    --secondary: 40 24% 92%;
+    --secondary-foreground: 220 39% 11%;
 
-    --muted: 220 16% 94%;
-    --muted-foreground: 215 12% 48%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 215 14% 42%;
 
-    --accent: 37 90% 51%;
+    /* Muted gold accent */
+    --accent: 44 82% 46%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 145 48% 42%;
+    --success: 142 60% 38%;
     --success-foreground: 0 0% 100%;
 
-    --danger: 4 74% 57%;
+    --danger: 0 72% 51%;
     --danger-foreground: 0 0% 100%;
 
-    --destructive: 4 74% 57%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 16% 90%;
-    --input: 220 16% 90%;
-    --ring: 207 56% 28%;
+    --border: 40 24% 88%;
+    --input: 40 24% 88%;
+    --ring: 44 82% 46%;
 
     --radius: 0.875rem;
 
-    /* Premium shadow tokens */
-    --shadow-sm: 0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.03);
-    --shadow-card: 0 2px 8px -2px rgba(0,0,0,0.06), 0 4px 16px -4px rgba(0,0,0,0.04);
-    --shadow-elevated: 0 8px 30px -6px rgba(0,0,0,0.1), 0 2px 8px -2px rgba(0,0,0,0.04);
-    --shadow-glow-accent: 0 4px 20px -4px hsla(37, 90%, 51%, 0.25);
-    --shadow-glow-primary: 0 4px 20px -4px hsla(207, 56%, 28%, 0.2);
+    /* Premium soft shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-card: 0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 4px 12px -4px rgba(15, 23, 42, 0.06);
+    --shadow-elevated: 0 4px 16px -4px rgba(15, 23, 42, 0.08), 0 12px 32px -12px rgba(15, 23, 42, 0.08);
 
-    --sidebar-background: 0 0% 99%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 207 56% 28%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 207 56% 28%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 39% 11%;
+    --sidebar-primary: 218 50% 12%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 24% 92%;
+    --sidebar-accent-foreground: 220 39% 11%;
+    --sidebar-border: 40 24% 88%;
+    --sidebar-ring: 44 82% 46%;
   }
 
   .dark {
-    /* Premium dark — deep slate/navy, not pure black */
-    --background: 222 28% 8%;
-    --foreground: 210 25% 94%;
+    /* Deep navy backgrounds */
+    --background: 218 50% 5%;
+    --foreground: 210 40% 98%;
 
-    --card: 222 24% 12%;
-    --card-foreground: 210 25% 94%;
+    --card: 220 39% 11%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 222 24% 12%;
-    --popover-foreground: 210 25% 94%;
+    --popover: 220 39% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Brand primary lifted for contrast on dark surfaces */
-    --primary: 207 70% 62%;
-    --primary-foreground: 222 47% 10%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 218 50% 8%;
 
-    --secondary: 222 20% 17%;
-    --secondary-foreground: 210 25% 94%;
+    --secondary: 220 30% 16%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 222 20% 16%;
-    --muted-foreground: 215 16% 65%;
+    --muted: 220 30% 14%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 37 92% 58%;
-    --accent-foreground: 222 47% 10%;
+    /* Elegant muted gold */
+    --accent: 44 78% 52%;
+    --accent-foreground: 218 50% 8%;
 
-    --success: 145 55% 50%;
-    --success-foreground: 222 47% 10%;
+    --success: 142 65% 45%;
+    --success-foreground: 218 50% 8%;
 
-    --danger: 4 78% 62%;
+    --danger: 0 75% 58%;
     --danger-foreground: 0 0% 100%;
 
-    --destructive: 4 78% 62%;
+    --destructive: 0 75% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 18% 20%;
-    --input: 222 18% 20%;
-    --ring: 207 70% 62%;
+    --border: 220 25% 18%;
+    --input: 220 25% 18%;
+    --ring: 44 78% 52%;
 
-    --shadow-sm: 0 1px 3px 0 rgba(0,0,0,0.4), 0 1px 2px -1px rgba(0,0,0,0.3);
-    --shadow-card: 0 2px 8px -2px rgba(0,0,0,0.5), 0 4px 16px -4px rgba(0,0,0,0.35);
-    --shadow-elevated: 0 8px 30px -6px rgba(0,0,0,0.6), 0 2px 8px -2px rgba(0,0,0,0.4);
-    --shadow-glow-accent: 0 4px 20px -4px hsla(37, 92%, 58%, 0.35);
-    --shadow-glow-primary: 0 4px 20px -4px hsla(207, 70%, 62%, 0.3);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 8px 24px -8px rgba(0, 0, 0, 0.5), 0 16px 40px -16px rgba(0, 0, 0, 0.5);
 
-    --sidebar-background: 222 26% 10%;
-    --sidebar-foreground: 210 20% 88%;
-    --sidebar-primary: 207 70% 62%;
-    --sidebar-primary-foreground: 222 47% 10%;
-    --sidebar-accent: 222 22% 16%;
-    --sidebar-accent-foreground: 210 25% 94%;
-    --sidebar-border: 222 18% 18%;
-    --sidebar-ring: 207 70% 62%;
+    --sidebar-background: 220 39% 9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 44 78% 52%;
+    --sidebar-primary-foreground: 218 50% 8%;
+    --sidebar-accent: 220 30% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 25% 16%;
+    --sidebar-ring: 44 78% 52%;
   }
 }
 
@@ -127,8 +126,8 @@
     @apply bg-background text-foreground font-tajawal antialiased;
     overflow-x: hidden;
     font-weight: 400;
-    line-height: 1.7;
-    letter-spacing: 0.01em;
+    line-height: 1.75;
+    letter-spacing: 0.005em;
   }
   #root {
     overflow-x: hidden;
@@ -136,15 +135,15 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-cairo;
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
   }
   h1 { @apply text-2xl; }
   h2 { @apply text-xl; }
   h3 { @apply text-lg; }
   p {
-    line-height: 1.75;
+    line-height: 1.8;
   }
   small, .text-xs, .text-\[10px\], .text-\[11px\] {
     font-weight: 400;

@@ -86,10 +86,7 @@ export const BottomNav = () => {
                   <div className="flex flex-col items-center px-1">
                     <button
                       onClick={() => navigate('/listings/new')}
-                      className="w-[48px] h-[48px] rounded-2xl bg-gradient-to-br from-accent via-accent to-accent/80 flex items-center justify-center -translate-y-4 transition-all duration-200 hover:scale-105 active:scale-95"
-                      style={{
-                        boxShadow: '0 6px 20px -4px hsl(var(--accent) / 0.5), 0 2px 6px -2px hsl(var(--accent) / 0.3)',
-                      }}
+                      className="w-[48px] h-[48px] rounded-2xl bg-accent flex items-center justify-center -translate-y-4 transition-all duration-200 hover:brightness-105 active:scale-95"
                       aria-label="إضافة إعلان جديد"
                     >
                       <Plus className="h-5.5 w-5.5 text-accent-foreground stroke-[2.5px]" />
