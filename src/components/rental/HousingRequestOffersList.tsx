@@ -165,7 +165,7 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
               {canAct && (
                 <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
                   <Button size="sm" onClick={(e) => { e.stopPropagation(); accept(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
-                    {actingId === o.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} قبول
+                    {actingId === o.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} بدء التفاوض
                   </Button>
                   <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); reject(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
                     <X className="h-3 w-3" /> رفض
