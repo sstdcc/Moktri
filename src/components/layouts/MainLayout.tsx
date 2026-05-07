@@ -20,10 +20,10 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-x-hidden" dir="rtl">
+      <div className="h-[100dvh] flex w-full overflow-hidden" dir="rtl">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          <header className="sticky top-0 z-40 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl"
+        <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
+          <header className="shrink-0 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl z-40"
             style={{ boxShadow: '0 1px 8px -4px rgba(0,0,0,0.06)' }}
           >
             <div className="flex h-full w-full items-center justify-between px-2 md:px-6 lg:px-8">
@@ -45,7 +45,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
               )}
             </div>
           </header>
-          <main className={showBottomNav ? 'flex-1 pb-24 min-w-0 w-full' : 'flex-1 min-w-0 w-full'}>
+          <main className={'flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden ' + (showBottomNav ? 'pb-24' : '')}>
             <div className="w-full min-w-0">
               {children}
             </div>
