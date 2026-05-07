@@ -128,7 +128,7 @@ const HomePage = () => {
 
         <div className="relative z-10">
           <div className="animate-fade-in">
-            <h1 className="text-5xl font-black text-primary-foreground tracking-tight drop-shadow-lg">Moktari</h1>
+            <h1 className="text-5xl font-black text-primary-foreground tracking-tight">Moktari</h1>
             <p className="mt-1 text-base font-bold text-primary-foreground/90 tracking-tight">مُكتري</p>
             <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
               تعز • اليمن
