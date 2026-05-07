@@ -95,7 +95,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200',
                     active
-                      ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                      ? 'bg-primary/10 text-primary font-semibold'
                       : 'text-muted-foreground/70 hover:bg-muted/50 hover:text-foreground'
                   )}
                 >
@@ -171,7 +171,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
                     <div className={cn(
                       'flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
                       active
-                        ? 'bg-primary/12 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.25)]'
+                        ? 'bg-primary/12'
                         : 'hover:bg-muted/40'
                     )}>
                       <item.icon className={cn(
@@ -234,7 +234,7 @@ function MoreSheet({
             className={cn(
               'flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
               anyActive
-                ? 'bg-primary/12 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.25)]'
+                ? 'bg-primary/12'
                 : 'hover:bg-muted/40'
             )}
           >
