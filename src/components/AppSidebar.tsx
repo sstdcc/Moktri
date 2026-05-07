@@ -165,7 +165,7 @@ export function AppSidebar() {
                       className={cn(
                         'rounded-xl h-10 transition-all duration-200 gap-3',
                         active
-                          ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                          ? 'bg-primary/10 text-primary font-semibold'
                           : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                       )}
                     >
@@ -213,7 +213,7 @@ export function AppSidebar() {
                         className={cn(
                           'rounded-xl h-10 transition-all duration-200 gap-3',
                           active
-                            ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                            ? 'bg-primary/10 text-primary font-semibold'
                             : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                         )}
                       >
@@ -250,7 +250,7 @@ export function AppSidebar() {
                   className={cn(
                     'rounded-xl h-10 transition-all duration-200 gap-3',
                     isActive('/settings')
-                      ? 'bg-primary/10 text-primary font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.2)]'
+                      ? 'bg-primary/10 text-primary font-semibold'
                       : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
                   )}
                 >
@@ -272,7 +272,7 @@ export function AppSidebar() {
                     className={cn(
                       'rounded-xl h-10 transition-all duration-200 gap-3',
                       isActive('/verify')
-                        ? 'bg-accent/10 text-accent font-semibold shadow-[0_2px_8px_-2px_hsl(var(--accent)/0.2)]'
+                        ? 'bg-accent/10 text-accent font-semibold'
                         : 'text-accent/70 hover:bg-accent/5 hover:text-accent'
                     )}
                   >

@@ -40,7 +40,7 @@ export const BottomNav = () => {
       <div className={cn(
         'flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
         isActive
-          ? 'bg-primary/12 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.25)]'
+          ? 'bg-primary/12'
           : 'hover:bg-muted/40'
       )}>
         <item.icon className={cn(
@@ -116,7 +116,7 @@ export const BottomNav = () => {
             <div className={cn(
               'relative flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
               isNotifActive
-                ? 'bg-primary/12 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.25)]'
+                ? 'bg-primary/12'
                 : 'hover:bg-muted/40'
             )}>
               <Bell className={cn(
