@@ -4,6 +4,7 @@ import { Bell } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { BottomNav } from '@/components/ui/BottomNav';
+import { Logo } from '@/components/ui/Logo';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
@@ -28,7 +29,13 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
           >
             <div className="flex h-full w-full items-center justify-between px-2 md:px-6 lg:px-8">
               <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground md:hidden" />
-              <div className="hidden md:block" />
+              <button
+                onClick={() => navigate('/')}
+                aria-label="الصفحة الرئيسية"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <Logo className="h-9 w-9 md:h-10 md:w-10" />
+              </button>
               {user && (
                 <button
                   onClick={() => navigate('/notifications')}
