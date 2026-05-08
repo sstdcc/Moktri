@@ -78,7 +78,7 @@ const CompleteProfilePage = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Logo className="mx-auto mb-3 h-20 w-20" />
+          <Logo framed className="mx-auto mb-3 h-28 w-28" />
           <h1 className="text-2xl font-black text-primary">أكمل حسابك</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             نحتاج رقم هاتفك لإكمال إنشاء الحساب

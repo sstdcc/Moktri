@@ -76,7 +76,7 @@ const ResetPasswordPage = () => {
     <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-16 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
         <div className="mb-12 text-center">
-          <Logo className="mx-auto mb-6 h-20 w-20" />
+          <Logo framed className="mx-auto mb-6 h-28 w-28" />
           <h1 className="text-[26px] font-semibold tracking-tight leading-tight text-foreground">
             تعيين كلمة مرور جديدة
           </h1>
