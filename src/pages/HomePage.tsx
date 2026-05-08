@@ -140,18 +140,18 @@ const HomePage = () => {
           </div>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="mt-8 flex items-center gap-2 rounded-2xl bg-white/95 backdrop-blur-xl p-3 shadow-elevated border border-white/30 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <Search className="h-5 w-5 text-accent mr-1 shrink-0" />
+          <form onSubmit={handleSearch} className="mt-8 flex items-center gap-3 rounded-2xl bg-white/85 dark:bg-card/70 backdrop-blur-2xl p-2 pr-4 shadow-elevated border border-white/40 dark:border-white/10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <Search className="h-[18px] w-[18px] text-muted-foreground/70 shrink-0" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث بالحي أو اسم المنطقة..."
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none px-1"
+              className="flex-1 min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none"
             />
             <button
               type="submit"
-              className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-white flex items-center gap-2 transition-all duration-200 hover:brightness-105 active:scale-95 shrink-0 shadow-glow-accent"
+              className="rounded-xl bg-accent/90 hover:bg-accent px-5 py-2.5 text-sm font-bold text-accent-foreground flex items-center gap-1.5 transition-all duration-200 active:scale-95 shrink-0"
             >
               <Search className="h-4 w-4" />
               بحث
