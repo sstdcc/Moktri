@@ -55,9 +55,7 @@ const ForgotPasswordPage = () => {
     <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-16 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
         <div className="mb-12 text-center">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
-            <span className="text-xl font-bold text-primary-foreground">م</span>
-          </div>
+          <Logo className="mx-auto mb-6 h-20 w-20" />
           <h1 className="text-[26px] font-semibold tracking-tight leading-tight text-foreground">
             نسيت كلمة المرور؟
           </h1>
