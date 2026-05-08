@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import { Logo } from '@/components/ui/Logo';
 
 const OnboardingPage = () => {
   const { user, loading } = useAuth();

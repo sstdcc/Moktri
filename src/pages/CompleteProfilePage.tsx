@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2, Phone } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 const normalizePhone = (raw: string) => {
   let d = raw.replace(/[^\d+]/g, '');

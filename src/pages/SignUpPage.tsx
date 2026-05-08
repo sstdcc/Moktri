@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/ui/Logo';
 
 const RESEND_COOLDOWN = 60;
 

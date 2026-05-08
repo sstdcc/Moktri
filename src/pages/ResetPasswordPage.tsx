@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/ui/Logo';
 
 const schema = z.object({
   password: z.string().min(6, 'كلمة المرور يجب ألا تقل عن 6 أحرف').max(72),
