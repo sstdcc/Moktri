@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import { Logo } from '@/components/ui/Logo';
 
 const OnboardingPage = () => {
   const { user, loading } = useAuth();
@@ -27,9 +28,7 @@ const OnboardingPage = () => {
     >
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-md">
-            <span className="text-xl font-black text-primary-foreground">م</span>
-          </div>
+          <Logo className="mx-auto mb-4 h-20 w-20" />
           <h1 className="text-[24px] font-black tracking-tight text-foreground">
             مرحباً بك في <span className="text-primary">Moktari (مُكتري)</span>
           </h1>

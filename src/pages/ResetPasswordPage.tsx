@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/ui/Logo';
 
 const schema = z.object({
   password: z.string().min(6, 'كلمة المرور يجب ألا تقل عن 6 أحرف').max(72),
@@ -75,9 +76,7 @@ const ResetPasswordPage = () => {
     <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-16 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
         <div className="mb-12 text-center">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
-            <span className="text-xl font-bold text-primary-foreground">م</span>
-          </div>
+          <Logo className="mx-auto mb-6 h-20 w-20" />
           <h1 className="text-[26px] font-semibold tracking-tight leading-tight text-foreground">
             تعيين كلمة مرور جديدة
           </h1>

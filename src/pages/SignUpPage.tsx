@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Loader2, ArrowRight, RefreshCw, User, Phone, KeyRound, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/ui/Logo';
 
 const RESEND_COOLDOWN = 60;
 
@@ -271,9 +272,7 @@ const SignUpPage = () => {
     <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/95 shadow-md">
-            <span className="text-xl font-black text-primary-foreground">م</span>
-          </div>
+          <Logo className="mx-auto mb-6 h-20 w-20" />
           <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
             إنشاء <span className="text-primary">حساب</span>
           </h1>
