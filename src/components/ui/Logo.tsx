@@ -34,7 +34,7 @@ export const Logo = ({ className, alt = 'Moktari (مُكتري)', framed = false
         'inline-flex items-center justify-center rounded-3xl',
         'bg-card/80 dark:bg-card/60 backdrop-blur-sm',
         'ring-1 ring-border/40 dark:ring-border/30',
-        'p-5',
+        'p-4',
         className,
         frameClassName,
       )}
