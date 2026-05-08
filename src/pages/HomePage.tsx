@@ -118,15 +118,15 @@ const HomePage = () => {
             <img
               src={img}
               alt=""
-              className="w-full h-full object-cover dark:brightness-[0.45] dark:saturate-[0.85] transition-all"
+              className="w-full h-full object-cover dark:brightness-[0.7] dark:saturate-90 transition-all"
               {...(i === 0 ? {} : { loading: 'lazy' as const })}
             />
           </div>
         ))}
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85 dark:from-background/85 dark:via-background/75 dark:to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85 dark:from-background/50 dark:via-background/40 dark:to-background/70" />
         {/* Bottom blend into page background */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-background pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background pointer-events-none" />
 
         <div className="relative z-10">
           <div className="animate-fade-in">
