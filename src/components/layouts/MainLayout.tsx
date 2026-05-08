@@ -29,13 +29,17 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
           >
             <div className="flex h-full w-full items-center justify-between px-2 md:px-6 lg:px-8">
               <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground md:hidden" />
-              <button
-                onClick={() => navigate('/')}
-                aria-label="الصفحة الرئيسية"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              >
-                <Logo framed className="h-10 w-10 md:h-11 md:w-11" />
-              </button>
+              {!user ? (
+                <button
+                  onClick={() => navigate('/')}
+                  aria-label="الصفحة الرئيسية"
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
+                  <Logo framed className="h-10 w-10 md:h-11 md:w-11" />
+                </button>
+              ) : (
+                <span aria-hidden className="flex-1" />
+              )}
               {user && (
                 <button
                   onClick={() => navigate('/notifications')}
