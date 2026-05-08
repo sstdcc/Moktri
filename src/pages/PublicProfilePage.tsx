@@ -40,23 +40,41 @@ const PublicProfilePage = () => {
     if (!id) return;
     setError(false);
     setLoading(true);
-    try {
-      const [profileRes, listingsRes] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at').eq('id', id).single(),
-        supabase
-          .from('listings')
-          .select('*, district:districts(name_ar), listing_images(url, is_primary)')
-          .eq('owner_id', id)
-          .eq('status', 'active')
-          .order('created_at', { ascending: false }),
-      ]);
-      if (profileRes.error) throw profileRes.error;
-      setProfile(profileRes.data);
-      setListings(listingsRes.data ?? []);
-    } catch {
+
+    // 1. Fetch profile first (critical)
+    const profileRes = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (profileRes.error || !profileRes.data) {
+      console.error('[PublicProfilePage] profile fetch failed:', profileRes.error, 'id:', id);
       setError(true);
+      setLoading(false);
+      return;
     }
+    setProfile(profileRes.data);
     setLoading(false);
+
+    // 2. Fetch listings separately — failure here must NOT break the page
+    try {
+      const listingsRes = await supabase
+        .from('listings')
+        .select('*, district:districts(name_ar), listing_images(url, is_primary)')
+        .eq('owner_id', id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      if (listingsRes.error) {
+        console.error('[PublicProfilePage] listings fetch failed:', listingsRes.error);
+        setListings([]);
+      } else {
+        setListings(listingsRes.data ?? []);
+      }
+    } catch (e) {
+      console.error('[PublicProfilePage] listings fetch threw:', e);
+      setListings([]);
+    }
   }, [id]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
