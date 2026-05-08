@@ -34,7 +34,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
                 aria-label="الصفحة الرئيسية"
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                <Logo className="h-9 w-9 md:h-10 md:w-10" />
+                <Logo framed className="h-10 w-10 md:h-11 md:w-11" />
               </button>
               {user && (
                 <button
