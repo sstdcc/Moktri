@@ -20,7 +20,7 @@ export const Logo = ({ className, alt = 'Moktari (مُكتري)', framed = false
     <img
       src={logoSrc}
       alt={alt}
-      className={cn('object-contain select-none', framed ? 'h-full w-full' : className)}
+      className={cn('object-contain select-none rounded-2xl', framed ? 'h-full w-full' : className)}
       draggable={false}
     />
   );
