@@ -28,7 +28,7 @@ const OnboardingPage = () => {
     >
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Logo className="mx-auto mb-4 h-20 w-20" />
+          <Logo framed className="mx-auto mb-4 h-28 w-28" />
           <h1 className="text-[24px] font-black tracking-tight text-foreground">
             مرحباً بك في <span className="text-primary">Moktari (مُكتري)</span>
           </h1>
