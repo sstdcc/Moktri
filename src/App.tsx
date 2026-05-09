@@ -54,6 +54,7 @@ const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const ChatPage = lazy(() => import("./pages/ChatPage"));
 const ChatUserPage = lazy(() => import("./pages/ChatUserPage"));
 const ConversationPage = lazy(() => import("./pages/ConversationPage"));
+const RequestConversationPage = lazy(() => import("./pages/RequestConversationPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
