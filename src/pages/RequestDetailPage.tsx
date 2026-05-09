@@ -63,6 +63,7 @@ interface ResponseRow {
   message: string;
   created_at: string | null;
   listing_id: string | null;
+  responder_id: string;
   responder: { full_name: string; avatar_url: string | null } | null;
 }
 
