@@ -340,20 +340,19 @@ const HomePage = () => {
 
       {/* HOUSING REQUEST CTA */}
       <section className="px-5 pb-10">
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-primary to-[hsl(207,70%,15%)]">
-          {/* Decorative circles */}
-          <div className="absolute -top-10 -left-10 w-36 h-36 rounded-full bg-white/5" />
-          <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-accent/8" />
+        <div className="relative rounded-3xl overflow-hidden bg-[hsl(207,55%,12%)] dark:bg-card border border-white/5 dark:border-border/40 shadow-card">
+          {/* Subtle accent glow */}
+          <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-accent/5 blur-2xl" />
 
           <div className="relative z-10 p-7">
-            <span className="inline-block rounded-lg bg-accent/20 backdrop-blur-sm text-accent text-[11px] px-3 py-1 font-bold mb-4 border border-accent/15">
+            <span className="inline-block rounded-lg bg-accent/10 text-accent text-[11px] px-3 py-1 font-bold mb-4 border border-accent/20">
               للباحثين عن سكن
             </span>
-            <h2 className="text-xl font-black text-white tracking-tight">لم تجد ما تبحث عنه؟</h2>
-            <p className="mt-2.5 text-[13px] text-white/60 leading-relaxed">انشر طلب سكن وسيتواصل معك الملاك والدلالون مباشرة</p>
+            <h2 className="text-xl font-black text-white dark:text-foreground tracking-tight">لم تجد ما تبحث عنه؟</h2>
+            <p className="mt-2.5 text-[13px] text-white/65 dark:text-muted-foreground leading-relaxed">انشر طلب سكن وسيتواصل معك الملاك والدلالون مباشرة</p>
             <button
               onClick={() => navigate(user ? '/requests/new' : '/auth?returnUrl=/requests/new')}
-              className="mt-6 w-full rounded-2xl bg-accent py-3.5 text-sm font-bold text-white flex items-center justify-center gap-2 transition-all duration-200 hover:brightness-105 active:scale-[0.98] shadow-glow-accent"
+              className="mt-6 w-full rounded-2xl bg-accent/90 hover:bg-accent py-3.5 text-sm font-bold text-accent-foreground flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98]"
             >
               انشر طلب سكن الآن
               <ArrowLeft className="h-4 w-4" />
