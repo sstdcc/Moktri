@@ -108,7 +108,7 @@ const RequestDetailPage = () => {
       if (user) {
         const { data: resps } = await supabase
           .from('request_responses')
-          .select('id, message, created_at, listing_id, responder:profiles!request_responses_responder_id_fkey(full_name, avatar_url)')
+          .select('id, message, created_at, listing_id, responder_id, responder:profiles!request_responses_responder_id_fkey(full_name, avatar_url)')
           .eq('request_id', id)
           .order('created_at', { ascending: false });
         setResponses((resps as unknown as ResponseRow[]) ?? []);
