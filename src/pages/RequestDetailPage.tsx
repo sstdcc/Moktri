@@ -150,10 +150,8 @@ const RequestDetailPage = () => {
 
     // If response references a listing, find/create a listing-scoped conversation
     if (resp.listing_id) {
-      const ownerId = resp.responder_id;
-      const otherUserId = user.id === ownerId ? resp.responder_id : user.id;
-      const convOwner = ownerId;
-      const convUser = user.id === ownerId ? resp.responder_id : user.id;
+      const convOwner = resp.responder_id;
+      const convUser = user.id === convOwner ? convOwner : user.id;
 
       const { data: existing } = await supabase
         .from('listing_conversations')
