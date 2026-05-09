@@ -104,6 +104,7 @@ const App = () => (
                   <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
                   <Route path="/chat/user/:userId" element={<MainLayout><AuthGuard><ChatUserPage /></AuthGuard></MainLayout>} />
                   <Route path="/chat/:id" element={<MainLayout><AuthGuard><ConversationPage /></AuthGuard></MainLayout>} />
+                  <Route path="/request-chat/:id" element={<MainLayout><AuthGuard><RequestConversationPage /></AuthGuard></MainLayout>} />
 
                   {/* Protected routes */}
                   <Route path="/dashboard" element={<MainLayout><AuthGuard><DashboardRedirect /></AuthGuard></MainLayout>} />
