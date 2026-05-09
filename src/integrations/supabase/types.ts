@@ -850,6 +850,65 @@ export type Database = {
           },
         ]
       }
+      request_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          request_id: string
+          requester_id: string
+          responder_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          request_id: string
+          requester_id: string
+          responder_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          request_id?: string
+          requester_id?: string
+          responder_id?: string
+        }
+        Relationships: []
+      }
+      request_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          sender_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "request_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       request_responses: {
         Row: {
           contact_phone: string | null
@@ -1102,6 +1161,10 @@ export type Database = {
         Returns: undefined
       }
       is_conversation_member: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_request_conversation_member: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
