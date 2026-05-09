@@ -141,6 +141,51 @@ const RequestDetailPage = () => {
     setSubmitting(false);
   };
 
+  const openChatWithResponder = async (resp: ResponseRow) => {
+    if (!user) {
+      navigate(`/auth?returnUrl=/requests/${id}`);
+      return;
+    }
+    if (resp.responder_id === user.id) return;
+
+    // If response references a listing, find/create a listing-scoped conversation
+    if (resp.listing_id) {
+      const ownerId = resp.responder_id;
+      const otherUserId = user.id === ownerId ? resp.responder_id : user.id;
+      const convOwner = ownerId;
+      const convUser = user.id === ownerId ? resp.responder_id : user.id;
+
+      const { data: existing } = await supabase
+        .from('listing_conversations')
+        .select('id')
+        .eq('listing_id', resp.listing_id)
+        .eq('owner_id', convOwner)
+        .eq('user_id', convUser)
+        .maybeSingle();
+
+      if (existing?.id) {
+        navigate(`/chat/${existing.id}`);
+        return;
+      }
+
+      if (user.id === convUser) {
+        const { data: created, error: cErr } = await supabase
+          .from('listing_conversations')
+          .insert({ listing_id: resp.listing_id, owner_id: convOwner, user_id: convUser })
+          .select('id')
+          .single();
+        if (created?.id) {
+          navigate(`/chat/${created.id}`);
+          return;
+        }
+        if (cErr) console.error(cErr);
+      }
+    }
+
+    // Fallback: open the user-to-user chat overview
+    navigate(`/chat/user/${resp.responder_id}`);
+  };
+
   if (loading) return <LoadingSpinner />;
 
   if (error || !request) {
