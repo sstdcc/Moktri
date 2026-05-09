@@ -141,6 +141,53 @@ const RequestDetailPage = () => {
     setSubmitting(false);
   };
 
+  const buildRequestContextMessage = () => {
+    if (!request) return 'مرحباً، بخصوص طلب السكن المنشور.';
+    const catLabel = categoryLabels[request.category] ?? request.category;
+    const dName = districts.find(d => d.id === request.district_id)?.name_ar;
+    const where = [dName, request.neighborhood].filter(Boolean).join(' — ');
+    const summary = where ? `${catLabel} في ${where}` : catLabel;
+    return `مرحباً، بخصوص طلب السكن: ${summary}`;
+  };
+
+  const openOrCreateConversation = async (responderId: string, listingId: string) => {
+    // Requester opens chat with responder (listing owner)
+    const convOwner = responderId;
+    const convUser = user!.id;
+
+    const { data: existing, error: selErr } = await supabase
+      .from('listing_conversations')
+      .select('id')
+      .eq('listing_id', listingId)
+      .eq('owner_id', convOwner)
+      .eq('user_id', convUser)
+      .maybeSingle();
+
+    if (selErr) console.error('conv select error', selErr);
+    if (existing?.id) return existing.id;
+
+    const { data: created, error: cErr } = await supabase
+      .from('listing_conversations')
+      .insert({ listing_id: listingId, owner_id: convOwner, user_id: convUser })
+      .select('id')
+      .single();
+
+    if (cErr || !created) {
+      console.error('conv create error', cErr);
+      return null;
+    }
+
+    // Send initial contextual message
+    const { error: mErr } = await supabase.from('listing_messages').insert({
+      conversation_id: created.id,
+      sender_id: user!.id,
+      message: buildRequestContextMessage(),
+    });
+    if (mErr) console.error('initial msg error', mErr);
+
+    return created.id;
+  };
+
   const openChatWithResponder = async (resp: ResponseRow) => {
     if (!user) {
       navigate(`/auth?returnUrl=/requests/${id}`);
@@ -148,40 +195,32 @@ const RequestDetailPage = () => {
     }
     if (resp.responder_id === user.id) return;
 
-    // If response references a listing, find/create a listing-scoped conversation
-    if (resp.listing_id) {
-      const convOwner = resp.responder_id;
-      const convUser = user.id === convOwner ? convOwner : user.id;
+    let listingId = resp.listing_id;
 
-      const { data: existing } = await supabase
-        .from('listing_conversations')
+    // If the response has no linked listing, try to use the responder's most recent active listing
+    if (!listingId) {
+      const { data: l } = await supabase
+        .from('listings')
         .select('id')
-        .eq('listing_id', resp.listing_id)
-        .eq('owner_id', convOwner)
-        .eq('user_id', convUser)
+        .eq('owner_id', resp.responder_id)
+        .eq('status', 'active')
+        .order('published_at', { ascending: false, nullsFirst: false })
+        .limit(1)
         .maybeSingle();
-
-      if (existing?.id) {
-        navigate(`/chat/${existing.id}`);
-        return;
-      }
-
-      if (user.id === convUser) {
-        const { data: created, error: cErr } = await supabase
-          .from('listing_conversations')
-          .insert({ listing_id: resp.listing_id, owner_id: convOwner, user_id: convUser })
-          .select('id')
-          .single();
-        if (created?.id) {
-          navigate(`/chat/${created.id}`);
-          return;
-        }
-        if (cErr) console.error(cErr);
-      }
+      listingId = l?.id ?? null;
     }
 
-    // Fallback: open the user-to-user chat overview
-    navigate(`/chat/user/${resp.responder_id}`);
+    if (!listingId) {
+      toast.error('لا يمكن بدء محادثة — لم يربط الراد إعلاناً');
+      return;
+    }
+
+    const convId = await openOrCreateConversation(resp.responder_id, listingId);
+    if (convId) {
+      navigate(`/chat/${convId}`);
+    } else {
+      toast.error('تعذر فتح المحادثة');
+    }
   };
 
   if (loading) return <LoadingSpinner />;
