@@ -387,15 +387,15 @@ const RequestDetailPage = () => {
                         </div>
                         <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
                         {user && resp.responder_id !== user.id && (
-                          <div className="mt-3 pt-3 border-t border-border/50 flex justify-end">
+                          <div className="mt-3 pt-3 border-t border-border/40 flex justify-end">
                             <button
                               type="button"
                               onClick={() => openChatWithResponder(resp)}
                               aria-label="بدء محادثة"
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1.5 text-[12px] font-bold text-accent transition-colors hover:bg-accent/25 active:scale-[0.98]"
+                              className="inline-flex items-center gap-1.5 h-7 rounded-full border border-accent/25 bg-accent/8 px-3 text-[11.5px] font-semibold text-accent/90 transition-all hover:bg-accent/15 hover:text-accent hover:border-accent/40 active:scale-[0.97]"
                             >
-                              <MessageSquare className="h-3.5 w-3.5" />
-                              محادثة
+                              <MessageSquare className="h-3.5 w-3.5" strokeWidth={2.25} />
+                              <span>محادثة</span>
                             </button>
                           </div>
                         )}
