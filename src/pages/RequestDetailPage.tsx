@@ -63,6 +63,7 @@ interface ResponseRow {
   message: string;
   created_at: string | null;
   listing_id: string | null;
+  responder_id: string;
   responder: { full_name: string; avatar_url: string | null } | null;
 }
 
@@ -107,7 +108,7 @@ const RequestDetailPage = () => {
       if (user) {
         const { data: resps } = await supabase
           .from('request_responses')
-          .select('id, message, created_at, listing_id, responder:profiles!request_responses_responder_id_fkey(full_name, avatar_url)')
+          .select('id, message, created_at, listing_id, responder_id, responder:profiles!request_responses_responder_id_fkey(full_name, avatar_url)')
           .eq('request_id', id)
           .order('created_at', { ascending: false });
         setResponses((resps as unknown as ResponseRow[]) ?? []);
@@ -138,6 +139,49 @@ const RequestDetailPage = () => {
       fetchData();
     }
     setSubmitting(false);
+  };
+
+  const openChatWithResponder = async (resp: ResponseRow) => {
+    if (!user) {
+      navigate(`/auth?returnUrl=/requests/${id}`);
+      return;
+    }
+    if (resp.responder_id === user.id) return;
+
+    // If response references a listing, find/create a listing-scoped conversation
+    if (resp.listing_id) {
+      const convOwner = resp.responder_id;
+      const convUser = user.id === convOwner ? convOwner : user.id;
+
+      const { data: existing } = await supabase
+        .from('listing_conversations')
+        .select('id')
+        .eq('listing_id', resp.listing_id)
+        .eq('owner_id', convOwner)
+        .eq('user_id', convUser)
+        .maybeSingle();
+
+      if (existing?.id) {
+        navigate(`/chat/${existing.id}`);
+        return;
+      }
+
+      if (user.id === convUser) {
+        const { data: created, error: cErr } = await supabase
+          .from('listing_conversations')
+          .insert({ listing_id: resp.listing_id, owner_id: convOwner, user_id: convUser })
+          .select('id')
+          .single();
+        if (created?.id) {
+          navigate(`/chat/${created.id}`);
+          return;
+        }
+        if (cErr) console.error(cErr);
+      }
+    }
+
+    // Fallback: open the user-to-user chat overview
+    navigate(`/chat/user/${resp.responder_id}`);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -336,9 +380,19 @@ const RequestDetailPage = () => {
                             <p className="text-[12px] font-bold truncate">{respName}</p>
                             {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
                           </div>
+                          {user && resp.responder_id !== user.id && (
+                            <button
+                              type="button"
+                              onClick={() => openChatWithResponder(resp)}
+                              aria-label="بدء محادثة"
+                              className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-[11px] font-bold text-accent transition-colors hover:bg-accent/15 active:scale-[0.98]"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              محادثة
+                            </button>
+                          )}
                         </div>
                         <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
-
                       </CardContent>
                     </Card>
                   );
