@@ -380,9 +380,19 @@ const RequestDetailPage = () => {
                             <p className="text-[12px] font-bold truncate">{respName}</p>
                             {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
                           </div>
+                          {user && resp.responder_id !== user.id && (
+                            <button
+                              type="button"
+                              onClick={() => openChatWithResponder(resp)}
+                              aria-label="بدء محادثة"
+                              className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-[11px] font-bold text-accent transition-colors hover:bg-accent/15 active:scale-[0.98]"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              محادثة
+                            </button>
+                          )}
                         </div>
                         <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
-
                       </CardContent>
                     </Card>
                   );
