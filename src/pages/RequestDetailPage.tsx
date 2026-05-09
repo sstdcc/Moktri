@@ -373,26 +373,28 @@ const RequestDetailPage = () => {
                     <Card key={resp.id} className="overflow-hidden">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2.5 mb-3">
-                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center text-[11px] font-bold text-accent">
+                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center text-[11px] font-bold text-accent shrink-0">
                             {respName.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-[12px] font-bold truncate">{respName}</p>
                             {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
                           </div>
-                          {user && resp.responder_id !== user.id && (
+                        </div>
+                        <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
+                        {user && resp.responder_id !== user.id && (
+                          <div className="mt-3 pt-3 border-t border-border/50 flex justify-end">
                             <button
                               type="button"
                               onClick={() => openChatWithResponder(resp)}
                               aria-label="بدء محادثة"
-                              className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-[11px] font-bold text-accent transition-colors hover:bg-accent/15 active:scale-[0.98]"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1.5 text-[12px] font-bold text-accent transition-colors hover:bg-accent/25 active:scale-[0.98]"
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
                               محادثة
                             </button>
-                          )}
-                        </div>
-                        <p className="text-[13px] text-foreground leading-[1.7]">{resp.message}</p>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   );
