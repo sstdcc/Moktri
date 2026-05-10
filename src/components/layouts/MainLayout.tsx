@@ -8,6 +8,7 @@ import { Logo } from '@/components/ui/Logo';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
+import { PageTransition } from '@/components/layouts/PageTransition';
 
 export const MainLayout = ({ children }: { children: ReactNode }) => {
   const isMobile = useIsMobile();
@@ -57,9 +58,11 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
             </div>
           </header>
           <main className={'flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden ' + (showBottomNav ? 'pb-24' : '')}>
-            <div className="w-full min-w-0">
-              {children}
-            </div>
+            <PageTransition>
+              <div className="w-full min-w-0">
+                {children}
+              </div>
+            </PageTransition>
           </main>
           {showBottomNav && <BottomNav />}
         </div>

@@ -18,6 +18,7 @@ import {
   Menu,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { PageTransition } from '@/components/layouts/PageTransition';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -140,7 +141,9 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
             <div className="w-11 h-11" />
           </header>
         )}
-        <div className="w-full min-w-0 p-4 lg:p-6">{children}</div>
+        <PageTransition>
+          <div className="w-full min-w-0 p-4 lg:p-6">{children}</div>
+        </PageTransition>
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
