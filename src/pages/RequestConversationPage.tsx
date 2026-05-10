@@ -85,6 +85,13 @@ const RequestConversationPage = () => {
       .eq('conversation_id', conversationId)
       .neq('sender_id', user.id)
       .eq('is_read', false);
+
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('link', `/request-chat/${conversationId}`)
+      .eq('is_read', false);
   }, [user, conversationId]);
 
   useEffect(() => { loadData(); }, [loadData]);
