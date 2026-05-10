@@ -141,7 +141,9 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
             <div className="w-11 h-11" />
           </header>
         )}
-        <div className="w-full min-w-0 p-4 lg:p-6">{children}</div>
+        <PageTransition>
+          <div className="w-full min-w-0 p-4 lg:p-6">{children}</div>
+        </PageTransition>
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
