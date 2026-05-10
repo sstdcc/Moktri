@@ -11,35 +11,53 @@ export const useUnreadChats = (): number => {
     if (!user) { setCount(0); return; }
 
     const fetchCount = async () => {
-      // Get conversations where user is a member
-      const { data: convos } = await supabase
+      // Listing conversations
+      const { data: lConvos } = await supabase
         .from('listing_conversations')
         .select('id')
         .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`);
 
-      if (!convos || convos.length === 0) { setCount(0); return; }
+      // Request conversations
+      const { data: rConvos } = await (supabase as any)
+        .from('request_conversations')
+        .select('id')
+        .or(`requester_id.eq.${user.id},responder_id.eq.${user.id}`);
 
-      const convoIds = convos.map(c => c.id);
+      let total = 0;
 
-      const { count: c, error } = await supabase
-        .from('listing_messages')
-        .select('*', { count: 'exact', head: true })
-        .in('conversation_id', convoIds)
-        .neq('sender_id', user.id)
-        .eq('is_read', false);
+      if (lConvos && lConvos.length > 0) {
+        const ids = lConvos.map((c: any) => c.id);
+        const { count: c } = await supabase
+          .from('listing_messages')
+          .select('*', { count: 'exact', head: true })
+          .in('conversation_id', ids)
+          .neq('sender_id', user.id)
+          .eq('is_read', false);
+        if (c != null) total += c;
+      }
 
-      if (!error && c != null) setCount(c);
+      if (rConvos && rConvos.length > 0) {
+        const ids = rConvos.map((c: any) => c.id);
+        const { count: c } = await (supabase as any)
+          .from('request_messages')
+          .select('*', { count: 'exact', head: true })
+          .in('conversation_id', ids)
+          .neq('sender_id', user.id)
+          .eq('is_read', false);
+        if (c != null) total += c;
+      }
+
+      setCount(total);
     };
 
     fetchCount();
 
     const channel = supabase
       .channel(`unread-chats-${idRef.current}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'listing_messages',
-      }, () => { fetchCount(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'listing_messages' }, () => fetchCount())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'request_messages' }, () => fetchCount())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'listing_conversations' }, () => fetchCount())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'request_conversations' }, () => fetchCount())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
