@@ -58,9 +58,11 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
             </div>
           </header>
           <main className={'flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden ' + (showBottomNav ? 'pb-24' : '')}>
-            <div className="w-full min-w-0">
-              {children}
-            </div>
+            <PageTransition>
+              <div className="w-full min-w-0">
+                {children}
+              </div>
+            </PageTransition>
           </main>
           {showBottomNav && <BottomNav />}
         </div>
