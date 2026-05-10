@@ -8,6 +8,7 @@ import { Logo } from '@/components/ui/Logo';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
+import { PageTransition } from '@/components/layouts/PageTransition';
 
 export const MainLayout = ({ children }: { children: ReactNode }) => {
   const isMobile = useIsMobile();
