@@ -116,11 +116,12 @@ const ChatUserPage = () => {
       <header className="sticky top-0 z-40 bg-card border-b border-border/50">
         <div className="flex items-center gap-3 px-3 py-3">
           <button
+            type="button"
             onClick={() => navigate('/chat')}
-            className="flex h-10 w-10 items-center justify-center rounded-full active:bg-muted/60"
+            className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full active:bg-muted/60"
             aria-label="رجوع"
           >
-            <ArrowRight className="h-5 w-5 text-foreground" />
+            <ArrowRight className="h-5 w-5 text-foreground pointer-events-none" />
           </button>
           <Link to={`/profile/${userId}`} className="flex items-center gap-3 flex-1 min-w-0">
             <div className="relative shrink-0">

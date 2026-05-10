@@ -231,11 +231,12 @@ const ConversationPage = () => {
       {/* Header */}
       <header className="sticky top-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
         <button
+          type="button"
           onClick={() => navigate(-1)}
           aria-label="رجوع"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted active:scale-95"
+          className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted active:scale-95"
         >
-          <ArrowRight className="h-5 w-5" />
+          <ArrowRight className="h-5 w-5 pointer-events-none" />
         </button>
 
         <div className="relative shrink-0">
