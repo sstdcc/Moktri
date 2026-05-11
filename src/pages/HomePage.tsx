@@ -124,7 +124,7 @@ const HomePage = () => {
           </div>
         ))}
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85 dark:from-background/50 dark:via-background/40 dark:to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85 dark:from-background/65 dark:via-background/55 dark:to-background/80" />
         {/* Bottom blend into page background */}
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background pointer-events-none" />
 
