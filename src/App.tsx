@@ -11,6 +11,7 @@ import { AuthGuard } from "@/components/guards/AuthGuard";
 import { AdminGuard } from "@/components/guards/AdminGuard";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { MainLayout } from "@/components/layouts/MainLayout";
+import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
 // Eager: landing + listings (most visited)
@@ -79,13 +80,13 @@ const App = () => (
             <PresenceProvider>
               <Suspense fallback={<LazyFallback />}>
                 <Routes>
-                  {/* Auth page - no sidebar */}
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/signup" element={<SignUpPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/complete-profile" element={<CompleteProfilePage />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
+                  {/* Auth flow — wrapped in AuthLayout (header with back + menu) */}
+                  <Route path="/auth" element={<AuthLayout><AuthPage /></AuthLayout>} />
+                  <Route path="/signup" element={<AuthLayout><SignUpPage /></AuthLayout>} />
+                  <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
+                  <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />
+                  <Route path="/complete-profile" element={<AuthLayout><CompleteProfilePage /></AuthLayout>} />
+                  <Route path="/onboarding" element={<AuthLayout><OnboardingPage /></AuthLayout>} />
 
                   {/* All other pages wrapped in MainLayout with sidebar */}
                   <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
