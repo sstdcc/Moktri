@@ -124,19 +124,19 @@ const HomePage = () => {
           </div>
         ))}
         {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85 dark:from-background/50 dark:via-background/40 dark:to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/85 dark:from-background/65 dark:via-background/55 dark:to-background/80" />
         {/* Bottom blend into page background */}
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background pointer-events-none" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 [&_h1]:dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.55)] [&_p]:dark:[text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
           <div className="animate-fade-in">
-            <h1 className="text-5xl font-black text-primary-foreground tracking-tight">Moktari</h1>
-            <p className="mt-1 text-base font-bold text-primary-foreground/90 tracking-tight">مُكتري</p>
+            <h1 className="text-5xl font-black text-primary-foreground dark:text-white/95 tracking-tight">Moktari</h1>
+            <p className="mt-1 text-base font-bold text-primary-foreground/90 dark:text-white/85 tracking-tight">مُكتري</p>
             <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
               تعز • اليمن
             </span>
-            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 tracking-tight">ابحث عن سكنك في تعز</p>
-            <p className="mt-1 text-sm text-primary-foreground/45">آلاف الإعلانات من الملاك والدلالين</p>
+            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 dark:text-white/95 tracking-tight">ابحث عن سكنك في تعز</p>
+            <p className="mt-1 text-sm text-primary-foreground/45 dark:text-white/70">آلاف الإعلانات من الملاك والدلالين</p>
           </div>
 
           {/* Search bar */}
