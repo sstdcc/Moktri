@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-import { Logo } from '@/components/ui/Logo';
 import { PageTransition } from '@/components/layouts/PageTransition';
 
 /**
@@ -53,15 +52,6 @@ export const AuthLayout = ({ children }: { children: ReactNode }) => {
                 className="h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted active:scale-95 transition-all"
               >
                 <ArrowRight className="!size-6" strokeWidth={2} />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                aria-label="الصفحة الرئيسية"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              >
-                <Logo framed className="h-9 w-9 md:h-10 md:w-10" />
               </button>
 
               <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
