@@ -55,15 +55,6 @@ export const AuthLayout = ({ children }: { children: ReactNode }) => {
                 <ArrowRight className="!size-6" strokeWidth={2} />
               </button>
 
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                aria-label="الصفحة الرئيسية"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              >
-                <Logo framed className="h-9 w-9 md:h-10 md:w-10" />
-              </button>
-
               <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
             </div>
           </header>
