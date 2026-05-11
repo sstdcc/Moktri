@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { PageTransition } from '@/components/layouts/PageTransition';
@@ -45,16 +45,16 @@ export const AuthLayout = ({ children }: { children: ReactNode }) => {
             style={{ boxShadow: '0 1px 8px -4px rgba(0,0,0,0.06)' }}
           >
             <div className="flex h-full w-full items-center justify-between px-2 md:px-6 lg:px-8">
+              <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
+
               <button
                 type="button"
                 onClick={() => goBackSafely(navigate)}
                 aria-label="رجوع"
                 className="h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted active:scale-95 transition-all"
               >
-                <ArrowRight className="!size-6" strokeWidth={2} />
+                <ArrowLeft className="!size-6" strokeWidth={2} />
               </button>
-
-              <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground" />
             </div>
           </header>
           <main className="flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden">
