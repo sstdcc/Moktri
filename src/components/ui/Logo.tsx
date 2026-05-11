@@ -32,9 +32,9 @@ export const Logo = ({ className, alt = 'Moktari (مُكتري)', framed = false
       className={cn(
         // Soft premium surface — calm, no glow, no harsh border
         'inline-flex items-center justify-center rounded-2xl',
-        'bg-card/80 dark:bg-card/60 backdrop-blur-sm',
-        'ring-1 ring-border/40 dark:ring-border/30',
-        'p-1.5',
+        'bg-card/60 dark:bg-card/40 backdrop-blur-sm',
+        'ring-1 ring-border/30 dark:ring-border/20',
+        'p-0.5',
         className,
         frameClassName,
       )}
