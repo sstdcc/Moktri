@@ -68,7 +68,7 @@ const ListingsModeration = () => {
     const from = pageNum * PAGE_SIZE;
     const { data, error: err } = await supabase
       .from('listings')
-      .select('*, owner:profiles!listings_owner_id_fkey(full_name, is_verified), district:districts!listings_district_id_fkey(name_ar)')
+      .select('*, owner:profiles!listings_owner_id_fkey(full_name, is_verified), district:districts!listings_district_id_fkey(name_ar), listing_images(url, is_primary)')
       .eq('status', activeTab)
       .order('created_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
