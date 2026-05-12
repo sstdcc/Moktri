@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { ExternalLink, Check, X, BadgeCheck } from 'lucide-react';
+import { ExternalLink, Check, X, BadgeCheck, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { ErrorState } from '@/components/ui/ErrorState';
 
