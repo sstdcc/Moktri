@@ -56,18 +56,26 @@ const UsersManagement = () => {
     setLoading(true);
     setError(false);
     setVisibleCount(PAGE_SIZE);
-    const { data, error: err } = await supabase.rpc('admin_list_users', {
+    const params = {
       _search: search || null,
       _role: roleFilter,
       _status: statusFilter,
       _verified: verifiedFilter,
       _limit: 500,
-    });
+    };
+    console.info('[UsersManagement] admin_list_users params', params);
+    const { data, error: err } = await supabase.rpc('admin_list_users', params);
     if (err) {
-      console.error(err);
+      console.error('[UsersManagement] admin_list_users failed', {
+        code: (err as any).code,
+        message: err.message,
+        details: (err as any).details,
+        hint: (err as any).hint,
+      });
       setError(true);
       setUsers([]);
     } else {
+      console.info('[UsersManagement] admin_list_users ok', { count: data?.length ?? 0 });
       setUsers(data ?? []);
     }
     setLoading(false);
