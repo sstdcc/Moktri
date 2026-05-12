@@ -31,31 +31,48 @@ interface Alerts {
   pendingVerifications: number;
 }
 
+interface Trends {
+  users: number;
+  activeListings: number;
+  activeRequests: number;
+  pendingReports: number;
+}
+
 const AdminDashboardPage = () => {
   const [stats, setStats] = useState<Stats>({ users: 0, activeListings: 0, activeRequests: 0, pendingReports: 0 });
+  const [trends, setTrends] = useState<Trends>({ users: 0, activeListings: 0, activeRequests: 0, pendingReports: 0 });
   const [alerts, setAlerts] = useState<Alerts>({ pendingReview: 0, staleListings: 0, pendingVerifications: 0 });
   const [recentReports, setRecentReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+      const now = Date.now();
+      const sixtyDaysAgo = new Date(now - 60 * 24 * 60 * 60 * 1000).toISOString();
+      const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-      const [usersRes, listingsRes, requestsRes, reportsRes, pendingReviewRes, staleRes, verificationsRes, recentRes] =
-        await Promise.all([
-          supabase.from('profiles').select('id', { count: 'exact', head: true }),
-          supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-          supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-          supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'pending_review'),
-          supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').lt('last_updated_at', sixtyDaysAgo),
-          supabase.from('verification_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase
-            .from('reports')
-            .select('*, reporter:profiles!reports_reporter_id_fkey(full_name)')
-            .order('created_at', { ascending: false })
-            .limit(5),
-        ]);
+      const results = await Promise.all([
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'pending_review'),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').lt('last_updated_at', sixtyDaysAgo),
+        supabase.from('verification_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('reports').select('*, reporter:profiles!reports_reporter_id_fkey(full_name)').order('created_at', { ascending: false }).limit(5),
+        // Weekly trends
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('published_at', sevenDaysAgo),
+        supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('created_at', sevenDaysAgo),
+        supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending').gte('created_at', sevenDaysAgo),
+      ]);
+
+      results.forEach((r, i) => {
+        if (r.error) console.error(`[AdminDashboard] query #${i} failed`, r.error);
+      });
+
+      const [usersRes, listingsRes, requestsRes, reportsRes, pendingReviewRes, staleRes, verificationsRes, recentRes,
+        usersWeekRes, listingsWeekRes, requestsWeekRes, reportsWeekRes] = results;
 
       setStats({
         users: usersRes.count ?? 0,
@@ -63,22 +80,30 @@ const AdminDashboardPage = () => {
         activeRequests: requestsRes.count ?? 0,
         pendingReports: reportsRes.count ?? 0,
       });
+      setTrends({
+        users: usersWeekRes.count ?? 0,
+        activeListings: listingsWeekRes.count ?? 0,
+        activeRequests: requestsWeekRes.count ?? 0,
+        pendingReports: reportsWeekRes.count ?? 0,
+      });
       setAlerts({
         pendingReview: pendingReviewRes.count ?? 0,
         staleListings: staleRes.count ?? 0,
         pendingVerifications: verificationsRes.count ?? 0,
       });
-      setRecentReports(recentRes.data ?? []);
+      setRecentReports((recentRes as any).data ?? []);
       setLoading(false);
     };
     fetchData();
   }, []);
 
+  const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
+
   const statCards = [
-    { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trend: '+5 هذا الأسبوع' },
-    { label: 'إعلانات نشطة', value: stats.activeListings, icon: ListChecks, color: 'text-green-500', trend: '+3 هذا الأسبوع' },
-    { label: 'طلبات سكن نشطة', value: stats.activeRequests, icon: FileSearch, color: 'text-amber-500', trend: '+2 هذا الأسبوع' },
-    { label: 'بلاغات معلقة', value: stats.pendingReports, icon: ShieldAlert, color: 'text-red-500', trend: '+1 هذا الأسبوع' },
+    { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trend: formatTrend(trends.users) },
+    { label: 'إعلانات نشطة', value: stats.activeListings, icon: ListChecks, color: 'text-green-500', trend: formatTrend(trends.activeListings) },
+    { label: 'طلبات سكن نشطة', value: stats.activeRequests, icon: FileSearch, color: 'text-amber-500', trend: formatTrend(trends.activeRequests) },
+    { label: 'بلاغات معلقة', value: stats.pendingReports, icon: ShieldAlert, color: 'text-red-500', trend: formatTrend(trends.pendingReports) },
   ];
 
   const alertItems = [
