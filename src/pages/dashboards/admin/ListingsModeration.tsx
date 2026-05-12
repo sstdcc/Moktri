@@ -208,6 +208,8 @@ const ListingsModeration = () => {
           )}
           {listings.map((l) => {
             const isStale = l.last_updated_at && new Date(l.last_updated_at).getTime() < fortyFiveDaysAgo;
+            const primaryImg = l.listing_images?.find((img: any) => img.is_primary);
+            const coverUrl = primaryImg?.url || l.listing_images?.[0]?.url;
             return (
               <div key={l.id} className="bg-card border border-border rounded-2xl p-3 flex gap-3 items-start">
                 {activeTab === 'pending_review' && (
@@ -217,12 +219,37 @@ const ListingsModeration = () => {
                     className="mt-1"
                   />
                 )}
-                <div className="w-[60px] h-[60px] rounded-xl bg-muted shrink-0" />
+                <div className="w-[72px] h-[72px] rounded-xl bg-muted shrink-0 overflow-hidden flex items-center justify-center">
+                  {coverUrl ? (
+                    <img
+                      src={coverUrl}
+                      alt={l.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <ImageIcon className="h-6 w-6 text-muted-foreground/40" />
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-foreground line-clamp-1">{l.title}</span>
-                    <Badge variant="outline" className="text-[10px]">{categoryMap[l.category] ?? l.category}</Badge>
-                    {isStale && <Badge className="bg-orange-500 text-white dark:bg-orange-500/20 dark:text-orange-300 text-[10px]">قديم</Badge>}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <span className="font-bold text-foreground line-clamp-1">{l.title}</span>
+                      <Badge variant="outline" className="text-[10px]">{categoryMap[l.category] ?? l.category}</Badge>
+                      {isStale && <Badge className="bg-orange-500 text-white dark:bg-orange-500/20 dark:text-orange-300 text-[10px]">قديم</Badge>}
+                    </div>
+                    <a
+                      href={`/listings/${l.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:text-accent hover:bg-muted transition-colors"
+                      aria-label="فتح الإعلان"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 inline-flex items-center gap-1 flex-wrap">
                     <span>{l.owner?.full_name}</span>{l.owner?.is_verified && <BadgeCheck className="h-3 w-3 text-success inline" />}<span>· {l.district?.name_ar ?? '—'} · {l.price} ر.ي</span>
@@ -267,11 +294,6 @@ const ListingsModeration = () => {
                         إيقاف
                       </Button>
                     )}
-                    <a href={`/listings/${l.id}`} target="_blank" rel="noreferrer">
-                      <Button size="sm" variant="ghost" className="h-8">
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </a>
                   </div>
                 </div>
               </div>
