@@ -81,8 +81,6 @@ const UsersManagement = () => {
   };
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
-  useEffect(() => { fetchStats(); }, [fetchStats]);
-  useEffect(() => { fetchStats(); }, [fetchStats]);
 
   const toggleActive = async (u: any) => {
     const { error } = await supabase.from('profiles').update({ is_active: !u.is_active }).eq('id', u.id);
