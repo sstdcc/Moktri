@@ -87,7 +87,7 @@ const UsersManagement = () => {
     if (error) { toast.error(error.message); return; }
     toast.success(u.is_active ? 'تم حظر الحساب' : 'تم رفع الحظر');
     fetchUsers();
-    fetchStats();
+    
   };
 
   const toggleVerified = async (u: any) => {
