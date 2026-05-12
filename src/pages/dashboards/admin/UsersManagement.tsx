@@ -34,23 +34,14 @@ const UsersManagement = () => {
   const [verifiedFilter, setVerifiedFilter] = useState('all');
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [newRole, setNewRole] = useState('');
-  const [stats, setStats] = useState<Stats>({ total: 0, owners: 0, renters: 0, banned: 0 });
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const fetchStats = useCallback(async () => {
-    const [t, o, r, b] = await Promise.all([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'owner'),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'renter'),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_active', false),
-    ]);
-    setStats({
-      total: t.count ?? 0,
-      owners: o.count ?? 0,
-      renters: r.count ?? 0,
-      banned: b.count ?? 0,
-    });
-  }, []);
+  const stats: Stats = {
+    total: users.length,
+    owners: users.filter(u => u.role === 'owner' || u.role === 'broker').length,
+    renters: users.filter(u => u.role === 'renter').length,
+    banned: users.filter(u => u.is_active === false).length,
+  };
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
