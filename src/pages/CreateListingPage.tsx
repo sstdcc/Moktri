@@ -160,7 +160,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => scheduleScrollReset(scrollAppToTop), []);
+  useEffect(() => scheduleScrollReset(scrollAppToTop), [step]);
 
   // Prefill from source housing request
   useEffect(() => {
