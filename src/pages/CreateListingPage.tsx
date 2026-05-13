@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { scheduleScrollReset, scrollAppToTop } from '@/lib/scroll';
 // District type kept for backwards compat but no longer fetched for location selection
 
 const STEP_LABELS = ['المعلومات الأساسية', 'تفاصيل العقار', 'الصور والوصف', 'المراجعة والنشر'];
@@ -158,6 +159,8 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const [success, setSuccess] = useState<{ id: string; status: string } | null>(null);
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => scheduleScrollReset(scrollAppToTop), []);
 
   // Prefill from source housing request
   useEffect(() => {
