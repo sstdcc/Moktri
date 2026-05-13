@@ -125,6 +125,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
 
       {/* Main content */}
       <main
+        data-scroll-container="page"
         className={cn(
           'flex-1 min-w-0 w-full overflow-auto',
           !isMobile ? 'mr-[260px]' : 'pb-24 pt-[60px]'
