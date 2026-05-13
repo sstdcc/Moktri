@@ -57,7 +57,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
               )}
             </div>
           </header>
-          <main className={'flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden ' + (showBottomNav ? 'pb-24' : '')}>
+          <main data-scroll-container="page" className={'flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden ' + (showBottomNav ? 'pb-24' : '')}>
             <PageTransition>
               <div className="w-full min-w-0">
                 {children}
