@@ -17,7 +17,13 @@ export const getPageScrollContainers = (): HTMLElement[] => {
 };
 
 export const getCurrentScrollPoint = (): ScrollPoint => {
-  const [primaryContainer] = getPageScrollContainers();
+  const primaryContainer = getPageScrollContainers().find(
+    (element) =>
+      element.scrollTop > 0 ||
+      element.scrollLeft > 0 ||
+      element.scrollHeight > element.clientHeight + 1 ||
+      element.scrollWidth > element.clientWidth + 1,
+  );
   return {
     top: primaryContainer?.scrollTop ?? window.scrollY ?? document.documentElement.scrollTop ?? 0,
     left: primaryContainer?.scrollLeft ?? window.scrollX ?? document.documentElement.scrollLeft ?? 0,
