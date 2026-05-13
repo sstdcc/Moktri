@@ -57,7 +57,7 @@ export const AuthLayout = ({ children }: { children: ReactNode }) => {
               </button>
             </div>
           </header>
-          <main className="flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden">
+          <main data-scroll-container="page" className="flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden">
             <PageTransition>
               <div className="w-full min-w-0">{children}</div>
             </PageTransition>
