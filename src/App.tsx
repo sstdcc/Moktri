@@ -77,6 +77,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <DistrictsProvider>
             <PresenceProvider>
               <Suspense fallback={<LazyFallback />}>
