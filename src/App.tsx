@@ -13,6 +13,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import ScrollToTop from "@/components/ScrollToTop";
 
 // Eager: landing + listings (most visited)
 import HomePage from "./pages/HomePage";
