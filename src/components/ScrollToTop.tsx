@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+import { getCurrentScrollPoint, scheduleScrollReset, scrollAppTo, scrollAppToTop } from '@/lib/scroll';
+
+const restoredScrollByKey = new Map<string, { top: number; left: number }>();
 
 /**
  * Resets scroll position to the top on route changes.
@@ -7,38 +10,30 @@ import { useLocation, useNavigationType } from 'react-router-dom';
  * - Resets window scroll plus all internal scroll containers (main, [data-scroll-container]).
  */
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { key, pathname, search } = useLocation();
   const navType = useNavigationType();
 
   useEffect(() => {
-    if (navType === 'POP') return;
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
 
-    const reset = () => {
-      try {
-        window.scrollTo({ top: 0, left: 0 });
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-        document
-          .querySelectorAll<HTMLElement>('main, [data-scroll-container]')
-          .forEach((el) => {
-            el.scrollTop = 0;
-            el.scrollLeft = 0;
-          });
-      } catch {
-        /* noop */
-      }
-    };
+  useEffect(() => {
+    if (navType === 'POP') {
+      const saved = restoredScrollByKey.get(key);
+      if (!saved) return;
+      return scheduleScrollReset(() => scrollAppTo(saved));
+    }
 
-    reset();
-    // Run again after the new page renders (lazy routes, transitions)
-    const r1 = requestAnimationFrame(reset);
-    const r2 = requestAnimationFrame(() => requestAnimationFrame(reset));
+    return scheduleScrollReset(scrollAppToTop);
+  }, [key, pathname, search, navType]);
 
+  useEffect(() => {
     return () => {
-      cancelAnimationFrame(r1);
-      cancelAnimationFrame(r2);
+      restoredScrollByKey.set(key, getCurrentScrollPoint());
     };
-  }, [pathname, navType]);
+  }, [key]);
 
   return null;
 };
