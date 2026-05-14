@@ -286,13 +286,13 @@ const RequestDetailPage = () => {
         </Card>
 
         {/* Section title: معلومات الطلب */}
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-primary" />
-          <h3 className="text-[15px] font-extrabold text-foreground">معلومات الطلب</h3>
+        <div className="flex items-center gap-2.5 px-1">
+          <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary/40" />
+          <h3 className="text-[15px] font-extrabold text-foreground tracking-tight">معلومات الطلب</h3>
         </div>
 
         {/* Request info card */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-border/60 shadow-card">
           <CardContent className="p-0">
             <div className="grid grid-cols-2">
               {[
@@ -362,11 +362,11 @@ const RequestDetailPage = () => {
         {/* Notes */}
         {request.notes && (
           <>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              <h3 className="text-[15px] font-extrabold text-foreground">ملاحظات</h3>
+            <div className="flex items-center gap-2.5 px-1">
+              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary/40" />
+              <h3 className="text-[15px] font-extrabold text-foreground tracking-tight">ملاحظات</h3>
             </div>
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden border-border/60 shadow-card">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
                   <FileText className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
