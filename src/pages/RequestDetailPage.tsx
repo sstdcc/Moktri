@@ -430,7 +430,7 @@ const RequestDetailPage = () => {
         {/* Send-offer button for owners/brokers */}
         {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
           <>
-            <Button onClick={() => setOfferOpen(true)} variant="outline" className="w-full gap-2 border-accent/30 text-accent hover:bg-accent/10">
+            <Button onClick={() => setOfferOpen(true)} variant="outline" size="lg" className="w-full gap-2 h-12 rounded-xl border-accent/40 text-accent bg-accent/5 hover:bg-accent/10 font-semibold">
               <Gift className="h-4 w-4" /> إرسال عرض
             </Button>
             <SendHousingOfferDialog
@@ -447,11 +447,11 @@ const RequestDetailPage = () => {
         {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
           <>
             {!showForm ? (
-              <Button onClick={() => setShowForm(true)} className="w-full gap-2">
+              <Button onClick={() => setShowForm(true)} size="lg" className="w-full gap-2 h-12 rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
                 <Send className="h-4 w-4" /> أرسل رداً
               </Button>
             ) : (
-              <Card>
+              <Card className="border-border/60 shadow-card">
                 <CardContent className="p-4 space-y-3">
                   <h3 className="text-sm font-bold">إرسال رد</h3>
                   <Textarea
@@ -477,8 +477,8 @@ const RequestDetailPage = () => {
           <>
             <Button
               onClick={() => setFulfillOpen(true)}
-              variant="outline"
-              className="w-full gap-2 border-success/30 text-success hover:bg-success/10"
+              size="lg"
+              className="w-full gap-2 h-12 rounded-xl bg-success text-success-foreground hover:bg-success/90 shadow-md font-bold"
             >
               <CheckCircle2 className="h-4 w-4" />
               تأكيد تنفيذ الطلب
