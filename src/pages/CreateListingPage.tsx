@@ -363,7 +363,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         </p>
         <div className="mt-8 w-full max-w-xs flex flex-col gap-3">
           <Button onClick={() => navigate(`/listings/${success.id}`)}>عرض إعلانك</Button>
-          <Button variant="outline" onClick={() => { setSuccess(null); setForm(defaultForm); setImages([]); setStep(0); }}>إضافة إعلان آخر</Button>
+          <Button variant="outline" onClick={() => { clearDraft(draftKey); setSuccess(null); setForm(defaultForm); setImages([]); setStep(0); }}>إضافة إعلان آخر</Button>
         </div>
       </div>
     );
