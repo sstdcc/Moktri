@@ -329,10 +329,13 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
           body_ar: 'قام المالك بإنشاء إعلان خاص لطلب السكن. راجع التفاصيل وأكّد القبول.',
           link: `/listings/${listing.id}`,
         });
+        clearDraft(draftKey);
         toast.success('تم إرسال العرض الخاص للمستأجر');
         navigate('/dashboard/owner');
         return;
       }
+
+      clearDraft(draftKey);
 
       if (status === 'draft') {
         navigate('/dashboard/owner');
