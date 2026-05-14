@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
@@ -213,32 +214,45 @@ const RequestDetailPage = () => {
     : null;
 
   const requesterName = (request.requester as any)?.full_name ?? 'مستخدم';
+  const requesterAvatar = (request.requester as any)?.avatar_url ?? null;
+  const requesterInitial = requesterName.trim().charAt(0) || 'م';
 
   return (
-    <div className="min-h-screen bg-background pb-28 font-tajawal" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-28 font-tajawal" dir="rtl">
       <PageHeader title="تفاصيل الطلب" showBack />
 
-      <div className="p-5 space-y-6 max-w-lg mx-auto md:max-w-none md:mx-0">
+      <div className="p-5 space-y-6 max-w-lg mx-auto md:max-w-2xl">
         {/* Main summary card */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-border/60 shadow-elevated bg-gradient-to-br from-card via-card to-card/80">
           <CardContent className="p-5 space-y-5">
             <div className="flex items-center justify-between gap-3">
               <div
                 onClick={() => navigate(`/profile/${request.requester_id}`)}
                 className="flex items-center gap-3 cursor-pointer group min-w-0"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground shadow-sm shrink-0">
-                  {requesterName.charAt(0)}
+                <div className="relative shrink-0">
+                  <Avatar className="h-14 w-14 ring-2 ring-primary/20 ring-offset-2 ring-offset-card shadow-sm transition-transform group-hover:scale-[1.03]">
+                    {requesterAvatar && <AvatarImage src={requesterAvatar} alt={requesterName} className="object-cover" />}
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-base font-bold">
+                      {requesterInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                  {request.status === 'active' && (
+                    <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success ring-2 ring-card" />
+                  )}
                 </div>
                 <div className="text-right min-w-0">
                   <p className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate tracking-tight">{requesterName}</p>
                   {request.created_at && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{timeAgo(request.created_at)}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {timeAgo(request.created_at)}
+                    </p>
                   )}
                 </div>
               </div>
-              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center shrink-0', statusColors[request.status ?? 'active'])}>
-                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center shrink-0 shadow-sm', statusColors[request.status ?? 'active'])}>
+                <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
                 {statusLabels[request.status ?? 'active']}
               </Badge>
             </div>
@@ -272,13 +286,13 @@ const RequestDetailPage = () => {
         </Card>
 
         {/* Section title: معلومات الطلب */}
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-primary" />
-          <h3 className="text-[15px] font-extrabold text-foreground">معلومات الطلب</h3>
+        <div className="flex items-center gap-2.5 px-1">
+          <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary/40" />
+          <h3 className="text-[15px] font-extrabold text-foreground tracking-tight">معلومات الطلب</h3>
         </div>
 
         {/* Request info card */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-border/60 shadow-card">
           <CardContent className="p-0">
             <div className="grid grid-cols-2">
               {[
@@ -348,11 +362,11 @@ const RequestDetailPage = () => {
         {/* Notes */}
         {request.notes && (
           <>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              <h3 className="text-[15px] font-extrabold text-foreground">ملاحظات</h3>
+            <div className="flex items-center gap-2.5 px-1">
+              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-primary/40" />
+              <h3 className="text-[15px] font-extrabold text-foreground tracking-tight">ملاحظات</h3>
             </div>
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden border-border/60 shadow-card">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
                   <FileText className="h-5 w-5 shrink-0 text-primary stroke-[2px] mt-0.5" />
@@ -373,13 +387,17 @@ const RequestDetailPage = () => {
               <div className="space-y-3">
                 {responses.map((resp) => {
                   const respName = (resp.responder as any)?.full_name ?? 'مستخدم';
+                  const respAvatar = (resp.responder as any)?.avatar_url ?? null;
                   return (
-                    <Card key={resp.id} className="overflow-hidden">
+                    <Card key={resp.id} className="overflow-hidden border-border/60 shadow-card hover:shadow-elevated transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2.5 mb-3">
-                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center text-[11px] font-bold text-accent shrink-0">
-                            {respName.charAt(0)}
-                          </div>
+                          <Avatar className="h-10 w-10 ring-1 ring-accent/20 shrink-0">
+                            {respAvatar && <AvatarImage src={respAvatar} alt={respName} className="object-cover" />}
+                            <AvatarFallback className="bg-gradient-to-br from-accent/20 to-accent/5 text-accent text-[12px] font-bold">
+                              {respName.charAt(0) || 'م'}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-[12px] font-bold truncate">{respName}</p>
                             {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
@@ -416,7 +434,7 @@ const RequestDetailPage = () => {
         {/* Send-offer button for owners/brokers */}
         {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
           <>
-            <Button onClick={() => setOfferOpen(true)} variant="outline" className="w-full gap-2 border-accent/30 text-accent hover:bg-accent/10">
+            <Button onClick={() => setOfferOpen(true)} variant="outline" size="lg" className="w-full gap-2 h-12 rounded-xl border-accent/40 text-accent bg-accent/5 hover:bg-accent/10 font-semibold">
               <Gift className="h-4 w-4" /> إرسال عرض
             </Button>
             <SendHousingOfferDialog
@@ -433,11 +451,11 @@ const RequestDetailPage = () => {
         {user && isOwnerOrBroker && !isRequester && request.status === 'active' && (
           <>
             {!showForm ? (
-              <Button onClick={() => setShowForm(true)} className="w-full gap-2">
+              <Button onClick={() => setShowForm(true)} size="lg" className="w-full gap-2 h-12 rounded-xl shadow-md hover:shadow-lg transition-all font-bold">
                 <Send className="h-4 w-4" /> أرسل رداً
               </Button>
             ) : (
-              <Card>
+              <Card className="border-border/60 shadow-card">
                 <CardContent className="p-4 space-y-3">
                   <h3 className="text-sm font-bold">إرسال رد</h3>
                   <Textarea
@@ -463,8 +481,8 @@ const RequestDetailPage = () => {
           <>
             <Button
               onClick={() => setFulfillOpen(true)}
-              variant="outline"
-              className="w-full gap-2 border-success/30 text-success hover:bg-success/10"
+              size="lg"
+              className="w-full gap-2 h-12 rounded-xl bg-success text-success-foreground hover:bg-success/90 shadow-md font-bold"
             >
               <CheckCircle2 className="h-4 w-4" />
               تأكيد تنفيذ الطلب
