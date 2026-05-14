@@ -17,6 +17,13 @@ import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { scheduleScrollReset, scrollAppToTop } from '@/lib/scroll';
+import {
+  getDraftKey,
+  loadDraft,
+  clearDraft,
+  useDraftAutoSave,
+  type DraftMode,
+} from '@/hooks/useListingDraft';
 // District type kept for backwards compat but no longer fetched for location selection
 
 const STEP_LABELS = ['المعلومات الأساسية', 'تفاصيل العقار', 'الصور والوصف', 'المراجعة والنشر'];
@@ -151,14 +158,30 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const fromRequestId = searchParams.get('from_request') || '';
   const isPrivateOffer = !!privateForUserId && !isEditing;
 
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
-  const [images, setImages] = useState<UploadedImage[]>(initialImages || []);
+  // Draft persistence (skip in edit mode)
+  const draftMode: DraftMode = isEditing && listingId
+    ? { kind: 'edit', listingId }
+    : isPrivateOffer
+      ? { kind: 'private', renterId: privateForUserId }
+      : { kind: 'new' };
+  const draftKey = getDraftKey(user?.id, draftMode);
+  const initialDraft = !isEditing ? loadDraft<FormState, UploadedImage>(draftKey) : null;
+
+  const [step, setStep] = useState(initialDraft?.step ?? 0);
+  const [form, setForm] = useState<FormState>(
+    initialDraft?.form ?? { ...defaultForm, ...initialData }
+  );
+  const [images, setImages] = useState<UploadedImage[]>(
+    initialDraft?.images ?? initialImages ?? []
+  );
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{ id: string; status: string } | null>(null);
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save draft (debounced) — disabled in edit mode and after success
+  useDraftAutoSave(draftKey, step, form, images, !isEditing && !success);
 
   useEffect(() => scheduleScrollReset(scrollAppToTop), [step]);
 
@@ -306,10 +329,13 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
           body_ar: 'قام المالك بإنشاء إعلان خاص لطلب السكن. راجع التفاصيل وأكّد القبول.',
           link: `/listings/${listing.id}`,
         });
+        clearDraft(draftKey);
         toast.success('تم إرسال العرض الخاص للمستأجر');
         navigate('/dashboard/owner');
         return;
       }
+
+      clearDraft(draftKey);
 
       if (status === 'draft') {
         navigate('/dashboard/owner');
@@ -337,7 +363,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         </p>
         <div className="mt-8 w-full max-w-xs flex flex-col gap-3">
           <Button onClick={() => navigate(`/listings/${success.id}`)}>عرض إعلانك</Button>
-          <Button variant="outline" onClick={() => { setSuccess(null); setForm(defaultForm); setImages([]); setStep(0); }}>إضافة إعلان آخر</Button>
+          <Button variant="outline" onClick={() => { clearDraft(draftKey); setSuccess(null); setForm(defaultForm); setImages([]); setStep(0); }}>إضافة إعلان آخر</Button>
         </div>
       </div>
     );
