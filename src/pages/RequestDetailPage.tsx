@@ -214,32 +214,45 @@ const RequestDetailPage = () => {
     : null;
 
   const requesterName = (request.requester as any)?.full_name ?? 'مستخدم';
+  const requesterAvatar = (request.requester as any)?.avatar_url ?? null;
+  const requesterInitial = requesterName.trim().charAt(0) || 'م';
 
   return (
-    <div className="min-h-screen bg-background pb-28 font-tajawal" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-28 font-tajawal" dir="rtl">
       <PageHeader title="تفاصيل الطلب" showBack />
 
-      <div className="p-5 space-y-6 max-w-lg mx-auto md:max-w-none md:mx-0">
+      <div className="p-5 space-y-6 max-w-lg mx-auto md:max-w-2xl">
         {/* Main summary card */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-border/60 shadow-elevated bg-gradient-to-br from-card via-card to-card/80">
           <CardContent className="p-5 space-y-5">
             <div className="flex items-center justify-between gap-3">
               <div
                 onClick={() => navigate(`/profile/${request.requester_id}`)}
                 className="flex items-center gap-3 cursor-pointer group min-w-0"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground shadow-sm shrink-0">
-                  {requesterName.charAt(0)}
+                <div className="relative shrink-0">
+                  <Avatar className="h-14 w-14 ring-2 ring-primary/20 ring-offset-2 ring-offset-card shadow-sm transition-transform group-hover:scale-[1.03]">
+                    {requesterAvatar && <AvatarImage src={requesterAvatar} alt={requesterName} className="object-cover" />}
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-base font-bold">
+                      {requesterInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                  {request.status === 'active' && (
+                    <span className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full bg-success ring-2 ring-card" />
+                  )}
                 </div>
                 <div className="text-right min-w-0">
                   <p className="text-[15px] font-bold text-foreground group-hover:text-primary transition-colors truncate tracking-tight">{requesterName}</p>
                   {request.created_at && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{timeAgo(request.created_at)}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {timeAgo(request.created_at)}
+                    </p>
                   )}
                 </div>
               </div>
-              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center shrink-0', statusColors[request.status ?? 'active'])}>
-                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              <Badge className={cn('text-[11px] font-bold rounded-lg px-3 py-1.5 gap-1.5 inline-flex items-center shrink-0 shadow-sm', statusColors[request.status ?? 'active'])}>
+                <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
                 {statusLabels[request.status ?? 'active']}
               </Badge>
             </div>
