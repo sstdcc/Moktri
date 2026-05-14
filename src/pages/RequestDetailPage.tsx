@@ -387,13 +387,17 @@ const RequestDetailPage = () => {
               <div className="space-y-3">
                 {responses.map((resp) => {
                   const respName = (resp.responder as any)?.full_name ?? 'مستخدم';
+                  const respAvatar = (resp.responder as any)?.avatar_url ?? null;
                   return (
-                    <Card key={resp.id} className="overflow-hidden">
+                    <Card key={resp.id} className="overflow-hidden border-border/60 shadow-card hover:shadow-elevated transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2.5 mb-3">
-                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent/15 to-accent/5 flex items-center justify-center text-[11px] font-bold text-accent shrink-0">
-                            {respName.charAt(0)}
-                          </div>
+                          <Avatar className="h-10 w-10 ring-1 ring-accent/20 shrink-0">
+                            {respAvatar && <AvatarImage src={respAvatar} alt={respName} className="object-cover" />}
+                            <AvatarFallback className="bg-gradient-to-br from-accent/20 to-accent/5 text-accent text-[12px] font-bold">
+                              {respName.charAt(0) || 'م'}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-[12px] font-bold truncate">{respName}</p>
                             {resp.created_at && <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(resp.created_at)}</p>}
