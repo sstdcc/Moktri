@@ -17,6 +17,13 @@ import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { scheduleScrollReset, scrollAppToTop } from '@/lib/scroll';
+import {
+  getDraftKey,
+  loadDraft,
+  clearDraft,
+  useDraftAutoSave,
+  type DraftMode,
+} from '@/hooks/useListingDraft';
 // District type kept for backwards compat but no longer fetched for location selection
 
 const STEP_LABELS = ['المعلومات الأساسية', 'تفاصيل العقار', 'الصور والوصف', 'المراجعة والنشر'];
