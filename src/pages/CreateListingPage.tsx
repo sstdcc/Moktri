@@ -158,14 +158,30 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
   const fromRequestId = searchParams.get('from_request') || '';
   const isPrivateOffer = !!privateForUserId && !isEditing;
 
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
-  const [images, setImages] = useState<UploadedImage[]>(initialImages || []);
+  // Draft persistence (skip in edit mode)
+  const draftMode: DraftMode = isEditing && listingId
+    ? { kind: 'edit', listingId }
+    : isPrivateOffer
+      ? { kind: 'private', renterId: privateForUserId }
+      : { kind: 'new' };
+  const draftKey = getDraftKey(user?.id, draftMode);
+  const initialDraft = !isEditing ? loadDraft<FormState, UploadedImage>(draftKey) : null;
+
+  const [step, setStep] = useState(initialDraft?.step ?? 0);
+  const [form, setForm] = useState<FormState>(
+    initialDraft?.form ?? { ...defaultForm, ...initialData }
+  );
+  const [images, setImages] = useState<UploadedImage[]>(
+    initialDraft?.images ?? initialImages ?? []
+  );
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<{ id: string; status: string } | null>(null);
   const [imageError, setImageError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save draft (debounced) — disabled in edit mode and after success
+  useDraftAutoSave(draftKey, step, form, images, !isEditing && !success);
 
   useEffect(() => scheduleScrollReset(scrollAppToTop), [step]);
 
