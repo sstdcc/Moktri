@@ -306,7 +306,7 @@ const SettingsPage = () => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[15.5px] font-medium text-foreground truncate">
-                {fullName || 'بدون اسم'}
+                {fullName || t('settings.noName')}
               </div>
               <div className="text-[12.5px] text-muted-foreground mt-0.5 truncate" dir="ltr" style={{ textAlign: 'right' }}>
                 {profile.phone}
