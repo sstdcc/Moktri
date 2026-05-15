@@ -261,7 +261,7 @@ const SignUpPage = () => {
       // Tokens received directly — check if profile has phone
       navigate('/complete-profile', { replace: true });
     } catch {
-      toast.error('تعذر تسجيل الدخول بـ Google');
+      toast.error(t('auth.errors.googleFailed'));
       setGoogleLoading(false);
     }
   };
