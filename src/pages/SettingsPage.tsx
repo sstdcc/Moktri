@@ -259,7 +259,7 @@ const SettingsPage = () => {
   const arrow = <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2} />;
 
   return (
-    <div className="min-h-screen bg-background pb-24 font-tajawal" dir="rtl">
+    <div className="min-h-screen bg-background pb-24 font-tajawal" dir={dir}>
       {/* Minimal centered header */}
       <header className="relative px-4 pt-7 pb-3">
         <button
