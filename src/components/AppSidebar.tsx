@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { useUnreadChats } from '@/hooks/useUnreadChats';
@@ -23,50 +24,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-
-const mainNav = [
-  { title: 'الرئيسية', url: '/', icon: Home },
-  { title: 'تصفح الإعلانات', url: '/listings', icon: Search },
-  { title: 'طلبات السكن', url: '/requests', icon: FileText },
-  { title: 'المحادثات', url: '/chat', icon: MessageSquare },
-  { title: 'المفضلة', url: '/favorites', icon: Heart },
-  { title: 'الإشعارات', url: '/notifications', icon: Bell },
-];
-
-const getRoleDashboardItems = (role?: string) => {
-  switch (role) {
-    case 'admin':
-    case 'moderator':
-      return [{ title: 'لوحة التحكم', url: '/dashboard/admin', icon: LayoutDashboard }];
-    case 'owner':
-      return [
-        { title: 'لوحة التحكم', url: '/dashboard/owner', icon: LayoutDashboard },
-        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
-        { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
-      ];
-    case 'broker':
-      return [
-        { title: 'لوحة التحكم', url: '/dashboard/broker', icon: LayoutDashboard },
-        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
-        { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
-      ];
-    case 'renter':
-      return [
-        { title: 'لوحة التحكم', url: '/dashboard/renter', icon: LayoutDashboard },
-        { title: 'طلب سكن جديد', url: '/requests/new', icon: Plus },
-      ];
-    default:
-      return [];
-  }
-};
-
-const roleLabels: Record<string, string> = {
-  renter: 'مستأجر',
-  owner: 'مالك',
-  broker: 'وسيط',
-  admin: 'مدير',
-  moderator: 'مشرف',
-};
+import { useDir } from '@/i18n/useDir';
 
 const roleBadgeColors: Record<string, string> = {
   admin: 'bg-destructive/10 text-destructive border-destructive/20',
