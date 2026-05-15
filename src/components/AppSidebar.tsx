@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { useUnreadChats } from '@/hooks/useUnreadChats';
@@ -23,50 +24,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-
-const mainNav = [
-  { title: 'الرئيسية', url: '/', icon: Home },
-  { title: 'تصفح الإعلانات', url: '/listings', icon: Search },
-  { title: 'طلبات السكن', url: '/requests', icon: FileText },
-  { title: 'المحادثات', url: '/chat', icon: MessageSquare },
-  { title: 'المفضلة', url: '/favorites', icon: Heart },
-  { title: 'الإشعارات', url: '/notifications', icon: Bell },
-];
-
-const getRoleDashboardItems = (role?: string) => {
-  switch (role) {
-    case 'admin':
-    case 'moderator':
-      return [{ title: 'لوحة التحكم', url: '/dashboard/admin', icon: LayoutDashboard }];
-    case 'owner':
-      return [
-        { title: 'لوحة التحكم', url: '/dashboard/owner', icon: LayoutDashboard },
-        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
-        { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
-      ];
-    case 'broker':
-      return [
-        { title: 'لوحة التحكم', url: '/dashboard/broker', icon: LayoutDashboard },
-        { title: 'الطلبات', url: '/listing-requests', icon: Inbox },
-        { title: 'إضافة إعلان', url: '/listings/new', icon: Plus },
-      ];
-    case 'renter':
-      return [
-        { title: 'لوحة التحكم', url: '/dashboard/renter', icon: LayoutDashboard },
-        { title: 'طلب سكن جديد', url: '/requests/new', icon: Plus },
-      ];
-    default:
-      return [];
-  }
-};
-
-const roleLabels: Record<string, string> = {
-  renter: 'مستأجر',
-  owner: 'مالك',
-  broker: 'وسيط',
-  admin: 'مدير',
-  moderator: 'مشرف',
-};
+import { useDir } from '@/i18n/useDir';
 
 const roleBadgeColors: Record<string, string> = {
   admin: 'bg-destructive/10 text-destructive border-destructive/20',
@@ -85,9 +43,55 @@ export function AppSidebar() {
   const unreadCount = useUnreadCount();
   const unreadChats = useUnreadChats();
   const pendingListingRequests = usePendingListingRequests();
+  const { t } = useTranslation();
+  const dir = useDir();
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
+  const mainNav = [
+    { title: t('nav.home'), url: '/', icon: Home },
+    { title: t('nav.browse'), url: '/listings', icon: Search },
+    { title: t('nav.requests'), url: '/requests', icon: FileText },
+    { title: t('nav.chat'), url: '/chat', icon: MessageSquare },
+    { title: t('nav.favorites'), url: '/favorites', icon: Heart },
+    { title: t('nav.notifications'), url: '/notifications', icon: Bell },
+  ];
+
+  const getRoleDashboardItems = (role?: string) => {
+    switch (role) {
+      case 'admin':
+      case 'moderator':
+        return [{ title: t('nav.dashboard'), url: '/dashboard/admin', icon: LayoutDashboard }];
+      case 'owner':
+        return [
+          { title: t('nav.dashboard'), url: '/dashboard/owner', icon: LayoutDashboard },
+          { title: t('nav.incomingRequests'), url: '/listing-requests', icon: Inbox },
+          { title: t('nav.addListing'), url: '/listings/new', icon: Plus },
+        ];
+      case 'broker':
+        return [
+          { title: t('nav.dashboard'), url: '/dashboard/broker', icon: LayoutDashboard },
+          { title: t('nav.incomingRequests'), url: '/listing-requests', icon: Inbox },
+          { title: t('nav.addListing'), url: '/listings/new', icon: Plus },
+        ];
+      case 'renter':
+        return [
+          { title: t('nav.dashboard'), url: '/dashboard/renter', icon: LayoutDashboard },
+          { title: t('nav.newRequest'), url: '/requests/new', icon: Plus },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const roleLabels: Record<string, string> = {
+    renter: t('roles.renter'),
+    owner: t('roles.owner'),
+    broker: t('roles.broker'),
+    admin: t('roles.admin'),
+    moderator: t('roles.moderator'),
+  };
 
   const dashboardItems = getRoleDashboardItems(profile?.role);
 
@@ -103,7 +107,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" side="right">
+    <Sidebar collapsible="icon" side={dir === 'rtl' ? 'right' : 'left'}>
       {/* ── User Header ── */}
       {user && profile && (
         <SidebarHeader className={cn("border-b border-sidebar-border/50 overflow-hidden", collapsed ? "p-0" : "p-0")}>

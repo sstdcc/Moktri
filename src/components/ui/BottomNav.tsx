@@ -1,31 +1,35 @@
 import { Home, Search, FileText, Heart, User, Plus, Bell } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { label: 'الرئيسية', icon: Home, path: '/' },
-  { label: 'البحث', icon: Search, path: '/listings' },
-  { label: 'طلباتي', icon: FileText, path: '/requests' },
-  { label: 'المفضلة', icon: Heart, path: '/favorites' },
-  { label: 'حسابي', icon: User, path: '/settings' },
-];
+type NavItem = { label: string; icon: typeof Home; path: string };
 
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const unreadCount = useUnreadCount();
+  const { t } = useTranslation();
+
+  const navItems: NavItem[] = [
+    { label: t('nav.home'), icon: Home, path: '/' },
+    { label: t('nav.search'), icon: Search, path: '/listings' },
+    { label: t('nav.myRequests'), icon: FileText, path: '/requests' },
+    { label: t('nav.favorites'), icon: Heart, path: '/favorites' },
+    { label: t('nav.account'), icon: User, path: '/settings' },
+  ];
 
   const showFab = profile?.role === 'owner' || profile?.role === 'broker';
 
-  const isItemActive = (item: typeof navItems[0]) =>
+  const isItemActive = (item: NavItem) =>
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
 
   const isNotifActive = location.pathname === '/notifications';
 
-  const renderNavButton = (item: typeof navItems[0], isActive: boolean) => (
+  const renderNavButton = (item: NavItem, isActive: boolean) => (
     <button
       key={item.path}
       onClick={() => navigate(item.path)}
@@ -64,7 +68,7 @@ export const BottomNav = () => {
   return (
     <nav
       className="fixed bottom-3 left-3 right-3 z-50 pb-safe"
-      aria-label="التنقل الرئيسي"
+      aria-label={t('common.mainNav')}
     >
       <div
         className="mx-auto max-w-lg rounded-2xl border border-border/30 bg-card/75 backdrop-blur-xl backdrop-saturate-150"
@@ -87,7 +91,7 @@ export const BottomNav = () => {
                     <button
                       onClick={() => navigate('/listings/new')}
                       className="w-[48px] h-[48px] rounded-2xl bg-accent flex items-center justify-center -translate-y-4 transition-all duration-200 hover:brightness-105 active:scale-95"
-                      aria-label="إضافة إعلان جديد"
+                      aria-label={t('nav.addListingNew')}
                     >
                       <Plus className="h-5.5 w-5.5 text-accent-foreground stroke-[2.5px]" />
                     </button>
@@ -108,7 +112,7 @@ export const BottomNav = () => {
                 ? 'text-primary'
                 : 'text-muted-foreground/60 active:scale-95'
             )}
-            aria-label="الإشعارات"
+            aria-label={t('nav.notifications')}
           >
             <div className={cn(
               'relative flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
@@ -130,7 +134,7 @@ export const BottomNav = () => {
               'text-[10px] font-tajawal leading-tight transition-all duration-300',
               isNotifActive ? 'font-bold text-primary' : 'font-medium'
             )}>
-              إشعارات
+              {t('nav.notificationsShort')}
             </span>
             {isNotifActive && (
               <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />

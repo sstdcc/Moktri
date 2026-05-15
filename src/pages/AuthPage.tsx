@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,13 +12,17 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/ui/Logo';
-
-const loginSchema = z.object({
-  email: z.string().trim().email('البريد الإلكتروني غير صالح').max(120),
-  password: z.string().min(6, 'كلمة المرور يجب ألا تقل عن 6 أحرف').max(72),
-});
+import { useDir } from '@/i18n/useDir';
 
 const AuthPage = () => {
+  const { t } = useTranslation();
+  const dir = useDir();
+
+  const loginSchema = z.object({
+    email: z.string().trim().email(t('auth.errors.invalidEmail')).max(120),
+    password: z.string().min(6, t('auth.errors.passwordMin')).max(72),
+  });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -53,20 +58,20 @@ const AuthPage = () => {
       });
       if (error) {
         const msg = /invalid/i.test(error.message)
-          ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
+          ? t('auth.errors.loginInvalid')
           : /confirm/i.test(error.message)
-          ? 'يجب تأكيد البريد الإلكتروني أولاً'
-          : 'تعذر تسجيل الدخول، حاول مرة أخرى';
+          ? t('auth.errors.loginUnconfirmed')
+          : t('auth.errors.loginFailed');
         toast.error(msg);
         setErrors({ password: msg });
         return;
       }
-      toast.success('تم تسجيل الدخول بنجاح');
+      toast.success(t('auth.success.loggedIn'));
       retryProfile();
       const returnUrl = searchParams.get('returnUrl') || '/';
       navigate(returnUrl, { replace: true });
     } catch {
-      toast.error('تعذر تسجيل الدخول، حاول مرة أخرى');
+      toast.error(t('auth.errors.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -79,40 +84,46 @@ const AuthPage = () => {
         redirect_uri: `${window.location.origin}/complete-profile`,
       });
       if (result.error) {
-        toast.error('تعذر تسجيل الدخول بـ Google');
+        toast.error(t('auth.errors.googleFailed'));
         setGoogleLoading(false);
         return;
       }
       if (result.redirected) return;
       navigate('/complete-profile', { replace: true });
     } catch {
-      toast.error('تعذر تسجيل الدخول بـ Google');
+      toast.error(t('auth.errors.googleFailed'));
       setGoogleLoading(false);
     }
   };
 
-  const fieldClass =
-    'h-12 rounded-xl border border-border/70 bg-muted/40 dark:bg-muted/30 pr-11 pl-4 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/50 focus-visible:bg-background transition-colors';
-  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70 pointer-events-none';
+  const iconStartClass =
+    (dir === 'rtl'
+      ? 'absolute right-3.5 '
+      : 'absolute left-3.5 ') +
+    'top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground/70 pointer-events-none';
+  const fieldClass = cn(
+    'h-12 rounded-xl border border-border/70 bg-muted/40 dark:bg-muted/30 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 shadow-none focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:border-primary/50 focus-visible:bg-background transition-colors',
+    dir === 'rtl' ? 'pr-11 pl-4' : 'pl-11 pr-4'
+  );
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-16 pb-12 font-tajawal" dir="rtl">
+    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-16 pb-12 font-tajawal" dir={dir}>
       <div className="w-full max-w-sm">
         <div className="mb-12 text-center">
           <Logo framed className="mx-auto mb-6 h-28 w-28" />
           <h1 className="text-[26px] font-semibold tracking-tight leading-tight text-foreground">
-            تسجيل الدخول
+            {t('auth.login')}
           </h1>
           <p className="mt-3 text-[13.5px] font-normal text-muted-foreground/90">
-            مرحباً بعودتك إلى Moktari (مُكتري)
+            {t('auth.welcomeBack')}
           </p>
         </div>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-[12.5px] font-medium text-foreground/90 block">البريد الإلكتروني</Label>
+            <Label className="text-[12.5px] font-medium text-foreground/90 block">{t('auth.email')}</Label>
             <div className="relative">
-              <Mail className={iconClass} strokeWidth={1.75} />
+              <Mail className={iconStartClass} strokeWidth={1.75} />
               <Input
                 type="email"
                 inputMode="email"
@@ -129,24 +140,27 @@ const AuthPage = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[12.5px] font-medium text-foreground/90 block">كلمة المرور</Label>
+            <Label className="text-[12.5px] font-medium text-foreground/90 block">{t('auth.password')}</Label>
             <div className="relative">
-              <Lock className={iconClass} strokeWidth={1.75} />
+              <Lock className={iconStartClass} strokeWidth={1.75} />
               <Input
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={cn(fieldClass, 'pl-11')}
+                className={cn(fieldClass, dir === 'rtl' ? 'pl-11' : 'pr-11')}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors"
+                className={cn(
+                  'absolute top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground transition-colors',
+                  dir === 'rtl' ? 'left-3.5' : 'right-3.5'
+                )}
                 tabIndex={-1}
-                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
               >
                 {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />}
               </button>
@@ -156,7 +170,7 @@ const AuthPage = () => {
                 <p className="text-[11px] text-destructive">{errors.password}</p>
               ) : <span />}
               <Link to="/forgot-password" className="text-[11.5px] text-primary/90 font-medium hover:underline">
-                نسيت كلمة المرور؟
+                {t('auth.forgotPassword')}
               </Link>
             </div>
           </div>
@@ -166,12 +180,12 @@ const AuthPage = () => {
             disabled={loading}
             className="w-full h-12 rounded-xl text-[14.5px] font-semibold mt-4 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none active:scale-100"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تسجيل الدخول'}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('auth.login')}
           </Button>
 
           <div className="flex items-center gap-3 py-1">
             <div className="flex-1 h-px bg-border/70" />
-            <span className="text-[11px] text-muted-foreground/80">أو</span>
+            <span className="text-[11px] text-muted-foreground/80">{t('common.or')}</span>
             <div className="flex-1 h-px bg-border/70" />
           </div>
 
@@ -192,15 +206,15 @@ const AuthPage = () => {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                المتابعة بحساب Google
+                {t('auth.continueWithGoogle')}
               </>
             )}
           </Button>
 
           <p className="text-center text-[13px] font-normal text-muted-foreground/90 pt-4">
-            ليس لديك حساب؟{' '}
+            {t('auth.noAccount')}{' '}
             <Link to="/signup" className="text-primary font-medium hover:underline">
-              إنشاء حساب
+              {t('auth.signup')}
             </Link>
           </p>
         </div>
