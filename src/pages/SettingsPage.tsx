@@ -372,6 +372,36 @@ const SettingsPage = () => {
           </SettingsCard>
         </section>
 
+        {/* Language */}
+        <section>
+          <SectionLabel icon={Languages}>{t('settings.sections.language')}</SectionLabel>
+          <SettingsCard className="p-3">
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                { value: 'ar', label: 'العربية', sub: 'Arabic' },
+                { value: 'en', label: 'English', sub: 'الإنجليزية' },
+              ] as { value: AppLanguage; label: string; sub: string }[]).map(({ value, label, sub }) => (
+                <button
+                  key={value}
+                  onClick={() => setAppLanguage(value)}
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-0.5 rounded-xl border px-2 py-3 text-[13.5px] font-semibold transition-all duration-150',
+                    currentLang === value
+                      ? 'border-primary/60 bg-primary/10 text-primary'
+                      : 'border-border/60 bg-transparent text-muted-foreground hover:bg-muted/50'
+                  )}
+                  aria-pressed={currentLang === value}
+                  lang={value}
+                  dir={value === 'ar' ? 'rtl' : 'ltr'}
+                >
+                  <span>{label}</span>
+                  <span className="text-[11px] font-normal opacity-70">{sub}</span>
+                </button>
+              ))}
+            </div>
+          </SettingsCard>
+        </section>
+
         {/* Security */}
         <section>
           <SectionLabel icon={ShieldCheck}>الأمان</SectionLabel>
