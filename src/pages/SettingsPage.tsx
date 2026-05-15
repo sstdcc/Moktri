@@ -22,11 +22,13 @@ import {
 import { toast } from 'sonner';
 import {
   User, Camera, Phone, Mail, LogOut, MessageCircle, Shield,
-  Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft,
-  Lock, ArrowRight, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy,
+  Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft, ChevronRight,
+  Lock, ArrowRight, ArrowLeft, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy, Languages,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import { setAppLanguage, type AppLanguage } from '@/i18n';
 
 const NOTIF_PREFS_KEY = 'miftah_notif_prefs';
 
@@ -93,7 +95,7 @@ const Row = ({
     <Comp
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3.5 px-4 py-3.5 text-right transition-colors duration-150',
+        'w-full flex items-center gap-3.5 px-4 py-3.5 text-start transition-colors duration-150',
         onClick && 'hover:bg-muted/50 active:bg-muted/70 cursor-pointer',
         !isLast && 'border-b border-border/40',
         className
@@ -122,6 +124,9 @@ const Row = ({
 const SettingsPage = () => {
   const { user, profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const currentLang = (i18n.language?.startsWith('en') ? 'en' : 'ar') as AppLanguage;
+  const dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   const navigate = useNavigate();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -251,10 +256,12 @@ const SettingsPage = () => {
     );
   }
 
-  const arrow = <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2} />;
+  const ChevForward = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const BackArrow = dir === 'rtl' ? ArrowRight : ArrowLeft;
+  const arrow = <ChevForward className="h-[18px] w-[18px]" strokeWidth={2} />;
 
   return (
-    <div className="min-h-screen bg-background pb-24 font-tajawal" dir="rtl">
+    <div className="min-h-screen bg-background pb-24 font-tajawal" dir={dir}>
       {/* Minimal centered header */}
       <header className="relative px-4 pt-7 pb-3">
         <button
@@ -264,13 +271,16 @@ const SettingsPage = () => {
             if (idx > 0) navigate(-1);
             else navigate('/', { replace: true });
           }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 mt-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 transition-colors"
-          aria-label="رجوع"
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 mt-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 transition-colors",
+            dir === 'rtl' ? 'right-4' : 'left-4'
+          )}
+          aria-label={t('settings.back')}
         >
-          <ArrowRight className="h-5 w-5" strokeWidth={1.75} />
+          <BackArrow className="h-5 w-5" strokeWidth={1.75} />
         </button>
         <h1 className="text-center text-[17px] font-medium text-foreground tracking-tight">
-          الإعدادات
+          {t('settings.title')}
         </h1>
       </header>
 
@@ -279,7 +289,7 @@ const SettingsPage = () => {
         <SettingsCard>
           <button
             onClick={() => setProfileOpen(true)}
-            className="w-full flex items-center gap-3.5 p-4 text-right transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
+            className="w-full flex items-center gap-3.5 p-4 text-start transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
           >
             <div className="relative shrink-0">
               {avatarUrl ? (
@@ -296,29 +306,29 @@ const SettingsPage = () => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[15.5px] font-medium text-foreground truncate">
-                {fullName || 'بدون اسم'}
+                {fullName || t('settings.noName')}
               </div>
               <div className="text-[12.5px] text-muted-foreground mt-0.5 truncate" dir="ltr" style={{ textAlign: 'right' }}>
                 {profile.phone}
               </div>
             </div>
-            <ChevronLeft className="h-5 w-5 text-muted-foreground/70" strokeWidth={2} />
+            <ChevForward className="h-5 w-5 text-muted-foreground/70" strokeWidth={2} />
           </button>
         </SettingsCard>
 
         {/* Account */}
         <section>
-          <SectionLabel icon={UserCircle2}>الحساب</SectionLabel>
+          <SectionLabel icon={UserCircle2}>{t('settings.sections.account')}</SectionLabel>
           <SettingsCard>
-            <Row icon={User} label="الاسم" subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
-            <Row icon={Mail} label="البريد الإلكتروني" subtext={user.email || 'غير مضاف'} right={arrow} onClick={() => toast('قريباً')} />
-            <Row icon={Phone} label="رقم الهاتف" subtext={profile.phone} isLast />
+            <Row icon={User} label={t('settings.account.name')} subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
+            <Row icon={Mail} label={t('settings.account.email')} subtext={user.email || t('settings.account.emailMissing')} right={arrow} onClick={() => toast(t('settings.comingSoon'))} />
+            <Row icon={Phone} label={t('settings.account.phone')} subtext={profile.phone} isLast />
           </SettingsCard>
         </section>
 
         {/* Notifications */}
         <section>
-          <SectionLabel icon={BellRing}>الإشعارات</SectionLabel>
+          <SectionLabel icon={BellRing}>{t('settings.sections.notifications')}</SectionLabel>
           <SettingsCard>
             {Object.entries(notifLabels).map(([key, label], idx, arr) => (
               <Row
@@ -340,13 +350,13 @@ const SettingsPage = () => {
 
         {/* Appearance */}
         <section>
-          <SectionLabel icon={Palette}>المظهر</SectionLabel>
+          <SectionLabel icon={Palette}>{t('settings.sections.appearance')}</SectionLabel>
           <SettingsCard className="p-3">
             <div className="grid grid-cols-3 gap-2">
               {([
-                { value: 'system', label: 'النظام', Icon: Monitor },
-                { value: 'light', label: 'فاتح', Icon: Sun },
-                { value: 'dark', label: 'داكن', Icon: Moon },
+                { value: 'system', label: t('settings.appearance.system'), Icon: Monitor },
+                { value: 'light', label: t('settings.appearance.light'), Icon: Sun },
+                { value: 'dark', label: t('settings.appearance.dark'), Icon: Moon },
               ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => (
                 <button
                   key={value}
@@ -367,16 +377,46 @@ const SettingsPage = () => {
           </SettingsCard>
         </section>
 
+        {/* Language */}
+        <section>
+          <SectionLabel icon={Languages}>{t('settings.sections.language')}</SectionLabel>
+          <SettingsCard className="p-3">
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                { value: 'ar', label: 'العربية', sub: t('settings.language.arabic') },
+                { value: 'en', label: 'English', sub: t('settings.language.english') },
+              ] as { value: AppLanguage; label: string; sub: string }[]).map(({ value, label, sub }) => (
+                <button
+                  key={value}
+                  onClick={() => setAppLanguage(value)}
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-0.5 rounded-xl border px-2 py-3 text-[13.5px] font-semibold transition-all duration-150',
+                    currentLang === value
+                      ? 'border-primary/60 bg-primary/10 text-primary'
+                      : 'border-border/60 bg-transparent text-muted-foreground hover:bg-muted/50'
+                  )}
+                  aria-pressed={currentLang === value}
+                  lang={value}
+                  dir={value === 'ar' ? 'rtl' : 'ltr'}
+                >
+                  <span>{label}</span>
+                  <span className="text-[11px] font-normal opacity-70">{sub}</span>
+                </button>
+              ))}
+            </div>
+          </SettingsCard>
+        </section>
+
         {/* Security */}
         <section>
-          <SectionLabel icon={ShieldCheck}>الأمان</SectionLabel>
+          <SectionLabel icon={ShieldCheck}>{t('settings.sections.security')}</SectionLabel>
           <SettingsCard>
             <Row
               icon={Lock}
-              label="تغيير كلمة المرور"
-              subtext="تحديث كلمة المرور الخاصة بك"
+              label={t('settings.security.changePassword')}
+              subtext={t('settings.security.changePasswordHint')}
               right={arrow}
-              onClick={() => toast('قريباً')}
+              onClick={() => toast(t('settings.comingSoon'))}
               isLast
             />
           </SettingsCard>
@@ -384,18 +424,18 @@ const SettingsPage = () => {
 
         {/* Support */}
         <section>
-          <SectionLabel icon={LifeBuoy}>الدعم والمساعدة</SectionLabel>
+          <SectionLabel icon={LifeBuoy}>{t('settings.sections.support')}</SectionLabel>
           <SettingsCard>
             <Row
               icon={MessageCircle}
-              label="تواصل مع الدعم"
-              subtext="عبر واتساب"
+              label={t('settings.support.contact')}
+              subtext={t('settings.support.contactHint')}
               right={arrow}
               onClick={() => window.open('https://wa.me/967772867128', '_blank')}
             />
-            <Row icon={FileText} label="الشروط والأحكام" right={arrow} onClick={() => navigate('/terms')} />
-            <Row icon={Shield} label="سياسة الخصوصية" right={arrow} onClick={() => navigate('/privacy')} />
-            <Row icon={Info} label="حول التطبيق" subtext="الإصدار 1.0.0" isLast />
+            <Row icon={FileText} label={t('settings.support.terms')} right={arrow} onClick={() => navigate('/terms')} />
+            <Row icon={Shield} label={t('settings.support.privacy')} right={arrow} onClick={() => navigate('/privacy')} />
+            <Row icon={Info} label={t('settings.support.about')} subtext={t('settings.support.version')} isLast />
           </SettingsCard>
         </section>
 
@@ -408,23 +448,23 @@ const SettingsPage = () => {
                   className="w-full flex items-center justify-center gap-2 px-4 py-4 text-[14.5px] font-medium text-destructive hover:bg-destructive/5 active:bg-destructive/10 transition-colors duration-150"
                 >
                   <LogOut className="h-[17px] w-[17px]" strokeWidth={1.75} />
-                  تسجيل الخروج
+                  {t('settings.logout')}
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl">
+              <AlertDialogContent dir={dir}>
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="font-tajawal">تسجيل الخروج</AlertDialogTitle>
+                  <AlertDialogTitle className="font-tajawal">{t('settings.logout')}</AlertDialogTitle>
                   <AlertDialogDescription className="font-tajawal">
-                    هل أنت متأكد من تسجيل الخروج؟
+                    {t('settings.logoutConfirm')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex-row-reverse gap-2">
-                  <AlertDialogCancel className="font-tajawal">إلغاء</AlertDialogCancel>
+                  <AlertDialogCancel className="font-tajawal">{t('settings.cancel')}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleSignOut}
                     className="font-tajawal bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    تسجيل الخروج
+                    {t('settings.logout')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

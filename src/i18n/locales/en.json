@@ -1,0 +1,81 @@
+{
+  "settings": {
+    "title": "Settings",
+    "back": "Back",
+    "sections": {
+      "account": "Account",
+      "notifications": "Notifications",
+      "appearance": "Appearance",
+      "language": "Language",
+      "security": "Security",
+      "support": "Support & Help"
+    },
+    "account": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone number",
+      "emailMissing": "Not added"
+    },
+    "appearance": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "arabic": "Arabic",
+      "english": "English"
+    },
+    "security": {
+      "changePassword": "Change password",
+      "changePasswordHint": "Update your account password"
+    },
+    "support": {
+      "contact": "Contact support",
+      "contactHint": "Via WhatsApp",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "about": "About the app",
+      "version": "Version 1.0.0"
+    },
+    "logout": "Sign out",
+    "logoutConfirm": "Are you sure you want to sign out?",
+    "cancel": "Cancel",
+    "comingSoon": "Coming soon",
+    "editProfile": {
+      "title": "Edit profile",
+      "subtitle": "Update your personal information",
+      "fullName": "Full name",
+      "whatsapp": "WhatsApp number",
+      "bio": "Bio",
+      "bioPlaceholder": "Write a short bio...",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "noName": "No name"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "nav": {
+    "home": "Home",
+    "listings": "Listings",
+    "requests": "Requests",
+    "favorites": "Favorites",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "chat": "Chats"
+  },
+  "auth": {
+    "login": "Sign in",
+    "signup": "Create account",
+    "phone": "Phone number",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  }
+}
