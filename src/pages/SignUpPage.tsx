@@ -32,6 +32,21 @@ const normalizePhone = (raw: string) => {
 };
 
 const SignUpPage = () => {
+  const { t } = useTranslation();
+  const dir = useDir();
+  const signupSchema = z
+    .object({
+      firstName: z.string().trim().min(2, t('auth.errors.firstNameShort')).max(40),
+      lastName: z.string().trim().min(2, t('auth.errors.lastNameShort')).max(40),
+      email: z.string().trim().email(t('auth.errors.invalidEmail')).max(120),
+      phone: z.string().trim().min(8, t('auth.errors.phoneInvalid')),
+      password: z.string().min(6, t('auth.errors.passwordMin')).max(72),
+      confirmPassword: z.string(),
+    })
+    .refine((d) => d.password === d.confirmPassword, {
+      message: t('auth.errors.passwordMismatch'),
+      path: ['confirmPassword'],
+    });
   const [step, setStep] = useState<Step>('form');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
