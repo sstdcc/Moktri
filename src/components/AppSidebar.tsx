@@ -43,9 +43,55 @@ export function AppSidebar() {
   const unreadCount = useUnreadCount();
   const unreadChats = useUnreadChats();
   const pendingListingRequests = usePendingListingRequests();
+  const { t } = useTranslation();
+  const dir = useDir();
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
+  const mainNav = [
+    { title: t('nav.home'), url: '/', icon: Home },
+    { title: t('nav.browse'), url: '/listings', icon: Search },
+    { title: t('nav.requests'), url: '/requests', icon: FileText },
+    { title: t('nav.chat'), url: '/chat', icon: MessageSquare },
+    { title: t('nav.favorites'), url: '/favorites', icon: Heart },
+    { title: t('nav.notifications'), url: '/notifications', icon: Bell },
+  ];
+
+  const getRoleDashboardItems = (role?: string) => {
+    switch (role) {
+      case 'admin':
+      case 'moderator':
+        return [{ title: t('nav.dashboard'), url: '/dashboard/admin', icon: LayoutDashboard }];
+      case 'owner':
+        return [
+          { title: t('nav.dashboard'), url: '/dashboard/owner', icon: LayoutDashboard },
+          { title: t('nav.incomingRequests'), url: '/listing-requests', icon: Inbox },
+          { title: t('nav.addListing'), url: '/listings/new', icon: Plus },
+        ];
+      case 'broker':
+        return [
+          { title: t('nav.dashboard'), url: '/dashboard/broker', icon: LayoutDashboard },
+          { title: t('nav.incomingRequests'), url: '/listing-requests', icon: Inbox },
+          { title: t('nav.addListing'), url: '/listings/new', icon: Plus },
+        ];
+      case 'renter':
+        return [
+          { title: t('nav.dashboard'), url: '/dashboard/renter', icon: LayoutDashboard },
+          { title: t('nav.newRequest'), url: '/requests/new', icon: Plus },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const roleLabels: Record<string, string> = {
+    renter: t('roles.renter'),
+    owner: t('roles.owner'),
+    broker: t('roles.broker'),
+    admin: t('roles.admin'),
+    moderator: t('roles.moderator'),
+  };
 
   const dashboardItems = getRoleDashboardItems(profile?.role);
 
@@ -61,7 +107,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" side="right">
+    <Sidebar collapsible="icon" side={dir === 'rtl' ? 'right' : 'left'}>
       {/* ── User Header ── */}
       {user && profile && (
         <SidebarHeader className={cn("border-b border-sidebar-border/50 overflow-hidden", collapsed ? "p-0" : "p-0")}>
