@@ -124,6 +124,9 @@ const Row = ({
 const SettingsPage = () => {
   const { user, profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const currentLang = (i18n.language?.startsWith('en') ? 'en' : 'ar') as AppLanguage;
+  const dir = currentLang === 'ar' ? 'rtl' : 'ltr';
   const navigate = useNavigate();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
