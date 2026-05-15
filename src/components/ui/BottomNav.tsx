@@ -5,20 +5,31 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { cn } from '@/lib/utils';
 
+type NavItem = { label: string; icon: typeof Home; path: string };
+
 export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const unreadCount = useUnreadCount();
+  const { t } = useTranslation();
+
+  const navItems: NavItem[] = [
+    { label: t('nav.home'), icon: Home, path: '/' },
+    { label: t('nav.search'), icon: Search, path: '/listings' },
+    { label: t('nav.myRequests'), icon: FileText, path: '/requests' },
+    { label: t('nav.favorites'), icon: Heart, path: '/favorites' },
+    { label: t('nav.account'), icon: User, path: '/settings' },
+  ];
 
   const showFab = profile?.role === 'owner' || profile?.role === 'broker';
 
-  const isItemActive = (item: typeof navItems[0]) =>
+  const isItemActive = (item: NavItem) =>
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
 
   const isNotifActive = location.pathname === '/notifications';
 
-  const renderNavButton = (item: typeof navItems[0], isActive: boolean) => (
+  const renderNavButton = (item: NavItem, isActive: boolean) => (
     <button
       key={item.path}
       onClick={() => navigate(item.path)}
