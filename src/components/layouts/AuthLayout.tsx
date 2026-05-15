@@ -1,22 +1,12 @@
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { PageTransition } from '@/components/layouts/PageTransition';
+import { useDir } from '@/i18n/useDir';
 
-/**
- * Layout for unauthenticated/auth-flow pages (login, signup, OTP, password reset,
- * complete profile, onboarding-pre-auth). Reuses the main app's premium header
- * style so users never feel trapped.
- *
- * - Back button (right side in RTL) → safely returns to the previous in-app
- *   route, falling back to home when there is no history.
- * - Centered compact framed logo → matches the rest of the app.
- * - Sidebar trigger (left in RTL) → keeps the existing menu access.
- *
- * Forms inside are not modified — only the surrounding header navigation.
- */
 const goBackSafely = (
   navigate: ReturnType<typeof useNavigate>,
   fallback = '/',
@@ -34,10 +24,13 @@ const goBackSafely = (
 
 export const AuthLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const dir = useDir();
+  const BackIcon = dir === 'rtl' ? ArrowLeft : ArrowRight;
 
   return (
     <SidebarProvider>
-      <div className="h-[100dvh] flex w-full overflow-hidden" dir="rtl">
+      <div className="h-[100dvh] flex w-full overflow-hidden" dir={dir}>
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
           <header
@@ -50,10 +43,10 @@ export const AuthLayout = ({ children }: { children: ReactNode }) => {
               <button
                 type="button"
                 onClick={() => goBackSafely(navigate)}
-                aria-label="رجوع"
+                aria-label={t('common.back')}
                 className="h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted active:scale-95 transition-all"
               >
-                <ArrowLeft className="!size-6" strokeWidth={2} />
+                <BackIcon className="!size-6" strokeWidth={2} />
               </button>
             </div>
           </header>

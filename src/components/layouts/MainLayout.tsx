@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -9,20 +10,21 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { PageTransition } from '@/components/layouts/PageTransition';
+import { useDir } from '@/i18n/useDir';
 
 export const MainLayout = ({ children }: { children: ReactNode }) => {
   const isMobile = useIsMobile();
   const { profile, user } = useAuth();
   const navigate = useNavigate();
   const unreadCount = useUnreadCount();
-  // Admin/moderator use AdminLayout (with its own bottom nav). Everyone else gets the
-  // shared mobile BottomNav rendered from the layout so it persists across all pages.
+  const { t } = useTranslation();
+  const dir = useDir();
   const showBottomNav =
     isMobile && profile?.role !== 'admin' && profile?.role !== 'moderator';
 
   return (
     <SidebarProvider>
-      <div className="h-[100dvh] flex w-full overflow-hidden" dir="rtl">
+      <div className="h-[100dvh] flex w-full overflow-hidden" dir={dir}>
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
           <header className="shrink-0 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl z-40"
@@ -33,7 +35,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
               {!user ? (
                 <button
                   onClick={() => navigate('/')}
-                  aria-label="الصفحة الرئيسية"
+                  aria-label={t('common.home')}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Logo framed className="h-10 w-10 md:h-11 md:w-11" />
@@ -44,12 +46,12 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
               {user && (
                 <button
                   onClick={() => navigate('/notifications')}
-                  aria-label="الإشعارات"
+                  aria-label={t('common.notifications')}
                   className="relative h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
                 >
                   <Bell className="!size-6" strokeWidth={1.8} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1.5 left-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground ring-2 ring-card">
+                    <span className={'absolute top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground ring-2 ring-card ' + (dir === 'rtl' ? 'left-1.5' : 'right-1.5')}>
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
