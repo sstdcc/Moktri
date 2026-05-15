@@ -23,10 +23,12 @@ import { toast } from 'sonner';
 import {
   User, Camera, Phone, Mail, LogOut, MessageCircle, Shield,
   Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft,
-  Lock, ArrowRight, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy,
+  Lock, ArrowRight, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy, Languages,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import { setAppLanguage, type AppLanguage } from '@/i18n';
 
 const NOTIF_PREFS_KEY = 'miftah_notif_prefs';
 
