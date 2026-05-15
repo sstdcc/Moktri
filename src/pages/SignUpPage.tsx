@@ -267,20 +267,27 @@ const SignUpPage = () => {
   };
 
   // Shared tokens — themed for both light and dark modes
-  const fieldClass =
-    'h-[48px] rounded-xl border border-border bg-card pr-11 pl-4 text-[14.5px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-accent/5 transition-colors';
-  const iconClass = 'absolute right-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground pointer-events-none';
+  const fieldClass = cn(
+    'h-[48px] rounded-xl border border-border bg-card text-[14.5px] text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/60 hover:bg-accent/5 transition-colors',
+    dir === 'rtl' ? 'pr-11 pl-4' : 'pl-11 pr-4'
+  );
+  const iconClass = cn(
+    'absolute top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-muted-foreground pointer-events-none',
+    dir === 'rtl' ? 'right-3.5' : 'left-3.5'
+  );
+  const eyeBtnPos = dir === 'rtl' ? 'left-3.5' : 'right-3.5';
+  const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir="rtl">
+    <div className="flex min-h-screen flex-col items-center justify-start bg-background px-6 pt-12 pb-12 font-tajawal" dir={dir}>
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           <Logo framed className="mx-auto mb-6 h-28 w-28" />
           <h1 className="text-[28px] font-black tracking-tight leading-tight text-foreground">
-            إنشاء <span className="text-primary">حساب</span>
+            {t('auth.signupTitlePart1')} <span className="text-primary">{t('auth.signupTitlePart2')}</span>
           </h1>
           <p className="mt-2.5 text-[13px] text-muted-foreground leading-relaxed">
-            {step === 'form' ? 'أنشئ حسابك في Moktari (مُكتري) بخطوات بسيطة' : 'أدخل رمز التحقق المرسل إليك'}
+            {step === 'form' ? t('auth.signupSubtitle') : t('auth.otpSubtitle')}
           </p>
         </div>
 
@@ -288,26 +295,26 @@ const SignUpPage = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-[12.5px] font-semibold text-foreground block">الاسم الأول</Label>
+                <Label className="text-[12.5px] font-semibold text-foreground block">{t('auth.firstName')}</Label>
                 <div className="relative">
                   <User className={iconClass} strokeWidth={1.75} />
                   <Input
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="أحمد"
+                    placeholder={t('auth.firstNamePlaceholder')}
                     className={fieldClass}
                   />
                 </div>
                 {errors.firstName && <p className="text-[11px] text-destructive">{errors.firstName}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-[12.5px] font-semibold text-foreground block">اسم العائلة</Label>
+                <Label className="text-[12.5px] font-semibold text-foreground block">{t('auth.lastName')}</Label>
                 <div className="relative">
                   <User className={iconClass} strokeWidth={1.75} />
                   <Input
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="محمد"
+                    placeholder={t('auth.lastNamePlaceholder')}
                     className={fieldClass}
                   />
                 </div>
@@ -316,7 +323,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground block">رقم الهاتف</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">{t('auth.phone')}</Label>
               <div className="relative">
                 <Phone className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -332,12 +339,12 @@ const SignUpPage = () => {
               {errors.phone ? (
                 <p className="text-[11px] text-destructive">{errors.phone}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">سنرسل لك رمز تحقق عبر SMS</p>
+                <p className="text-[11px] text-muted-foreground">{t('auth.phoneOtpHint')}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground block">البريد الإلكتروني</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">{t('auth.email')}</Label>
               <div className="relative">
                 <Mail className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -355,7 +362,7 @@ const SignUpPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground block">كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">{t('auth.password')}</Label>
               <div className="relative">
                 <Lock className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -363,15 +370,15 @@ const SignUpPage = () => {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="أدخل كلمة مرور قوية"
-                  className={cn(fieldClass, 'pl-11')}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  className={cn(fieldClass, dir === 'rtl' ? 'pl-11' : 'pr-11')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className={cn('absolute top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors', eyeBtnPos)}
                   tabIndex={-1}
-                  aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                  aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                 >
                   {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.75} />}
                 </button>
@@ -379,12 +386,12 @@ const SignUpPage = () => {
               {errors.password ? (
                 <p className="text-[11px] text-destructive">{errors.password}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">6 أحرف على الأقل</p>
+                <p className="text-[11px] text-muted-foreground">{t('auth.passwordHint')}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[12.5px] font-semibold text-foreground block">تأكيد كلمة المرور</Label>
+              <Label className="text-[12.5px] font-semibold text-foreground block">{t('auth.confirmPassword')}</Label>
               <div className="relative">
                 <Lock className={iconClass} strokeWidth={1.75} />
                 <Input
@@ -392,7 +399,7 @@ const SignUpPage = () => {
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="أعد إدخال كلمة المرور"
+                  placeholder={t('auth.passwordReenter')}
                   className={fieldClass}
                 />
               </div>
@@ -404,7 +411,7 @@ const SignUpPage = () => {
               disabled={loading}
               className="w-full h-[46px] rounded-xl text-[14px] font-bold mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إنشاء الحساب'}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('auth.createAccount')}
             </Button>
 
             <div className="space-y-1.5">
@@ -419,16 +426,16 @@ const SignUpPage = () => {
                     }
                   }}
                   className="mt-0.5"
-                  aria-label="الموافقة على الشروط"
+                  aria-label={t('auth.agreeAria')}
                 />
                 <span className="text-[12.5px] text-muted-foreground leading-relaxed">
-                  أوافق على{' '}
+                  {t('auth.agreePrefix')}{' '}
                   <Link to="/terms" target="_blank" className="text-primary font-semibold hover:underline">
-                    الشروط والأحكام
+                    {t('auth.termsLink')}
                   </Link>{' '}
-                  و
+                  {t('auth.and')}{' '}
                   <Link to="/privacy" target="_blank" className="text-primary font-semibold hover:underline">
-                    سياسة الخصوصية
+                    {t('auth.privacyLink')}
                   </Link>
                 </span>
               </label>
@@ -437,7 +444,7 @@ const SignUpPage = () => {
 
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-border" />
-              <span className="text-[11px] text-muted-foreground">أو</span>
+              <span className="text-[11px] text-muted-foreground">{t('common.or')}</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
@@ -458,15 +465,15 @@ const SignUpPage = () => {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  المتابعة بحساب Google
+                  {t('auth.continueWithGoogle')}
                 </>
               )}
             </Button>
 
             <p className="text-center text-[13px] text-muted-foreground pt-2">
-              لديك حساب؟{' '}
+              {t('auth.hasAccount')}{' '}
               <Link to="/auth" className="text-primary font-bold hover:underline">
-                سجّل دخولك
+                {t('auth.loginCta')}
               </Link>
             </p>
           </div>
@@ -477,7 +484,7 @@ const SignUpPage = () => {
             <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-2">
               <KeyRound className="h-4 w-4 text-accent shrink-0" />
               <p className="text-xs text-muted-foreground">
-                تم إرسال الرمز إلى <span className="font-semibold text-foreground inline-block" dir="ltr">{phone}</span>
+                {t('auth.otpSentTo')} <span className="font-semibold text-foreground inline-block" dir="ltr">{phone}</span>
               </p>
             </div>
             <div className="flex gap-2 justify-center" dir="ltr" onPaste={handleOtpPaste}>
@@ -500,15 +507,15 @@ const SignUpPage = () => {
               ))}
             </div>
             <Button onClick={handleVerify} disabled={loading || otpCode.length < 6} className="w-full h-12 text-base">
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'تأكيد وإنشاء الحساب'}
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('auth.verifyAndCreate')}
             </Button>
             <div className="flex items-center justify-between pt-1">
               <button
                 onClick={() => { setStep('form'); setOtp(Array(6).fill('')); }}
                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground min-h-[44px] px-1"
               >
-                <ArrowRight className="h-3.5 w-3.5" />
-                تعديل البيانات
+                <BackIcon className="h-3.5 w-3.5" />
+                {t('auth.editData')}
               </button>
               <button
                 onClick={handleResend}
@@ -516,7 +523,7 @@ const SignUpPage = () => {
                 className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 disabled:opacity-50 min-h-[44px] px-1"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                {cooldown > 0 ? `إعادة الإرسال (${cooldown})` : 'إعادة الإرسال'}
+                {cooldown > 0 ? t('auth.resendIn', { seconds: cooldown }) : t('auth.resend')}
               </button>
             </div>
           </div>
