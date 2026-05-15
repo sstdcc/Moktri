@@ -256,7 +256,9 @@ const SettingsPage = () => {
     );
   }
 
-  const arrow = <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2} />;
+  const ChevForward = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const BackArrow = dir === 'rtl' ? ArrowRight : ArrowLeft;
+  const arrow = <ChevForward className="h-[18px] w-[18px]" strokeWidth={2} />;
 
   return (
     <div className="min-h-screen bg-background pb-24 font-tajawal" dir={dir}>
@@ -269,13 +271,16 @@ const SettingsPage = () => {
             if (idx > 0) navigate(-1);
             else navigate('/', { replace: true });
           }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 mt-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 transition-colors"
-          aria-label="رجوع"
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 mt-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60 transition-colors",
+            dir === 'rtl' ? 'right-4' : 'left-4'
+          )}
+          aria-label={t('settings.back')}
         >
-          <ArrowRight className="h-5 w-5" strokeWidth={1.75} />
+          <BackArrow className="h-5 w-5" strokeWidth={1.75} />
         </button>
         <h1 className="text-center text-[17px] font-medium text-foreground tracking-tight">
-          الإعدادات
+          {t('settings.title')}
         </h1>
       </header>
 
