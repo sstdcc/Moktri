@@ -318,17 +318,17 @@ const SettingsPage = () => {
 
         {/* Account */}
         <section>
-          <SectionLabel icon={UserCircle2}>الحساب</SectionLabel>
+          <SectionLabel icon={UserCircle2}>{t('settings.sections.account')}</SectionLabel>
           <SettingsCard>
-            <Row icon={User} label="الاسم" subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
-            <Row icon={Mail} label="البريد الإلكتروني" subtext={user.email || 'غير مضاف'} right={arrow} onClick={() => toast('قريباً')} />
-            <Row icon={Phone} label="رقم الهاتف" subtext={profile.phone} isLast />
+            <Row icon={User} label={t('settings.account.name')} subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
+            <Row icon={Mail} label={t('settings.account.email')} subtext={user.email || t('settings.account.emailMissing')} right={arrow} onClick={() => toast(t('settings.comingSoon'))} />
+            <Row icon={Phone} label={t('settings.account.phone')} subtext={profile.phone} isLast />
           </SettingsCard>
         </section>
 
         {/* Notifications */}
         <section>
-          <SectionLabel icon={BellRing}>الإشعارات</SectionLabel>
+          <SectionLabel icon={BellRing}>{t('settings.sections.notifications')}</SectionLabel>
           <SettingsCard>
             {Object.entries(notifLabels).map(([key, label], idx, arr) => (
               <Row
@@ -350,13 +350,13 @@ const SettingsPage = () => {
 
         {/* Appearance */}
         <section>
-          <SectionLabel icon={Palette}>المظهر</SectionLabel>
+          <SectionLabel icon={Palette}>{t('settings.sections.appearance')}</SectionLabel>
           <SettingsCard className="p-3">
             <div className="grid grid-cols-3 gap-2">
               {([
-                { value: 'system', label: 'النظام', Icon: Monitor },
-                { value: 'light', label: 'فاتح', Icon: Sun },
-                { value: 'dark', label: 'داكن', Icon: Moon },
+                { value: 'system', label: t('settings.appearance.system'), Icon: Monitor },
+                { value: 'light', label: t('settings.appearance.light'), Icon: Sun },
+                { value: 'dark', label: t('settings.appearance.dark'), Icon: Moon },
               ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => (
                 <button
                   key={value}
@@ -383,8 +383,8 @@ const SettingsPage = () => {
           <SettingsCard className="p-3">
             <div className="grid grid-cols-2 gap-2">
               {([
-                { value: 'ar', label: 'العربية', sub: 'Arabic' },
-                { value: 'en', label: 'English', sub: 'الإنجليزية' },
+                { value: 'ar', label: 'العربية', sub: t('settings.language.arabic') },
+                { value: 'en', label: 'English', sub: t('settings.language.english') },
               ] as { value: AppLanguage; label: string; sub: string }[]).map(({ value, label, sub }) => (
                 <button
                   key={value}
@@ -409,14 +409,14 @@ const SettingsPage = () => {
 
         {/* Security */}
         <section>
-          <SectionLabel icon={ShieldCheck}>الأمان</SectionLabel>
+          <SectionLabel icon={ShieldCheck}>{t('settings.sections.security')}</SectionLabel>
           <SettingsCard>
             <Row
               icon={Lock}
-              label="تغيير كلمة المرور"
-              subtext="تحديث كلمة المرور الخاصة بك"
+              label={t('settings.security.changePassword')}
+              subtext={t('settings.security.changePasswordHint')}
               right={arrow}
-              onClick={() => toast('قريباً')}
+              onClick={() => toast(t('settings.comingSoon'))}
               isLast
             />
           </SettingsCard>
@@ -424,18 +424,18 @@ const SettingsPage = () => {
 
         {/* Support */}
         <section>
-          <SectionLabel icon={LifeBuoy}>الدعم والمساعدة</SectionLabel>
+          <SectionLabel icon={LifeBuoy}>{t('settings.sections.support')}</SectionLabel>
           <SettingsCard>
             <Row
               icon={MessageCircle}
-              label="تواصل مع الدعم"
-              subtext="عبر واتساب"
+              label={t('settings.support.contact')}
+              subtext={t('settings.support.contactHint')}
               right={arrow}
               onClick={() => window.open('https://wa.me/967772867128', '_blank')}
             />
-            <Row icon={FileText} label="الشروط والأحكام" right={arrow} onClick={() => navigate('/terms')} />
-            <Row icon={Shield} label="سياسة الخصوصية" right={arrow} onClick={() => navigate('/privacy')} />
-            <Row icon={Info} label="حول التطبيق" subtext="الإصدار 1.0.0" isLast />
+            <Row icon={FileText} label={t('settings.support.terms')} right={arrow} onClick={() => navigate('/terms')} />
+            <Row icon={Shield} label={t('settings.support.privacy')} right={arrow} onClick={() => navigate('/privacy')} />
+            <Row icon={Info} label={t('settings.support.about')} subtext={t('settings.support.version')} isLast />
           </SettingsCard>
         </section>
 
@@ -448,23 +448,23 @@ const SettingsPage = () => {
                   className="w-full flex items-center justify-center gap-2 px-4 py-4 text-[14.5px] font-medium text-destructive hover:bg-destructive/5 active:bg-destructive/10 transition-colors duration-150"
                 >
                   <LogOut className="h-[17px] w-[17px]" strokeWidth={1.75} />
-                  تسجيل الخروج
+                  {t('settings.logout')}
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl">
+              <AlertDialogContent dir={dir}>
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="font-tajawal">تسجيل الخروج</AlertDialogTitle>
+                  <AlertDialogTitle className="font-tajawal">{t('settings.logout')}</AlertDialogTitle>
                   <AlertDialogDescription className="font-tajawal">
-                    هل أنت متأكد من تسجيل الخروج؟
+                    {t('settings.logoutConfirm')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex-row-reverse gap-2">
-                  <AlertDialogCancel className="font-tajawal">إلغاء</AlertDialogCancel>
+                  <AlertDialogCancel className="font-tajawal">{t('settings.cancel')}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleSignOut}
                     className="font-tajawal bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    تسجيل الخروج
+                    {t('settings.logout')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
