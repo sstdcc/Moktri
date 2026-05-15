@@ -97,8 +97,8 @@ const SignUpPage = () => {
 
   const handleSignUp = async () => {
     if (!agreed) {
-      setErrors({ agreed: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية' });
-      toast.error('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية');
+      setErrors({ agreed: t('auth.agreeRequired') });
+      toast.error(t('auth.agreeRequired'));
       return;
     }
     const parsed = signupSchema.safeParse({
@@ -113,7 +113,7 @@ const SignUpPage = () => {
     setErrors({});
     const normalized = normalizePhone(phoneRaw);
     if (normalized.length < 12) {
-      setErrors({ phone: 'رقم الهاتف غير صالح' });
+      setErrors({ phone: t('auth.errors.phoneInvalid') });
       return;
     }
 
@@ -132,9 +132,9 @@ const SignUpPage = () => {
       setPhone(normalized);
       setStep('otp');
       startCooldown();
-      toast.success('تم إرسال رمز التحقق');
+      toast.success(t('auth.success.otpSent'));
     } catch (e: any) {
-      toast.error(e?.message || 'تعذر إرسال الرمز، حاول مرة أخرى');
+      toast.error(e?.message || t('auth.errors.otpSendFailed'));
     } finally {
       setLoading(false);
     }
@@ -146,9 +146,9 @@ const SignUpPage = () => {
     try {
       await signInWithOtp(phone);
       startCooldown();
-      toast.success('تم إعادة إرسال الرمز');
+      toast.success(t('auth.success.otpResent'));
     } catch {
-      toast.error('تعذر إعادة الإرسال');
+      toast.error(t('auth.errors.otpResendFailed'));
     } finally {
       setLoading(false);
     }
@@ -227,7 +227,7 @@ const SignUpPage = () => {
         sessionStorage.removeItem('pending_signup_profile');
       }
 
-      toast.success('تم إنشاء الحساب بنجاح');
+      toast.success(t('auth.success.accountCreated'));
       retryProfile();
       const returnUrl = searchParams.get('returnUrl');
       const target = returnUrl
@@ -235,7 +235,7 @@ const SignUpPage = () => {
         : '/onboarding';
       navigate(target, { replace: true });
     } catch {
-      toast.error('الرمز غير صحيح أو منتهي الصلاحية');
+      toast.error(t('auth.errors.otpInvalid'));
     } finally {
       setLoading(false);
     }
@@ -243,8 +243,8 @@ const SignUpPage = () => {
 
   const handleGoogle = async () => {
     if (!agreed) {
-      setErrors({ agreed: 'يجب الموافقة على الشروط والأحكام وسياسة الخصوصية' });
-      toast.error('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية');
+      setErrors({ agreed: t('auth.agreeRequired') });
+      toast.error(t('auth.agreeRequired'));
       return;
     }
     setGoogleLoading(true);
@@ -253,7 +253,7 @@ const SignUpPage = () => {
         redirect_uri: `${window.location.origin}/complete-profile`,
       });
       if (result.error) {
-        toast.error('تعذر تسجيل الدخول بـ Google');
+        toast.error(t('auth.errors.googleFailed'));
         setGoogleLoading(false);
         return;
       }
