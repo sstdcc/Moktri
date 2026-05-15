@@ -1,0 +1,81 @@
+{
+  "settings": {
+    "title": "الإعدادات",
+    "back": "رجوع",
+    "sections": {
+      "account": "الحساب",
+      "notifications": "الإشعارات",
+      "appearance": "المظهر",
+      "language": "اللغة",
+      "security": "الأمان",
+      "support": "الدعم والمساعدة"
+    },
+    "account": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "emailMissing": "غير مضاف"
+    },
+    "appearance": {
+      "system": "النظام",
+      "light": "فاتح",
+      "dark": "داكن"
+    },
+    "language": {
+      "arabic": "العربية",
+      "english": "الإنجليزية"
+    },
+    "security": {
+      "changePassword": "تغيير كلمة المرور",
+      "changePasswordHint": "تحديث كلمة المرور الخاصة بك"
+    },
+    "support": {
+      "contact": "تواصل مع الدعم",
+      "contactHint": "عبر واتساب",
+      "terms": "الشروط والأحكام",
+      "privacy": "سياسة الخصوصية",
+      "about": "حول التطبيق",
+      "version": "الإصدار 1.0.0"
+    },
+    "logout": "تسجيل الخروج",
+    "logoutConfirm": "هل أنت متأكد من تسجيل الخروج؟",
+    "cancel": "إلغاء",
+    "comingSoon": "قريباً",
+    "editProfile": {
+      "title": "تعديل الملف الشخصي",
+      "subtitle": "قم بتحديث بياناتك الشخصية",
+      "fullName": "الاسم الكامل",
+      "whatsapp": "رقم الواتساب",
+      "bio": "نبذة عنك",
+      "bioPlaceholder": "اكتب نبذة مختصرة...",
+      "save": "حفظ",
+      "saving": "جاري الحفظ..."
+    },
+    "noName": "بدون اسم"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "back": "رجوع"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "listings": "العقارات",
+    "requests": "الطلبات",
+    "favorites": "المفضلة",
+    "notifications": "الإشعارات",
+    "settings": "الإعدادات",
+    "chat": "المحادثات"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "phone": "رقم الهاتف",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب؟"
+  }
+}
