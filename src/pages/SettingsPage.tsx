@@ -312,7 +312,7 @@ const SettingsPage = () => {
                 {profile.phone}
               </div>
             </div>
-            <ChevronLeft className="h-5 w-5 text-muted-foreground/70" strokeWidth={2} />
+            <ChevForward className="h-5 w-5 text-muted-foreground/70" strokeWidth={2} />
           </button>
         </SettingsCard>
 
