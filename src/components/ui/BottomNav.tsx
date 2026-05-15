@@ -1,16 +1,9 @@
 import { Home, Search, FileText, Heart, User, Plus, Bell } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { label: 'الرئيسية', icon: Home, path: '/' },
-  { label: 'البحث', icon: Search, path: '/listings' },
-  { label: 'طلباتي', icon: FileText, path: '/requests' },
-  { label: 'المفضلة', icon: Heart, path: '/favorites' },
-  { label: 'حسابي', icon: User, path: '/settings' },
-];
 
 export const BottomNav = () => {
   const location = useLocation();
