@@ -95,7 +95,7 @@ const Row = ({
     <Comp
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3.5 px-4 py-3.5 text-right transition-colors duration-150',
+        'w-full flex items-center gap-3.5 px-4 py-3.5 text-start transition-colors duration-150',
         onClick && 'hover:bg-muted/50 active:bg-muted/70 cursor-pointer',
         !isLast && 'border-b border-border/40',
         className
@@ -289,7 +289,7 @@ const SettingsPage = () => {
         <SettingsCard>
           <button
             onClick={() => setProfileOpen(true)}
-            className="w-full flex items-center gap-3.5 p-4 text-right transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
+            className="w-full flex items-center gap-3.5 p-4 text-start transition-colors duration-150 hover:bg-muted/40 active:bg-muted/60"
           >
             <div className="relative shrink-0">
               {avatarUrl ? (
