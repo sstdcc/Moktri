@@ -100,6 +100,7 @@ export const WelcomeTourModal = () => {
 
   useEffect(() => {
     if (loading) return;
+    if (!user) return; // only show after login
     // wait until profile loaded for signed-in users
     if (user && !profile) return;
     try {
