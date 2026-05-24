@@ -44,6 +44,12 @@ const VerificationPage = () => {
   const idInputRef = useRef<HTMLInputElement>(null);
   const bizInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, [user?.email]);
+
   const fetchExisting = useCallback(async () => {
     if (!user) return;
     setError(false);
@@ -80,11 +86,7 @@ const VerificationPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user || !idFile) return;
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      toast.error('يرجى إدخال بريد إلكتروني صحيح');
-      return;
-    }
+    if (!user || !idFile || !email.trim()) return;
 
     const idErr = validateFile(idFile);
     if (idErr) { toast.error(idErr); return; }
@@ -238,15 +240,14 @@ const VerificationPage = () => {
 
                   <div>
                     <Label className="text-sm font-semibold mb-2 block">
-                      البريد الإلكتروني <span className="text-destructive">*</span>
+                      البريد الإلكتروني
                     </Label>
                     <Input
                       type="email"
-                      placeholder="example@email.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      readOnly
                       dir="ltr"
-                      className="text-left"
+                      className="text-left bg-muted"
                     />
                   </div>
 
@@ -334,7 +335,7 @@ const VerificationPage = () => {
 
                   <Button
                     onClick={handleSubmit}
-                    disabled={submitting || !idFile || !email.trim()}
+                    disabled={submitting || !idFile}
                     className="w-full"
                   >
                     {submitting ? 'جاري الإرسال...' : 'إرسال طلب التوثيق'}
