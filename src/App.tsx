@@ -14,6 +14,7 @@ import { MainLayout } from "@/components/layouts/MainLayout";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import ScrollToTop from "@/components/ScrollToTop";
+import WelcomeTourModal from "@/components/onboarding/WelcomeTourModal";
 
 // Eager: landing + listings (most visited)
 import HomePage from "./pages/HomePage";
@@ -78,6 +79,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ScrollToTop />
+          <WelcomeTourModal />
           <DistrictsProvider>
             <PresenceProvider>
               <Suspense fallback={<LazyFallback />}>
