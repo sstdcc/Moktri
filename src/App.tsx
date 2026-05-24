@@ -79,6 +79,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ScrollToTop />
+          <WelcomeTourModal />
           <DistrictsProvider>
             <PresenceProvider>
               <Suspense fallback={<LazyFallback />}>
