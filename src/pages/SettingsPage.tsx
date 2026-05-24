@@ -388,7 +388,13 @@ const SettingsPage = () => {
               ] as { value: AppLanguage; label: string; sub: string }[]).map(({ value, label, sub }) => (
                 <button
                   key={value}
-                  onClick={() => setAppLanguage(value)}
+                  onClick={() => {
+                    if (value === 'en') {
+                      toast('قريباً سيتم توفير اللغة الإنجليزية');
+                      return;
+                    }
+                    setAppLanguage(value);
+                  }}
                   className={cn(
                     'flex flex-col items-center justify-center gap-0.5 rounded-xl border px-2 py-3 text-[13.5px] font-semibold transition-all duration-150',
                     currentLang === value
