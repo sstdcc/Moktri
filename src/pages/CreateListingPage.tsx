@@ -90,6 +90,7 @@ interface FormState {
   has_internet: boolean;
   description: string;
   is_urgent: boolean;
+  map_url: string;
 }
 
 const defaultForm: FormState = {
@@ -98,7 +99,7 @@ const defaultForm: FormState = {
   bedrooms: 0, bathrooms: 0, kitchens: 0, floor_number: 0, property_size: '',
   furnishing: '', allowed_for: 'all',
   has_water: false, has_electricity: false, has_parking: false, has_internet: false,
-  description: '', is_urgent: false,
+  description: '', is_urgent: false, map_url: '',
 };
 
 interface UploadedImage {
