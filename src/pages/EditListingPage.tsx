@@ -69,6 +69,7 @@ const EditListingPage = () => {
       has_internet: form.has_internet,
       description: form.description,
       is_urgent: form.is_urgent,
+      map_url: form.map_url?.trim() || null,
       last_updated_at: new Date().toISOString(),
     }).eq('id', id);
 
