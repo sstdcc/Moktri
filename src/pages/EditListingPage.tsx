@@ -110,6 +110,7 @@ const EditListingPage = () => {
     has_internet: listing.has_internet || false,
     description: listing.description || '',
     is_urgent: listing.is_urgent || false,
+    map_url: (listing as any).map_url || '',
   };
 
   return (
