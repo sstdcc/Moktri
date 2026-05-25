@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2, MessageCircle, Check, X as XIcon } from 'lucide-react';
+import { Heart, MapPin, Eye, Clock, Camera, Flag, ChevronLeft, ChevronRight, Bed, Bath, UtensilsCrossed, Ruler, Building, Armchair, Users, Share2, MessageCircle, Check, X as XIcon, ExternalLink } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
