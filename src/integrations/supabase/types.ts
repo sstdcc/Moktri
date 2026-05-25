@@ -458,6 +458,7 @@ export type Database = {
           is_urgent: boolean | null
           kitchens: number | null
           last_updated_at: string | null
+          map_url: string | null
           moderation_note: string | null
           neighborhood: string | null
           offered_at: string | null
@@ -503,6 +504,7 @@ export type Database = {
           is_urgent?: boolean | null
           kitchens?: number | null
           last_updated_at?: string | null
+          map_url?: string | null
           moderation_note?: string | null
           neighborhood?: string | null
           offered_at?: string | null
@@ -548,6 +550,7 @@ export type Database = {
           is_urgent?: boolean | null
           kitchens?: number | null
           last_updated_at?: string | null
+          map_url?: string | null
           moderation_note?: string | null
           neighborhood?: string | null
           offered_at?: string | null

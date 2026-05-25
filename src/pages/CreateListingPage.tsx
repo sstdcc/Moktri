@@ -90,6 +90,7 @@ interface FormState {
   has_internet: boolean;
   description: string;
   is_urgent: boolean;
+  map_url: string;
 }
 
 const defaultForm: FormState = {
@@ -98,7 +99,7 @@ const defaultForm: FormState = {
   bedrooms: 0, bathrooms: 0, kitchens: 0, floor_number: 0, property_size: '',
   furnishing: '', allowed_for: 'all',
   has_water: false, has_electricity: false, has_parking: false, has_internet: false,
-  description: '', is_urgent: false,
+  description: '', is_urgent: false, map_url: '',
 };
 
 interface UploadedImage {
@@ -298,6 +299,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         has_internet: form.has_internet,
         description: form.description,
         is_urgent: form.is_urgent,
+        map_url: form.map_url?.trim() || null,
         status: finalStatus as any,
         published_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date().toISOString() : null,
         expires_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date(Date.now() + 90 * 86400000).toISOString() : null,
@@ -453,6 +455,22 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
               <Input value={form.neighborhood} onChange={e => update('neighborhood', e.target.value)}
                 placeholder="مثال: شارع جمال، بجانب المسجد" className="font-tajawal" />
             </div>
+
+            <div>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">رابط الموقع على خرائط جوجل (اختياري)</Label>
+              <Input
+                type="url"
+                dir="ltr"
+                value={form.map_url}
+                onChange={e => update('map_url', e.target.value)}
+                placeholder="https://maps.google.com/..."
+                className="font-tajawal"
+              />
+              <p className="mt-1 text-xs text-muted-foreground font-tajawal">
+                افتح خرائط جوجل، حدد الموقع، واضغط "مشاركة" ثم انسخ الرابط هنا
+              </p>
+            </div>
+
 
             <Button onClick={() => setStep(1)} disabled={!canProceedStep0} className="w-full gap-2">
               التالي <ArrowLeft className="h-4 w-4" />
