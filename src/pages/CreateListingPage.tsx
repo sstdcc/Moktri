@@ -456,6 +456,22 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                 placeholder="مثال: شارع جمال، بجانب المسجد" className="font-tajawal" />
             </div>
 
+            <div>
+              <Label className="text-sm font-bold mb-2 block font-tajawal">رابط الموقع على خرائط جوجل (اختياري)</Label>
+              <Input
+                type="url"
+                dir="ltr"
+                value={form.map_url}
+                onChange={e => update('map_url', e.target.value)}
+                placeholder="https://maps.google.com/..."
+                className="font-tajawal"
+              />
+              <p className="mt-1 text-xs text-muted-foreground font-tajawal">
+                افتح خرائط جوجل، حدد الموقع، واضغط "مشاركة" ثم انسخ الرابط هنا
+              </p>
+            </div>
+
+
             <Button onClick={() => setStep(1)} disabled={!canProceedStep0} className="w-full gap-2">
               التالي <ArrowLeft className="h-4 w-4" />
             </Button>
