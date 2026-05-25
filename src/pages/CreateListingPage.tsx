@@ -299,6 +299,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         has_internet: form.has_internet,
         description: form.description,
         is_urgent: form.is_urgent,
+        map_url: form.map_url?.trim() || null,
         status: finalStatus as any,
         published_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date().toISOString() : null,
         expires_at: finalStatus === 'active' || finalStatus === 'pending_review' ? new Date(Date.now() + 90 * 86400000).toISOString() : null,
