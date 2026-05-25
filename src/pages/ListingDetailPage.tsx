@@ -403,6 +403,19 @@ const ListingDetailPage = () => {
           <span className="flex items-center gap-1"><Heart className="h-3.5 w-3.5" /> {listing.favorites_count || 0}</span>
         </div>
 
+        {(listing as any).map_url && (
+          <a
+            href={(listing as any).map_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-2 rounded-xl border-2 border-primary/20 bg-primary/5 px-4 py-2.5 text-sm font-bold text-primary transition-all hover:bg-primary/10 hover:border-primary/30 font-tajawal"
+          >
+            <MapPin className="h-4 w-4" />
+            عرض على الخريطة
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
+
         {/* Property details grid */}
         {detailItems.length > 0 && (
           <div className="mt-5 grid grid-cols-2 gap-2">
