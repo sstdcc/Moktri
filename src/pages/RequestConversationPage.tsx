@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
+import { useVisibleViewportHeight } from '@/hooks/useVisibleViewportHeight';
 
 interface ChatMessage {
   id: string;
