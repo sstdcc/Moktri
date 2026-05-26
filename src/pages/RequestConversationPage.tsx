@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
+import { useVisibleViewportHeight } from '@/hooks/useVisibleViewportHeight';
 
 interface ChatMessage {
   id: string;
@@ -46,6 +47,8 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const visibleHeight = useVisibleViewportHeight(containerRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const scrollToBottom = (smooth = true) =>
@@ -117,6 +120,7 @@ const RequestConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => { scrollToBottom(); }, [messages]);
+  useEffect(() => { scrollToBottom(false); }, [visibleHeight]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
@@ -171,7 +175,12 @@ const RequestConversationPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background font-tajawal" dir="rtl">
+    <div
+      ref={containerRef}
+      style={{ height: visibleHeight ? `${visibleHeight}px` : '100%' }}
+      className="flex flex-col bg-background font-tajawal overflow-hidden"
+      dir="rtl"
+    >
       <header className="sticky top-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
           className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">

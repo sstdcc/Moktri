@@ -8,6 +8,7 @@ import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
+import { useVisibleViewportHeight } from '@/hooks/useVisibleViewportHeight';
 
 interface ChatMessage {
   id: string;
@@ -52,6 +53,8 @@ const ConversationPage = () => {
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const visibleHeight = useVisibleViewportHeight(containerRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const scrollToBottom = (smooth = true) => {
@@ -131,6 +134,7 @@ const ConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => { scrollToBottom(); }, [messages]);
+  useEffect(() => { scrollToBottom(false); }, [visibleHeight]);
 
   const isOwnerSide = !!user && user.id === ownerId;
   const isTenantSide = !!user && user.id === userId;
@@ -227,7 +231,12 @@ const ConversationPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background font-tajawal" dir="rtl">
+    <div
+      ref={containerRef}
+      style={{ height: visibleHeight ? `${visibleHeight}px` : '100%' }}
+      className="flex flex-col bg-background font-tajawal overflow-hidden"
+      dir="rtl"
+    >
       {/* Header */}
       <header className="sticky top-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
         <button
