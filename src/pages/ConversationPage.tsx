@@ -53,6 +53,8 @@ const ConversationPage = () => {
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const visibleHeight = useVisibleViewportHeight(containerRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const scrollToBottom = (smooth = true) => {
