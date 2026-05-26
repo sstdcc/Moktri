@@ -134,6 +134,7 @@ const ConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => { scrollToBottom(); }, [messages]);
+  useEffect(() => { scrollToBottom(false); }, [visibleHeight]);
 
   const isOwnerSide = !!user && user.id === ownerId;
   const isTenantSide = !!user && user.id === userId;
