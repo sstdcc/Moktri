@@ -47,6 +47,8 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const visibleHeight = useVisibleViewportHeight(containerRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const scrollToBottom = (smooth = true) =>
