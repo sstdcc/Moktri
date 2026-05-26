@@ -230,7 +230,12 @@ const ConversationPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background font-tajawal" dir="rtl">
+    <div
+      ref={containerRef}
+      style={{ height: visibleHeight ? `${visibleHeight}px` : '100%' }}
+      className="flex flex-col bg-background font-tajawal overflow-hidden"
+      dir="rtl"
+    >
       {/* Header */}
       <header className="sticky top-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
         <button
