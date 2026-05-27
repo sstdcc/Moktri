@@ -82,9 +82,9 @@ const ConversationPage = () => {
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
-    setListingStatus((listingRes.data as any)?.status ?? '');
-    setOwnerConfirmedAt((listingRes.data as any)?.owner_confirmed_at ?? null);
-    setTenantConfirmedAt((listingRes.data as any)?.tenant_confirmed_at ?? null);
+    setListingStatus(listingRes.data?.status ?? '');
+    setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
+    setTenantConfirmedAt(listingRes.data?.tenant_confirmed_at ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -155,16 +155,17 @@ const ConversationPage = () => {
         _conversation_id: conversationId,
       });
       if (error) throw error;
+      const result = data as { both_confirmed?: boolean } | null;
       const nowIso = new Date().toISOString();
       if (isOwnerSide) setOwnerConfirmedAt(nowIso); else setTenantConfirmedAt(nowIso);
-      if (data?.both_confirmed) {
+      if (result?.both_confirmed) {
         setListingStatus('rented');
         toast.success('تم تأكيد الاتفاق وتأجير الإعلان');
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
       }
-    } catch (e: any) {
-      toast.error(e?.message || 'حدث خطأ');
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : 'حدث خطأ');
     } finally {
       setConfirmingDeal(false);
     }
@@ -187,7 +188,7 @@ const ConversationPage = () => {
       if (receiverId) {
         await supabase.from('notifications').insert({
           user_id: receiverId,
-          type: 'new_message' as any,
+          type: 'new_message',
           title_ar: `رسالة جديدة`,
           body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
           link: `/chat/${conversationId}`,
