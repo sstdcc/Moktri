@@ -132,6 +132,10 @@ const ConversationPage = () => {
     scrollToBottom('smooth');
   }, [messages, scrollToBottom]);
 
+  useEffect(() => {
+    scrollToBottom('smooth');
+  }, [viewportHeight, scrollToBottom]);
+
   const isOwnerSide = !!user && user.id === ownerId;
   const isTenantSide = !!user && user.id === userId;
   const myConfirmed = isOwnerSide ? !!ownerConfirmedAt : !!tenantConfirmedAt;
