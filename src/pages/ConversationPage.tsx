@@ -150,7 +150,7 @@ const ConversationPage = () => {
     if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
-      const { data, error } = await (supabase as any).rpc('confirm_rental_deal', {
+      const { data, error } = await supabase.rpc('confirm_rental_deal', {
         _listing_id: listingId,
         _conversation_id: conversationId,
       });
