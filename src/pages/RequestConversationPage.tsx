@@ -114,18 +114,8 @@ const RequestConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
   }, [messages]);
-
-  useEffect(() => {
-    const nav = document.querySelector('[data-bottom-nav]') as HTMLElement | null;
-    if (nav) nav.style.display = 'none';
-    document.body.classList.add('chat-page-active');
-    return () => {
-      if (nav) nav.style.display = 'flex';
-      document.body.classList.remove('chat-page-active');
-    };
-  }, []);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
