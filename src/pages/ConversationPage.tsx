@@ -8,7 +8,6 @@ import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
-import { useVisibleViewportHeight } from '@/hooks/useVisibleViewportHeight';
 
 interface ChatMessage {
   id: string;
