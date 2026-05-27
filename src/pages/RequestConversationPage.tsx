@@ -117,7 +117,6 @@ const RequestConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => { scrollToBottom(); }, [messages]);
-  useEffect(() => { scrollToBottom(false); }, [visibleHeight]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
