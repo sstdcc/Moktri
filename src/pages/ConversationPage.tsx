@@ -226,13 +226,14 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col bg-background font-tajawal"
+      style={{ display: 'flex', flexDirection: 'column', height: '100svh', paddingBottom: '65px' }}
+      className="bg-background font-tajawal"
       dir="rtl"
     >
       {/* Header */}
       <header
-        className="shrink-0 z-40 flex items-center gap-3 px-3 py-2 border-b border-border bg-card"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
+        style={{ flexShrink: 0 }}
+        className="z-40 flex items-center gap-3 px-3 py-2 border-b border-border bg-card"
       >
 
         <button
