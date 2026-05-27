@@ -363,27 +363,29 @@ const ConversationPage = () => {
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="اكتب رسالة..."
-              className="flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
-            />
-            <Button
-              size="icon"
-              onClick={sendMessage}
-              disabled={!newMessage.trim() || sending}
-              className="rounded-full h-9 w-9 shrink-0 transition-all active:scale-95"
-            >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 -scale-x-100" />}
-            </Button>
-          </div>
+      <div
+        className="shrink-0 flex items-center gap-2 px-3 py-2 bg-card border-t border-border"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
+      >
+        <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-2 flex-1">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="اكتب رسالة..."
+            className="flex-1 bg-transparent text-sm outline-none text-foreground placeholder:text-muted-foreground"
+          />
         </div>
+        <button
+          type="button"
+          onClick={sendMessage}
+          disabled={!newMessage.trim() || sending}
+          aria-label="إرسال"
+          className="w-10 h-10 rounded-full bg-accent flex items-center justify-center shrink-0 disabled:opacity-60 active:scale-95 transition"
+        >
+          {sending ? <Loader2 className="h-4 w-4 animate-spin text-white" /> : <Send className="h-4 w-4 text-white -scale-x-100" />}
+        </button>
       </div>
     </div>
   );
