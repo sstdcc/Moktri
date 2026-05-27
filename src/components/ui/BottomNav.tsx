@@ -67,8 +67,7 @@ export const BottomNav = () => {
 
   return (
     <nav
-      data-bottom-nav="true"
-      className="fixed bottom-3 left-3 right-3 z-50 pb-safe flex"
+      className="fixed bottom-3 left-3 right-3 z-50 pb-safe"
       aria-label={t('common.mainNav')}
     >
       <div
