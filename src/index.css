@@ -155,6 +155,9 @@
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+  .pb-safe-input {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

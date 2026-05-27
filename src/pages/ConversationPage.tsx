@@ -8,6 +8,7 @@ import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
+import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 
 interface ChatMessage {
   id: string;
@@ -52,6 +53,7 @@ const ConversationPage = () => {
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -80,9 +82,9 @@ const ConversationPage = () => {
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
-    setListingStatus((listingRes.data as any)?.status ?? '');
-    setOwnerConfirmedAt((listingRes.data as any)?.owner_confirmed_at ?? null);
-    setTenantConfirmedAt((listingRes.data as any)?.tenant_confirmed_at ?? null);
+    setListingStatus(listingRes.data?.status ?? '');
+    setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
+    setTenantConfirmedAt(listingRes.data?.tenant_confirmed_at ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -127,8 +129,12 @@ const ConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    scrollToBottom('smooth');
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    scrollToBottom('smooth');
+  }, [viewportHeight, scrollToBottom]);
 
   const isOwnerSide = !!user && user.id === ownerId;
   const isTenantSide = !!user && user.id === userId;
@@ -144,21 +150,22 @@ const ConversationPage = () => {
     if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
-      const { data, error } = await (supabase as any).rpc('confirm_rental_deal', {
+      const { data, error } = await supabase.rpc('confirm_rental_deal', {
         _listing_id: listingId,
         _conversation_id: conversationId,
       });
       if (error) throw error;
+      const result = data as { both_confirmed?: boolean } | null;
       const nowIso = new Date().toISOString();
       if (isOwnerSide) setOwnerConfirmedAt(nowIso); else setTenantConfirmedAt(nowIso);
-      if (data?.both_confirmed) {
+      if (result?.both_confirmed) {
         setListingStatus('rented');
         toast.success('تم تأكيد الاتفاق وتأجير الإعلان');
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
       }
-    } catch (e: any) {
-      toast.error(e?.message || 'حدث خطأ');
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : 'حدث خطأ');
     } finally {
       setConfirmingDeal(false);
     }
@@ -181,7 +188,7 @@ const ConversationPage = () => {
       if (receiverId) {
         await supabase.from('notifications').insert({
           user_id: receiverId,
-          type: 'new_message' as any,
+          type: 'new_message',
           title_ar: `رسالة جديدة`,
           body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
           link: `/chat/${conversationId}`,
@@ -226,12 +233,12 @@ const ConversationPage = () => {
 
   return (
     <div
-      style={{ height: '100dvh', paddingBottom: '64px' }}
+      style={{ height: viewportHeight }}
       className="flex flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       {/* Header */}
-      <header className="shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button
           type="button"
@@ -288,7 +295,7 @@ const ConversationPage = () => {
       )}
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
 
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
@@ -351,7 +358,7 @@ const ConversationPage = () => {
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+      <div className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input

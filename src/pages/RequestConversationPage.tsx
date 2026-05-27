@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
+import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 
 interface ChatMessage {
   id: string;
@@ -46,13 +47,14 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
     if (!user || !conversationId) return;
     setLoading(true);
 
-    const { data: conv, error } = await (supabase as any)
+    const { data: conv, error } = await supabase
       .from('request_conversations')
       .select('*')
       .eq('id', conversationId)
@@ -68,7 +70,7 @@ const RequestConversationPage = () => {
 
     const [profileRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      (supabase as any).from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
+      supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
@@ -76,7 +78,7 @@ const RequestConversationPage = () => {
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
-    await (supabase as any)
+    await supabase
       .from('request_messages')
       .update({ is_read: true })
       .eq('conversation_id', conversationId)
@@ -106,7 +108,7 @@ const RequestConversationPage = () => {
         const msg = payload.new as ChatMessage;
         setMessages(prev => prev.find(m => m.id === msg.id) ? prev : [...prev, msg]);
         if (msg.sender_id !== user.id) {
-          (supabase as any).from('request_messages').update({ is_read: true }).eq('id', msg.id);
+          supabase.from('request_messages').update({ is_read: true }).eq('id', msg.id);
         }
       })
       .subscribe();
@@ -114,15 +116,19 @@ const RequestConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    scrollToBottom('smooth');
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    scrollToBottom('smooth');
+  }, [viewportHeight, scrollToBottom]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
     setSending(true);
     const text = newMessage.trim();
     setNewMessage('');
-    const { error } = await (supabase as any).from('request_messages').insert({
+    const { error } = await supabase.from('request_messages').insert({
       conversation_id: conversationId,
       sender_id: user.id,
       message: text,
@@ -132,7 +138,7 @@ const RequestConversationPage = () => {
       if (receiverId) {
         await supabase.from('notifications').insert({
           user_id: receiverId,
-          type: 'new_message' as any,
+          type: 'new_message',
           title_ar: 'رسالة جديدة',
           body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
           link: `/request-chat/${conversationId}`,
@@ -171,11 +177,11 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      style={{ height: '100dvh', paddingBottom: '64px' }}
+      style={{ height: viewportHeight }}
       className="flex flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
-      <header className="shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
           className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">
@@ -201,7 +207,7 @@ const RequestConversationPage = () => {
         </button>
       </header>
 
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
@@ -238,7 +244,7 @@ const RequestConversationPage = () => {
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+      <div className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
