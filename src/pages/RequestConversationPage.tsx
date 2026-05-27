@@ -114,18 +114,8 @@ const RequestConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
   }, [messages]);
-
-  useEffect(() => {
-    const nav = document.querySelector('[data-bottom-nav]') as HTMLElement | null;
-    if (nav) nav.style.display = 'none';
-    document.body.classList.add('chat-page-active');
-    return () => {
-      if (nav) nav.style.display = 'flex';
-      document.body.classList.remove('chat-page-active');
-    };
-  }, []);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
@@ -181,12 +171,13 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col bg-background font-tajawal"
+      style={{ display: 'flex', flexDirection: 'column', height: '100svh', paddingBottom: '65px' }}
+      className="bg-background font-tajawal"
       dir="rtl"
     >
       <header
-        className="shrink-0 z-40 flex items-center gap-3 px-3 py-2 border-b border-border bg-card"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
+        style={{ flexShrink: 0 }}
+        className="z-40 flex items-center gap-3 px-3 py-2 border-b border-border bg-card"
       >
 
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
@@ -213,7 +204,7 @@ const RequestConversationPage = () => {
         </button>
       </header>
 
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }} className="scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
@@ -251,8 +242,8 @@ const RequestConversationPage = () => {
       </div>
 
       <div
-        className="shrink-0 flex items-center gap-2 px-3 py-2 bg-card border-t border-border"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
+        style={{ flexShrink: 0 }}
+        className="flex items-center gap-2 px-3 py-2 bg-card border-t border-border"
       >
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-2 flex-1">
           <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}

@@ -176,10 +176,6 @@
   }
 }
 
-body {
-  overscroll-behavior: none;
-}
-.chat-page-active {
-  position: fixed;
-  width: 100%;
+html, body {
+  height: 100%;
 }
