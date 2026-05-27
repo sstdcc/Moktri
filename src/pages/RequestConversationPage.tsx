@@ -202,7 +202,7 @@ const RequestConversationPage = () => {
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
