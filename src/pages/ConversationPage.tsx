@@ -283,14 +283,15 @@ const ConversationPage = () => {
       </header>
 
       {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
-        <div className="px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
+        <div className="shrink-0 px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
           {myConfirmed && !otherConfirmed && 'تم تسجيل تأكيدك — بانتظار تأكيد الطرف الآخر'}
           {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
