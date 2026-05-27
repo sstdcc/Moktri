@@ -355,8 +355,8 @@ const ConversationPage = () => {
 
       {/* Input */}
       <div
-        className="shrink-0 flex items-center gap-2 px-3 py-2 bg-card border-t border-border"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.5rem)' }}
+        style={{ flexShrink: 0 }}
+        className="flex items-center gap-2 px-3 py-2 bg-card border-t border-border"
       >
         <div className="flex items-center gap-2 bg-muted/30 rounded-full px-4 py-2 flex-1">
           <input
