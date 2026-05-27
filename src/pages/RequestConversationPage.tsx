@@ -54,7 +54,7 @@ const RequestConversationPage = () => {
     if (!user || !conversationId) return;
     setLoading(true);
 
-    const { data: conv, error } = await (supabase as any)
+    const { data: conv, error } = await supabase
       .from('request_conversations')
       .select('*')
       .eq('id', conversationId)
@@ -70,7 +70,7 @@ const RequestConversationPage = () => {
 
     const [profileRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      (supabase as any).from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
+      supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
@@ -78,7 +78,7 @@ const RequestConversationPage = () => {
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
-    await (supabase as any)
+    await supabase
       .from('request_messages')
       .update({ is_read: true })
       .eq('conversation_id', conversationId)
@@ -108,7 +108,7 @@ const RequestConversationPage = () => {
         const msg = payload.new as ChatMessage;
         setMessages(prev => prev.find(m => m.id === msg.id) ? prev : [...prev, msg]);
         if (msg.sender_id !== user.id) {
-          (supabase as any).from('request_messages').update({ is_read: true }).eq('id', msg.id);
+          supabase.from('request_messages').update({ is_read: true }).eq('id', msg.id);
         }
       })
       .subscribe();
@@ -128,7 +128,7 @@ const RequestConversationPage = () => {
     setSending(true);
     const text = newMessage.trim();
     setNewMessage('');
-    const { error } = await (supabase as any).from('request_messages').insert({
+    const { error } = await supabase.from('request_messages').insert({
       conversation_id: conversationId,
       sender_id: user.id,
       message: text,
@@ -138,7 +138,7 @@ const RequestConversationPage = () => {
       if (receiverId) {
         await supabase.from('notifications').insert({
           user_id: receiverId,
-          type: 'new_message' as any,
+          type: 'new_message',
           title_ar: 'رسالة جديدة',
           body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
           link: `/request-chat/${conversationId}`,
