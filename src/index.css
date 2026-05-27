@@ -175,3 +175,11 @@
     box-shadow: none;
   }
 }
+
+body {
+  overscroll-behavior: none;
+}
+.chat-page-active {
+  position: fixed;
+  width: 100%;
+}
