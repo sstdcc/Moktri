@@ -48,9 +48,6 @@ const RequestConversationPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const channelRef = useRef(crypto.randomUUID());
 
-  const scrollToBottom = (smooth = true) =>
-    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
-
   const loadData = useCallback(async () => {
     if (!user || !conversationId) return;
     setLoading(true);
@@ -116,7 +113,9 @@ const RequestConversationPage = () => {
     return () => { supabase.removeChannel(channel); };
   }, [conversationId, user]);
 
-  useEffect(() => { scrollToBottom(); }, [messages]);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
@@ -172,7 +171,7 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      style={{ height: '100dvh' }}
+      style={{ height: '100dvh', paddingBottom: '64px' }}
       className="flex flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
@@ -239,7 +238,7 @@ const RequestConversationPage = () => {
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-border/50 bg-card/95 backdrop-blur-xl px-2 sm:px-6 py-2 pb-24 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
+      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
