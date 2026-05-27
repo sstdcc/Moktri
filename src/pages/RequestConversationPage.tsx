@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
+import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 
 interface ChatMessage {
   id: string;
@@ -46,6 +47,7 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -114,8 +116,8 @@ const RequestConversationPage = () => {
   }, [conversationId, user]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    scrollToBottom('smooth');
+  }, [messages, scrollToBottom]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
@@ -171,11 +173,11 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      style={{ height: '100dvh', paddingBottom: '64px' }}
+      style={{ height: viewportHeight }}
       className="flex flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
-      <header className="shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
           className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">
@@ -201,7 +203,7 @@ const RequestConversationPage = () => {
         </button>
       </header>
 
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth px-3 sm:px-6 py-3 bg-muted/30">
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
@@ -238,7 +240,7 @@ const RequestConversationPage = () => {
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+      <div className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
