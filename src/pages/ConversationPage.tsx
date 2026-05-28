@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Send, Loader2, ChevronRight, CheckCircle2, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
