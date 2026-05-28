@@ -121,6 +121,17 @@ const RequestConversationPage = () => {
     scrollToBottom('smooth');
   }, [messages, scrollToBottom]);
 
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevHeight = document.body.style.height;
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100%';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.height = prevHeight;
+    };
+  }, []);
+
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
     setSending(true);
