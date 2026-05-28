@@ -20,7 +20,7 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
           ? Math.max(0, window.innerHeight - visualViewport.height - visualViewport.offsetTop)
           : 0;
         setKeyboardInset(Math.round(nextInset));
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        window.scrollTo(0, 0);
         scrollToBottom('smooth');
       });
     };
