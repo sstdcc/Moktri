@@ -70,12 +70,13 @@ const RequestConversationPage = () => {
     setOtherId(other);
 
     const [profileRes, msgsRes] = await Promise.all([
-      supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
+      supabase.from('profiles').select('full_name, avatar_url, phone').eq('id', other).single(),
       supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
+    setOtherPhone(profileRes.data?.phone ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
