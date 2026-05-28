@@ -202,10 +202,7 @@ const RequestConversationPage = () => {
         </button>
       </header>
 
-      <div
-        style={{ paddingBottom: keyboardInset ? `calc(0.75rem + ${keyboardInset}px)` : undefined }}
-        className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30 transition-[padding-bottom] duration-200 ease-out"
-      >
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
@@ -243,8 +240,8 @@ const RequestConversationPage = () => {
       </div>
 
       <div
-        style={{ transform: keyboardInset ? `translateY(-${keyboardInset}px)` : undefined }}
-        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input transition-transform duration-200 ease-out"
+        style={{ marginBottom: keyboardInset ? `${keyboardInset}px` : undefined }}
+        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input transition-[margin-bottom] duration-200 ease-out"
       >
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
