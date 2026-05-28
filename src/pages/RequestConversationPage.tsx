@@ -42,6 +42,7 @@ const RequestConversationPage = () => {
   const [sending, setSending] = useState(false);
   const [otherName, setOtherName] = useState('');
   const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
+  const [otherPhone, setOtherPhone] = useState<string | null>(null);
   const [otherId, setOtherId] = useState('');
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
