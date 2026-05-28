@@ -1,7 +1,7 @@
 import { RefObject, useCallback, useEffect, useState } from 'react';
 
 export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLElement>) => {
-  const [viewportHeight, setViewportHeight] = useState('100dvh');
+  const [keyboardInset, setKeyboardInset] = useState(0);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     window.requestAnimationFrame(() => {
@@ -16,10 +16,19 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
     const syncViewport = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        setViewportHeight(visualViewport ? `${visualViewport.height}px` : '100dvh');
+        const nextInset = visualViewport
+          ? Math.max(0, window.innerHeight - visualViewport.height - visualViewport.offsetTop)
+          : 0;
+        setKeyboardInset(Math.round(nextInset));
+        window.scrollTo(0, 0);
         scrollToBottom('smooth');
       });
     };
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
 
     syncViewport();
     visualViewport?.addEventListener('resize', syncViewport);
@@ -31,8 +40,10 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
       visualViewport?.removeEventListener('resize', syncViewport);
       visualViewport?.removeEventListener('scroll', syncViewport);
       window.removeEventListener('orientationchange', syncViewport);
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
     };
   }, [scrollToBottom]);
 
-  return { viewportHeight, scrollToBottom };
+  return { keyboardInset, scrollToBottom };
 };

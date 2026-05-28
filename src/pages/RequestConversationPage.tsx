@@ -47,7 +47,7 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -119,10 +119,6 @@ const RequestConversationPage = () => {
     scrollToBottom('smooth');
   }, [messages, scrollToBottom]);
 
-  useEffect(() => {
-    scrollToBottom('smooth');
-  }, [viewportHeight, scrollToBottom]);
-
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
     setSending(true);
@@ -177,8 +173,7 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      style={{ height: viewportHeight }}
-      className="flex flex-col bg-background font-tajawal overflow-hidden"
+      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
@@ -244,7 +239,10 @@ const RequestConversationPage = () => {
         </div>
       </div>
 
-      <div className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input">
+      <div
+        style={{ marginBottom: keyboardInset ? `${keyboardInset}px` : undefined }}
+        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input transition-[margin-bottom] duration-200 ease-out"
+      >
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
