@@ -210,7 +210,7 @@ export const ChatModal = ({ open, onOpenChange, listingId, ownerId, listingTitle
         </div>
 
         {/* Input area */}
-        <div className="border-t border-border p-3 shrink-0">
+        <div className="border-t border-border p-3 shrink-0 bg-background pb-[env(safe-area-inset-bottom)]">
           <div className="flex items-center gap-2">
             <input
               type="text"
