@@ -242,38 +242,44 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
+      className="bg-background font-tajawal overflow-hidden"
       dir="rtl"
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        paddingBottom: '65px',
+      }}
     >
       {/* Header */}
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
-
+      <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
         <button
           type="button"
           onClick={() => navigate(-1)}
           aria-label="رجوع"
-          className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted active:scale-95"
+          className="shrink-0 text-foreground"
         >
-          <ArrowRight className="h-5 w-5 pointer-events-none" />
+          <ChevronRight className="w-6 h-6" />
         </button>
 
-        <div className="relative shrink-0">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
-            {otherAvatar ? (
-              <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-base">{initial}</span>
-            )}
+        {otherAvatar ? (
+          <img
+            src={otherAvatar}
+            alt={otherName}
+            className="w-10 h-10 rounded-full object-cover shrink-0"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shrink-0">
+            {otherName?.charAt(0) || '?'}
           </div>
-          {online && (
-            <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />
-          )}
-        </div>
+        )}
 
-        <div className="flex-1 min-w-0 flex flex-col">
-          <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
-          <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-            {online ? 'متصل الآن' : listingTitle}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-foreground truncate">
+            {otherName || '...'}
+          </p>
+          <p className={cn('text-xs truncate', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
+            {online ? 'متصل الآن' : (listingTitle || 'محادثة')}
           </p>
         </div>
 
@@ -293,7 +299,18 @@ const ConversationPage = () => {
             </button>
           )
         )}
-      </header>
+
+        {otherPhone && (
+          <a
+            href={`tel:${otherPhone}`}
+            aria-label="اتصال"
+            className="shrink-0 text-accent"
+          >
+            <Phone className="w-5 h-5" />
+          </a>
+        )}
+      </div>
+
 
       {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
         <div className="shrink-0 px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
