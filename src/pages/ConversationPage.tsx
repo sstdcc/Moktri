@@ -217,7 +217,7 @@ const ConversationPage = () => {
   if (loading) return <LoadingSpinner />;
 
   const online = otherId && isOnline(otherId);
-  const initial = otherName.charAt(0) || '؟';
+  
 
   // Group messages by date and by consecutive sender
   const groups: { date: string; items: ChatMessage[][] }[] = [];
