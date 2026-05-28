@@ -167,8 +167,11 @@ export const ChatModal = ({ open, onOpenChange, listingId, ownerId, listingTitle
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="font-tajawal max-w-md h-[80vh] flex flex-col p-0 gap-0" dir="rtl">
-        <DialogHeader className="p-4 border-b border-border shrink-0">
+      <DialogContent
+        className="font-tajawal max-w-md h-[90dvh] max-h-[90dvh] flex flex-col p-0 gap-0 fixed bottom-0 top-auto left-1/2 -translate-x-1/2 translate-y-0 rounded-b-none sm:rounded-b-lg bg-background"
+        dir="rtl"
+      >
+        <DialogHeader className="p-4 border-b border-border shrink-0 bg-background">
           <DialogTitle className="text-right text-sm font-bold">{ownerName}</DialogTitle>
           <p className="text-xs text-muted-foreground text-right">{listingTitle}</p>
         </DialogHeader>
