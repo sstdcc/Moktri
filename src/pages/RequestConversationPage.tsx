@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, ChevronRight, Phone } from 'lucide-react';
+import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
@@ -42,7 +42,6 @@ const RequestConversationPage = () => {
   const [sending, setSending] = useState(false);
   const [otherName, setOtherName] = useState('');
   const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
-  const [otherPhone, setOtherPhone] = useState<string | null>(null);
   const [otherId, setOtherId] = useState('');
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
@@ -70,13 +69,12 @@ const RequestConversationPage = () => {
     setOtherId(other);
 
     const [profileRes, msgsRes] = await Promise.all([
-      supabase.from('profiles').select('full_name, avatar_url, phone').eq('id', other).single(),
+      supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
-    setOtherPhone(profileRes.data?.phone ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -121,17 +119,6 @@ const RequestConversationPage = () => {
     scrollToBottom('smooth');
   }, [messages, scrollToBottom]);
 
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevHeight = document.body.style.height;
-    document.body.style.overflow = 'hidden';
-    document.body.style.height = '100%';
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.height = prevHeight;
-    };
-  }, []);
-
   const sendMessage = async () => {
     if (!newMessage.trim() || !conversationId || !user || sending) return;
     setSending(true);
@@ -167,6 +154,7 @@ const RequestConversationPage = () => {
   if (loading) return <LoadingSpinner />;
 
   const online = otherId && isOnline(otherId);
+  const initial = otherName.charAt(0) || '؟';
 
   // Group by date and consecutive sender
   const groups: { date: string; items: ChatMessage[][] }[] = [];
@@ -183,69 +171,36 @@ const RequestConversationPage = () => {
     }
   }
 
-  const subtitle = online ? 'متصل الآن' : 'بخصوص طلب السكن';
-
   return (
     <div
-      className="bg-background font-tajawal overflow-hidden"
+      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingBottom: '65px',
-      }}
     >
-      <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          aria-label="رجوع"
-          className="shrink-0 text-foreground"
-        >
-          <ChevronRight className="w-6 h-6" />
+      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+
+        <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
+          className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">
+          <ArrowRight className="h-5 w-5 pointer-events-none" />
         </button>
-
-        {otherAvatar ? (
-          <img
-            src={otherAvatar}
-            alt={otherName}
-            onClick={() => requestId && navigate(`/requests/${requestId}`)}
-            className="w-10 h-10 rounded-full object-cover shrink-0 cursor-pointer"
-          />
-        ) : (
-          <div
-            onClick={() => requestId && navigate(`/requests/${requestId}`)}
-            className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shrink-0 cursor-pointer"
-          >
-            {otherName?.charAt(0) || '?'}
-          </div>
-        )}
-
         <button
           type="button"
           onClick={() => requestId && navigate(`/requests/${requestId}`)}
-          className="flex-1 min-w-0 text-right"
+          className="flex items-center gap-3 flex-1 min-w-0 text-right"
         >
-          <p className="text-sm font-bold text-foreground truncate">
-            {otherName || '...'}
-          </p>
-          <p className={cn('text-xs truncate', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-            {subtitle}
-          </p>
+          <div className="relative shrink-0">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
+              {otherAvatar ? <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" /> : <span>{initial}</span>}
+            </div>
+            {online && <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
+            <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
+              {online ? 'متصل الآن' : 'بخصوص طلب السكن'}
+            </p>
+          </div>
         </button>
-
-        {otherPhone && (
-          <a
-            href={`tel:${otherPhone}`}
-            aria-label="اتصال"
-            className="shrink-0 text-accent"
-          >
-            <Phone className="w-5 h-5" />
-          </a>
-        )}
-      </div>
-
+      </header>
 
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">

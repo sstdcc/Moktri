@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, ChevronRight, CheckCircle2, Phone } from 'lucide-react';
+import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
@@ -43,7 +43,6 @@ const ConversationPage = () => {
   const [sending, setSending] = useState(false);
   const [otherName, setOtherName] = useState('');
   const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
-  const [otherPhone, setOtherPhone] = useState<string | null>(null);
   const [otherId, setOtherId] = useState('');
   const [listingTitle, setListingTitle] = useState('');
   const [ownerId, setOwnerId] = useState('');
@@ -75,14 +74,13 @@ const ConversationPage = () => {
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
     const [profileRes, listingRes, msgsRes] = await Promise.all([
-      supabase.from('profiles').select('full_name, avatar_url, phone').eq('id', other).single(),
+      supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
-    setOtherPhone(profileRes.data?.phone ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
     setListingStatus(listingRes.data?.status ?? '');
     setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
@@ -133,17 +131,6 @@ const ConversationPage = () => {
   useEffect(() => {
     scrollToBottom('smooth');
   }, [messages, scrollToBottom]);
-
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevHeight = document.body.style.height;
-    document.body.style.overflow = 'hidden';
-    document.body.style.height = '100%';
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.height = prevHeight;
-    };
-  }, []);
 
   const isOwnerSide = !!user && user.id === ownerId;
   const isTenantSide = !!user && user.id === userId;
@@ -217,7 +204,7 @@ const ConversationPage = () => {
   if (loading) return <LoadingSpinner />;
 
   const online = otherId && isOnline(otherId);
-  
+  const initial = otherName.charAt(0) || '؟';
 
   // Group messages by date and by consecutive sender
   const groups: { date: string; items: ChatMessage[][] }[] = [];
@@ -242,44 +229,38 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="bg-background font-tajawal overflow-hidden"
+      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingBottom: '65px',
-      }}
     >
       {/* Header */}
-      <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+
         <button
           type="button"
           onClick={() => navigate(-1)}
           aria-label="رجوع"
-          className="shrink-0 text-foreground"
+          className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted active:scale-95"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ArrowRight className="h-5 w-5 pointer-events-none" />
         </button>
 
-        {otherAvatar ? (
-          <img
-            src={otherAvatar}
-            alt={otherName}
-            className="w-10 h-10 rounded-full object-cover shrink-0"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shrink-0">
-            {otherName?.charAt(0) || '?'}
+        <div className="relative shrink-0">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
+            {otherAvatar ? (
+              <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-base">{initial}</span>
+            )}
           </div>
-        )}
+          {online && (
+            <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />
+          )}
+        </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">
-            {otherName || '...'}
-          </p>
-          <p className={cn('text-xs truncate', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-            {online ? 'متصل الآن' : (listingTitle || 'محادثة')}
+        <div className="flex-1 min-w-0 flex flex-col">
+          <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
+          <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
+            {online ? 'متصل الآن' : listingTitle}
           </p>
         </div>
 
@@ -299,18 +280,7 @@ const ConversationPage = () => {
             </button>
           )
         )}
-
-        {otherPhone && (
-          <a
-            href={`tel:${otherPhone}`}
-            aria-label="اتصال"
-            className="shrink-0 text-accent"
-          >
-            <Phone className="w-5 h-5" />
-          </a>
-        )}
-      </div>
-
+      </header>
 
       {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
         <div className="shrink-0 px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
