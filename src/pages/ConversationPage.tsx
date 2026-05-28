@@ -43,6 +43,7 @@ const ConversationPage = () => {
   const [sending, setSending] = useState(false);
   const [otherName, setOtherName] = useState('');
   const [otherAvatar, setOtherAvatar] = useState<string | null>(null);
+  const [otherPhone, setOtherPhone] = useState<string | null>(null);
   const [otherId, setOtherId] = useState('');
   const [listingTitle, setListingTitle] = useState('');
   const [ownerId, setOwnerId] = useState('');
