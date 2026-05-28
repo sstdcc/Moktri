@@ -167,7 +167,6 @@ const RequestConversationPage = () => {
   if (loading) return <LoadingSpinner />;
 
   const online = otherId && isOnline(otherId);
-  const initial = otherName.charAt(0) || '؟';
 
   // Group by date and consecutive sender
   const groups: { date: string; items: ChatMessage[][] }[] = [];
@@ -184,36 +183,69 @@ const RequestConversationPage = () => {
     }
   }
 
+  const subtitle = online ? 'متصل الآن' : 'بخصوص طلب السكن';
+
   return (
     <div
-      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
+      className="bg-background font-tajawal overflow-hidden"
       dir="rtl"
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        paddingBottom: '65px',
+      }}
     >
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
-
-        <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
-          className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">
-          <ArrowRight className="h-5 w-5 pointer-events-none" />
+      <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-card border-b border-border">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          aria-label="رجوع"
+          className="shrink-0 text-foreground"
+        >
+          <ChevronRight className="w-6 h-6" />
         </button>
+
+        {otherAvatar ? (
+          <img
+            src={otherAvatar}
+            alt={otherName}
+            onClick={() => requestId && navigate(`/requests/${requestId}`)}
+            className="w-10 h-10 rounded-full object-cover shrink-0 cursor-pointer"
+          />
+        ) : (
+          <div
+            onClick={() => requestId && navigate(`/requests/${requestId}`)}
+            className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shrink-0 cursor-pointer"
+          >
+            {otherName?.charAt(0) || '?'}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={() => requestId && navigate(`/requests/${requestId}`)}
-          className="flex items-center gap-3 flex-1 min-w-0 text-right"
+          className="flex-1 min-w-0 text-right"
         >
-          <div className="relative shrink-0">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
-              {otherAvatar ? <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" /> : <span>{initial}</span>}
-            </div>
-            {online && <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
-            <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-              {online ? 'متصل الآن' : 'بخصوص طلب السكن'}
-            </p>
-          </div>
+          <p className="text-sm font-bold text-foreground truncate">
+            {otherName || '...'}
+          </p>
+          <p className={cn('text-xs truncate', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
+            {subtitle}
+          </p>
         </button>
-      </header>
+
+        {otherPhone && (
+          <a
+            href={`tel:${otherPhone}`}
+            aria-label="اتصال"
+            className="shrink-0 text-accent"
+          >
+            <Phone className="w-5 h-5" />
+          </a>
+        )}
+      </div>
+
 
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
