@@ -53,7 +53,7 @@ const ConversationPage = () => {
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -131,10 +131,6 @@ const ConversationPage = () => {
   useEffect(() => {
     scrollToBottom('smooth');
   }, [messages, scrollToBottom]);
-
-  useEffect(() => {
-    scrollToBottom('smooth');
-  }, [viewportHeight, scrollToBottom]);
 
   const isOwnerSide = !!user && user.id === ownerId;
   const isTenantSide = !!user && user.id === userId;
@@ -233,8 +229,7 @@ const ConversationPage = () => {
 
   return (
     <div
-      style={{ height: viewportHeight }}
-      className="flex flex-col bg-background font-tajawal overflow-hidden"
+      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       {/* Header */}
@@ -295,7 +290,10 @@ const ConversationPage = () => {
       )}
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+      <div
+        style={{ paddingBottom: keyboardInset ? `calc(0.75rem + ${keyboardInset}px)` : undefined }}
+        className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30 transition-[padding-bottom] duration-200 ease-out"
+      >
 
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
@@ -358,7 +356,10 @@ const ConversationPage = () => {
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input">
+      <div
+        style={{ transform: keyboardInset ? `translateY(-${keyboardInset}px)` : undefined }}
+        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input transition-transform duration-200 ease-out"
+      >
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input
