@@ -355,7 +355,8 @@ const ConversationPage = () => {
       </div>
       {/* Input - fixed above BottomNav */}
       <div
-        className="fixed bottom-16 inset-x-0 z-40 border-t border-border bg-card px-4 pt-3 pb-3"
+        className="fixed inset-x-0 z-40 border-t border-border bg-card px-4 pt-3 pb-3"
+        style={{ bottom: '65px' }}
       >
 
         <div className="max-w-3xl mx-auto">
