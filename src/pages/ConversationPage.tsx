@@ -229,11 +229,12 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
+      className="bg-background font-tajawal"
       dir="rtl"
     >
-      {/* Header */}
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      {/* Header - fixed at top */}
+      <header className="fixed top-0 inset-x-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+
 
         <button
           type="button"
