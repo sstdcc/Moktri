@@ -44,13 +44,13 @@ const RequestConversationPage = () => {
   const [otherId, setOtherId] = useState('');
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
+  const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     requestAnimationFrame(() => {
       messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
     });
   }, []);
-  const channelRef = useRef(crypto.randomUUID());
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
