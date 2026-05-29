@@ -172,6 +172,8 @@ const RequestConversationPage = () => {
       if (m.sender_id === lastSender) g.items[g.items.length - 1].push(m);
       else { g.items.push([m]); lastSender = m.sender_id; }
     }
+  }
+
   return (
     <div
       className="flex flex-col bg-background font-tajawal"
@@ -179,10 +181,6 @@ const RequestConversationPage = () => {
       dir="rtl"
     >
       <header className="sticky top-0 z-50 shrink-0 flex items-center gap-3 h-16 px-3 border-b border-border bg-card">
-
-    >
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
-
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
           className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">
           <ArrowRight className="h-5 w-5 pointer-events-none" />
@@ -204,11 +202,11 @@ const RequestConversationPage = () => {
               {online ? 'متصل الآن' : 'بخصوص طلب السكن'}
             </p>
           </div>
-      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }} className="scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
-
+        </button>
       </header>
 
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }} className="scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
