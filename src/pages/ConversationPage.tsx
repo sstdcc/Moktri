@@ -291,7 +291,8 @@ const ConversationPage = () => {
       )}
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+      <div className="min-h-[100dvh] pt-16 pb-32 px-3 sm:px-6 bg-muted/30">
+
 
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
