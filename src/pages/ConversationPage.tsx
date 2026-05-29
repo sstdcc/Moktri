@@ -358,7 +358,6 @@ const ConversationPage = () => {
         className="fixed bottom-16 inset-x-0 z-40 border-t border-border bg-card px-4 pt-3 pb-3"
       >
 
-      >
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input
