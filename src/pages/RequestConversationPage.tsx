@@ -8,7 +8,6 @@ import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
-
 interface ChatMessage {
   id: string;
   conversation_id: string;
@@ -45,9 +44,13 @@ const RequestConversationPage = () => {
   const [otherId, setOtherId] = useState('');
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
-  const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
+    });
+  }, []);
+  const channelRef = useRef(crypto.randomUUID());
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -169,12 +172,14 @@ const RequestConversationPage = () => {
       if (m.sender_id === lastSender) g.items[g.items.length - 1].push(m);
       else { g.items.push([m]); lastSender = m.sender_id; }
     }
-  }
-
   return (
     <div
-      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
+      className="flex flex-col bg-background font-tajawal"
+      style={{ height: '100svh', paddingBottom: '65px' }}
       dir="rtl"
+    >
+      <header className="sticky top-0 z-50 shrink-0 flex items-center gap-3 h-16 px-3 border-b border-border bg-card">
+
     >
       <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
@@ -199,7 +204,8 @@ const RequestConversationPage = () => {
               {online ? 'متصل الآن' : 'بخصوص طلب السكن'}
             </p>
           </div>
-        </button>
+      <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }} className="scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+
       </header>
 
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
@@ -235,9 +241,7 @@ const RequestConversationPage = () => {
               })}
             </div>
           ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
+      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
 
       <div
         style={{ marginBottom: keyboardInset ? `${keyboardInset}px` : undefined }}
