@@ -239,12 +239,12 @@ const RequestConversationPage = () => {
               })}
             </div>
           ))}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
       <div className="shrink-0 border-t border-border bg-card px-4 py-3">
 
-      <div
-        style={{ marginBottom: keyboardInset ? `${keyboardInset}px` : undefined }}
-        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input transition-[margin-bottom] duration-200 ease-out"
-      >
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
