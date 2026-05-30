@@ -10,7 +10,7 @@ import { Inbox, MessageCircle, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-type Status = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+type Status = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'negotiating' | 'rented';
 
 interface ListingRequest {
   id: string;
@@ -103,8 +103,8 @@ export default function ListingRequestsPage() {
   }, [user]);
 
   const grouped = useMemo(() => ({
-    pending: items.filter(i => i.status === 'pending'),
-    accepted: items.filter(i => i.status === 'accepted'),
+    pending: items.filter(i => i.status === 'pending' || i.status === 'negotiating'),
+    accepted: items.filter(i => i.status === 'accepted' || i.status === 'rented'),
     rejected: items.filter(i => i.status === 'rejected'),
   }), [items]);
 
