@@ -244,25 +244,31 @@ const ConversationPage = () => {
           <ArrowRight className="h-5 w-5 pointer-events-none" />
         </button>
 
-        <div className="relative shrink-0">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
-            {otherAvatar ? (
-              <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-base">{initial}</span>
+        <button
+          type="button"
+          onClick={() => otherId && navigate(`/profile/${otherId}`)}
+          className="flex items-center gap-3 flex-1 min-w-0 text-right active:opacity-70 transition-opacity"
+        >
+          <div className="relative shrink-0">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full overflow-hidden bg-primary/15 text-primary font-semibold">
+              {otherAvatar ? (
+                <img src={otherAvatar} alt={otherName} className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-base">{initial}</span>
+              )}
+            </div>
+            {online && (
+              <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />
             )}
           </div>
-          {online && (
-            <span className="absolute bottom-0 left-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />
-          )}
-        </div>
 
-        <div className="flex-1 min-w-0 flex flex-col">
-          <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
-          <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-            {online ? 'متصل الآن' : listingTitle}
-          </p>
-        </div>
+          <div className="flex-1 min-w-0 flex flex-col">
+            <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
+            <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
+              {online ? 'متصل الآن' : listingTitle}
+            </p>
+          </div>
+        </button>
 
         {showConfirmSection && (
           isRented ? (
