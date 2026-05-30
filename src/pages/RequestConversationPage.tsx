@@ -184,7 +184,7 @@ const RequestConversationPage = () => {
         </button>
         <button
           type="button"
-          onClick={() => requestId && navigate(`/requests/${requestId}`)}
+          onClick={() => otherId && navigate(`/profile/${otherId}`)}
           className="flex items-center gap-3 flex-1 min-w-0 text-right"
         >
           <div className="relative shrink-0">

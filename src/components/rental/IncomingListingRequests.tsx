@@ -94,16 +94,27 @@ export const IncomingListingRequests = () => {
         {pending.map(req => (
           <div key={req.id} className="rounded-2xl border border-border bg-card p-3 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => navigate(`/profile/${req.requester_id}`)}
+                className="h-10 w-10 rounded-full overflow-hidden bg-muted shrink-0 flex items-center justify-center active:opacity-70"
+                aria-label="عرض الملف الشخصي"
+              >
                 {req.requester?.avatar_url ? (
                   <img src={req.requester.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <span className="text-sm font-bold text-primary">{req.requester?.full_name?.charAt(0) || '؟'}</span>
                 )}
-              </div>
+              </button>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-bold text-foreground truncate">{req.requester?.full_name || 'مستخدم'}</p>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/profile/${req.requester_id}`)}
+                    className="text-sm font-bold text-foreground truncate hover:underline text-right"
+                  >
+                    {req.requester?.full_name || 'مستخدم'}
+                  </button>
                   <span className={cn(
                     'text-[10px] rounded-full px-2 py-0.5 font-bold',
                     req.type === 'negotiate' ? 'bg-accent/10 text-accent' : 'bg-primary/10 text-primary'

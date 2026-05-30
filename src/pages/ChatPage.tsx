@@ -93,6 +93,12 @@ const UserGroupRow = ({ group, currentUserId, onOpen }: RowProps) => {
   const isMine = group.last_message_sender_id === currentUserId;
   const { isOnline } = usePresence();
   const online = isOnline(group.other_id);
+  const navigate = useNavigate();
+
+  const openProfile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/profile/${group.other_id}`);
+  };
 
   return (
     <div className="relative overflow-hidden">
@@ -101,7 +107,12 @@ const UserGroupRow = ({ group, currentUserId, onOpen }: RowProps) => {
         className="relative w-full text-right flex items-center gap-3 px-4 py-3 bg-card transition-colors active:bg-muted/60"
       >
         {/* Avatar */}
-        <div className="relative shrink-0">
+        <div
+          role="link"
+          tabIndex={0}
+          onClick={openProfile}
+          className="relative shrink-0 cursor-pointer"
+        >
           <div className={cn('flex h-14 w-14 items-center justify-center rounded-full overflow-hidden', palette.bg)}>
             {group.other_avatar ? (
               <img src={group.other_avatar} alt={group.other_name} className="h-full w-full object-cover" />
@@ -122,12 +133,16 @@ const UserGroupRow = ({ group, currentUserId, onOpen }: RowProps) => {
         <div className="flex-1 min-w-0 flex flex-col justify-center border-b border-border/50 py-2 -my-2">
           <div className="flex items-center justify-between gap-2 mb-0.5">
             <div className="flex items-center gap-2 min-w-0">
-              <p className={cn(
-                'text-[16px] truncate font-tajawal text-foreground',
-                isUnread ? 'font-bold' : 'font-semibold'
-              )}>
+              <span
+                role="link"
+                onClick={openProfile}
+                className={cn(
+                  'text-[16px] truncate font-tajawal text-foreground cursor-pointer hover:underline',
+                  isUnread ? 'font-bold' : 'font-semibold'
+                )}
+              >
                 {group.other_name}
-              </p>
+              </span>
               {group.conversations_count > 1 && (
                 <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                   {group.conversations_count} محادثات
