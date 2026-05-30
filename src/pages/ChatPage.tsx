@@ -133,12 +133,16 @@ const UserGroupRow = ({ group, currentUserId, onOpen }: RowProps) => {
         <div className="flex-1 min-w-0 flex flex-col justify-center border-b border-border/50 py-2 -my-2">
           <div className="flex items-center justify-between gap-2 mb-0.5">
             <div className="flex items-center gap-2 min-w-0">
-              <p className={cn(
-                'text-[16px] truncate font-tajawal text-foreground',
-                isUnread ? 'font-bold' : 'font-semibold'
-              )}>
+              <span
+                role="link"
+                onClick={openProfile}
+                className={cn(
+                  'text-[16px] truncate font-tajawal text-foreground cursor-pointer hover:underline',
+                  isUnread ? 'font-bold' : 'font-semibold'
+                )}
+              >
                 {group.other_name}
-              </p>
+              </span>
               {group.conversations_count > 1 && (
                 <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                   {group.conversations_count} محادثات
