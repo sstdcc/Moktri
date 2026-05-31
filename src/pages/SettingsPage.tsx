@@ -422,7 +422,7 @@ const SettingsPage = () => {
               label={t('settings.security.changePassword')}
               subtext={t('settings.security.changePasswordHint')}
               right={arrow}
-              onClick={() => navigate('/change-password')}
+              onClick={() => navigate('/forgot-password')}
               isLast
             />
           </SettingsCard>
