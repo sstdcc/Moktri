@@ -58,6 +58,7 @@ const ChatPage = lazy(() => import("./pages/ChatPage"));
 const ChatUserPage = lazy(() => import("./pages/ChatUserPage"));
 const ConversationPage = lazy(() => import("./pages/ConversationPage"));
 const RequestConversationPage = lazy(() => import("./pages/RequestConversationPage"));
+const ChangePasswordPage = lazy(() => import("./pages/ChangePasswordPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -103,6 +104,7 @@ const App = () => (
                   <Route path="/notifications" element={<MainLayout><AuthGuard><NotificationsPage /></AuthGuard></MainLayout>} />
                   <Route path="/favorites" element={<MainLayout><AuthGuard><FavoritesPage /></AuthGuard></MainLayout>} />
                   <Route path="/settings" element={<MainLayout><AuthGuard><SettingsPage /></AuthGuard></MainLayout>} />
+                  <Route path="/change-password" element={<MainLayout><AuthGuard><ChangePasswordPage /></AuthGuard></MainLayout>} />
                   <Route path="/verify" element={<MainLayout><AuthGuard><VerificationPage /></AuthGuard></MainLayout>} />
                   <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
                   <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
