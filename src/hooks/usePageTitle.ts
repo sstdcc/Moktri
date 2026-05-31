@@ -7,6 +7,7 @@ const pageTitles: Record<string, string> = {
   '/requests': 'طلبات السكن | مُكتري',
   '/favorites': 'المفضلة | مُكتري',
   '/settings': 'الإعدادات | مُكتري',
+  '/change-password': 'تغيير كلمة المرور | مُكتري',
   '/notifications': 'الإشعارات | مُكتري',
   '/auth': 'تسجيل الدخول | مُكتري',
   '/verify': 'التوثيق | مُكتري',
