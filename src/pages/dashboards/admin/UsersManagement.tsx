@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -209,7 +210,7 @@ const UsersManagement = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <a href={`/profile/${u.id}`} target="_blank" rel="noreferrer">عرض الملف الشخصي</a>
+                    <Link to={`/profile/${u.id}`}>عرض الملف الشخصي</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => { setRoleModal({ open: true, user: u }); setNewRole(u.role); }}>
                     تغيير الدور
