@@ -45,6 +45,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(null);
       return;
     }
+    // Block banned users from accessing the app
+    if ((data as any).is_active === false) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      const { toast } = await import('sonner');
+      toast.error('تم حظر حسابك. تواصل مع الإدارة.');
+      return;
+    }
     // Fetch own contact details (phone + whatsapp) via SECURITY DEFINER helper
     const { data: contact } = await supabase.rpc('get_my_contact');
     const c = Array.isArray(contact) ? contact[0] : null;

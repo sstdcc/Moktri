@@ -103,6 +103,20 @@ Deno.serve(async (req) => {
     await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
     console.log("[verify-otp] OTP hash matched, proceeding to auth bridge");
 
+    // Block banned users from logging in
+    const { data: bannedProfile } = await supabase
+      .from("profiles")
+      .select("id, is_active")
+      .eq("phone", phone)
+      .maybeSingle();
+    if (bannedProfile && bannedProfile.is_active === false) {
+      console.log("[verify-otp] banned user attempted login");
+      return new Response(
+        JSON.stringify({ error: "تم حظر حسابك. تواصل مع الإدارة." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // ──────────────────────────────────────────────────────────
     // TEMPORARY AUTH BRIDGE
     // Uses deterministic email + admin API to create sessions.

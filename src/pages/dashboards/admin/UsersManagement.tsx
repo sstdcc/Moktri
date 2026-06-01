@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -34,6 +35,7 @@ const UsersManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [verifiedFilter, setVerifiedFilter] = useState('all');
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [banModal, setBanModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [newRole, setNewRole] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
@@ -84,11 +86,12 @@ const UsersManagement = () => {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const toggleActive = async (u: any) => {
-    const { error } = await supabase.from('profiles').update({ is_active: !u.is_active }).eq('id', u.id);
+    const banning = u.is_active;
+    const { error } = await supabase.rpc('admin_ban_user', { _user_id: u.id, _ban: banning });
     if (error) { toast.error(error.message); return; }
-    toast.success(u.is_active ? 'تم حظر الحساب' : 'تم رفع الحظر');
+    toast.success(banning ? 'تم حظر الحساب وإخفاء إعلاناته' : 'تم رفع الحظر');
+    setBanModal({ open: false, user: null });
     fetchUsers();
-    
   };
 
   const toggleVerified = async (u: any) => {
@@ -219,7 +222,7 @@ const UsersManagement = () => {
                     {u.is_verified ? 'إلغاء التوثيق' : 'توثيق المستخدم'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => toggleActive(u)}
+                    onClick={() => u.is_active ? setBanModal({ open: true, user: u }) : toggleActive(u)}
                     className={u.is_active ? 'text-destructive focus:text-destructive' : ''}
                   >
                     {u.is_active ? 'حظر الحساب' : 'رفع الحظر'}
@@ -259,6 +262,27 @@ const UsersManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Ban confirmation dialog */}
+      <AlertDialog open={banModal.open} onOpenChange={(o) => !o && setBanModal({ open: false, user: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حظر {banModal.user?.full_name}؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم منع المستخدم من الدخول إلى التطبيق وإخفاء جميع إعلاناته فوراً. يمكنك رفع الحظر لاحقاً.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => banModal.user && toggleActive(banModal.user)}
+            >
+              تأكيد الحظر
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
