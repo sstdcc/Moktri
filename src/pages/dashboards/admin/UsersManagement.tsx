@@ -222,7 +222,7 @@ const UsersManagement = () => {
                     {u.is_verified ? 'إلغاء التوثيق' : 'توثيق المستخدم'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => toggleActive(u)}
+                    onClick={() => u.is_active ? setBanModal({ open: true, user: u }) : toggleActive(u)}
                     className={u.is_active ? 'text-destructive focus:text-destructive' : ''}
                   >
                     {u.is_active ? 'حظر الحساب' : 'رفع الحظر'}
