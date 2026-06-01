@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -194,9 +195,9 @@ const ReportsManagement = () => {
               </div>
               {r.notes && <p className="text-sm text-muted-foreground mt-2">{r.notes}</p>}
               <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <a href={targetLink(r)} target="_blank" rel="noreferrer">
+                <Link to={targetLink(r)}>
                   <Button size="sm" variant="outline" className="h-8 text-xs">عرض المُبلَّغ عنه</Button>
-                </a>
+                </Link>
                 {activeTab === 'pending' && (
                   <>
                     <Button size="sm" className="h-8 text-xs bg-success text-success-foreground" onClick={() => resolve(r.id, r.reporter_id)}>حل البلاغ</Button>
