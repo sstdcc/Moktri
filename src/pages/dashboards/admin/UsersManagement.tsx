@@ -262,6 +262,27 @@ const UsersManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Ban confirmation dialog */}
+      <AlertDialog open={banModal.open} onOpenChange={(o) => !o && setBanModal({ open: false, user: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حظر {banModal.user?.full_name}؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم منع المستخدم من الدخول إلى التطبيق وإخفاء جميع إعلاناته فوراً. يمكنك رفع الحظر لاحقاً.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => banModal.user && toggleActive(banModal.user)}
+            >
+              تأكيد الحظر
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
