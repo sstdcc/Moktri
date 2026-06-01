@@ -1091,6 +1091,10 @@ export type Database = {
         Args: { _offer_id: string }
         Returns: undefined
       }
+      admin_ban_user: {
+        Args: { _ban: boolean; _user_id: string }
+        Returns: undefined
+      }
       admin_get_user_contact: {
         Args: { _user_id: string }
         Returns: {
