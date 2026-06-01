@@ -86,11 +86,12 @@ const UsersManagement = () => {
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const toggleActive = async (u: any) => {
-    const { error } = await supabase.from('profiles').update({ is_active: !u.is_active }).eq('id', u.id);
+    const banning = u.is_active;
+    const { error } = await supabase.rpc('admin_ban_user', { _user_id: u.id, _ban: banning });
     if (error) { toast.error(error.message); return; }
-    toast.success(u.is_active ? 'تم حظر الحساب' : 'تم رفع الحظر');
+    toast.success(banning ? 'تم حظر الحساب وإخفاء إعلاناته' : 'تم رفع الحظر');
+    setBanModal({ open: false, user: null });
     fetchUsers();
-    
   };
 
   const toggleVerified = async (u: any) => {
