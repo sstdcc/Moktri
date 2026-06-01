@@ -35,6 +35,7 @@ const UsersManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [verifiedFilter, setVerifiedFilter] = useState('all');
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [banModal, setBanModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [newRole, setNewRole] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
