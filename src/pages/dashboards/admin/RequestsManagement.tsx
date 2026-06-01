@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -213,9 +214,9 @@ const RequestsManagement = () => {
 
                   <div className="flex flex-wrap gap-2 pt-1">
                     <Button variant="outline" size="sm" className="text-xs gap-1 font-tajawal" asChild>
-                      <a href={`/requests/${r.id}`} target="_blank" rel="noopener noreferrer">
+                      <Link to={`/requests/${r.id}`}>
                         <ExternalLink className="h-3.5 w-3.5" /> عرض
-                      </a>
+                      </Link>
                     </Button>
                     {r.status === 'active' && (
                       <>
