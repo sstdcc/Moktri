@@ -109,11 +109,18 @@ const AdminDashboardPage = () => {
       : { icon: Minus, cls: 'text-muted-foreground bg-muted' };
 
   const statCards = [
-    { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trend: formatTrend(trends.users) },
-    { label: 'إعلانات نشطة', value: stats.activeListings, icon: ListChecks, color: 'text-green-500', trend: formatTrend(trends.activeListings) },
-    { label: 'طلبات سكن نشطة', value: stats.activeRequests, icon: FileSearch, color: 'text-amber-500', trend: formatTrend(trends.activeRequests) },
-    { label: 'بلاغات معلقة', value: stats.pendingReports, icon: ShieldAlert, color: 'text-red-500', trend: formatTrend(trends.pendingReports) },
+    { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trendValue: trends.users, trend: formatTrend(trends.users) },
+    { label: 'إعلانات نشطة', value: stats.activeListings, icon: ListChecks, color: 'text-green-500', trendValue: trends.activeListings, trend: formatTrend(trends.activeListings) },
+    { label: 'طلبات سكن نشطة', value: stats.activeRequests, icon: FileSearch, color: 'text-amber-500', trendValue: trends.activeRequests, trend: formatTrend(trends.activeRequests) },
+    { label: 'بلاغات معلقة', value: stats.pendingReports, icon: ShieldAlert, color: 'text-red-500', trendValue: trends.pendingReports, trend: formatTrend(trends.pendingReports) },
   ];
+
+  const statusBadgeCls: Record<string, string> = {
+    pending: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    reviewed: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
+    resolved: 'bg-green-500/15 text-green-700 dark:text-green-300 border-green-500/30',
+    dismissed: 'bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30',
+  };
 
   const alertItems = [
     { count: alerts.pendingReview, label: 'إعلان بانتظار المراجعة', color: 'bg-amber-500', icon: Clock, status: 'معلق', statusColor: 'text-amber-600 bg-amber-100 dark:text-amber-300 dark:bg-amber-500/15', link: '/dashboard/admin/listings' },
