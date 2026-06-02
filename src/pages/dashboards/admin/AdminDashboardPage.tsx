@@ -193,30 +193,30 @@ const AdminDashboardPage = () => {
 
       {/* Alerts */}
       {alertItems.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            <h2 className="text-lg font-bold text-foreground">يحتاج انتباهك</h2>
-            <Badge variant="secondary" className="text-xs mr-auto bg-amber-500/20 text-amber-700 dark:text-amber-300 border-0">{alertItems.length}</Badge>
+        <div className="mb-10 rounded-xl border border-border/60 bg-card/50 p-5">
+          <div className="flex items-center gap-2 mb-5">
+            <Bell className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">يحتاج انتباهك</h2>
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground mr-auto">{alertItems.length}</span>
           </div>
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             {alertItems.map((alert, i) => (
               <Link
                 key={i}
                 to={alert.link}
-                className="group rounded-2xl border border-border bg-background/70 dark:bg-card p-4 flex items-center gap-4 hover:border-amber-500/50 transition-colors"
+                className="group rounded-lg border border-border/40 bg-background/50 p-3 flex items-center gap-3 hover:border-border transition-colors"
               >
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${alert.color}/10`}>
-                  <alert.icon className={`h-5 w-5 ${alert.color.replace('bg-', 'text-')}`} />
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${alert.color}/10`}>
+                  <alert.icon className={`h-4 w-4 ${alert.color.replace('bg-', 'text-')}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-2xl font-black text-foreground leading-none">{alert.count}</span>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${alert.statusColor}`}>{alert.status}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-semibold text-foreground leading-none">{alert.count}</span>
+                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${alert.statusColor}`}>{alert.status}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{alert.label}</p>
+                  <p className="text-xs text-muted-foreground/70 mt-0.5">{alert.label}</p>
                 </div>
-                <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
+                <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0" />
               </Link>
             ))}
           </div>
