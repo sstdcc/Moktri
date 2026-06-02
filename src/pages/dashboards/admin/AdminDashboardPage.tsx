@@ -204,7 +204,7 @@ const AdminDashboardPage = () => {
               <Link
                 key={i}
                 to={alert.link}
-                className="group rounded-2xl border border-border bg-card p-4 flex items-center gap-4 hover:border-accent/40 transition-colors"
+                className="group rounded-2xl border border-border bg-background/70 dark:bg-card p-4 flex items-center gap-4 hover:border-amber-500/50 transition-colors"
               >
                 <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${alert.color}/10`}>
                   <alert.icon className={`h-5 w-5 ${alert.color.replace('bg-', 'text-')}`} />
