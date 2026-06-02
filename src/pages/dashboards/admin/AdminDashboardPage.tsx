@@ -103,10 +103,10 @@ const AdminDashboardPage = () => {
   const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : n < 0 ? `${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
   const trendTone = (n: number) =>
     n > 0
-      ? { icon: TrendingUp, cls: 'text-green-600 dark:text-green-400 bg-green-500/10' }
+      ? { icon: TrendingUp, cls: 'text-green-600 dark:text-green-400' }
       : n < 0
-      ? { icon: TrendingDown, cls: 'text-red-600 dark:text-red-400 bg-red-500/10' }
-      : { icon: Minus, cls: 'text-muted-foreground bg-muted' };
+      ? { icon: TrendingDown, cls: 'text-red-600 dark:text-red-400' }
+      : { icon: Minus, cls: 'text-muted-foreground/60' };
 
   const statCards = [
     { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trendValue: trends.users, trend: formatTrend(trends.users) },
@@ -167,23 +167,23 @@ const AdminDashboardPage = () => {
       <h1 className="text-2xl font-bold text-foreground mb-6">نظرة عامة</h1>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {statCards.map((stat) => {
           const tone = trendTone(stat.trendValue);
           const TrendIcon = tone.icon;
           return (
-            <Card key={stat.label} className="rounded-2xl shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start gap-2">
+            <Card key={stat.label} className="rounded-xl shadow-none border border-border/40">
+              <CardContent className="p-5">
+                <div className="flex justify-between items-start gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-4xl md:text-5xl font-black text-foreground leading-none tracking-tight">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
-                    <div className={`mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone.cls}`}>
+                    <p className="text-2xl md:text-3xl font-semibold text-foreground leading-none tracking-tight">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground/80 mt-2 font-medium">{stat.label}</p>
+                    <div className={`mt-2 inline-flex items-center gap-1 text-[11px] font-medium ${tone.cls}`}>
                       <TrendIcon className="h-3 w-3" />
                       <span>{stat.trend}</span>
                     </div>
                   </div>
-                  <stat.icon className={`h-7 w-7 shrink-0 ${stat.color}`} />
+                  <stat.icon className={`h-5 w-5 shrink-0 opacity-50 ${stat.color}`} />
                 </div>
               </CardContent>
             </Card>
@@ -193,30 +193,30 @@ const AdminDashboardPage = () => {
 
       {/* Alerts */}
       {alertItems.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            <h2 className="text-lg font-bold text-foreground">يحتاج انتباهك</h2>
-            <Badge variant="secondary" className="text-xs mr-auto bg-amber-500/20 text-amber-700 dark:text-amber-300 border-0">{alertItems.length}</Badge>
+        <div className="mb-10 rounded-xl border border-border/60 bg-card/50 p-5">
+          <div className="flex items-center gap-2 mb-5">
+            <Bell className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">يحتاج انتباهك</h2>
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground mr-auto">{alertItems.length}</span>
           </div>
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             {alertItems.map((alert, i) => (
               <Link
                 key={i}
                 to={alert.link}
-                className="group rounded-2xl border border-border bg-background/70 dark:bg-card p-4 flex items-center gap-4 hover:border-amber-500/50 transition-colors"
+                className="group rounded-lg border border-border/40 bg-background/50 p-3 flex items-center gap-3 hover:border-border transition-colors"
               >
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${alert.color}/10`}>
-                  <alert.icon className={`h-5 w-5 ${alert.color.replace('bg-', 'text-')}`} />
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${alert.color}/10`}>
+                  <alert.icon className={`h-4 w-4 ${alert.color.replace('bg-', 'text-')}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-2xl font-black text-foreground leading-none">{alert.count}</span>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${alert.statusColor}`}>{alert.status}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-semibold text-foreground leading-none">{alert.count}</span>
+                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${alert.statusColor}`}>{alert.status}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{alert.label}</p>
+                  <p className="text-xs text-muted-foreground/70 mt-0.5">{alert.label}</p>
                 </div>
-                <ChevronLeft className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
+                <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0" />
               </Link>
             ))}
           </div>
@@ -224,38 +224,38 @@ const AdminDashboardPage = () => {
       )}
 
       {/* Recent Reports */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <ExternalLink className="h-5 w-5 text-accent" />
-          <h2 className="text-lg font-bold text-foreground">آخر البلاغات</h2>
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-5">
+          <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">آخر البلاغات</h2>
         </div>
         {recentReports.length === 0 ? (
-          <p className="text-sm text-muted-foreground">لا توجد بلاغات</p>
+          <p className="text-sm text-muted-foreground/70">لا توجد بلاغات</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">المُبلِّغ</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">النوع</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">السبب</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">التاريخ</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">الحالة</th>
+                <tr className="border-b border-border/60">
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">المُبلِّغ</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">النوع</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">السبب</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">التاريخ</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">الحالة</th>
                 </tr>
               </thead>
               <tbody>
                 {recentReports.map((r: any) => (
-                  <tr key={r.id} className="border-b border-border/50">
-                    <td className="py-2 px-2">{r.reporter?.full_name ?? '—'}</td>
-                    <td className="py-2 px-2">
-                      <Badge variant="outline" className="text-xs">{targetTypeMap[r.target_type] ?? r.target_type}</Badge>
+                  <tr key={r.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
+                    <td className="py-3 px-3 text-sm font-medium">{r.reporter?.full_name ?? '—'}</td>
+                    <td className="py-3 px-3">
+                      <span className="text-xs text-muted-foreground/80">{targetTypeMap[r.target_type] ?? r.target_type}</span>
                     </td>
-                    <td className="py-2 px-2">{reasonMap[r.reason] ?? r.reason}</td>
-                    <td className="py-2 px-2 text-muted-foreground">
+                    <td className="py-3 px-3 text-sm text-muted-foreground/80">{reasonMap[r.reason] ?? r.reason}</td>
+                    <td className="py-3 px-3 text-xs text-muted-foreground/60">
                       {r.created_at ? format(new Date(r.created_at), 'dd MMM', { locale: ar }) : '—'}
                     </td>
-                    <td className="py-2 px-2">
-                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusBadgeCls[r.status] ?? 'bg-muted text-muted-foreground border-border'}`}>
+                    <td className="py-3 px-3">
+                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${statusBadgeCls[r.status] ?? 'bg-muted text-muted-foreground border-border'}`}>
                         {statusMap[r.status] ?? r.status}
                       </span>
                     </td>
