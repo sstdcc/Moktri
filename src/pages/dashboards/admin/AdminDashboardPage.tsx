@@ -224,38 +224,38 @@ const AdminDashboardPage = () => {
       )}
 
       {/* Recent Reports */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <ExternalLink className="h-5 w-5 text-accent" />
-          <h2 className="text-lg font-bold text-foreground">آخر البلاغات</h2>
+      <div className="mt-10">
+        <div className="flex items-center gap-2 mb-5">
+          <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">آخر البلاغات</h2>
         </div>
         {recentReports.length === 0 ? (
-          <p className="text-sm text-muted-foreground">لا توجد بلاغات</p>
+          <p className="text-sm text-muted-foreground/70">لا توجد بلاغات</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">المُبلِّغ</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">النوع</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">السبب</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">التاريخ</th>
-                  <th className="text-right py-2 px-2 text-muted-foreground font-medium">الحالة</th>
+                <tr className="border-b border-border/60">
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">المُبلِّغ</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">النوع</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">السبب</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">التاريخ</th>
+                  <th className="text-right py-3 px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">الحالة</th>
                 </tr>
               </thead>
               <tbody>
                 {recentReports.map((r: any) => (
-                  <tr key={r.id} className="border-b border-border/50">
-                    <td className="py-2 px-2">{r.reporter?.full_name ?? '—'}</td>
-                    <td className="py-2 px-2">
-                      <Badge variant="outline" className="text-xs">{targetTypeMap[r.target_type] ?? r.target_type}</Badge>
+                  <tr key={r.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
+                    <td className="py-3 px-3 text-sm font-medium">{r.reporter?.full_name ?? '—'}</td>
+                    <td className="py-3 px-3">
+                      <span className="text-xs text-muted-foreground/80">{targetTypeMap[r.target_type] ?? r.target_type}</span>
                     </td>
-                    <td className="py-2 px-2">{reasonMap[r.reason] ?? r.reason}</td>
-                    <td className="py-2 px-2 text-muted-foreground">
+                    <td className="py-3 px-3 text-sm text-muted-foreground/80">{reasonMap[r.reason] ?? r.reason}</td>
+                    <td className="py-3 px-3 text-xs text-muted-foreground/60">
                       {r.created_at ? format(new Date(r.created_at), 'dd MMM', { locale: ar }) : '—'}
                     </td>
-                    <td className="py-2 px-2">
-                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusBadgeCls[r.status] ?? 'bg-muted text-muted-foreground border-border'}`}>
+                    <td className="py-3 px-3">
+                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${statusBadgeCls[r.status] ?? 'bg-muted text-muted-foreground border-border'}`}>
                         {statusMap[r.status] ?? r.status}
                       </span>
                     </td>
