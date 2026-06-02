@@ -14,6 +14,9 @@ import {
   Clock,
   BadgeCheck,
   ChevronLeft,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -97,14 +100,27 @@ const AdminDashboardPage = () => {
     fetchData();
   }, []);
 
-  const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
+  const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : n < 0 ? `${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
+  const trendTone = (n: number) =>
+    n > 0
+      ? { icon: TrendingUp, cls: 'text-green-600 dark:text-green-400 bg-green-500/10' }
+      : n < 0
+      ? { icon: TrendingDown, cls: 'text-red-600 dark:text-red-400 bg-red-500/10' }
+      : { icon: Minus, cls: 'text-muted-foreground bg-muted' };
 
   const statCards = [
-    { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trend: formatTrend(trends.users) },
-    { label: 'إعلانات نشطة', value: stats.activeListings, icon: ListChecks, color: 'text-green-500', trend: formatTrend(trends.activeListings) },
-    { label: 'طلبات سكن نشطة', value: stats.activeRequests, icon: FileSearch, color: 'text-amber-500', trend: formatTrend(trends.activeRequests) },
-    { label: 'بلاغات معلقة', value: stats.pendingReports, icon: ShieldAlert, color: 'text-red-500', trend: formatTrend(trends.pendingReports) },
+    { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trendValue: trends.users, trend: formatTrend(trends.users) },
+    { label: 'إعلانات نشطة', value: stats.activeListings, icon: ListChecks, color: 'text-green-500', trendValue: trends.activeListings, trend: formatTrend(trends.activeListings) },
+    { label: 'طلبات سكن نشطة', value: stats.activeRequests, icon: FileSearch, color: 'text-amber-500', trendValue: trends.activeRequests, trend: formatTrend(trends.activeRequests) },
+    { label: 'بلاغات معلقة', value: stats.pendingReports, icon: ShieldAlert, color: 'text-red-500', trendValue: trends.pendingReports, trend: formatTrend(trends.pendingReports) },
   ];
+
+  const statusBadgeCls: Record<string, string> = {
+    pending: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    reviewed: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
+    resolved: 'bg-green-500/15 text-green-700 dark:text-green-300 border-green-500/30',
+    dismissed: 'bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/30',
+  };
 
   const alertItems = [
     { count: alerts.pendingReview, label: 'إعلان بانتظار المراجعة', color: 'bg-amber-500', icon: Clock, status: 'معلق', statusColor: 'text-amber-600 bg-amber-100 dark:text-amber-300 dark:bg-amber-500/15', link: '/dashboard/admin/listings' },
@@ -152,36 +168,43 @@ const AdminDashboardPage = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {statCards.map((stat) => (
-          <Card key={stat.label} className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-3xl font-black text-foreground">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                  <p className={`text-xs mt-1 ${stat.color}`}>{stat.trend}</p>
+        {statCards.map((stat) => {
+          const tone = trendTone(stat.trendValue);
+          const TrendIcon = tone.icon;
+          return (
+            <Card key={stat.label} className="rounded-2xl shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-4xl md:text-5xl font-black text-foreground leading-none tracking-tight">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
+                    <div className={`mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone.cls}`}>
+                      <TrendIcon className="h-3 w-3" />
+                      <span>{stat.trend}</span>
+                    </div>
+                  </div>
+                  <stat.icon className={`h-7 w-7 shrink-0 ${stat.color}`} />
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Alerts */}
       {alertItems.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Bell className="h-5 w-5 text-accent" />
+            <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <h2 className="text-lg font-bold text-foreground">يحتاج انتباهك</h2>
-            <Badge variant="secondary" className="text-xs mr-auto">{alertItems.length}</Badge>
+            <Badge variant="secondary" className="text-xs mr-auto bg-amber-500/20 text-amber-700 dark:text-amber-300 border-0">{alertItems.length}</Badge>
           </div>
           <div className="grid gap-3">
             {alertItems.map((alert, i) => (
               <Link
                 key={i}
                 to={alert.link}
-                className="group rounded-2xl border border-border bg-card p-4 flex items-center gap-4 hover:border-accent/40 transition-colors"
+                className="group rounded-2xl border border-border bg-background/70 dark:bg-card p-4 flex items-center gap-4 hover:border-amber-500/50 transition-colors"
               >
                 <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${alert.color}/10`}>
                   <alert.icon className={`h-5 w-5 ${alert.color.replace('bg-', 'text-')}`} />
@@ -232,7 +255,9 @@ const AdminDashboardPage = () => {
                       {r.created_at ? format(new Date(r.created_at), 'dd MMM', { locale: ar }) : '—'}
                     </td>
                     <td className="py-2 px-2">
-                      <Badge variant="secondary" className="text-xs">{statusMap[r.status] ?? r.status}</Badge>
+                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusBadgeCls[r.status] ?? 'bg-muted text-muted-foreground border-border'}`}>
+                        {statusMap[r.status] ?? r.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
