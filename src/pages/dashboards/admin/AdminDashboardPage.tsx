@@ -168,29 +168,36 @@ const AdminDashboardPage = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {statCards.map((stat) => (
-          <Card key={stat.label} className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-3xl font-black text-foreground">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                  <p className={`text-xs mt-1 ${stat.color}`}>{stat.trend}</p>
+        {statCards.map((stat) => {
+          const tone = trendTone(stat.trendValue);
+          const TrendIcon = tone.icon;
+          return (
+            <Card key={stat.label} className="rounded-2xl shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-4xl md:text-5xl font-black text-foreground leading-none tracking-tight">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
+                    <div className={`mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone.cls}`}>
+                      <TrendIcon className="h-3 w-3" />
+                      <span>{stat.trend}</span>
+                    </div>
+                  </div>
+                  <stat.icon className={`h-7 w-7 shrink-0 ${stat.color}`} />
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Alerts */}
       {alertItems.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Bell className="h-5 w-5 text-accent" />
+            <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <h2 className="text-lg font-bold text-foreground">يحتاج انتباهك</h2>
-            <Badge variant="secondary" className="text-xs mr-auto">{alertItems.length}</Badge>
+            <Badge variant="secondary" className="text-xs mr-auto bg-amber-500/20 text-amber-700 dark:text-amber-300 border-0">{alertItems.length}</Badge>
           </div>
           <div className="grid gap-3">
             {alertItems.map((alert, i) => (
