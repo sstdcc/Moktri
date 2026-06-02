@@ -100,7 +100,13 @@ const AdminDashboardPage = () => {
     fetchData();
   }, []);
 
-  const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
+  const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : n < 0 ? `${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
+  const trendTone = (n: number) =>
+    n > 0
+      ? { icon: TrendingUp, cls: 'text-green-600 dark:text-green-400 bg-green-500/10' }
+      : n < 0
+      ? { icon: TrendingDown, cls: 'text-red-600 dark:text-red-400 bg-red-500/10' }
+      : { icon: Minus, cls: 'text-muted-foreground bg-muted' };
 
   const statCards = [
     { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trend: formatTrend(trends.users) },
