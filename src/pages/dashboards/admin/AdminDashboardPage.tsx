@@ -14,6 +14,9 @@ import {
   Clock,
   BadgeCheck,
   ChevronLeft,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
