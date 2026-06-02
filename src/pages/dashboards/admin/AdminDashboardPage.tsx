@@ -167,23 +167,23 @@ const AdminDashboardPage = () => {
       <h1 className="text-2xl font-bold text-foreground mb-6">نظرة عامة</h1>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {statCards.map((stat) => {
           const tone = trendTone(stat.trendValue);
           const TrendIcon = tone.icon;
           return (
-            <Card key={stat.label} className="rounded-2xl shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start gap-2">
+            <Card key={stat.label} className="rounded-xl shadow-none border border-border/40">
+              <CardContent className="p-5">
+                <div className="flex justify-between items-start gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-4xl md:text-5xl font-black text-foreground leading-none tracking-tight">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
-                    <div className={`mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone.cls}`}>
+                    <p className="text-2xl md:text-3xl font-semibold text-foreground leading-none tracking-tight">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground/80 mt-2 font-medium">{stat.label}</p>
+                    <div className={`mt-2 inline-flex items-center gap-1 text-[11px] font-medium ${tone.cls}`}>
                       <TrendIcon className="h-3 w-3" />
                       <span>{stat.trend}</span>
                     </div>
                   </div>
-                  <stat.icon className={`h-7 w-7 shrink-0 ${stat.color}`} />
+                  <stat.icon className={`h-5 w-5 shrink-0 opacity-50 ${stat.color}`} />
                 </div>
               </CardContent>
             </Card>
