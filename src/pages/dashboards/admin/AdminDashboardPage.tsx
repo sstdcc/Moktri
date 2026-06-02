@@ -103,10 +103,10 @@ const AdminDashboardPage = () => {
   const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : n < 0 ? `${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
   const trendTone = (n: number) =>
     n > 0
-      ? { icon: TrendingUp, cls: 'text-green-600 dark:text-green-400 bg-green-500/10' }
+      ? { icon: TrendingUp, cls: 'text-green-600 dark:text-green-400' }
       : n < 0
-      ? { icon: TrendingDown, cls: 'text-red-600 dark:text-red-400 bg-red-500/10' }
-      : { icon: Minus, cls: 'text-muted-foreground bg-muted' };
+      ? { icon: TrendingDown, cls: 'text-red-600 dark:text-red-400' }
+      : { icon: Minus, cls: 'text-muted-foreground/60' };
 
   const statCards = [
     { label: 'إجمالي المستخدمين', value: stats.users, icon: Users, color: 'text-blue-500', trendValue: trends.users, trend: formatTrend(trends.users) },
