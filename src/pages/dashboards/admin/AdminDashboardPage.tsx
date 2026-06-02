@@ -255,7 +255,9 @@ const AdminDashboardPage = () => {
                       {r.created_at ? format(new Date(r.created_at), 'dd MMM', { locale: ar }) : '—'}
                     </td>
                     <td className="py-2 px-2">
-                      <Badge variant="secondary" className="text-xs">{statusMap[r.status] ?? r.status}</Badge>
+                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusBadgeCls[r.status] ?? 'bg-muted text-muted-foreground border-border'}`}>
+                        {statusMap[r.status] ?? r.status}
+                      </span>
                     </td>
                   </tr>
                 ))}
