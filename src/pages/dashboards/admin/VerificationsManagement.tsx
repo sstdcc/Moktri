@@ -10,6 +10,14 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Check, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 type TabStatus = 'pending' | 'approved' | 'rejected';
 
@@ -20,6 +28,77 @@ const tabList: { label: string; status: TabStatus }[] = [
 ];
 
 const roleLabel: Record<string, string> = { renter: 'مستأجر عقار', owner: 'مالك عقار', broker: 'دلال عقارات' };
+
+const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
+  const [numPages, setNumPages] = useState(0);
+  const [pdfFile, setPdfFile] = useState<string | null>(null);
+  const [containerWidth, setContainerWidth] = useState(720);
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    let cancelled = false;
+
+    const loadPdf = async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('PDF fetch failed');
+        const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
+        if (!cancelled) setPdfFile(objectUrl);
+      } catch (error) {
+        console.error('PDF preview error:', error);
+        if (!cancelled) setPdfFile(url);
+      }
+    };
+
+    setPdfFile(null);
+    setNumPages(0);
+    loadPdf();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [url]);
+
+  const pageWidth = Math.max(280, Math.min(containerWidth - 24, 860));
+
+  return (
+    <div
+      ref={(node) => {
+        if (!node) return;
+        const observer = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
+        observer.observe(node);
+        return () => observer.disconnect();
+      }}
+      className="h-[75vh] w-full overflow-y-auto rounded-lg border border-border bg-muted/30 p-3"
+      aria-label={title}
+    >
+      {!pdfFile ? (
+        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">جاري تحميل المعاينة…</div>
+      ) : (
+        <Document
+          file={pdfFile}
+          onLoadSuccess={({ numPages: loadedPages }) => setNumPages(loadedPages)}
+          loading={<div className="flex h-full items-center justify-center text-sm text-muted-foreground">جاري عرض المستند…</div>}
+          error={<div className="py-10 text-center text-sm text-muted-foreground">تعذر عرض المستند داخل النافذة</div>}
+          className="flex flex-col items-center gap-4"
+        >
+          {Array.from({ length: numPages }, (_, index) => (
+            <Page
+              key={`page_${index + 1}`}
+              pageNumber={index + 1}
+              width={pageWidth}
+              renderAnnotationLayer
+              renderTextLayer
+              className="overflow-hidden rounded-md border border-border bg-background shadow-sm"
+            />
+          ))}
+        </Document>
+      )}
+    </div>
+  );
+};
 
 /** Generate a short-lived signed URL for a private verification document */
 const getSignedUrl = async (path: string): Promise<string | null> => {
