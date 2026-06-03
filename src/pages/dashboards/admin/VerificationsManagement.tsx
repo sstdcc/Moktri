@@ -43,6 +43,7 @@ const VerificationsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [rejectModal, setRejectModal] = useState<{ open: boolean; app: any | null }>({ open: false, app: null });
   const [rejectReason, setRejectReason] = useState('');
+  const [imageViewer, setImageViewer] = useState<{ open: boolean; url: string | null; title: string }>({ open: false, url: null, title: '' });
 
   const fetchApps = useCallback(async () => {
     setLoading(true);
