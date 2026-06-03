@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { Check, X, ExternalLink } from 'lucide-react';
+import { Check, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 type TabStatus = 'pending' | 'approved' | 'rejected';
@@ -43,6 +43,7 @@ const VerificationsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [rejectModal, setRejectModal] = useState<{ open: boolean; app: any | null }>({ open: false, app: null });
   const [rejectReason, setRejectReason] = useState('');
+  const [imageViewer, setImageViewer] = useState<{ open: boolean; url: string | null; title: string }>({ open: false, url: null, title: '' });
 
   const fetchApps = useCallback(async () => {
     setLoading(true);
@@ -57,10 +58,10 @@ const VerificationsManagement = () => {
 
   useEffect(() => { fetchApps(); }, [fetchApps]);
 
-  const openDocument = async (path: string) => {
+  const openDocument = async (path: string, title: string) => {
     const url = await getSignedUrl(path);
     if (url) {
-      window.open(url, '_blank', 'noopener');
+      setImageViewer({ open: true, url, title });
     } else {
       toast.error('تعذر فتح الملف');
     }
@@ -142,13 +143,13 @@ const VerificationsManagement = () => {
               )}
               <div className="flex gap-2 mt-2 flex-wrap">
                 {a.id_document_url && (
-                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.id_document_url)}>
-                    <ExternalLink className="h-3 w-3" /> صورة الهوية
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.id_document_url, 'صورة الهوية')}>
+                    <Eye className="h-3 w-3" /> صورة الهوية
                   </Button>
                 )}
                 {a.business_document_url && (
-                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.business_document_url)}>
-                    <ExternalLink className="h-3 w-3" /> وثيقة إضافية
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.business_document_url, 'وثيقة إضافية')}>
+                    <Eye className="h-3 w-3" /> وثيقة إضافية
                   </Button>
                 )}
               </div>
@@ -177,6 +178,23 @@ const VerificationsManagement = () => {
           <DialogFooter>
             <Button variant="destructive" onClick={confirmReject} disabled={!rejectReason}>تأكيد الرفض</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={imageViewer.open} onOpenChange={(o) => !o && setImageViewer({ open: false, url: null, title: '' })}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogHeader className="px-4 pt-2">
+            <DialogTitle>{imageViewer.title}</DialogTitle>
+          </DialogHeader>
+          {imageViewer.url && (
+            <div className="flex items-center justify-center p-2">
+              <img
+                src={imageViewer.url}
+                alt={imageViewer.title}
+                className="max-h-[70vh] max-w-full rounded-lg object-contain"
+              />
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
