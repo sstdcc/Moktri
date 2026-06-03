@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,7 @@ const tabList: { label: string; status: TabStatus }[] = [
 const roleLabel: Record<string, string> = { renter: 'مستأجر عقار', owner: 'مالك عقار', broker: 'دلال عقارات' };
 
 const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(720);
@@ -61,16 +62,18 @@ const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
     };
   }, [url]);
 
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const pageWidth = Math.max(280, Math.min(containerWidth - 24, 860));
 
   return (
     <div
-      ref={(node) => {
-        if (!node) return;
-        const observer = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
-        observer.observe(node);
-        return () => observer.disconnect();
-      }}
+      ref={containerRef}
       className="h-[75vh] w-full overflow-y-auto rounded-lg border border-border bg-muted/30 p-3"
       aria-label={title}
     >
