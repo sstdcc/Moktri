@@ -182,19 +182,48 @@ const VerificationsManagement = () => {
       </Dialog>
 
       <Dialog open={imageViewer.open} onOpenChange={(o) => !o && setImageViewer({ open: false, url: null, title: '' })}>
-        <DialogContent className="max-w-3xl p-2">
+        <DialogContent className="max-w-4xl p-2">
           <DialogHeader className="px-4 pt-2">
             <DialogTitle>{imageViewer.title}</DialogTitle>
           </DialogHeader>
-          {imageViewer.url && (
-            <div className="flex items-center justify-center p-2">
-              <img
-                src={imageViewer.url}
-                alt={imageViewer.title}
-                className="max-h-[70vh] max-w-full rounded-lg object-contain"
-              />
-            </div>
-          )}
+          {imageViewer.url && (() => {
+            const url = imageViewer.url;
+            const lower = url.split('?')[0].toLowerCase();
+            const isPdf = lower.endsWith('.pdf');
+            const isImage = /\.(png|jpe?g|gif|webp|svg|bmp|heic|heif)$/.test(lower);
+            return (
+              <div className="flex flex-col items-center justify-center gap-2 p-2">
+                {isPdf ? (
+                  <iframe
+                    src={url}
+                    title={imageViewer.title}
+                    className="w-full h-[75vh] rounded-lg border border-border bg-background"
+                  />
+                ) : isImage ? (
+                  <img
+                    src={url}
+                    alt={imageViewer.title}
+                    className="max-h-[75vh] max-w-full rounded-lg object-contain"
+                  />
+                ) : (
+                  // Unknown type — try iframe, browser will render or offer download
+                  <iframe
+                    src={url}
+                    title={imageViewer.title}
+                    className="w-full h-[75vh] rounded-lg border border-border bg-background"
+                  />
+                )}
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-accent hover:underline"
+                >
+                  فتح في نافذة جديدة / تحميل
+                </a>
+              </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </>
