@@ -276,11 +276,7 @@ const VerificationsManagement = () => {
             return (
               <div className="flex flex-col items-center justify-center gap-2 p-2">
                 {isPdf ? (
-                  <iframe
-                    src={url}
-                    title={imageViewer.title}
-                    className="w-full h-[75vh] rounded-lg border border-border bg-background"
-                  />
+                  <PdfDocumentPreview url={url} title={imageViewer.title} />
                 ) : isImage ? (
                   <img
                     src={url}
