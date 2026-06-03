@@ -48,57 +48,82 @@ const AdminDashboardPage = () => {
   const [recentReports, setRecentReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    const now = Date.now();
+    const sixtyDaysAgo = new Date(now - 60 * 24 * 60 * 60 * 1000).toISOString();
+    const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const results = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'pending_review'),
+      supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').lt('last_updated_at', sixtyDaysAgo),
+      supabase.from('verification_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('reports').select('*, reporter:profiles!reports_reporter_id_fkey(full_name)').order('created_at', { ascending: false }).limit(5),
+      // Weekly trends
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+      supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('published_at', sevenDaysAgo),
+      supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('created_at', sevenDaysAgo),
+      supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending').gte('created_at', sevenDaysAgo),
+    ]);
+
+    results.forEach((r, i) => {
+      if (r.error) console.error(`[AdminDashboard] query #${i} failed`, r.error);
+    });
+
+    const [usersRes, listingsRes, requestsRes, reportsRes, pendingReviewRes, staleRes, verificationsRes, recentRes,
+      usersWeekRes, listingsWeekRes, requestsWeekRes, reportsWeekRes] = results;
+
+    setStats({
+      users: usersRes.count ?? 0,
+      activeListings: listingsRes.count ?? 0,
+      activeRequests: requestsRes.count ?? 0,
+      pendingReports: reportsRes.count ?? 0,
+    });
+    setTrends({
+      users: usersWeekRes.count ?? 0,
+      activeListings: listingsWeekRes.count ?? 0,
+      activeRequests: requestsWeekRes.count ?? 0,
+      pendingReports: reportsWeekRes.count ?? 0,
+    });
+    setAlerts({
+      pendingReview: pendingReviewRes.count ?? 0,
+      staleListings: staleRes.count ?? 0,
+      pendingVerifications: verificationsRes.count ?? 0,
+    });
+    setRecentReports((recentRes as any).data ?? []);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const now = Date.now();
-      const sixtyDaysAgo = new Date(now - 60 * 24 * 60 * 60 * 1000).toISOString();
-      const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
-
-      const results = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'pending_review'),
-        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').lt('last_updated_at', sixtyDaysAgo),
-        supabase.from('verification_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('reports').select('*, reporter:profiles!reports_reporter_id_fkey(full_name)').order('created_at', { ascending: false }).limit(5),
-        // Weekly trends
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
-        supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('published_at', sevenDaysAgo),
-        supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('created_at', sevenDaysAgo),
-        supabase.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending').gte('created_at', sevenDaysAgo),
-      ]);
-
-      results.forEach((r, i) => {
-        if (r.error) console.error(`[AdminDashboard] query #${i} failed`, r.error);
-      });
-
-      const [usersRes, listingsRes, requestsRes, reportsRes, pendingReviewRes, staleRes, verificationsRes, recentRes,
-        usersWeekRes, listingsWeekRes, requestsWeekRes, reportsWeekRes] = results;
-
-      setStats({
-        users: usersRes.count ?? 0,
-        activeListings: listingsRes.count ?? 0,
-        activeRequests: requestsRes.count ?? 0,
-        pendingReports: reportsRes.count ?? 0,
-      });
-      setTrends({
-        users: usersWeekRes.count ?? 0,
-        activeListings: listingsWeekRes.count ?? 0,
-        activeRequests: requestsWeekRes.count ?? 0,
-        pendingReports: reportsWeekRes.count ?? 0,
-      });
-      setAlerts({
-        pendingReview: pendingReviewRes.count ?? 0,
-        staleListings: staleRes.count ?? 0,
-        pendingVerifications: verificationsRes.count ?? 0,
-      });
-      setRecentReports((recentRes as any).data ?? []);
-      setLoading(false);
-    };
+    // Always refetch fresh from DB on mount / navigation back
     fetchData();
+
+    const onFocus = () => fetchData();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') fetchData();
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Realtime: refetch whenever counted tables change
+    const channel = supabase
+      .channel('admin-overview-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'listings' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'verification_applications' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'housing_requests' }, () => fetchData())
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+      supabase.removeChannel(channel);
+    };
   }, []);
+
 
   const formatTrend = (n: number) => (n > 0 ? `+${n} هذا الأسبوع` : n < 0 ? `${n} هذا الأسبوع` : 'لا تغيّر هذا الأسبوع');
   const trendTone = (n: number) =>
