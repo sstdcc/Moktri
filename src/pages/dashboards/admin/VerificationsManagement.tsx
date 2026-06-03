@@ -58,10 +58,10 @@ const VerificationsManagement = () => {
 
   useEffect(() => { fetchApps(); }, [fetchApps]);
 
-  const openDocument = async (path: string) => {
+  const openDocument = async (path: string, title: string) => {
     const url = await getSignedUrl(path);
     if (url) {
-      window.open(url, '_blank', 'noopener');
+      setImageViewer({ open: true, url, title });
     } else {
       toast.error('تعذر فتح الملف');
     }
@@ -143,13 +143,13 @@ const VerificationsManagement = () => {
               )}
               <div className="flex gap-2 mt-2 flex-wrap">
                 {a.id_document_url && (
-                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.id_document_url)}>
-                    <ExternalLink className="h-3 w-3" /> صورة الهوية
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.id_document_url, 'صورة الهوية')}>
+                    <Eye className="h-3 w-3" /> صورة الهوية
                   </Button>
                 )}
                 {a.business_document_url && (
-                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.business_document_url)}>
-                    <ExternalLink className="h-3 w-3" /> وثيقة إضافية
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => openDocument(a.business_document_url, 'وثيقة إضافية')}>
+                    <Eye className="h-3 w-3" /> وثيقة إضافية
                   </Button>
                 )}
               </div>
