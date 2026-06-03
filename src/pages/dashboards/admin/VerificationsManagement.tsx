@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { Check, X, ExternalLink } from 'lucide-react';
+import { Check, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 type TabStatus = 'pending' | 'approved' | 'rejected';
