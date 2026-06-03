@@ -180,6 +180,23 @@ const VerificationsManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={imageViewer.open} onOpenChange={(o) => !o && setImageViewer({ open: false, url: null, title: '' })}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogHeader className="px-4 pt-2">
+            <DialogTitle>{imageViewer.title}</DialogTitle>
+          </DialogHeader>
+          {imageViewer.url && (
+            <div className="flex items-center justify-center p-2">
+              <img
+                src={imageViewer.url}
+                alt={imageViewer.title}
+                className="max-h-[70vh] max-w-full rounded-lg object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
