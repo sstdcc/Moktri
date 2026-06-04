@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Home, Building2, Handshake, Loader2, ArrowLeft, User, MessageCircle } from 'lucide-react';
+import { Home, Building2, Handshake, Loader2, ArrowLeft, User } from 'lucide-react';
 
 type OnboardingStep = 1 | 2 | 3;
 
@@ -36,7 +36,6 @@ const OnboardingFlow = () => {
   const [step, setStep] = useState<OnboardingStep>(1);
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [fullName, setFullName] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -53,17 +52,12 @@ const OnboardingFlow = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('لم يتم العثور على المستخدم');
 
-      const updateData: { full_name: string; role: 'renter' | 'owner' | 'broker' | 'admin' | 'moderator'; whatsapp_number?: string } = {
-        full_name: fullName.trim(),
-        role: selectedRole as 'renter' | 'owner' | 'broker' | 'admin' | 'moderator',
-      };
-      if (whatsapp.trim()) {
-        updateData.whatsapp_number = whatsapp.trim();
-      }
-
       const { error } = await supabase
         .from('profiles')
-        .update(updateData)
+        .update({
+          full_name: fullName.trim(),
+          role: selectedRole as 'renter' | 'owner' | 'broker' | 'admin' | 'moderator',
+        })
         .eq('id', user.id);
 
       if (error) {
@@ -190,22 +184,6 @@ const OnboardingFlow = () => {
             />
           </div>
 
-          <div>
-            <Label className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <MessageCircle className="h-4 w-4 text-muted-foreground" />
-              رقم واتساب
-              <span className="text-xs text-muted-foreground font-normal">(اختياري)</span>
-            </Label>
-            <Input
-              type="tel"
-              placeholder="مثال: 772123456"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              dir="ltr"
-              className="text-left h-12"
-            />
-          </div>
-
           {selectedRole === 'owner' && (
             <p className="text-xs text-muted-foreground bg-muted/50 rounded-xl p-3">
               💡 بعد التسجيل يمكنك نشر إعلانك الأول مباشرة من لوحة التحكم
@@ -257,15 +235,6 @@ const OnboardingFlow = () => {
               {roleCards.find(r => r.value === selectedRole)?.title}
             </span>
           </div>
-          {whatsapp && (
-            <>
-              <div className="h-px bg-border" />
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">واتساب</span>
-                <span className="text-sm font-semibold text-foreground ltr" dir="ltr">{whatsapp}</span>
-              </div>
-            </>
-          )}
         </div>
 
         <Button

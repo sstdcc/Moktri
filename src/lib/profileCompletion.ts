@@ -12,10 +12,9 @@ interface CompletionOptions {
 }
 
 const BASE_FIELDS = [
-  { key: 'full_name', label: 'الاسم الكامل', weight: 20, check: (p: Profile) => !!p.full_name?.trim() },
-  { key: 'role', label: 'نوع الحساب', weight: 20, check: (_p: Profile) => true },
-  { key: 'whatsapp_number', label: 'رقم واتساب', weight: 15, check: (p: Profile) => !!p.whatsapp_number?.trim() },
-  { key: 'avatar_url', label: 'صورة شخصية', weight: 15, check: (p: Profile) => !!p.avatar_url?.trim() },
+  { key: 'full_name', label: 'الاسم الكامل', weight: 28, check: (p: Profile) => !!p.full_name?.trim() },
+  { key: 'role', label: 'نوع الحساب', weight: 28, check: (_p: Profile) => true },
+  { key: 'avatar_url', label: 'صورة شخصية', weight: 14, check: (p: Profile) => !!p.avatar_url?.trim() },
 ];
 
 export function calculateProfileCompletion(profile: Profile | null, opts?: CompletionOptions): CompletionResult {

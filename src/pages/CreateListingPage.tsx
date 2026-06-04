@@ -658,18 +658,6 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
         {/* STEP 3 — Review */}
         {step === 3 && (
           <div className="space-y-6">
-            {!profile?.whatsapp_number?.trim() && (
-              <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 space-y-2" dir="rtl">
-                <p className="text-sm font-bold text-foreground">أضف رقم واتساب للتواصل الأسرع</p>
-                <p className="text-xs text-muted-foreground">المستأجرون يفضلون التواصل عبر واتساب</p>
-                <button
-                  onClick={() => navigate('/settings')}
-                  className="text-xs font-bold text-accent hover:underline"
-                >
-                  إضافة الرقم الآن ←
-                </button>
-              </div>
-            )}
             <QualityScore score={calculateScore()} />
 
             <div className="rounded-2xl border border-border bg-card p-4 space-y-4">

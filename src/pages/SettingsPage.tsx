@@ -131,7 +131,6 @@ const SettingsPage = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [fullName, setFullName] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [saving, setSaving] = useState(false);
@@ -142,7 +141,6 @@ const SettingsPage = () => {
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
-      setWhatsapp(profile.whatsapp_number || '');
       setBio(profile.bio || '');
       setAvatarUrl(profile.avatar_url || '');
     }
@@ -204,7 +202,6 @@ const SettingsPage = () => {
     try {
       const { error } = await supabase.from('profiles').update({
         full_name: fullName.trim(),
-        whatsapp_number: whatsapp.trim() || null,
         bio: bio.trim() || null,
       }).eq('id', user.id);
       if (error) throw error;
@@ -520,11 +517,6 @@ const SettingsPage = () => {
             <div>
               <Label className="text-[13px] mb-1.5 block text-muted-foreground">الاسم الكامل</Label>
               <Input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={100} />
-            </div>
-
-            <div>
-              <Label className="text-[13px] mb-1.5 block text-muted-foreground">رقم الواتساب</Label>
-              <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} dir="ltr" placeholder="+967..." />
             </div>
 
             <div>
