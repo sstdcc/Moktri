@@ -520,11 +520,6 @@ const SettingsPage = () => {
             </div>
 
             <div>
-              <Label className="text-[13px] mb-1.5 block text-muted-foreground">رقم الواتساب</Label>
-              <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} dir="ltr" placeholder="+967..." />
-            </div>
-
-            <div>
               <Label className="text-[13px] mb-1.5 block text-muted-foreground">نبذة عنك</Label>
               <Textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={500} rows={3} placeholder="اكتب نبذة مختصرة..." />
               <p className="text-[10px] text-muted-foreground mt-1 text-left" dir="ltr">{bio.length}/500</p>
