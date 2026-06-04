@@ -34,6 +34,7 @@ const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
   const [numPages, setNumPages] = useState(0);
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(720);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -48,12 +49,13 @@ const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
         if (!cancelled) setPdfFile(objectUrl);
       } catch (error) {
         console.error('PDF preview error:', error);
-        if (!cancelled) setPdfFile(url);
+        if (!cancelled) setFailed(true);
       }
     };
 
     setPdfFile(null);
     setNumPages(0);
+    setFailed(false);
     loadPdf();
 
     return () => {
@@ -70,6 +72,18 @@ const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
   }, []);
 
   const pageWidth = Math.max(280, Math.min(containerWidth - 24, 860));
+  const openExternally = () => window.open(url, '_blank', 'noopener,noreferrer');
+
+  if (failed) {
+    return (
+      <div className="flex h-[50vh] w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-muted/30 p-6 text-center">
+        <p className="text-sm text-muted-foreground">تعذر عرض المستند داخل النافذة</p>
+        <Button onClick={openExternally} className="gap-2">
+          <Eye className="h-4 w-4" /> فتح المستند في نافذة جديدة
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -83,8 +97,17 @@ const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
         <Document
           file={pdfFile}
           onLoadSuccess={({ numPages: loadedPages }) => setNumPages(loadedPages)}
+          onLoadError={(err) => { console.error('react-pdf load error:', err); setFailed(true); }}
+          onSourceError={(err) => { console.error('react-pdf source error:', err); setFailed(true); }}
           loading={<div className="flex h-full items-center justify-center text-sm text-muted-foreground">جاري عرض المستند…</div>}
-          error={<div className="py-10 text-center text-sm text-muted-foreground">تعذر عرض المستند داخل النافذة</div>}
+          error={
+            <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+              <p className="text-sm text-muted-foreground">تعذر عرض المستند داخل النافذة</p>
+              <Button onClick={openExternally} size="sm" className="gap-2">
+                <Eye className="h-4 w-4" /> فتح المستند في نافذة جديدة
+              </Button>
+            </div>
+          }
           className="flex flex-col items-center gap-4"
         >
           {Array.from({ length: numPages }, (_, index) => (
@@ -92,9 +115,10 @@ const PdfDocumentPreview = ({ url, title }: { url: string; title: string }) => {
               key={`page_${index + 1}`}
               pageNumber={index + 1}
               width={pageWidth}
-              renderAnnotationLayer
-              renderTextLayer
-              className="overflow-hidden rounded-md border border-border bg-background shadow-sm"
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+              onRenderError={(err) => { console.error('react-pdf page error:', err); setFailed(true); }}
+              className="overflow-hidden rounded-md border border-background bg-background shadow-sm"
             />
           ))}
         </Document>
