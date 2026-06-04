@@ -213,12 +213,6 @@ const CreateRequestPage = () => {
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="أضف أي تفاصيل إضافية تساعد في العثور على السكن المناسب..." rows={4} />
         </div>
 
-        {/* WhatsApp suggestion */}
-        {!profile?.whatsapp_number?.trim() && (
-          <div className="rounded-2xl border border-accent/30 bg-accent/5 p-3 flex items-start gap-3">
-            <span className="text-xs text-foreground leading-relaxed">💡 أضف رقم واتساب في <button onClick={() => navigate('/settings')} className="font-bold text-accent hover:underline">الإعدادات</button> ليتواصل معك الآخرون بسهولة</span>
-          </div>
-        )}
 
         {/* Submit */}
         <Button onClick={handleSubmit} disabled={submitting} className="w-full h-12 text-base font-semibold">
