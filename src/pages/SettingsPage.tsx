@@ -203,7 +203,6 @@ const SettingsPage = () => {
     try {
       const { error } = await supabase.from('profiles').update({
         full_name: fullName.trim(),
-        whatsapp_number: whatsapp.trim() || null,
         bio: bio.trim() || null,
       }).eq('id', user.id);
       if (error) throw error;
