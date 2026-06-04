@@ -141,7 +141,6 @@ const SettingsPage = () => {
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
-      setWhatsapp(profile.whatsapp_number || '');
       setBio(profile.bio || '');
       setAvatarUrl(profile.avatar_url || '');
     }
