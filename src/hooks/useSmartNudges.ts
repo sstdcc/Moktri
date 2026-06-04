@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { calculateProfileCompletion } from '@/lib/profileCompletion';
 
@@ -17,15 +16,6 @@ export function useSmartNudges(): Nudge[] {
     if (!profile) return [];
     const nudges: Nudge[] = [];
     const { percent } = calculateProfileCompletion(profile);
-
-    if (!profile.whatsapp_number?.trim()) {
-      nudges.push({
-        id: 'whatsapp',
-        message: 'أضف رقم واتساب ليتواصل معك الآخرون بسهولة',
-        actionLabel: 'إضافة الرقم',
-        path: '/settings',
-      });
-    }
 
     if ((profile.total_listings ?? 0) === 0 && (profile.role === 'owner' || profile.role === 'broker')) {
       nudges.push({
@@ -45,7 +35,7 @@ export function useSmartNudges(): Nudge[] {
       });
     }
 
-    if (percent < 70 && !nudges.find(n => n.id === 'whatsapp')) {
+    if (percent < 70) {
       nudges.push({
         id: 'complete-profile',
         message: 'أكمل ملفك لزيادة فرص التفاعل',
