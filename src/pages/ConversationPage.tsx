@@ -53,7 +53,7 @@ const ConversationPage = () => {
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
