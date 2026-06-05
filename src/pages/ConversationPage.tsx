@@ -8,7 +8,6 @@ import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
-import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 
 interface ChatMessage {
   id: string;
@@ -52,9 +51,15 @@ const ConversationPage = () => {
   const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
+  const [chatViewportHeight, setChatViewportHeight] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    window.requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
+    });
+  }, []);
 
   const loadData = useCallback(async () => {
     if (!user || !conversationId) return;
@@ -104,6 +109,38 @@ const ConversationPage = () => {
   }, [user, conversationId]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    const visualViewport = window.visualViewport;
+    let frame = 0;
+    let lastHeight = 0;
+
+    const syncChatHeight = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const nextHeight = Math.round(visualViewport?.height ?? window.innerHeight);
+        setChatViewportHeight(nextHeight);
+
+        if (lastHeight && nextHeight < lastHeight) {
+          window.setTimeout(() => scrollToBottom('smooth'), 50);
+        }
+
+        lastHeight = nextHeight;
+      });
+    };
+
+    syncChatHeight();
+    visualViewport?.addEventListener('resize', syncChatHeight);
+    visualViewport?.addEventListener('scroll', syncChatHeight);
+    window.addEventListener('orientationchange', syncChatHeight);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      visualViewport?.removeEventListener('resize', syncChatHeight);
+      visualViewport?.removeEventListener('scroll', syncChatHeight);
+      window.removeEventListener('orientationchange', syncChatHeight);
+    };
+  }, [scrollToBottom]);
 
   useEffect(() => {
     if (!conversationId || !user) return;
@@ -229,8 +266,8 @@ const ConversationPage = () => {
 
   return (
     <div
-      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
-      className="flex flex-col bg-background font-tajawal overflow-hidden fixed inset-0"
+      style={{ height: chatViewportHeight ? `${chatViewportHeight}px` : '100dvh' }}
+      className="fixed inset-x-0 top-0 flex flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       {/* Header */}
