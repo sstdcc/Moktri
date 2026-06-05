@@ -234,7 +234,7 @@ const ConversationPage = () => {
       dir="rtl"
     >
       {/* Header */}
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button
           type="button"
