@@ -47,7 +47,7 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { viewportHeight, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
