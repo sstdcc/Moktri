@@ -229,7 +229,8 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
+      className="fixed inset-0 flex flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       {/* Header */}
