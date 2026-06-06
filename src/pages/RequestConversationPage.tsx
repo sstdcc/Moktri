@@ -46,7 +46,6 @@ const RequestConversationPage = () => {
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
-  const [requestTitle, setRequestTitle] = useState('بخصوص طلب السكن');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
@@ -69,23 +68,13 @@ const RequestConversationPage = () => {
     const other = conv.requester_id === user.id ? conv.responder_id : conv.requester_id;
     setOtherId(other);
 
-    const [profileRes, msgsRes, reqRes] = await Promise.all([
+    const [profileRes, msgsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
-      supabase.from('housing_requests').select('category, neighborhood, city_name').eq('id', conv.request_id).single(),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
-    if (reqRes.data) {
-      const catMap: Record<string, string> = {
-        apartment: 'شقة', house: 'منزل', studio: 'استوديو', room: 'غرفة',
-        villa: 'فيلا', shop: 'محل', office: 'مكتب', land: 'أرض',
-      };
-      const cat = catMap[reqRes.data.category] ?? reqRes.data.category;
-      const loc = reqRes.data.neighborhood || reqRes.data.city_name || '';
-      setRequestTitle(`طلب ${cat}${loc ? ` - ${loc}` : ''}`);
-    }
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -207,7 +196,7 @@ const RequestConversationPage = () => {
           <div className="flex-1 min-w-0">
             <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
             <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-              {online ? 'متصل الآن' : requestTitle}
+              {online ? 'متصل الآن' : 'بخصوص طلب السكن'}
             </p>
           </div>
         </button>
