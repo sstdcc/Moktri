@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +37,7 @@ const rejectReasons = [
 ];
 
 const ListingsModeration = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabStatus>('pending_review');
   const [listings, setListings] = useState<any[]>([]);
@@ -241,15 +243,13 @@ const ListingsModeration = () => {
                       <Badge variant="outline" className="text-[10px]">{categoryMap[l.category] ?? l.category}</Badge>
                       {isStale && <Badge className="bg-orange-500 text-white dark:bg-orange-500/20 dark:text-orange-300 text-[10px]">قديم</Badge>}
                     </div>
-                    <a
-                      href={`/listings/${l.id}`}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      onClick={() => navigate(`/listings/${l.id}`)}
                       className="shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:text-accent hover:bg-muted transition-colors"
                       aria-label="فتح الإعلان"
                     >
                       <ExternalLink className="h-4 w-4" />
-                    </a>
+                    </button>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 inline-flex items-center gap-1 flex-wrap">
                     <span>{l.owner?.full_name}</span>{l.owner?.is_verified && <BadgeCheck className="h-3 w-3 text-success inline" />}<span>· {l.district?.name_ar ?? '—'} · {l.price} ر.ي</span>
