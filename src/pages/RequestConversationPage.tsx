@@ -207,7 +207,7 @@ const RequestConversationPage = () => {
           <div className="flex-1 min-w-0">
             <p className="text-[15px] font-bold text-foreground truncate leading-tight">{otherName}</p>
             <p className={cn('text-[12px] truncate leading-tight', online ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground')}>
-              {online ? 'متصل الآن' : 'بخصوص طلب السكن'}
+              {online ? 'متصل الآن' : requestTitle}
             </p>
           </div>
         </button>
