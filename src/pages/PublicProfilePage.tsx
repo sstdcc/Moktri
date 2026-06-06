@@ -79,6 +79,20 @@ const PublicProfilePage = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Re-fetch when listings change for this profile owner (add/delete/update)
+  useEffect(() => {
+    if (!id) return;
+    const channel = supabase
+      .channel(`profile-listings-${id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'listings', filter: `owner_id=eq.${id}` },
+        () => { fetchData(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [id, fetchData]);
+
   const getInitials = (name: string) => {
     return name?.split(' ').map((w) => w[0]).join('').slice(0, 2) || '؟';
   };
