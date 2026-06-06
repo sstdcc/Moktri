@@ -46,6 +46,7 @@ const RequestConversationPage = () => {
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
+  const [requestTitle, setRequestTitle] = useState('بخصوص طلب السكن');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
