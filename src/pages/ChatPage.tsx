@@ -416,23 +416,36 @@ const ChatPage = () => {
         }
       }
     }
-    // Append each request conversation as its own row (never grouped — one request = one chat)
-    const groupsList = Array.from(map.values());
+    // Merge request conversations into the same per-user group (UI grouped by user,
+    // data still separate per request).
     for (const rc of requestConvs) {
-      groupsList.push({
-        other_id: `req:${rc.id}`,
-        other_name: rc.other_name,
-        other_avatar: rc.other_avatar,
-        conversations_count: 1,
-        last_message: rc.last_message,
-        last_message_at: rc.last_message_at,
-        last_message_sender_id: rc.last_message_sender_id,
-        last_message_is_read: rc.last_message_is_read,
-        last_listing_title: rc.request_title,
-        unread_count: rc.unread_count,
-      });
+      const existing = map.get(rc.other_id);
+      if (!existing) {
+        map.set(rc.other_id, {
+          other_id: rc.other_id,
+          other_name: rc.other_name,
+          other_avatar: rc.other_avatar,
+          conversations_count: 1,
+          last_message: rc.last_message,
+          last_message_at: rc.last_message_at,
+          last_message_sender_id: rc.last_message_sender_id,
+          last_message_is_read: rc.last_message_is_read,
+          last_listing_title: rc.request_title,
+          unread_count: rc.unread_count,
+        });
+      } else {
+        existing.conversations_count += 1;
+        existing.unread_count += rc.unread_count;
+        if (rc.last_message_at && (!existing.last_message_at || new Date(rc.last_message_at) > new Date(existing.last_message_at))) {
+          existing.last_message = rc.last_message;
+          existing.last_message_at = rc.last_message_at;
+          existing.last_message_sender_id = rc.last_message_sender_id;
+          existing.last_message_is_read = rc.last_message_is_read;
+          existing.last_listing_title = rc.request_title;
+        }
+      }
     }
-    return groupsList.sort(
+    return Array.from(map.values()).sort(
       (a, b) => new Date(b.last_message_at!).getTime() - new Date(a.last_message_at!).getTime()
     );
   }, [conversations, requestConvs]);
