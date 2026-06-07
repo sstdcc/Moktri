@@ -178,7 +178,7 @@ const ChatUserPage = () => {
       </header>
 
       <div className="px-4 pt-3 pb-2">
-        <p className="text-[13px] text-muted-foreground">المحادثات حول الإعلانات</p>
+        <p className="text-[13px] text-muted-foreground">المحادثات حول الإعلانات والطلبات</p>
       </div>
 
       {loading ? (
