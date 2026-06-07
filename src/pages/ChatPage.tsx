@@ -406,10 +406,26 @@ const ChatPage = () => {
         }
       }
     }
-    return Array.from(map.values()).sort(
+    // Append each request conversation as its own row (never grouped — one request = one chat)
+    const groupsList = Array.from(map.values());
+    for (const rc of requestConvs) {
+      groupsList.push({
+        other_id: `req:${rc.id}`,
+        other_name: rc.other_name,
+        other_avatar: rc.other_avatar,
+        conversations_count: 1,
+        last_message: rc.last_message,
+        last_message_at: rc.last_message_at,
+        last_message_sender_id: rc.last_message_sender_id,
+        last_message_is_read: rc.last_message_is_read,
+        last_listing_title: rc.request_title,
+        unread_count: rc.unread_count,
+      });
+    }
+    return groupsList.sort(
       (a, b) => new Date(b.last_message_at!).getTime() - new Date(a.last_message_at!).getTime()
     );
-  }, [conversations]);
+  }, [conversations, requestConvs]);
 
   const filtered = useMemo(() => {
     let list = groups;
@@ -426,6 +442,10 @@ const ChatPage = () => {
   }, [groups, filter, search]);
 
   const handleOpen = (g: UserGroupItem) => {
+    if (g.other_id.startsWith('req:')) {
+      navigate(`/request-chat/${g.other_id.slice(4)}`);
+      return;
+    }
     if (g.conversations_count === 1) {
       // Single conversation — go straight to chat
       const conv = conversations.find(c => c.other_id === g.other_id);
