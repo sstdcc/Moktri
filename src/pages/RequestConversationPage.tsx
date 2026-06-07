@@ -46,6 +46,7 @@ const RequestConversationPage = () => {
   const [requesterId, setRequesterId] = useState('');
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
+  const [requestInfo, setRequestInfo] = useState<{ category: string; neighborhood: string | null; min_price: number | null; max_price: number | null; currency: string | null } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
@@ -68,14 +69,16 @@ const RequestConversationPage = () => {
     const other = conv.requester_id === user.id ? conv.responder_id : conv.requester_id;
     setOtherId(other);
 
-    const [profileRes, msgsRes] = await Promise.all([
+    const [profileRes, msgsRes, reqRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
+      supabase.from('housing_requests').select('category, neighborhood, min_price, max_price, currency').eq('id', conv.request_id).maybeSingle(),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setMessages(msgsRes.data ?? []);
+    setRequestInfo(reqRes.data ?? null);
     setLoading(false);
 
     await supabase
@@ -201,6 +204,22 @@ const RequestConversationPage = () => {
           </div>
         </button>
       </header>
+
+      {requestInfo && requestId && (
+        <button
+          type="button"
+          onClick={() => navigate(`/requests/${requestId}`)}
+          className="shrink-0 w-full text-right px-4 py-2.5 bg-primary/5 border-b border-border/50 hover:bg-primary/10 transition-colors"
+        >
+          <p className="text-[11px] text-muted-foreground mb-0.5">المحادثة بخصوص الطلب</p>
+          <p className="text-[13px] font-semibold text-foreground truncate">
+            {({ room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور', shop: 'محل', office: 'مكتب', shared: 'سكن مشترك', family: 'عائلي', student: 'طلابي' } as Record<string, string>)[requestInfo.category] ?? requestInfo.category}
+            {requestInfo.neighborhood ? ` — ${requestInfo.neighborhood}` : ''}
+            {(requestInfo.min_price || requestInfo.max_price) ? ` • ${requestInfo.min_price ?? '—'} – ${requestInfo.max_price ?? '—'} ${requestInfo.currency ?? ''}` : ''}
+          </p>
+        </button>
+      )}
+
 
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
