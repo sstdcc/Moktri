@@ -64,12 +64,17 @@ const ChatUserPage = () => {
     if (!user || !userId) return;
     setLoading(true);
 
-    const [profileRes, convsRes] = await Promise.all([
+    const [profileRes, convsRes, reqConvsRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', userId).single(),
       supabase
         .from('listing_conversations')
         .select('*')
         .or(`and(owner_id.eq.${user.id},user_id.eq.${userId}),and(owner_id.eq.${userId},user_id.eq.${user.id})`)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('request_conversations')
+        .select('*')
+        .or(`and(requester_id.eq.${user.id},responder_id.eq.${userId}),and(requester_id.eq.${userId},responder_id.eq.${user.id})`)
         .order('created_at', { ascending: false }),
     ]);
 
@@ -79,11 +84,7 @@ const ChatUserPage = () => {
     }
 
     const convs = convsRes.data ?? [];
-    if (convs.length === 0) {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
+    const reqConvs = reqConvsRes.data ?? [];
 
     const result: ListingConversationItem[] = [];
     for (const conv of convs) {
@@ -95,10 +96,34 @@ const ChatUserPage = () => {
       ]);
       const lastMsg = msgRes.data?.[0];
       result.push({
+        kind: 'listing',
         id: conv.id,
         listing_id: conv.listing_id,
         listing_title: listingRes.data?.title ?? 'إعلان',
         listing_image: imgRes.data?.[0]?.url ?? null,
+        last_message: lastMsg?.message ?? null,
+        last_message_at: lastMsg?.created_at ?? conv.created_at,
+        last_message_sender_id: lastMsg?.sender_id ?? null,
+        last_message_is_read: lastMsg?.is_read ?? false,
+        unread_count: unreadRes.count ?? 0,
+      });
+    }
+
+    for (const conv of reqConvs) {
+      const [reqRow, msgRes, unreadRes] = await Promise.all([
+        supabase.from('housing_requests').select('category, neighborhood').eq('id', conv.request_id).maybeSingle(),
+        supabase.from('request_messages').select('message, created_at, sender_id, is_read').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
+        supabase.from('request_messages').select('id', { count: 'exact', head: true }).eq('conversation_id', conv.id).neq('sender_id', user.id).eq('is_read', false),
+      ]);
+      const lastMsg = msgRes.data?.[0];
+      const cat = reqRow.data?.category ? (categoryLabels[reqRow.data.category] ?? reqRow.data.category) : 'طلب سكن';
+      const title = `طلب: ${cat}${reqRow.data?.neighborhood ? ' — ' + reqRow.data.neighborhood : ''}`;
+      result.push({
+        kind: 'request',
+        id: conv.id,
+        listing_id: conv.request_id,
+        listing_title: title,
+        listing_image: null,
         last_message: lastMsg?.message ?? null,
         last_message_at: lastMsg?.created_at ?? conv.created_at,
         last_message_sender_id: lastMsg?.sender_id ?? null,
