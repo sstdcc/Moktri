@@ -80,41 +80,38 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
   const handleMessage = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) { navigate('/auth'); return; }
+    if (user.id === r.requester_id) return;
     setChatLoading(true);
     try {
-      // Check existing conversations both directions
-      const { data: asUser } = await supabase
-        .from('listing_conversations')
+      // Strict request-centric: one request = one unique chat per (requester, responder)
+      const { data: existing } = await supabase
+        .from('request_conversations')
         .select('id')
-        .eq('user_id', user.id)
-        .eq('owner_id', r.requester_id)
-        .limit(1);
-      if (asUser && asUser.length > 0) { navigate(`/chat/${asUser[0].id}`); return; }
+        .eq('request_id', r.id)
+        .eq('requester_id', r.requester_id)
+        .eq('responder_id', user.id)
+        .maybeSingle();
 
-      const { data: asOwner } = await supabase
-        .from('listing_conversations')
-        .select('id')
-        .eq('owner_id', user.id)
-        .eq('user_id', r.requester_id)
-        .limit(1);
-      if (asOwner && asOwner.length > 0) { navigate(`/chat/${asOwner[0].id}`); return; }
-
-      // Create new conversation anchored to any active listing
-      const { data: anyListing } = await supabase
-        .from('listings')
-        .select('id')
-        .eq('status', 'active')
-        .limit(1);
-
-      if (anyListing && anyListing.length > 0) {
-        const { data: created, error } = await supabase
-          .from('listing_conversations')
-          .insert({ listing_id: anyListing[0].id, owner_id: r.requester_id, user_id: user.id })
-          .select('id')
-          .single();
-        if (created) { navigate(`/chat/${created.id}`); return; }
-        if (error) console.error('Failed to create conversation:', error);
+      if (existing?.id) {
+        navigate(`/request-chat/${existing.id}`);
+        return;
       }
+
+      const { data: created, error } = await supabase
+        .from('request_conversations')
+        .insert({
+          request_id: r.id,
+          requester_id: r.requester_id,
+          responder_id: user.id,
+        })
+        .select('id')
+        .single();
+
+      if (created?.id) {
+        navigate(`/request-chat/${created.id}`);
+        return;
+      }
+      if (error) console.error('Failed to create request conversation:', error);
       toast.error('لا يمكن بدء محادثة حالياً');
     } finally {
       setChatLoading(false);
