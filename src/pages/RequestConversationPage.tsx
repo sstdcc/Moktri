@@ -69,14 +69,16 @@ const RequestConversationPage = () => {
     const other = conv.requester_id === user.id ? conv.responder_id : conv.requester_id;
     setOtherId(other);
 
-    const [profileRes, msgsRes] = await Promise.all([
+    const [profileRes, msgsRes, reqRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('request_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
+      supabase.from('housing_requests').select('category, neighborhood, min_price, max_price, currency').eq('id', conv.request_id).maybeSingle(),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setMessages(msgsRes.data ?? []);
+    setRequestInfo(reqRes.data ?? null);
     setLoading(false);
 
     await supabase
