@@ -194,8 +194,8 @@ const ChatUserPage = () => {
             const isMine = it.last_message_sender_id === user?.id;
             return (
               <button
-                key={it.id}
-                onClick={() => navigate(`/chat/${it.id}`)}
+                key={`${it.kind}:${it.id}`}
+                onClick={() => navigate(it.kind === 'request' ? `/request-chat/${it.id}` : `/chat/${it.id}`)}
                 className="w-full text-right flex items-center gap-3 px-4 py-3 bg-card active:bg-muted/60 transition-colors"
               >
                 <div className="h-14 w-14 rounded-xl overflow-hidden bg-muted shrink-0">
