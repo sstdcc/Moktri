@@ -369,6 +369,16 @@ const ChatPage = () => {
         { event: 'INSERT', schema: 'public', table: 'listing_conversations' },
         () => fetchConversations()
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'request_conversations' },
+        () => fetchConversations()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'request_messages' },
+        () => fetchConversations()
+      )
       .subscribe();
 
     return () => {
