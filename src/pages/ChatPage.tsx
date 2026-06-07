@@ -183,10 +183,28 @@ const UserGroupRow = ({ group, currentUserId, onOpen }: RowProps) => {
   );
 };
 
+interface RequestConvRaw {
+  id: string;
+  request_id: string;
+  requester_id: string;
+  responder_id: string;
+  created_at: string;
+  other_id: string;
+  other_name: string;
+  other_avatar: string | null;
+  request_title: string;
+  last_message: string | null;
+  last_message_at: string | null;
+  last_message_sender_id: string | null;
+  last_message_is_read: boolean;
+  unread_count: number;
+}
+
 const ChatPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
+  const [requestConvs, setRequestConvs] = useState<RequestConvRaw[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -196,23 +214,27 @@ const ChatPage = () => {
     if (!user) return;
     setLoading(true);
 
-    const { data: convs } = await supabase
-      .from('listing_conversations')
-      .select('*')
-      .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`)
-      .order('created_at', { ascending: false });
+    const [listingRes, requestRes] = await Promise.all([
+      supabase
+        .from('listing_conversations')
+        .select('*')
+        .or(`owner_id.eq.${user.id},user_id.eq.${user.id}`)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('request_conversations')
+        .select('*')
+        .or(`requester_id.eq.${user.id},responder_id.eq.${user.id}`)
+        .order('created_at', { ascending: false }),
+    ]);
 
-    if (!convs || convs.length === 0) {
-      setConversations([]);
-      setLoading(false);
-      return;
-    }
+    const convs = listingRes.data ?? [];
+    const reqConvs = requestRes.data ?? [];
 
     const items: ConversationItem[] = [];
     for (const conv of convs) {
       const otherId = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
 
-      const [listingRes, profileRes, msgRes, unreadRes] = await Promise.all([
+      const [listingRow, profileRes, msgRes, unreadRes] = await Promise.all([
         supabase.from('listings').select('title').eq('id', conv.listing_id).single(),
         supabase.from('profiles').select('full_name, avatar_url').eq('id', otherId).single(),
         supabase.from('listing_messages').select('message, created_at, sender_id, is_read').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
@@ -226,7 +248,7 @@ const ChatPage = () => {
         owner_id: conv.owner_id,
         user_id: conv.user_id,
         created_at: conv.created_at,
-        listing_title: listingRes.data?.title ?? 'إعلان',
+        listing_title: listingRow.data?.title ?? 'إعلان',
         other_id: otherId,
         other_name: profileRes.data?.full_name ?? 'مستخدم',
         other_avatar: profileRes.data?.avatar_url ?? null,
@@ -238,10 +260,46 @@ const ChatPage = () => {
       });
     }
 
+    const reqItems: RequestConvRaw[] = [];
+    const categoryLabels: Record<string, string> = {
+      room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
+      shop: 'محل', office: 'مكتب', shared: 'سكن مشترك', family: 'عائلي', student: 'طلابي',
+    };
+    for (const conv of reqConvs) {
+      const otherId = conv.requester_id === user.id ? conv.responder_id : conv.requester_id;
+      const [reqRow, profileRes, msgRes, unreadRes] = await Promise.all([
+        supabase.from('housing_requests').select('category, neighborhood').eq('id', conv.request_id).maybeSingle(),
+        supabase.from('profiles').select('full_name, avatar_url').eq('id', otherId).single(),
+        supabase.from('request_messages').select('message, created_at, sender_id, is_read').eq('conversation_id', conv.id).order('created_at', { ascending: false }).limit(1),
+        supabase.from('request_messages').select('id', { count: 'exact', head: true }).eq('conversation_id', conv.id).neq('sender_id', user.id).eq('is_read', false),
+      ]);
+      const lastMsg = msgRes.data?.[0];
+      const cat = reqRow.data?.category ? (categoryLabels[reqRow.data.category] ?? reqRow.data.category) : 'طلب سكن';
+      const title = `طلب: ${cat}${reqRow.data?.neighborhood ? ' — ' + reqRow.data.neighborhood : ''}`;
+      reqItems.push({
+        id: conv.id,
+        request_id: conv.request_id,
+        requester_id: conv.requester_id,
+        responder_id: conv.responder_id,
+        created_at: conv.created_at,
+        other_id: otherId,
+        other_name: profileRes.data?.full_name ?? 'مستخدم',
+        other_avatar: profileRes.data?.avatar_url ?? null,
+        request_title: title,
+        last_message: lastMsg?.message ?? null,
+        last_message_at: lastMsg?.created_at ?? conv.created_at,
+        last_message_sender_id: lastMsg?.sender_id ?? null,
+        last_message_is_read: lastMsg?.is_read ?? false,
+        unread_count: unreadRes.count ?? 0,
+      });
+    }
+
     items.sort((a, b) => new Date(b.last_message_at!).getTime() - new Date(a.last_message_at!).getTime());
     setConversations(items);
+    setRequestConvs(reqItems);
     setLoading(false);
   }, [user]);
+
 
   useEffect(() => {
     fetchConversations();
