@@ -465,14 +465,11 @@ const ChatPage = () => {
   }, [groups, filter, search]);
 
   const handleOpen = (g: UserGroupItem) => {
-    if (g.other_id.startsWith('req:')) {
-      navigate(`/request-chat/${g.other_id.slice(4)}`);
-      return;
-    }
     if (g.conversations_count === 1) {
-      // Single conversation — go straight to chat
       const conv = conversations.find(c => c.other_id === g.other_id);
       if (conv) { navigate(`/chat/${conv.id}`); return; }
+      const rc = requestConvs.find(r => r.other_id === g.other_id);
+      if (rc) { navigate(`/request-chat/${rc.id}`); return; }
     }
     navigate(`/chat/user/${g.other_id}`);
   };
