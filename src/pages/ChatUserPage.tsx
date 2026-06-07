@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 
 interface ListingConversationItem {
+  kind: 'listing' | 'request';
   id: string;
   listing_id: string;
   listing_title: string;
@@ -19,6 +20,11 @@ interface ListingConversationItem {
   last_message_is_read: boolean;
   unread_count: number;
 }
+
+const categoryLabels: Record<string, string> = {
+  room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
+  shop: 'محل', office: 'مكتب', shared: 'سكن مشترك', family: 'عائلي', student: 'طلابي',
+};
 
 const formatTime = (dateStr: string) => {
   const date = new Date(dateStr);
