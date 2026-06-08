@@ -92,7 +92,7 @@ const HousingRequestsPage = () => {
 
         {!loading && !error && (
           <>
-            {user && (
+            {user && !isProvider && (
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-base font-bold text-foreground">طلباتي</h2>
