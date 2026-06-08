@@ -13,16 +13,17 @@ export const BottomNav = () => {
   const { profile } = useAuth();
   const unreadCount = useUnreadCount();
   const { t } = useTranslation();
+  const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
 
   const navItems: NavItem[] = [
     { label: t('nav.home'), icon: Home, path: '/' },
     { label: t('nav.search'), icon: Search, path: '/listings' },
-    { label: t('nav.myRequests'), icon: FileText, path: '/requests' },
+    { label: isProvider ? t('nav.marketRequests') : t('nav.myRequests'), icon: FileText, path: '/requests' },
     { label: t('nav.favorites'), icon: Heart, path: '/favorites' },
     { label: t('nav.account'), icon: User, path: '/settings' },
   ];
 
-  const showFab = profile?.role === 'owner' || profile?.role === 'broker';
+  const showFab = isProvider;
 
   const isItemActive = (item: NavItem) =>
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
