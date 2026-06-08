@@ -16,7 +16,8 @@ const PAGE_SIZE = 20;
 const HousingRequestsPage = () => {
   usePageTitle();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
   const { districts } = useDistricts();
   const [myRequests, setMyRequests] = useState<RequestCardData[]>([]);
   const [otherRequests, setOtherRequests] = useState<RequestCardData[]>([]);
@@ -70,7 +71,7 @@ const HousingRequestsPage = () => {
     <div className="min-h-screen bg-background font-tajawal" dir="rtl">
       <div className="p-4 flex items-center justify-between">
         <h1 className="text-xl font-black text-foreground">طلبات السكن</h1>
-        {user && (
+        {user && !isProvider && (
           <button onClick={() => navigate('/requests/new')} className="p-2 text-accent">
             <Plus className="h-5 w-5" />
           </button>
@@ -91,7 +92,7 @@ const HousingRequestsPage = () => {
 
         {!loading && !error && (
           <>
-            {user && (
+            {user && !isProvider && (
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-base font-bold text-foreground">طلباتي</h2>
@@ -120,7 +121,7 @@ const HousingRequestsPage = () => {
             <Collapsible open={othersOpen} onOpenChange={setOthersOpen}>
               <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
                 <h2 className="text-base font-bold text-foreground">
-                  {user ? 'طلبات أخرى' : 'طلبات السكن'}
+                  {user ? (isProvider ? 'طلبات السوق' : 'طلبات أخرى') : 'طلبات السكن'}
                 </h2>
                 {othersOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
               </CollapsibleTrigger>
