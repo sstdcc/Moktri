@@ -486,10 +486,19 @@ const ListingDetailPage = () => {
           </div>
         )}
 
-        {/* Report */}
-        <button onClick={() => setReportOpen(true)} className="mt-4 text-xs text-muted-foreground hover:text-danger inline-flex items-center gap-1">
-          <Flag className="h-3 w-3" /> الإبلاغ عن هذا الإعلان
-        </button>
+        {/* Report / Edit */}
+        {user?.id === listing.owner_id ? (
+          <button
+            onClick={() => navigate(`/listings/${listing.id}/edit`)}
+            className="mt-4 text-xs text-muted-foreground hover:text-primary inline-flex items-center gap-1"
+          >
+            <Pencil className="h-3 w-3" /> تعديل الإعلان
+          </button>
+        ) : (
+          <button onClick={() => setReportOpen(true)} className="mt-4 text-xs text-muted-foreground hover:text-danger inline-flex items-center gap-1">
+            <Flag className="h-3 w-3" /> الإبلاغ عن هذا الإعلان
+          </button>
+        )}
 
         {/* Similar listings */}
         {similarListings.length > 0 && (
