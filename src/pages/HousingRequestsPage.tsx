@@ -71,7 +71,7 @@ const HousingRequestsPage = () => {
     <div className="min-h-screen bg-background font-tajawal" dir="rtl">
       <div className="p-4 flex items-center justify-between">
         <h1 className="text-xl font-black text-foreground">طلبات السكن</h1>
-        {user && (
+        {user && !isProvider && (
           <button onClick={() => navigate('/requests/new')} className="p-2 text-accent">
             <Plus className="h-5 w-5" />
           </button>
