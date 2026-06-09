@@ -243,7 +243,7 @@ const RequestConversationPage = () => {
                           'relative max-w-[70%] px-3 pt-2 pb-1.5 shadow-sm animate-fade-in mt-0.5 first:mt-0 rounded-2xl',
                           isMine ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground border border-border/50',
                         )}>
-                        <p className="text-[14px] leading-snug whitespace-pre-wrap break-words pe-12">{msg.message}</p>
+                        <p className="text-[14px] leading-snug whitespace-pre-wrap break-words pe-12"><Linkify text={msg.message} /></p>
                         <span className={cn('absolute bottom-1 left-2 text-[10px] leading-none opacity-60 select-none',
                           isMine ? 'text-primary-foreground' : 'text-muted-foreground')}>
                           {formatTime(msg.created_at)}
