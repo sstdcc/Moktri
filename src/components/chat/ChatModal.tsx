@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Linkify } from '@/lib/linkify';
 
 interface ChatMessage {
   id: string;
@@ -197,7 +198,7 @@ export const ChatModal = ({ open, onOpenChange, listingId, ownerId, listingTitle
                       ? 'bg-accent text-white rounded-br-sm'
                       : 'bg-muted text-foreground rounded-bl-sm'
                   )}>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap"><Linkify text={msg.message} /></p>
                     <p className={cn('text-[10px] mt-1', isMine ? 'text-white/60' : 'text-muted-foreground')}>
                       {getRelativeTime(msg.created_at)}
                     </p>

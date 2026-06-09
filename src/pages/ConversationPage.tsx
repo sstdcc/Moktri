@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
+import { Linkify } from '@/lib/linkify';
 
 interface ChatMessage {
   id: string;
@@ -337,7 +338,7 @@ const ConversationPage = () => {
                             )}
                           >
                             <p className="text-[14px] leading-snug whitespace-pre-wrap break-words pe-12">
-                              {msg.message}
+                              <Linkify text={msg.message} />
                             </p>
                             <span className={cn(
                               'absolute bottom-1 left-2 text-[10px] leading-none opacity-60 select-none',
