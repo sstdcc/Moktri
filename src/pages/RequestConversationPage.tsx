@@ -8,6 +8,7 @@ import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
+import { Linkify } from '@/lib/linkify';
 
 interface ChatMessage {
   id: string;
