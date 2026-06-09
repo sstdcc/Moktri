@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Linkify } from '@/lib/linkify';
 
 interface ChatMessage {
   id: string;
