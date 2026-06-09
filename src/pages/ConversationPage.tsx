@@ -337,7 +337,7 @@ const ConversationPage = () => {
                             )}
                           >
                             <p className="text-[14px] leading-snug whitespace-pre-wrap break-words pe-12">
-                              {msg.message}
+                              <Linkify text={msg.message} />
                             </p>
                             <span className={cn(
                               'absolute bottom-1 left-2 text-[10px] leading-none opacity-60 select-none',
