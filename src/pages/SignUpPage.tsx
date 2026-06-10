@@ -430,11 +430,11 @@ const SignUpPage = () => {
                 />
                 <span className="text-[12.5px] text-muted-foreground leading-relaxed">
                   {t('auth.agreePrefix')}{' '}
-                  <Link to="/terms" target="_blank" className="text-primary font-semibold hover:underline">
+                  <Link to="/terms" className="text-primary font-semibold hover:underline">
                     {t('auth.termsLink')}
                   </Link>{' '}
                   {t('auth.and')}{' '}
-                  <Link to="/privacy" target="_blank" className="text-primary font-semibold hover:underline">
+                  <Link to="/privacy" className="text-primary font-semibold hover:underline">
                     {t('auth.privacyLink')}
                   </Link>
                 </span>
