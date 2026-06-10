@@ -46,6 +46,8 @@ const reportReasons = [
   { value: 'other', label: 'أخرى' },
 ];
 
+const publicOwnerProfileColumns = 'id, full_name, avatar_url, role, bio, is_verified, verification_badge, total_listings, total_responses, created_at';
+
 const getTimeAgo = (date: string) => {
   const diff = Date.now() - new Date(date).getTime();
   const days = Math.floor(diff / 86400000);
@@ -161,11 +163,12 @@ const ListingDetailPage = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('listings')
-      .select('*, listing_images(*), districts(*), profiles!owner_id(id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at)')
+      .select(`*, listing_images(*), districts(*), profiles!owner_id(${publicOwnerProfileColumns})`)
       .eq('id', id!)
       .single();
 
     if (error || !data) {
+      console.error('listing detail fetch error', error);
       setLoading(false);
       return;
     }
@@ -242,6 +245,15 @@ const ListingDetailPage = () => {
       return;
     }
     setChatOpen(true);
+  };
+
+  const handleReportClick = () => {
+    if (!user) {
+      toast.info('سجل دخولك للإبلاغ عن الإعلان');
+      navigate(`/auth?returnUrl=/listings/${id}`);
+      return;
+    }
+    setReportOpen(true);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -472,7 +484,7 @@ const ListingDetailPage = () => {
             <Pencil className="h-3 w-3" /> تعديل الإعلان
           </button>
         ) : (
-          <button onClick={() => setReportOpen(true)} className="mt-4 text-xs text-muted-foreground hover:text-danger inline-flex items-center gap-1">
+          <button onClick={handleReportClick} className="mt-4 text-xs text-muted-foreground hover:text-danger inline-flex items-center gap-1">
             <Flag className="h-3 w-3" /> الإبلاغ عن هذا الإعلان
           </button>
         )}
