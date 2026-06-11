@@ -13,7 +13,7 @@ export const BottomNav = () => {
   const { profile } = useAuth();
   const unreadCount = useUnreadCount();
   const { t } = useTranslation();
-  const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
+  const isProvider = profile?.role === 'owner' || profile?.role === 'broker' || profile?.role === 'admin';
 
   const navItems: NavItem[] = [
     { label: t('nav.home'), icon: Home, path: '/' },
