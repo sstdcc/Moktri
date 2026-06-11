@@ -14,12 +14,11 @@ export const BottomNav = () => {
   const unreadCount = useUnreadCount();
   const { t } = useTranslation();
   const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
-  const isNonTenant = isProvider || profile?.role === 'admin' || profile?.role === 'moderator';
 
   const navItems: NavItem[] = [
     { label: t('nav.home'), icon: Home, path: '/' },
     { label: t('nav.search'), icon: Search, path: '/listings' },
-    { label: isNonTenant ? t('nav.marketRequests') : t('nav.myRequests'), icon: FileText, path: '/requests' },
+    { label: isProvider ? t('nav.marketRequests') : t('nav.myRequests'), icon: FileText, path: '/requests' },
     { label: t('nav.favorites'), icon: Heart, path: '/favorites' },
     { label: t('nav.account'), icon: User, path: '/settings' },
   ];
