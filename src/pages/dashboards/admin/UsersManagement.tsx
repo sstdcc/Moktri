@@ -121,6 +121,34 @@ const UsersManagement = () => {
     fetchUsers();
   };
 
+  const openEdit = async (u: any) => {
+    setEditForm({ full_name: u.full_name ?? '', phone: u.phone ?? '', email: '' });
+    setEditModal({ open: true, user: u });
+    const { data, error } = await supabase.rpc('admin_get_user_email', { _user_id: u.id });
+    if (!error) setEditForm((f) => ({ ...f, email: (data as string) ?? '' }));
+  };
+
+  const saveEdit = async () => {
+    if (!editModal.user) return;
+    const name = editForm.full_name.trim();
+    const phone = editForm.phone.trim();
+    const email = editForm.email.trim();
+    if (!name) { toast.error('الاسم مطلوب'); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error('بريد إلكتروني غير صالح'); return; }
+    setEditSaving(true);
+    const { error } = await supabase.rpc('admin_update_user', {
+      _user_id: editModal.user.id,
+      _full_name: name,
+      _phone: phone,
+      _email: email,
+    });
+    setEditSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('تم حفظ التغييرات');
+    setEditModal({ open: false, user: null });
+    fetchUsers();
+  };
+
   return (
     <>
       <h1 className="text-2xl font-bold text-foreground mb-4">إدارة المستخدمين</h1>
