@@ -1102,6 +1102,7 @@ export type Database = {
           whatsapp_number: string
         }[]
       }
+      admin_get_user_email: { Args: { _user_id: string }; Returns: string }
       admin_list_users: {
         Args: {
           _limit?: number
@@ -1124,6 +1125,15 @@ export type Database = {
           verification_badge: Database["public"]["Enums"]["verification_badge_status"]
           whatsapp_number: string
         }[]
+      }
+      admin_update_user: {
+        Args: {
+          _email: string
+          _full_name: string
+          _phone: string
+          _user_id: string
+        }
+        Returns: undefined
       }
       confirm_rental_deal: {
         Args: { _conversation_id: string; _listing_id: string }

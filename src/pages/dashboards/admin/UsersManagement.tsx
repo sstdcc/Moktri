@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,8 @@ interface Stats { total: number; owners: number; renters: number; banned: number
 const PAGE_SIZE = 50;
 
 const UsersManagement = () => {
+  const { profile: currentProfile } = useAuth();
+  const isAdmin = currentProfile?.role === 'admin';
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -36,6 +39,9 @@ const UsersManagement = () => {
   const [verifiedFilter, setVerifiedFilter] = useState('all');
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [banModal, setBanModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [editModal, setEditModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', email: '' });
+  const [editSaving, setEditSaving] = useState(false);
   const [newRole, setNewRole] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
@@ -112,6 +118,34 @@ const UsersManagement = () => {
     await supabase.from('profiles').update({ role: newRole as any }).eq('id', roleModal.user.id);
     toast.success('تم تغيير الدور');
     setRoleModal({ open: false, user: null });
+    fetchUsers();
+  };
+
+  const openEdit = async (u: any) => {
+    setEditForm({ full_name: u.full_name ?? '', phone: u.phone ?? '', email: '' });
+    setEditModal({ open: true, user: u });
+    const { data, error } = await supabase.rpc('admin_get_user_email', { _user_id: u.id });
+    if (!error) setEditForm((f) => ({ ...f, email: (data as string) ?? '' }));
+  };
+
+  const saveEdit = async () => {
+    if (!editModal.user) return;
+    const name = editForm.full_name.trim();
+    const phone = editForm.phone.trim();
+    const email = editForm.email.trim();
+    if (!name) { toast.error('الاسم مطلوب'); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast.error('بريد إلكتروني غير صالح'); return; }
+    setEditSaving(true);
+    const { error } = await supabase.rpc('admin_update_user', {
+      _user_id: editModal.user.id,
+      _full_name: name,
+      _phone: phone,
+      _email: email,
+    });
+    setEditSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('تم حفظ التغييرات');
+    setEditModal({ open: false, user: null });
     fetchUsers();
   };
 
@@ -215,6 +249,11 @@ const UsersManagement = () => {
                   <DropdownMenuItem asChild>
                     <Link to={`/profile/${u.id}`}>عرض الملف الشخصي</Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => openEdit(u)}>
+                      تعديل البيانات
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => { setRoleModal({ open: true, user: u }); setNewRole(u.role); }}>
                     تغيير الدور
                   </DropdownMenuItem>
@@ -283,6 +322,33 @@ const UsersManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Edit user dialog (admin only) */}
+      <Dialog open={editModal.open} onOpenChange={(o) => !o && setEditModal({ open: false, user: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تعديل بيانات المستخدم</DialogTitle>
+            <DialogDescription>قم بتحديث بيانات المستخدم. اترك البريد فارغاً لعدم تغييره.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-name">الاسم الكامل</Label>
+              <Input id="edit-name" value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-phone">رقم الهاتف</Label>
+              <Input id="edit-phone" dir="ltr" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-email">البريد الإلكتروني</Label>
+              <Input id="edit-email" type="email" dir="ltr" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditModal({ open: false, user: null })} disabled={editSaving}>إلغاء</Button>
+            <Button onClick={saveEdit} disabled={editSaving}>{editSaving ? 'جاري الحفظ...' : 'حفظ'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
