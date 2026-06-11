@@ -1125,6 +1125,15 @@ export type Database = {
           whatsapp_number: string
         }[]
       }
+      admin_update_user: {
+        Args: {
+          _email: string
+          _full_name: string
+          _phone: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       confirm_rental_deal: {
         Args: { _conversation_id: string; _listing_id: string }
         Returns: Json
