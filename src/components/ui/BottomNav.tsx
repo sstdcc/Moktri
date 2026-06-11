@@ -23,7 +23,7 @@ export const BottomNav = () => {
     { label: t('nav.account'), icon: User, path: '/settings' },
   ];
 
-  const showFab = isProvider;
+  const showFab = profile?.role === 'owner' || profile?.role === 'broker';
 
   const isItemActive = (item: NavItem) =>
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
