@@ -322,6 +322,33 @@ const UsersManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Edit user dialog (admin only) */}
+      <Dialog open={editModal.open} onOpenChange={(o) => !o && setEditModal({ open: false, user: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تعديل بيانات المستخدم</DialogTitle>
+            <DialogDescription>قم بتحديث بيانات المستخدم. اترك البريد فارغاً لعدم تغييره.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-name">الاسم الكامل</Label>
+              <Input id="edit-name" value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-phone">رقم الهاتف</Label>
+              <Input id="edit-phone" dir="ltr" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-email">البريد الإلكتروني</Label>
+              <Input id="edit-email" type="email" dir="ltr" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditModal({ open: false, user: null })} disabled={editSaving}>إلغاء</Button>
+            <Button onClick={saveEdit} disabled={editSaving}>{editSaving ? 'جاري الحفظ...' : 'حفظ'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
