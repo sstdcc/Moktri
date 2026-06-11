@@ -46,6 +46,7 @@ export function AppSidebar() {
   const { t } = useTranslation();
   const dir = useDir();
   const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
+  const isNonTenant = isProvider || profile?.role === 'admin' || profile?.role === 'moderator';
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
@@ -53,7 +54,7 @@ export function AppSidebar() {
   const mainNav = [
     { title: t('nav.home'), url: '/', icon: Home },
     { title: t('nav.browse'), url: '/listings', icon: Search },
-    { title: isProvider ? t('nav.marketRequests') : t('nav.requests'), url: '/requests', icon: FileText },
+    { title: isNonTenant ? t('nav.marketRequests') : t('nav.requests'), url: '/requests', icon: FileText },
     { title: t('nav.chat'), url: '/chat', icon: MessageSquare },
     { title: t('nav.favorites'), url: '/favorites', icon: Heart },
     { title: t('nav.notifications'), url: '/notifications', icon: Bell },
