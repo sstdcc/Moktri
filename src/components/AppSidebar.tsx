@@ -45,7 +45,7 @@ export function AppSidebar() {
   const pendingListingRequests = usePendingListingRequests();
   const { t } = useTranslation();
   const dir = useDir();
-  const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
+  const isProvider = profile?.role === 'owner' || profile?.role === 'broker' || profile?.role === 'admin';
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
