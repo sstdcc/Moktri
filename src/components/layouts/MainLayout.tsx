@@ -23,7 +23,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
   const isChatDetailRoute = /^\/(chat\/[^/]+|request-chat\/[^/]+)$/.test(location.pathname);
   const showAppHeader = !isChatDetailRoute;
   const showBottomNav =
-    !isChatDetailRoute && isMobile && profile?.role !== 'admin' && profile?.role !== 'moderator';
+    !isChatDetailRoute && isMobile;
 
   return (
     <SidebarProvider>
