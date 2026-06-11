@@ -1102,6 +1102,7 @@ export type Database = {
           whatsapp_number: string
         }[]
       }
+      admin_get_user_email: { Args: { _user_id: string }; Returns: string }
       admin_list_users: {
         Args: {
           _limit?: number
