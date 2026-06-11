@@ -18,6 +18,7 @@ const HousingRequestsPage = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const isProvider = profile?.role === 'owner' || profile?.role === 'broker';
+  const isNonTenant = isProvider || profile?.role === 'admin' || profile?.role === 'moderator';
   const { districts } = useDistricts();
   const [myRequests, setMyRequests] = useState<RequestCardData[]>([]);
   const [otherRequests, setOtherRequests] = useState<RequestCardData[]>([]);
