@@ -1,21 +1,20 @@
 import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 
 /**
- * Picks the correct persistent layout (and therefore the correct navigation)
- * based on the current user's role.
- *
- * - admin / moderator → AdminLayout (its own desktop sidebar + mobile bottom nav)
- * - everyone else (renter / owner / broker / guests) → MainLayout (sidebar + BottomNav)
- *
- * Navigation is rendered from the layout, so it persists across every page
- * that uses this wrapper.
+ * Picks the correct persistent layout based on role + route.
+ * - admin/moderator on /dashboard/admin* → AdminLayout
+ * - everyone else (including admins browsing consumer pages) → MainLayout
+ *   so the standard bottom nav (Home/Search/Requests/Favorites/Profile) stays visible.
  */
 export const RoleLayout = ({ children }: { children: ReactNode }) => {
   const { profile } = useAuth();
+  const location = useLocation();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'moderator';
-  if (isAdmin) return <AdminLayout>{children}</AdminLayout>;
+  const onAdminRoute = location.pathname.startsWith('/dashboard/admin');
+  if (isAdmin && onAdminRoute) return <AdminLayout>{children}</AdminLayout>;
   return <MainLayout>{children}</MainLayout>;
 };
