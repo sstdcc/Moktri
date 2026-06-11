@@ -249,6 +249,11 @@ const UsersManagement = () => {
                   <DropdownMenuItem asChild>
                     <Link to={`/profile/${u.id}`}>عرض الملف الشخصي</Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => openEdit(u)}>
+                      تعديل البيانات
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => { setRoleModal({ open: true, user: u }); setNewRole(u.role); }}>
                     تغيير الدور
                   </DropdownMenuItem>
