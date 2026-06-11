@@ -27,6 +27,8 @@ interface Stats { total: number; owners: number; renters: number; banned: number
 const PAGE_SIZE = 50;
 
 const UsersManagement = () => {
+  const { profile: currentProfile } = useAuth();
+  const isAdmin = currentProfile?.role === 'admin';
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -37,6 +39,9 @@ const UsersManagement = () => {
   const [verifiedFilter, setVerifiedFilter] = useState('all');
   const [roleModal, setRoleModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
   const [banModal, setBanModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [editModal, setEditModal] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', email: '' });
+  const [editSaving, setEditSaving] = useState(false);
   const [newRole, setNewRole] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
