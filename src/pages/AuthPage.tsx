@@ -29,6 +29,36 @@ const AuthPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [now, setNow] = useState<number>(Date.now());
+
+  const isLocked = lockedUntil !== null && lockedUntil > now;
+
+  useEffect(() => {
+    if (!lockedUntil) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [lockedUntil]);
+
+  useEffect(() => {
+    if (lockedUntil && lockedUntil <= now) {
+      setLockedUntil(null);
+      setErrors((e) => {
+        const { password: _p, ...rest } = e;
+        return rest;
+      });
+    }
+  }, [now, lockedUntil]);
+
+  const formatLockMessage = (ms: number) => {
+    const totalSec = Math.max(0, Math.ceil(ms / 1000));
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `الحساب مقفل. حاول بعد ${h} ساعة و ${m} دقيقة`;
+    if (m > 0) return `الحساب مقفل. حاول بعد ${m}:${String(s).padStart(2, '0')} دقيقة`;
+    return `الحساب مقفل. حاول بعد ${s} ثانية`;
+  };
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
