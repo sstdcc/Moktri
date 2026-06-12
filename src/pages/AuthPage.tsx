@@ -52,25 +52,38 @@ const AuthPage = () => {
     setErrors({});
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('secure-login', {
-        body: { email: email.trim(), password },
-      });
-      const payload = (data ?? (error as any)?.context?.body) as any;
-      const errMsg: string | undefined =
-        (typeof payload === 'object' && payload?.error) ||
-        (typeof payload === 'string' ? payload : undefined);
+      // Call secure-login directly so we can read the JSON body on non-2xx
+      // (supabase.functions.invoke throws and hides the body for 4xx/5xx).
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/secure-login`;
+      const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      let payload: any = null;
+      let res: Response | null = null;
+      try {
+        res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: anon,
+            Authorization: `Bearer ${anon}`,
+          },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
+        payload = await res.json().catch(() => null);
+      } catch {
+        toast.error(t('auth.errors.loginFailed'));
+        return;
+      }
 
-      if (error || !data?.session) {
-        const msg = errMsg || t('auth.errors.loginFailed');
+      if (!res.ok || !payload?.session) {
+        const msg = payload?.error || t('auth.errors.loginFailed');
         toast.error(msg);
         setErrors({ password: msg });
         return;
       }
 
-      // Establish client-side session from server-issued tokens
       const { error: setErr } = await supabase.auth.setSession({
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
+        access_token: payload.session.access_token,
+        refresh_token: payload.session.refresh_token,
       });
       if (setErr) {
         toast.error(t('auth.errors.loginFailed'));
