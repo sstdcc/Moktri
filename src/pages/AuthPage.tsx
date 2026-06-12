@@ -197,6 +197,7 @@ const AuthPage = () => {
                 placeholder="example@email.com"
                 className={cn(fieldClass, 'text-left')}
                 dir="ltr"
+                disabled={isLocked}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
             </div>
