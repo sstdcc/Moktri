@@ -215,6 +215,7 @@ const AuthPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className={cn(fieldClass, dir === 'rtl' ? 'pl-11' : 'pr-11')}
+                disabled={isLocked}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
               <button
