@@ -55,10 +55,11 @@ Deno.serve(async (req) => {
       const until = new Date(attempt.locked_until).getTime();
       if (until > now) {
         return json({
+          success: false,
           error: `تم قفل الحساب مؤقتاً بسبب محاولات تسجيل دخول فاشلة. ${formatRemaining(until - now)}`,
           locked: true,
           retry_after_ms: until - now,
-        }, 429);
+        }, 200);
       }
     }
 
@@ -100,18 +101,20 @@ Deno.serve(async (req) => {
       if (newLockedUntil) {
         const ms = new Date(newLockedUntil).getTime() - now;
         return json({
+          success: false,
           error: `تجاوزت الحد المسموح من محاولات الدخول. ${formatRemaining(ms)}`,
           locked: true,
           retry_after_ms: ms,
-        }, 429);
+        }, 200);
       }
 
       const remaining = MAX_FAILED_ATTEMPTS - newFailed;
       return json({
+        success: false,
         error: `بيانات الدخول غير صحيحة. تبقى لديك ${remaining} محاولة قبل قفل الحساب.`,
         invalid: true,
         remaining,
-      }, 401);
+      }, 200);
     }
 
     // Success — reset attempts (keep row so lockout_count resets only on success)
