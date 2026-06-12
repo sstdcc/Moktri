@@ -52,20 +52,31 @@ const AuthPage = () => {
     setErrors({});
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const { data, error } = await supabase.functions.invoke('secure-login', {
+        body: { email: email.trim(), password },
       });
-      if (error) {
-        const msg = /invalid/i.test(error.message)
-          ? t('auth.errors.loginInvalid')
-          : /confirm/i.test(error.message)
-          ? t('auth.errors.loginUnconfirmed')
-          : t('auth.errors.loginFailed');
+      const payload = (data ?? (error as any)?.context?.body) as any;
+      const errMsg: string | undefined =
+        (typeof payload === 'object' && payload?.error) ||
+        (typeof payload === 'string' ? payload : undefined);
+
+      if (error || !data?.session) {
+        const msg = errMsg || t('auth.errors.loginFailed');
         toast.error(msg);
         setErrors({ password: msg });
         return;
       }
+
+      // Establish client-side session from server-issued tokens
+      const { error: setErr } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+      if (setErr) {
+        toast.error(t('auth.errors.loginFailed'));
+        return;
+      }
+
       toast.success(t('auth.success.loggedIn'));
       retryProfile();
       const returnUrl = searchParams.get('returnUrl') || '/';
