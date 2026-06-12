@@ -243,10 +243,10 @@ const AuthPage = () => {
 
           <Button
             onClick={handleLogin}
-            disabled={loading}
+            disabled={loading || isLocked}
             className="w-full h-12 rounded-xl text-[14.5px] font-semibold mt-4 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none active:scale-100"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('auth.login')}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isLocked && lockedUntil ? formatLockMessage(lockedUntil - now) : t('auth.login')}
           </Button>
 
           <div className="flex items-center gap-3 py-1">
