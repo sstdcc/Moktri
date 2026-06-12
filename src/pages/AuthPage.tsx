@@ -72,6 +72,12 @@ const AuthPage = () => {
   }, [user, profile]);
 
   const handleLogin = async () => {
+    if (isLocked && lockedUntil) {
+      const msg = formatLockMessage(lockedUntil - Date.now());
+      toast.error(msg);
+      setErrors({ password: msg });
+      return;
+    }
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
