@@ -29,6 +29,36 @@ const AuthPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [now, setNow] = useState<number>(Date.now());
+
+  const isLocked = lockedUntil !== null && lockedUntil > now;
+
+  useEffect(() => {
+    if (!lockedUntil) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [lockedUntil]);
+
+  useEffect(() => {
+    if (lockedUntil && lockedUntil <= now) {
+      setLockedUntil(null);
+      setErrors((e) => {
+        const { password: _p, ...rest } = e;
+        return rest;
+      });
+    }
+  }, [now, lockedUntil]);
+
+  const formatLockMessage = (ms: number) => {
+    const totalSec = Math.max(0, Math.ceil(ms / 1000));
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `الحساب مقفل. حاول بعد ${h} ساعة و ${m} دقيقة`;
+    if (m > 0) return `الحساب مقفل. حاول بعد ${m}:${String(s).padStart(2, '0')} دقيقة`;
+    return `الحساب مقفل. حاول بعد ${s} ثانية`;
+  };
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -42,6 +72,12 @@ const AuthPage = () => {
   }, [user, profile]);
 
   const handleLogin = async () => {
+    if (isLocked && lockedUntil) {
+      const msg = formatLockMessage(lockedUntil - Date.now());
+      toast.error(msg);
+      setErrors({ password: msg });
+      return;
+    }
     const parsed = loginSchema.safeParse({ email, password });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
@@ -76,6 +112,10 @@ const AuthPage = () => {
 
       if (!res.ok || !payload?.session) {
         const msg = payload?.error || t('auth.errors.loginFailed');
+        if (payload?.locked && typeof payload?.retry_after_ms === 'number') {
+          setLockedUntil(Date.now() + payload.retry_after_ms);
+          setNow(Date.now());
+        }
         toast.error(msg);
         setErrors({ password: msg });
         return;
@@ -157,6 +197,7 @@ const AuthPage = () => {
                 placeholder="example@email.com"
                 className={cn(fieldClass, 'text-left')}
                 dir="ltr"
+                disabled={isLocked}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
             </div>
@@ -174,6 +215,7 @@ const AuthPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className={cn(fieldClass, dir === 'rtl' ? 'pl-11' : 'pr-11')}
+                disabled={isLocked}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
               <button
@@ -201,10 +243,10 @@ const AuthPage = () => {
 
           <Button
             onClick={handleLogin}
-            disabled={loading}
+            disabled={loading || isLocked}
             className="w-full h-12 rounded-xl text-[14.5px] font-semibold mt-4 bg-primary text-primary-foreground hover:bg-primary/90 shadow-none active:scale-100"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('auth.login')}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isLocked && lockedUntil ? formatLockMessage(lockedUntil - now) : t('auth.login')}
           </Button>
 
           <div className="flex items-center gap-3 py-1">
