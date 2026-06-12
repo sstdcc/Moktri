@@ -112,6 +112,10 @@ const AuthPage = () => {
 
       if (!res.ok || !payload?.session) {
         const msg = payload?.error || t('auth.errors.loginFailed');
+        if (payload?.locked && typeof payload?.retry_after_ms === 'number') {
+          setLockedUntil(Date.now() + payload.retry_after_ms);
+          setNow(Date.now());
+        }
         toast.error(msg);
         setErrors({ password: msg });
         return;
