@@ -600,6 +600,36 @@ export type Database = {
           },
         ]
       }
+      login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          failed_count: number
+          last_failed_at: string | null
+          locked_until: string | null
+          lockout_count: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          failed_count?: number
+          last_failed_at?: string | null
+          locked_until?: string | null
+          lockout_count?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          failed_count?: number
+          last_failed_at?: string | null
+          locked_until?: string | null
+          lockout_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body_ar: string | null
