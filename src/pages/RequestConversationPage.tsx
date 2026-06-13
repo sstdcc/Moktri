@@ -49,7 +49,7 @@ const RequestConversationPage = () => {
   const [requestId, setRequestId] = useState('');
   const [requestInfo, setRequestInfo] = useState<{ category: string; neighborhood: string | null; min_price: number | null; max_price: number | null; currency: string | null } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { keyboardInset, scrollToBottom, viewportHeight } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
