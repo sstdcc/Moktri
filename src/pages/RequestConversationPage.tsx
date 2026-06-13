@@ -177,7 +177,7 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      className="fixed inset-0 flex h-screen max-h-screen flex-col bg-background font-tajawal overflow-hidden"
+      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">

@@ -230,7 +230,7 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="fixed inset-0 flex h-screen max-h-screen flex-col bg-background font-tajawal overflow-hidden"
+      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
       dir="rtl"
     >
       {/* Header */}
