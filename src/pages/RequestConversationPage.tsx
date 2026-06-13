@@ -49,7 +49,7 @@ const RequestConversationPage = () => {
   const [requestId, setRequestId] = useState('');
   const [requestInfo, setRequestInfo] = useState<{ category: string; neighborhood: string | null; min_price: number | null; max_price: number | null; currency: string | null } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { keyboardInset, scrollToBottom, viewportHeight } = useKeyboardAwareChatViewport(messagesEndRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -177,7 +177,8 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      className="flex h-[100dvh] max-h-[100dvh] flex-col bg-background font-tajawal overflow-hidden"
+      className="flex flex-col bg-background font-tajawal overflow-hidden"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
       dir="rtl"
     >
       <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
@@ -260,8 +261,7 @@ const RequestConversationPage = () => {
       </div>
 
       <div
-        style={{ marginBottom: keyboardInset ? `${keyboardInset}px` : undefined }}
-        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input transition-[margin-bottom] duration-200 ease-out"
+        className="shrink-0 border-t border-border bg-card px-4 pt-3 pb-safe-input"
       >
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">

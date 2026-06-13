@@ -2,6 +2,7 @@ import { RefObject, useCallback, useEffect, useState } from 'react';
 
 export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLElement>) => {
   const [keyboardInset, setKeyboardInset] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     window.requestAnimationFrame(() => {
@@ -20,6 +21,7 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
           ? Math.max(0, window.innerHeight - visualViewport.height - visualViewport.offsetTop)
           : 0;
         setKeyboardInset(Math.round(nextInset));
+        setViewportHeight(visualViewport ? Math.round(visualViewport.height) : null);
         window.scrollTo(0, 0);
         scrollToBottom('smooth');
       });
@@ -45,5 +47,5 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
     };
   }, [scrollToBottom]);
 
-  return { keyboardInset, scrollToBottom };
+  return { keyboardInset, scrollToBottom, viewportHeight };
 };
