@@ -64,12 +64,18 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
               </div>
             </header>
           )}
-          <main data-scroll-container="page" className={'flex-1 min-h-0 min-w-0 w-full overflow-x-hidden ' + (isChatDetailRoute ? 'overflow-hidden' : 'overflow-y-auto ') + (showBottomNav ? 'pb-24' : '')}>
-            <PageTransition>
-              <div className="w-full min-w-0">
+          <main data-scroll-container="page" className={'flex-1 min-h-0 min-w-0 w-full overflow-x-hidden ' + (isChatDetailRoute ? 'relative overflow-hidden' : 'overflow-y-auto ') + (showBottomNav ? 'pb-24' : '')}>
+            {isChatDetailRoute ? (
+              <div className="absolute inset-0 w-full min-w-0 overflow-hidden">
                 {children}
               </div>
-            </PageTransition>
+            ) : (
+              <PageTransition>
+                <div className="w-full min-w-0">
+                  {children}
+                </div>
+              </PageTransition>
+            )}
           </main>
           {showBottomNav && <BottomNav />}
         </div>
