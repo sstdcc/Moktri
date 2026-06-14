@@ -48,8 +48,9 @@ const RequestConversationPage = () => {
   const [responderId, setResponderId] = useState('');
   const [requestId, setRequestId] = useState('');
   const [requestInfo, setRequestInfo] = useState<{ category: string; neighborhood: string | null; min_price: number | null; max_price: number | null; currency: string | null } | null>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom, viewportHeight } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { scrollToBottom, viewportHeight, viewportOffsetTop } = useKeyboardAwareChatViewport(messagesEndRef, messagesScrollRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -177,11 +178,11 @@ const RequestConversationPage = () => {
 
   return (
     <div
-      className="flex flex-col bg-background font-tajawal overflow-hidden"
-      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
+      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-background font-tajawal overflow-hidden"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh', top: `${viewportOffsetTop}px` }}
       dir="rtl"
     >
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="relative shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
           className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">
@@ -223,7 +224,7 @@ const RequestConversationPage = () => {
       )}
 
 
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+      <div ref={messagesScrollRef} className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
@@ -267,7 +268,7 @@ const RequestConversationPage = () => {
           <div className="flex items-center gap-2 rounded-full border border-border bg-background pr-4 pl-1.5 py-1 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="اكتب رسالة..."
-              className="flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground" />
+              className="min-w-0 flex-1 bg-transparent py-2 text-base sm:text-sm outline-none placeholder:text-muted-foreground" />
             <Button size="icon" onClick={sendMessage} disabled={!newMessage.trim() || sending}
               className="rounded-full h-9 w-9 shrink-0 transition-all active:scale-95">
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 -scale-x-100" />}

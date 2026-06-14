@@ -1,14 +1,24 @@
 import { RefObject, useCallback, useEffect, useState } from 'react';
 
-export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLElement>) => {
+export const useKeyboardAwareChatViewport = (
+  messagesEndRef: RefObject<HTMLElement>,
+  scrollContainerRef?: RefObject<HTMLElement>,
+) => {
   const [keyboardInset, setKeyboardInset] = useState(0);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [viewportOffsetTop, setViewportOffsetTop] = useState(0);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     window.requestAnimationFrame(() => {
+      const scrollContainer = scrollContainerRef?.current;
+      if (scrollContainer) {
+        scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior });
+        return;
+      }
+
       messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
     });
-  }, [messagesEndRef]);
+  }, [messagesEndRef, scrollContainerRef]);
 
   useEffect(() => {
     const visualViewport = window.visualViewport;
@@ -22,6 +32,7 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
           : 0;
         setKeyboardInset(Math.round(nextInset));
         setViewportHeight(visualViewport ? Math.round(visualViewport.height) : null);
+        setViewportOffsetTop(visualViewport ? Math.round(visualViewport.offsetTop) : 0);
         window.scrollTo(0, 0);
         scrollToBottom('smooth');
       });
@@ -47,5 +58,5 @@ export const useKeyboardAwareChatViewport = (messagesEndRef: RefObject<HTMLEleme
     };
   }, [scrollToBottom]);
 
-  return { keyboardInset, scrollToBottom, viewportHeight };
+  return { keyboardInset, scrollToBottom, viewportHeight, viewportOffsetTop };
 };
