@@ -53,8 +53,9 @@ const ConversationPage = () => {
   const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { keyboardInset, scrollToBottom, viewportHeight } = useKeyboardAwareChatViewport(messagesEndRef);
+  const { scrollToBottom, viewportHeight, viewportOffsetTop } = useKeyboardAwareChatViewport(messagesEndRef, messagesScrollRef);
   const channelRef = useRef(crypto.randomUUID());
 
   const loadData = useCallback(async () => {
@@ -230,12 +231,12 @@ const ConversationPage = () => {
 
   return (
     <div
-      className="flex flex-col bg-background font-tajawal overflow-hidden"
-      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh' }}
+      className="fixed inset-x-0 top-0 z-50 flex flex-col bg-background font-tajawal overflow-hidden"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh', top: `${viewportOffsetTop}px` }}
       dir="rtl"
     >
       {/* Header */}
-      <header className="sticky top-0 shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="relative shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button
           type="button"
@@ -298,7 +299,7 @@ const ConversationPage = () => {
       )}
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
+      <div ref={messagesScrollRef} className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
 
         <div className="max-w-3xl mx-auto flex flex-col">
           {messages.length === 0 ? (
@@ -372,7 +373,7 @@ const ConversationPage = () => {
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="اكتب رسالة..."
-              className="flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
+              className="min-w-0 flex-1 bg-transparent py-2 text-base sm:text-sm outline-none placeholder:text-muted-foreground"
             />
             <Button
               size="icon"
