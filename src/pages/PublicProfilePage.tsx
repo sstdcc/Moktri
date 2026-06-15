@@ -32,6 +32,8 @@ const PublicProfilePage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [listings, setListings] = useState<any[]>([]);
+  const [requestsCount, setRequestsCount] = useState(0);
+  const [responsesCount, setResponsesCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showAll, setShowAll] = useState(false);
