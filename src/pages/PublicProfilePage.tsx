@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   User, Building2, MessageSquare, Calendar,
-  RefreshCw,
+  RefreshCw, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
