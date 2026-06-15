@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   User, Building2, MessageSquare, Calendar,
-  RefreshCw,
+  RefreshCw, FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
@@ -32,6 +32,8 @@ const PublicProfilePage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [listings, setListings] = useState<any[]>([]);
+  const [requestsCount, setRequestsCount] = useState(0);
+  const [responsesCount, setResponsesCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -56,6 +58,25 @@ const PublicProfilePage = () => {
     }
     setProfile(profileRes.data);
     setLoading(false);
+
+    const isRenter = profileRes.data.role === 'renter';
+
+    if (isRenter) {
+      setListings([]);
+      try {
+        const [reqRes, respRes] = await Promise.all([
+          supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('requester_id', id),
+          supabase.from('request_responses').select('id', { count: 'exact', head: true }).eq('responder_id', id),
+        ]);
+        setRequestsCount(reqRes.count ?? 0);
+        setResponsesCount(respRes.count ?? 0);
+      } catch (e) {
+        console.error('[PublicProfilePage] renter stats fetch threw:', e);
+        setRequestsCount(0);
+        setResponsesCount(0);
+      }
+      return;
+    }
 
     // 2. Fetch listings separately — failure here must NOT break the page
     try {
@@ -175,16 +196,33 @@ const PublicProfilePage = () => {
                 )}
 
                 <div className="flex gap-4 mt-4 pt-4 border-t border-border">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-accent" />
-                    <span className="text-sm font-semibold">{listings.length}</span>
-                    <span className="text-xs text-muted-foreground">إعلان</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-accent" />
-                    <span className="text-sm font-semibold">{profile.total_responses ?? 0}</span>
-                    <span className="text-xs text-muted-foreground">رد</span>
-                  </div>
+                  {profile.role === 'renter' ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{requestsCount}</span>
+                        <span className="text-xs text-muted-foreground">طلب</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{responsesCount}</span>
+                        <span className="text-xs text-muted-foreground">رد</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{listings.length}</span>
+                        <span className="text-xs text-muted-foreground">إعلان</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{profile.total_responses ?? 0}</span>
+                        <span className="text-xs text-muted-foreground">رد</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {user && user.id !== id && (
@@ -247,7 +285,7 @@ const PublicProfilePage = () => {
               </CardContent>
             </Card>
 
-            <div className="mb-4">
+            {profile.role !== 'renter' && <div className="mb-4">
               <h3 className="text-base font-bold mb-3">الإعلانات النشطة</h3>
               {listings.length === 0 ? (
                 <EmptyState
@@ -281,7 +319,7 @@ const PublicProfilePage = () => {
                   )}
                 </>
               )}
-            </div>
+            </div>}
 
             <UserRatingsSection userId={profile.id} userName={profile.full_name || 'المستخدم'} />
           </>
