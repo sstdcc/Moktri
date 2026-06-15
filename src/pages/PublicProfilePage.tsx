@@ -59,6 +59,25 @@ const PublicProfilePage = () => {
     setProfile(profileRes.data);
     setLoading(false);
 
+    const isRenter = profileRes.data.role === 'renter';
+
+    if (isRenter) {
+      setListings([]);
+      try {
+        const [reqRes, respRes] = await Promise.all([
+          supabase.from('housing_requests').select('id', { count: 'exact', head: true }).eq('requester_id', id),
+          supabase.from('request_responses').select('id', { count: 'exact', head: true }).eq('responder_id', id),
+        ]);
+        setRequestsCount(reqRes.count ?? 0);
+        setResponsesCount(respRes.count ?? 0);
+      } catch (e) {
+        console.error('[PublicProfilePage] renter stats fetch threw:', e);
+        setRequestsCount(0);
+        setResponsesCount(0);
+      }
+      return;
+    }
+
     // 2. Fetch listings separately — failure here must NOT break the page
     try {
       const listingsRes = await supabase
