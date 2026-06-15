@@ -285,7 +285,7 @@ const PublicProfilePage = () => {
               </CardContent>
             </Card>
 
-            <div className="mb-4">
+            {profile.role !== 'renter' && <div className="mb-4">
               <h3 className="text-base font-bold mb-3">الإعلانات النشطة</h3>
               {listings.length === 0 ? (
                 <EmptyState
