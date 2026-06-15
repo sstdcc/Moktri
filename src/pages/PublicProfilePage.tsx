@@ -319,7 +319,7 @@ const PublicProfilePage = () => {
                   )}
                 </>
               )}
-            </div>
+            </div>}
 
             <UserRatingsSection userId={profile.id} userName={profile.full_name || 'المستخدم'} />
           </>
