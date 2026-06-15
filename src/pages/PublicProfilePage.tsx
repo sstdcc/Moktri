@@ -196,16 +196,33 @@ const PublicProfilePage = () => {
                 )}
 
                 <div className="flex gap-4 mt-4 pt-4 border-t border-border">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-accent" />
-                    <span className="text-sm font-semibold">{listings.length}</span>
-                    <span className="text-xs text-muted-foreground">إعلان</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-accent" />
-                    <span className="text-sm font-semibold">{profile.total_responses ?? 0}</span>
-                    <span className="text-xs text-muted-foreground">رد</span>
-                  </div>
+                  {profile.role === 'renter' ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{requestsCount}</span>
+                        <span className="text-xs text-muted-foreground">طلب</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{responsesCount}</span>
+                        <span className="text-xs text-muted-foreground">رد</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{listings.length}</span>
+                        <span className="text-xs text-muted-foreground">إعلان</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold">{profile.total_responses ?? 0}</span>
+                        <span className="text-xs text-muted-foreground">رد</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {user && user.id !== id && (
