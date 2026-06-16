@@ -10,6 +10,7 @@ import { ListingCard } from '@/components/ui/ListingCard';
 import { FilterSheet, type FilterValues } from '@/components/ui/FilterSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ListingCardGridSkeleton } from '@/components/ui/skeletons';
 import { cn } from '@/lib/utils';
 import type { Listing } from '@/types/database';
 
@@ -247,11 +248,7 @@ const ListingsPage = () => {
         {error && listings.length === 0 ? (
           <ErrorState onRetry={() => fetchListings(0)} />
         ) : loading && listings.length === 0 ? (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-72 animate-pulse rounded-xl bg-muted" />
-            ))}
-          </div>
+          <ListingCardGridSkeleton count={6} />
         ) : listings.length === 0 ? (
           <EmptyState
             icon={Search}
