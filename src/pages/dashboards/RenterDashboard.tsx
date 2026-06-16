@@ -7,7 +7,8 @@ import { usePageTitle } from '@/hooks/usePageTitle';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 import { EmptyState } from '@/components/ui/EmptyState';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ProfileCardSkeleton, RequestCardGridSkeleton } from '@/components/ui/skeletons';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -51,7 +52,27 @@ const RenterDashboard = () => {
 
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background pb-20 font-tajawal" dir="rtl">
+        <PageHeader title="لوحة التحكم" />
+        <div className="w-full px-4 md:px-6 pt-4 space-y-5">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+          <ProfileCardSkeleton />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[0, 1, 2, 3].map(i => (
+              <Skeleton key={i} className="h-14 rounded-2xl" />
+            ))}
+          </div>
+          <Skeleton className="h-5 w-24" />
+          <RequestCardGridSkeleton count={3} />
+        </div>
+      </div>
+    );
+  }
 
   const quickLinks = [
     { icon: Search, label: 'تصفح الإعلانات', path: '/listings', color: 'text-primary' },
