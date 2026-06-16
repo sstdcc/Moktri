@@ -1,6 +1,7 @@
 import { Heart, BedDouble, MapPin, Clock, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MiftahBadge } from './MiftahBadge';
+import { SmartImage } from './SmartImage';
 import { RatingDisplay } from '@/components/rating/RatingDisplay';
 import { cn } from '@/lib/utils';
 import { formatPrice as fmtPrice, timeAgo } from '@/lib/format';
@@ -50,18 +51,18 @@ export const ListingCard = ({
     >
       {/* IMAGE */}
       <div className="relative h-48 w-full overflow-hidden">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt=""
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/8 to-accent/8">
-            <Building2 className="h-14 w-14 text-primary/20 stroke-[1.2px]" />
-          </div>
-        )}
+        <SmartImage
+          src={imageUrl}
+          alt=""
+          wrapperClassName="absolute inset-0"
+          className="transition-transform duration-500 group-hover:scale-105"
+          fallback={
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/8 to-accent/8">
+              <Building2 className="h-14 w-14 text-primary/20 stroke-[1.2px]" />
+            </div>
+          }
+        />
+
 
         {/* Gradient overlay at bottom for readability */}
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />

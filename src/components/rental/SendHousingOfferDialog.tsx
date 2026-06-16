@@ -47,23 +47,30 @@ export const SendHousingOfferDialog = ({ open, onOpenChange, housingRequestId, r
   const handleSubmit = async () => {
     if (!user || !listingId) return;
     setSubmitting(true);
-    const { error } = await supabase.from('housing_request_offers' as any).insert({
+
+    // Optimistic: close dialog + clear form + show pending toast immediately
+    const listingTitle = listings.find(l => l.id === listingId)?.title ?? '';
+    const payload = {
       housing_request_id: housingRequestId,
       listing_id: listingId,
       owner_id: user.id,
       requester_id: requesterId,
       proposed_price: price ? Number(price) : null,
       message: message.trim() || null,
-    });
+    };
+    setListingId(''); setPrice(''); setMessage('');
+    onOpenChange(false);
+    const toastId = toast.loading('جاري إرسال العرض...');
+
+    const { error } = await supabase.from('housing_request_offers' as any).insert(payload);
     if (error) {
       console.error(error);
       const dup = error.code === '23505' || /duplicate/i.test(error.message);
-      toast.error(dup ? 'لديك عرض معلّق على هذا الطلب بالفعل' : 'تعذر إرسال العرض');
+      toast.error(dup ? 'لديك عرض معلّق على هذا الطلب بالفعل' : 'تعذر إرسال العرض', { id: toastId });
       setSubmitting(false);
       return;
     }
 
-    const listingTitle = listings.find(l => l.id === listingId)?.title ?? '';
     await supabase.from('notifications').insert({
       user_id: requesterId,
       type: 'private_offer_created' as any,
@@ -72,9 +79,7 @@ export const SendHousingOfferDialog = ({ open, onOpenChange, housingRequestId, r
       link: `/requests/${housingRequestId}`,
     });
 
-    toast.success('تم إرسال العرض');
-    setListingId(''); setPrice(''); setMessage('');
-    onOpenChange(false);
+    toast.success('تم إرسال العرض', { id: toastId });
     setSubmitting(false);
     onSent?.();
   };

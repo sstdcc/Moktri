@@ -175,23 +175,53 @@ const ConversationPage = () => {
     const text = newMessage.trim();
     setNewMessage('');
 
-    const { error } = await supabase.from('listing_messages').insert({
+    // Optimistic insert
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const optimistic: ChatMessage = {
+      id: tempId,
       conversation_id: conversationId,
       sender_id: user.id,
       message: text,
+      is_read: false,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimistic]);
+
+    const { data, error } = await supabase
+      .from('listing_messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        message: text,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Rollback
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      toast.error('تعذر إرسال الرسالة');
+      setNewMessage(text);
+      setSending(false);
+      return;
+    }
+
+    // Replace temp with real (realtime may also deliver — dedupe handles it)
+    setMessages(prev => {
+      const withoutTemp = prev.filter(m => m.id !== tempId);
+      if (withoutTemp.find(m => m.id === (data as ChatMessage).id)) return withoutTemp;
+      return [...withoutTemp, data as ChatMessage];
     });
 
-    if (!error) {
-      const receiverId = user.id === ownerId ? userId : ownerId;
-      if (receiverId) {
-        await supabase.from('notifications').insert({
-          user_id: receiverId,
-          type: 'new_message',
-          title_ar: `رسالة جديدة`,
-          body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
-          link: `/chat/${conversationId}`,
-        });
-      }
+    const receiverId = user.id === ownerId ? userId : ownerId;
+    if (receiverId) {
+      await supabase.from('notifications').insert({
+        user_id: receiverId,
+        type: 'new_message',
+        title_ar: `رسالة جديدة`,
+        body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
+        link: `/chat/${conversationId}`,
+      });
     }
     setSending(false);
   };

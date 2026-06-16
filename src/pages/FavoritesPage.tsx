@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { LoginRequired } from '@/components/ui/LoginRequired';
 import { ListingCard } from '@/components/ui/ListingCard';
 import { useFavorites } from '@/hooks/useFavorites';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ListingCardGridSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
 import { Heart, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -128,15 +128,7 @@ const FavoritesPage = () => {
 
       <div className="p-4">
         {loading ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="h-44 w-full rounded-2xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-              </div>
-            ))}
-          </div>
+          <ListingCardGridSkeleton count={6} />
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <p className="text-destructive text-sm">تعذر تحميل المفضلة</p>

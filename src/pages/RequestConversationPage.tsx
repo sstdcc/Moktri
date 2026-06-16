@@ -6,6 +6,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 import { Linkify } from '@/lib/linkify';
@@ -129,22 +130,51 @@ const RequestConversationPage = () => {
     setSending(true);
     const text = newMessage.trim();
     setNewMessage('');
-    const { error } = await supabase.from('request_messages').insert({
+
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const optimistic: ChatMessage = {
+      id: tempId,
       conversation_id: conversationId,
       sender_id: user.id,
       message: text,
+      is_read: false,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimistic]);
+
+    const { data, error } = await supabase
+      .from('request_messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        message: text,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      setNewMessage(text);
+      toast.error('تعذر إرسال الرسالة');
+      setSending(false);
+      return;
+    }
+
+    setMessages(prev => {
+      const withoutTemp = prev.filter(m => m.id !== tempId);
+      if (withoutTemp.find(m => m.id === (data as ChatMessage).id)) return withoutTemp;
+      return [...withoutTemp, data as ChatMessage];
     });
-    if (!error) {
-      const receiverId = user.id === requesterId ? responderId : requesterId;
-      if (receiverId) {
-        await supabase.from('notifications').insert({
-          user_id: receiverId,
-          type: 'new_message',
-          title_ar: 'رسالة جديدة',
-          body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
-          link: `/request-chat/${conversationId}`,
-        });
-      }
+
+    const receiverId = user.id === requesterId ? responderId : requesterId;
+    if (receiverId) {
+      await supabase.from('notifications').insert({
+        user_id: receiverId,
+        type: 'new_message',
+        title_ar: 'رسالة جديدة',
+        body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
+        link: `/request-chat/${conversationId}`,
+      });
     }
     setSending(false);
   };
