@@ -98,7 +98,7 @@ export const ListingCard = ({
 
         {/* Favorite */}
         <button
-          onClick={(e) => { e.stopPropagation(); onFavoriteToggle?.(); }}
+          onClick={handleFav}
           className={cn(
             'absolute top-3 left-3 rounded-xl p-2 transition-all duration-200 active:scale-90',
             isFavorited
@@ -106,7 +106,14 @@ export const ListingCard = ({
               : 'bg-black/25 backdrop-blur-md hover:bg-black/40'
           )}
         >
-          <Heart className={cn('h-[18px] w-[18px] transition-all', isFavorited ? 'fill-danger text-danger' : 'text-white')} />
+          <Heart
+            key={pop}
+            className={cn(
+              'h-[18px] w-[18px] transition-colors',
+              pop > 0 && 'animate-heart-pop',
+              isFavorited ? 'fill-danger text-danger' : 'text-white'
+            )}
+          />
         </button>
 
         {/* Category badge — bottom of image */}
