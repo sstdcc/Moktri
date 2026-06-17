@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import { Heart, BedDouble, MapPin, Clock, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MiftahBadge } from './MiftahBadge';
@@ -34,20 +35,34 @@ interface ListingCardProps {
   isUrgent?: boolean;
   isFeatured?: boolean;
   ownerId?: string;
+  index?: number;
   onFavoriteToggle?: () => void;
 }
 
 export const ListingCard = ({
   id, imageUrl, category, price, city, district, bedrooms, furnishing,
-  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, onFavoriteToggle,
+  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, index = 0, onFavoriteToggle,
 }: ListingCardProps) => {
   const navigate = useNavigate();
   const daysSince = getDaysSincePublished(createdAt);
+  const [pop, setPop] = useState(0);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setPop((p) => p + 1);
+  }, [isFavorited]);
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFavoriteToggle?.();
+  };
 
   return (
     <div
       onClick={() => navigate(`/listings/${id}`)}
-      className="cursor-pointer overflow-hidden rounded-2xl border border-border/40 bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:border-accent/25 active:scale-[0.98] group"
+      style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+      className="animate-card-in cursor-pointer overflow-hidden rounded-2xl border border-border/40 bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:border-accent/25 active:scale-[0.98] group"
     >
       {/* IMAGE */}
       <div className="relative h-48 w-full overflow-hidden">
