@@ -129,8 +129,8 @@ const RenterDashboard = () => {
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {myRequests.map((r: any) => (
-                <RequestCard key={r.id} request={r} districts={districts} onFulfilled={fetchData} />
+              {myRequests.map((r: any, i: number) => (
+                <RequestCard key={r.id} index={i} request={r} districts={districts} onFulfilled={fetchData} />
               ))}
             </div>
           )}

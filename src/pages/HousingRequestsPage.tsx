@@ -110,8 +110,8 @@ const HousingRequestsPage = () => {
                   />
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {myRequests.map((r) => (
-                      <RequestCard key={r.id} request={r} districts={districts} />
+                    {myRequests.map((r, i) => (
+                      <RequestCard key={r.id} index={i} request={r} districts={districts} />
                     ))}
                   </div>
                 )}
@@ -130,8 +130,8 @@ const HousingRequestsPage = () => {
                   <p className="text-sm text-muted-foreground text-center py-6">لا توجد طلبات حالياً</p>
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-2">
-                    {otherRequests.map((r) => (
-                      <RequestCard key={r.id} request={r} districts={districts} />
+                    {otherRequests.map((r, i) => (
+                      <RequestCard key={r.id} index={i} request={r} districts={districts} />
                     ))}
                   </div>
                 )}
