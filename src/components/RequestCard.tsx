@@ -59,9 +59,10 @@ interface RequestCardProps {
   request: RequestCardData;
   districts: { id: string; name_ar: string; city?: string | null }[];
   onFulfilled?: () => void;
+  index?: number;
 }
 
-export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardProps) => {
+export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: RequestCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [chatLoading, setChatLoading] = useState(false);
@@ -122,7 +123,8 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
     <>
     <div
       onClick={() => navigate(`/requests/${r.id}`)}
-      className="cursor-pointer rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:shadow-elevated active:scale-[0.99]"
+      style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+      className="animate-card-in cursor-pointer rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:shadow-elevated active:scale-[0.99]"
     >
       {/* Header: Avatar + Name + Status */}
       <div className="flex items-center gap-3 mb-4">
@@ -205,12 +207,12 @@ export const RequestCard = ({ request: r, districts, onFulfilled }: RequestCardP
           <Button
             variant="default"
             size="sm"
-            className="rounded-xl gap-2 text-xs"
+            className="rounded-xl gap-2 text-xs min-w-[110px]"
             onClick={handleMessage}
-            disabled={chatLoading}
+            loading={chatLoading}
           >
             <MessageSquare className="h-3.5 w-3.5" />
-            {chatLoading ? 'جاري الفتح...' : 'مراسلة'}
+            مراسلة
           </Button>
         )}
         {isOwner && r.status === 'active' && (

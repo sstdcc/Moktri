@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import { Heart, BedDouble, MapPin, Clock, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MiftahBadge } from './MiftahBadge';
@@ -34,20 +35,34 @@ interface ListingCardProps {
   isUrgent?: boolean;
   isFeatured?: boolean;
   ownerId?: string;
+  index?: number;
   onFavoriteToggle?: () => void;
 }
 
 export const ListingCard = ({
   id, imageUrl, category, price, city, district, bedrooms, furnishing,
-  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, onFavoriteToggle,
+  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, index = 0, onFavoriteToggle,
 }: ListingCardProps) => {
   const navigate = useNavigate();
   const daysSince = getDaysSincePublished(createdAt);
+  const [pop, setPop] = useState(0);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setPop((p) => p + 1);
+  }, [isFavorited]);
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFavoriteToggle?.();
+  };
 
   return (
     <div
       onClick={() => navigate(`/listings/${id}`)}
-      className="cursor-pointer overflow-hidden rounded-2xl border border-border/40 bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:border-accent/25 active:scale-[0.98] group"
+      style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+      className="animate-card-in cursor-pointer overflow-hidden rounded-2xl border border-border/40 bg-card shadow-card transition-all duration-300 hover:shadow-elevated hover:border-accent/25 active:scale-[0.98] group"
     >
       {/* IMAGE */}
       <div className="relative h-48 w-full overflow-hidden">
@@ -83,7 +98,7 @@ export const ListingCard = ({
 
         {/* Favorite */}
         <button
-          onClick={(e) => { e.stopPropagation(); onFavoriteToggle?.(); }}
+          onClick={handleFav}
           className={cn(
             'absolute top-3 left-3 rounded-xl p-2 transition-all duration-200 active:scale-90',
             isFavorited
@@ -91,7 +106,14 @@ export const ListingCard = ({
               : 'bg-black/25 backdrop-blur-md hover:bg-black/40'
           )}
         >
-          <Heart className={cn('h-[18px] w-[18px] transition-all', isFavorited ? 'fill-danger text-danger' : 'text-white')} />
+          <Heart
+            key={pop}
+            className={cn(
+              'h-[18px] w-[18px] transition-colors',
+              pop > 0 && 'animate-heart-pop',
+              isFavorited ? 'fill-danger text-danger' : 'text-white'
+            )}
+          />
         </button>
 
         {/* Category badge — bottom of image */}

@@ -147,9 +147,10 @@ const FavoritesPage = () => {
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map(item => (
+            {items.map((item, i) => (
               <ListingCard
                 key={item.id}
+                index={i}
                 id={item.id}
                 category={item.category}
                 price={item.price}

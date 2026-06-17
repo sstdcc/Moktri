@@ -260,9 +260,10 @@ const ListingsPage = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {listings.map(listing => (
+              {listings.map((listing, i) => (
                 <ListingCard
                   key={listing.id}
+                  index={i}
                   id={listing.id}
                   imageUrl={getPrimaryImage(listing)}
                   category={listing.category}
