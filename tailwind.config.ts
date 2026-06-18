@@ -98,6 +98,34 @@ export default {
           "60%": { transform: "scale(1.25)" },
           "100%": { transform: "scale(1)" },
         },
+        "overlay-show": {
+          "0%": { opacity: "0", backdropFilter: "blur(0px)" },
+          "100%": { opacity: "1", backdropFilter: "blur(6px)" },
+        },
+        "overlay-hide": {
+          "0%": { opacity: "1", backdropFilter: "blur(6px)" },
+          "100%": { opacity: "0", backdropFilter: "blur(0px)" },
+        },
+        "sheet-up": {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        "sheet-down": {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+        "dialog-in": {
+          "0%": { opacity: "0", transform: "translate(-50%, -50%) scale(0.96)" },
+          "100%": { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+        },
+        "dialog-out": {
+          "0%": { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+          "100%": { opacity: "0", transform: "translate(-50%, -50%) scale(0.97)" },
+        },
+        "attention-pulse": {
+          "0%, 100%": { boxShadow: "0 0 0 0 hsl(var(--destructive) / 0.0)" },
+          "50%": { boxShadow: "0 0 0 6px hsl(var(--destructive) / 0.15)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +133,13 @@ export default {
         "page-enter": "page-enter 260ms cubic-bezier(0.22, 1, 0.36, 1)",
         "card-in": "card-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both",
         "heart-pop": "heart-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "overlay-show": "overlay-show 280ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "overlay-hide": "overlay-hide 220ms cubic-bezier(0.4, 0, 1, 1) both",
+        "sheet-up": "sheet-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "sheet-down": "sheet-down 300ms cubic-bezier(0.4, 0, 1, 1) both",
+        "dialog-in": "dialog-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "dialog-out": "dialog-out 180ms cubic-bezier(0.4, 0, 1, 1) both",
+        "attention-pulse": "attention-pulse 1.8s ease-in-out infinite",
       },
     },
   },
