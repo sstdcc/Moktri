@@ -158,7 +158,7 @@ const ConversationPage = () => {
       if (isOwnerSide) setOwnerConfirmedAt(nowIso); else setTenantConfirmedAt(nowIso);
       if (result?.both_confirmed) {
         setListingStatus('rented');
-        toast.success('تم تأكيد الاتفاق وتأجير الإعلان');
+        successToast('تم تأكيد الاتفاق', { description: 'تم تأجير الإعلان بنجاح' });
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
       }

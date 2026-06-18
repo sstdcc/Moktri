@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Check, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import { successToast } from '@/lib/successToast';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -182,7 +183,7 @@ const VerificationsManagement = () => {
       title_ar: 'تم توثيق حسابك ✓',
       body_ar: 'تهانينا! تم التحقق من هويتك وأصبح حسابك موثقاً',
     });
-    toast.success('تم قبول التوثيق');
+    successToast('تم قبول التوثيق');
     fetchApps();
   };
 

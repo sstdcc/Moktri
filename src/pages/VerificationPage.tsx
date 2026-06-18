@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { successToast } from '@/lib/successToast';
 import { BadgeCheck, Clock, XCircle, Upload, FileText, RefreshCw, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -125,7 +126,7 @@ const VerificationPage = () => {
       // The DB trigger on_verification_application_insert handles this safely.
 
       setUploadProgress(100);
-      toast.success('تم إرسال طلب التوثيق بنجاح');
+      successToast('تم إرسال طلب التوثيق بنجاح', { description: 'سنقوم بمراجعة طلبك خلال 24 ساعة' });
       fetchExisting();
     } catch {
       toast.error('تعذر إكمال العملية، حاول مرة أخرى');
