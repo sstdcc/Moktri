@@ -6,6 +6,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { successToast } from '@/lib/successToast';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
@@ -158,7 +159,7 @@ const ConversationPage = () => {
       if (isOwnerSide) setOwnerConfirmedAt(nowIso); else setTenantConfirmedAt(nowIso);
       if (result?.both_confirmed) {
         setListingStatus('rented');
-        toast.success('تم تأكيد الاتفاق وتأجير الإعلان');
+        successToast('تم تأكيد الاتفاق', { description: 'تم تأجير الإعلان بنجاح' });
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
       }

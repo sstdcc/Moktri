@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { successToast } from '@/lib/successToast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,7 +95,7 @@ const CreateRequestPage = () => {
       toast.error('حدث خطأ أثناء نشر الطلب');
       return;
     }
-    toast.success('تم نشر طلبك بنجاح');
+    successToast('تم نشر طلبك بنجاح', { description: 'سيتمكن الملاك من إرسال عروضهم لك قريباً' });
     navigate(`/requests/${data.id}`);
   };
 

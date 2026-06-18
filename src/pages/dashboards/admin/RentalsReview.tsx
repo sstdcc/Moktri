@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Check, X, ExternalLink, Home, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { successToast } from '@/lib/successToast';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -87,7 +88,7 @@ const RentalsReview = () => {
       }
       await supabase.from('notifications').insert(notifs);
 
-      toast.success('تم اعتماد الإيجار');
+      successToast('تم اعتماد الإيجار');
       fetchRows();
     } catch (e: any) {
       toast.error(e.message || 'تعذر الاعتماد');
