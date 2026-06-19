@@ -231,21 +231,34 @@ export function AppSidebar() {
                         onClick={() => go(item.url)}
                         tooltip={item.title}
                         className={cn(
-                          'rounded-xl h-10 transition-all duration-200 gap-3',
+                          'relative rounded-xl h-10 transition-all duration-300 gap-3 overflow-hidden',
                           active
                             ? 'bg-primary/10 text-primary font-semibold'
-                            : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
+                            : 'text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-[2px] rtl:hover:-translate-x-[2px]'
                         )}
                       >
+                        {active && (
+                          <span
+                            aria-hidden
+                            className={cn(
+                              'absolute top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-primary animate-nav-dot-in',
+                              dir === 'rtl' ? 'right-0' : 'left-0'
+                            )}
+                          />
+                        )}
                         <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
-                          <item.icon className={cn(
-                            'h-[18px] w-[18px]',
-                            active ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-                          )} />
-                          {item.url === '/listing-requests' && pendingListingRequests > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar">
-                              {pendingListingRequests > 99 ? '99+' : pendingListingRequests}
-                            </span>
+                          <item.icon
+                            key={active ? 'a' : 'i'}
+                            className={cn(
+                              'h-[18px] w-[18px] transition-transform',
+                              active ? 'stroke-[2.5px] animate-nav-icon-pop' : 'stroke-[1.8px]'
+                            )}
+                          />
+                          {item.url === '/listing-requests' && (
+                            <CountBadge
+                              count={pendingListingRequests}
+                              className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar"
+                            />
                           )}
                         </div>
                         {!collapsed && <span>{item.title}</span>}
