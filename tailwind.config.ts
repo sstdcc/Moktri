@@ -182,6 +182,7 @@ export default {
         "badge-out": "badge-out 180ms cubic-bezier(0.4, 0, 1, 1) both",
         "nav-icon-pop": "nav-icon-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         "nav-dot-in": "nav-dot-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
+        "nav-accent-in": "nav-accent-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
       },
     },
   },
