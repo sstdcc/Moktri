@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
+import { CountBadge } from '@/components/ui/CountBadge';
 import { cn } from '@/lib/utils';
 
 type NavItem = { label: string; icon: typeof Home; path: string };
