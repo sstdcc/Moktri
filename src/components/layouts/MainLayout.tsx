@@ -10,6 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { PageTransition } from '@/components/layouts/PageTransition';
+import { CountBadge } from '@/components/ui/CountBadge';
 import { useDir } from '@/i18n/useDir';
 
 export const MainLayout = ({ children }: { children: ReactNode }) => {
