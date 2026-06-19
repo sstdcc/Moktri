@@ -139,6 +139,28 @@ export default {
           "0%": { strokeDashoffset: "24" },
           "100%": { strokeDashoffset: "0" },
         },
+        "badge-pop": {
+          "0%": { transform: "scale(0)", opacity: "0" },
+          "60%": { transform: "scale(1.15)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "badge-out": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "100%": { transform: "scale(0)", opacity: "0" },
+        },
+        "nav-icon-pop": {
+          "0%": { transform: "scale(1)" },
+          "40%": { transform: "scale(0.88)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "nav-dot-in": {
+          "0%": { transform: "translateX(-50%) scale(0)", opacity: "0" },
+          "100%": { transform: "translateX(-50%) scale(1)", opacity: "1" },
+        },
+        "nav-accent-in": {
+          "0%": { transform: "translateY(-50%) scaleY(0.2)", opacity: "0" },
+          "100%": { transform: "translateY(-50%) scaleY(1)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -156,6 +178,11 @@ export default {
         "toast-in": "toast-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both",
         "success-ring": "success-ring 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
         "check-draw": "check-draw 380ms 180ms cubic-bezier(0.65, 0, 0.35, 1) both",
+        "badge-pop": "badge-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
+        "badge-out": "badge-out 180ms cubic-bezier(0.4, 0, 1, 1) both",
+        "nav-icon-pop": "nav-icon-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "nav-dot-in": "nav-dot-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
+        "nav-accent-in": "nav-accent-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
       },
     },
   },

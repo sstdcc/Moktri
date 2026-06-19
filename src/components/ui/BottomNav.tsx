@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
+import { CountBadge } from '@/components/ui/CountBadge';
 import { cn } from '@/lib/utils';
 
 type NavItem = { label: string; icon: typeof Home; path: string };
@@ -48,10 +49,13 @@ export const BottomNav = () => {
           ? 'bg-primary/12'
           : 'hover:bg-muted/40'
       )}>
-        <item.icon className={cn(
-          'h-[20px] w-[20px] transition-all duration-300',
-          isActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-        )} />
+        <item.icon
+          key={isActive ? 'a' : 'i'}
+          className={cn(
+            'h-[20px] w-[20px] transition-all duration-300',
+            isActive ? 'stroke-[2.5px] animate-nav-icon-pop' : 'stroke-[1.8px]'
+          )}
+        />
       </div>
       <span className={cn(
         'text-[10px] font-tajawal leading-tight transition-all duration-300',
@@ -61,7 +65,7 @@ export const BottomNav = () => {
       </span>
       {/* Active dot indicator */}
       {isActive && (
-        <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+        <span className="absolute bottom-0.5 left-1/2 w-1 h-1 rounded-full bg-primary animate-nav-dot-in" />
       )}
     </button>
   );
@@ -121,15 +125,17 @@ export const BottomNav = () => {
                 ? 'bg-primary/12'
                 : 'hover:bg-muted/40'
             )}>
-              <Bell className={cn(
-                'h-[20px] w-[20px] transition-all duration-300',
-                isNotifActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-              )} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -left-1 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[8px] font-bold text-destructive-foreground ring-2 ring-card/80">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
+              <Bell
+                key={isNotifActive ? 'a' : 'i'}
+                className={cn(
+                  'h-[20px] w-[20px] transition-all duration-300',
+                  isNotifActive ? 'stroke-[2.5px] animate-nav-icon-pop' : 'stroke-[1.8px]'
+                )}
+              />
+              <CountBadge
+                count={unreadCount}
+                className="absolute -top-1 -left-1 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[8px] font-bold text-destructive-foreground ring-2 ring-card/80"
+              />
             </div>
             <span className={cn(
               'text-[10px] font-tajawal leading-tight transition-all duration-300',
@@ -138,7 +144,7 @@ export const BottomNav = () => {
               {t('nav.notificationsShort')}
             </span>
             {isNotifActive && (
-              <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+              <span className="absolute bottom-0.5 left-1/2 w-1 h-1 rounded-full bg-primary animate-nav-dot-in" />
             )}
           </button>
         </div>
