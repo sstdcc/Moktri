@@ -139,6 +139,24 @@ export default {
           "0%": { strokeDashoffset: "24" },
           "100%": { strokeDashoffset: "0" },
         },
+        "badge-pop": {
+          "0%": { transform: "scale(0)", opacity: "0" },
+          "60%": { transform: "scale(1.15)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "badge-out": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "100%": { transform: "scale(0)", opacity: "0" },
+        },
+        "nav-icon-pop": {
+          "0%": { transform: "scale(1)" },
+          "40%": { transform: "scale(0.88)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "nav-dot-in": {
+          "0%": { transform: "translateX(-50%) scale(0)", opacity: "0" },
+          "100%": { transform: "translateX(-50%) scale(1)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
