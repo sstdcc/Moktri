@@ -55,11 +55,10 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
                     className="relative h-11 w-11 flex items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
                   >
                     <Bell className="!size-6" strokeWidth={1.8} />
-                    {unreadCount > 0 && (
-                      <span className={'absolute top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground ring-2 ring-card ' + (dir === 'rtl' ? 'left-1.5' : 'right-1.5')}>
-                        {unreadCount > 99 ? '99+' : unreadCount}
-                      </span>
-                    )}
+                    <CountBadge
+                      count={unreadCount}
+                      className={'absolute top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground ring-2 ring-card ' + (dir === 'rtl' ? 'left-1.5' : 'right-1.5')}
+                    />
                   </button>
                 )}
               </div>
