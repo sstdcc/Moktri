@@ -24,6 +24,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { CountBadge } from '@/components/ui/CountBadge';
 import { useDir } from '@/i18n/useDir';
 
 const roleBadgeColors: Record<string, string> = {
