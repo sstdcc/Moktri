@@ -179,7 +179,7 @@ export function AppSidebar() {
                         <span
                           aria-hidden
                           className={cn(
-                            'absolute top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-primary animate-nav-dot-in',
+                            'absolute top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-primary animate-nav-accent-in',
                             dir === 'rtl' ? 'right-0' : 'left-0'
                           )}
                         />
@@ -241,7 +241,7 @@ export function AppSidebar() {
                           <span
                             aria-hidden
                             className={cn(
-                              'absolute top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-primary animate-nav-dot-in',
+                              'absolute top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-primary animate-nav-accent-in',
                               dir === 'rtl' ? 'right-0' : 'left-0'
                             )}
                           />
