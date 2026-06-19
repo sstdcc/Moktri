@@ -161,6 +161,30 @@ export default {
           "0%": { transform: "translateY(-50%) scaleY(0.2)", opacity: "0" },
           "100%": { transform: "translateY(-50%) scaleY(1)", opacity: "1" },
         },
+        "sidebar-left-in": {
+          "0%": { transform: "translateX(-120%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "sidebar-left-out": {
+          "0%": { transform: "translateX(0)", opacity: "1" },
+          "100%": { transform: "translateX(-120%)", opacity: "0" },
+        },
+        "sidebar-right-in": {
+          "0%": { transform: "translateX(120%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "sidebar-right-out": {
+          "0%": { transform: "translateX(0)", opacity: "1" },
+          "100%": { transform: "translateX(120%)", opacity: "0" },
+        },
+        "sidebar-overlay-show": {
+          "0%": { opacity: "0", backdropFilter: "blur(0px)" },
+          "100%": { opacity: "1", backdropFilter: "blur(6px)" },
+        },
+        "sidebar-overlay-hide": {
+          "0%": { opacity: "1", backdropFilter: "blur(6px)" },
+          "100%": { opacity: "0", backdropFilter: "blur(0px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -183,6 +207,12 @@ export default {
         "nav-icon-pop": "nav-icon-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         "nav-dot-in": "nav-dot-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
         "nav-accent-in": "nav-accent-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both",
+        "sidebar-left-in": "sidebar-left-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "sidebar-left-out": "sidebar-left-out 320ms cubic-bezier(0.4, 0, 1, 1) both",
+        "sidebar-right-in": "sidebar-right-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "sidebar-right-out": "sidebar-right-out 320ms cubic-bezier(0.4, 0, 1, 1) both",
+        "sidebar-overlay-show": "sidebar-overlay-show 420ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "sidebar-overlay-hide": "sidebar-overlay-hide 320ms cubic-bezier(0.4, 0, 1, 1) both",
       },
     },
   },
