@@ -49,10 +49,13 @@ export const BottomNav = () => {
           ? 'bg-primary/12'
           : 'hover:bg-muted/40'
       )}>
-        <item.icon className={cn(
-          'h-[20px] w-[20px] transition-all duration-300',
-          isActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
-        )} />
+        <item.icon
+          key={isActive ? 'a' : 'i'}
+          className={cn(
+            'h-[20px] w-[20px] transition-all duration-300',
+            isActive ? 'stroke-[2.5px] animate-nav-icon-pop' : 'stroke-[1.8px]'
+          )}
+        />
       </div>
       <span className={cn(
         'text-[10px] font-tajawal leading-tight transition-all duration-300',
@@ -62,7 +65,7 @@ export const BottomNav = () => {
       </span>
       {/* Active dot indicator */}
       {isActive && (
-        <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+        <span className="absolute bottom-0.5 left-1/2 w-1 h-1 rounded-full bg-primary animate-nav-dot-in" />
       )}
     </button>
   );
