@@ -157,6 +157,10 @@ export default {
           "0%": { transform: "translateX(-50%) scale(0)", opacity: "0" },
           "100%": { transform: "translateX(-50%) scale(1)", opacity: "1" },
         },
+        "nav-accent-in": {
+          "0%": { transform: "translateY(-50%) scaleY(0.2)", opacity: "0" },
+          "100%": { transform: "translateY(-50%) scaleY(1)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
