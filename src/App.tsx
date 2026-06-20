@@ -27,7 +27,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 
 // Lazy-loaded pages
 const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
-const HousingRequestsPage = lazy(() => import("./pages/HousingRequestsPage"));
+
 const ListingRequestsPage = lazy(() => import("./pages/ListingRequestsPage"));
 const RequestDetailPage = lazy(() => import("./pages/RequestDetailPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
@@ -53,9 +53,6 @@ const CreateListingPage = lazy(() => import("./pages/CreateListingPage"));
 const CreateRequestPage = lazy(() => import("./pages/CreateRequestPage"));
 const EditListingPage = lazy(() => import("./pages/EditListingPage"));
 const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
-const FavoritesPage = lazy(() => import("./pages/FavoritesPage"));
 const VerificationPage = lazy(() => import("./pages/VerificationPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
@@ -75,7 +72,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const LazyFallback = () => <LoadingSpinner />;
+const LazyFallback = () => <LazyRouteFallback />;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
