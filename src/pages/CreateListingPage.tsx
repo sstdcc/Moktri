@@ -608,7 +608,7 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
               {images.length > 0 && (
                 <div className="grid grid-cols-3 gap-2 mt-3">
                   {images.map((img, i) => (
-                    <div key={i} className="relative rounded-xl overflow-hidden aspect-square border border-border">
+                    <div key={i} className="relative rounded-xl overflow-hidden aspect-square border border-border animate-thumb-pop motion-reduce:animate-none">
                       <img src={img.url} alt="" className="h-full w-full object-cover" />
                       {i === 0 && (
                         <span className="absolute bottom-1 right-1 rounded bg-accent/90 text-white text-[10px] px-1.5 py-0.5 font-bold font-tajawal">الغلاف</span>
