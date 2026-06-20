@@ -10,15 +10,20 @@ import { PresenceProvider } from "@/contexts/PresenceContext";
 import { AuthGuard } from "@/components/guards/AuthGuard";
 import { AdminGuard } from "@/components/guards/AdminGuard";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { LazyRouteFallback } from "@/components/ui/LazyRouteFallback";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import ScrollToTop from "@/components/ScrollToTop";
 import WelcomeTourModal from "@/components/onboarding/WelcomeTourModal";
 
-// Eager: landing + listings (most visited)
+// Eager: landing + bottom-nav tabs (avoid chunk-loading flash when switching tabs)
 import HomePage from "./pages/HomePage";
 import ListingsPage from "./pages/ListingsPage";
+import HousingRequestsPage from "./pages/HousingRequestsPage";
+import FavoritesPage from "./pages/FavoritesPage";
+import SettingsPage from "./pages/SettingsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 // Lazy-loaded pages
 const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
