@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -34,9 +34,21 @@ const categoryLabels: Record<string, string> = {
 };
 
 const ListingsPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isActiveListingsRoute = location.pathname === '/listings';
+  const [listingsSearch, setListingsSearch] = useState(() => isActiveListingsRoute ? location.search : '');
   usePageTitle();
   const { isFavorited, toggleFavorite } = useFavorites();
+  useEffect(() => {
+    if (isActiveListingsRoute) setListingsSearch(location.search);
+  }, [isActiveListingsRoute, location.search]);
+
+  const searchParams = new URLSearchParams(listingsSearch);
+  const setSearchParams = useCallback((params: URLSearchParams, options?: { replace?: boolean }) => {
+    const search = params.toString();
+    navigate({ pathname: '/listings', search: search ? `?${search}` : '' }, { replace: options?.replace });
+  }, [navigate]);
   const [listings, setListings] = useState<ListingWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -61,7 +73,7 @@ const ListingsPage = () => {
     hasElectricity: searchParams.get('hasElectricity') === 'true' || undefined,
     hasParking: searchParams.get('hasParking') === 'true' || undefined,
     hasInternet: searchParams.get('hasInternet') === 'true' || undefined,
-  }), [searchParams]);
+  }), [listingsSearch]);
 
   const filters = getFiltersFromParams();
   const query = searchParams.get('q') || '';
@@ -116,7 +128,7 @@ const ListingsPage = () => {
   useEffect(() => {
     setPage(0);
     fetchListings(0);
-  }, [searchParams, sortBy]);
+  }, [listingsSearch, sortBy]);
 
   // Auto-search on debounced input change
   useEffect(() => {
@@ -127,7 +139,7 @@ const ListingsPage = () => {
       else params.delete('q');
       setSearchParams(params, { replace: true });
     }
-  }, [debouncedSearch]);
+  }, [debouncedSearch, listingsSearch, setSearchParams]);
 
   const loadMore = () => {
     const nextPage = page + 1;

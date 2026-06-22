@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { CountBadge } from '@/components/ui/CountBadge';
 import { cn } from '@/lib/utils';
+import { getPersistentTabHref } from '@/lib/persistentTabs';
 
 type NavItem = { label: string; icon: typeof Home; path: string };
 
@@ -34,7 +35,7 @@ export const BottomNav = () => {
   const renderNavButton = (item: NavItem, isActive: boolean) => (
     <button
       key={item.path}
-      onClick={() => navigate(item.path)}
+      onClick={() => navigate(getPersistentTabHref(item.path))}
       className={cn(
         'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
         isActive
@@ -110,7 +111,7 @@ export const BottomNav = () => {
 
           {/* Notifications */}
           <button
-            onClick={() => navigate('/notifications')}
+            onClick={() => navigate(getPersistentTabHref('/notifications'))}
             className={cn(
               'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
               isNotifActive

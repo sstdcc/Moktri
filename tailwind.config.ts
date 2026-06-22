@@ -88,6 +88,10 @@ export default {
           "0%": { opacity: "0", transform: "translateY(6px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "tab-panel-in": {
+          "0%": { opacity: "0.96", transform: "translateY(2px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
         "card-in": {
           "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
@@ -212,6 +216,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "page-enter": "page-enter 260ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "tab-panel-in": "tab-panel-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both",
         "card-in": "card-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both",
         "heart-pop": "heart-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         "overlay-show": "overlay-show 280ms cubic-bezier(0.22, 1, 0.36, 1) both",

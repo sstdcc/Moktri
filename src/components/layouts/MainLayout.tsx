@@ -12,6 +12,7 @@ import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { PageTransition } from '@/components/layouts/PageTransition';
 import { CountBadge } from '@/components/ui/CountBadge';
 import { useDir } from '@/i18n/useDir';
+import { isPersistentBottomTabPath } from '@/lib/persistentTabs';
 
 export const MainLayout = ({ children }: { children: ReactNode }) => {
   const isMobile = useIsMobile();
@@ -22,6 +23,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
   const dir = useDir();
   const isChatDetailRoute = /^\/(chat\/[^/]+|request-chat\/[^/]+)$/.test(location.pathname);
+  const isPersistentTabRoute = isPersistentBottomTabPath(location.pathname);
   const showAppHeader = !isChatDetailRoute;
   const showBottomNav =
     !isChatDetailRoute && isMobile;
@@ -67,6 +69,10 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
           <main data-scroll-container="page" className={'flex-1 min-h-0 min-w-0 w-full overflow-x-hidden ' + (isChatDetailRoute ? 'relative overflow-hidden' : 'overflow-y-auto ') + (showBottomNav ? 'pb-24' : '')}>
             {isChatDetailRoute ? (
               <div className="absolute inset-0 w-full min-w-0 overflow-hidden">
+                {children}
+              </div>
+            ) : isPersistentTabRoute ? (
+              <div className="h-full min-h-0 w-full min-w-0 overflow-hidden">
                 {children}
               </div>
             ) : (

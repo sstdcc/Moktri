@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { isPersistentBottomTabPath } from '@/lib/persistentTabs';
 
 /**
  * Lightweight, premium page transition wrapper.
@@ -10,10 +11,11 @@ import { useLocation } from 'react-router-dom';
  */
 export const PageTransition = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
+  const disableRouteKey = isPersistentBottomTabPath(location.pathname);
   return (
     <div
-      key={location.pathname}
-      className="motion-safe:animate-page-enter will-change-[transform,opacity]"
+      key={disableRouteKey ? 'persistent-bottom-tabs' : location.pathname}
+      className={disableRouteKey ? 'h-full min-h-0' : 'motion-safe:animate-page-enter will-change-[transform,opacity]'}
     >
       {children}
     </div>

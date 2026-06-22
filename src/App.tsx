@@ -14,16 +14,9 @@ import { LazyRouteFallback } from "@/components/ui/LazyRouteFallback";
 import { MainLayout } from "@/components/layouts/MainLayout";
 import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { PersistentBottomTabs } from "@/components/layouts/PersistentBottomTabs";
 import ScrollToTop from "@/components/ScrollToTop";
 import WelcomeTourModal from "@/components/onboarding/WelcomeTourModal";
-
-// Eager: landing + bottom-nav tabs (avoid chunk-loading flash when switching tabs)
-import HomePage from "./pages/HomePage";
-import ListingsPage from "./pages/ListingsPage";
-import HousingRequestsPage from "./pages/HousingRequestsPage";
-import FavoritesPage from "./pages/FavoritesPage";
-import SettingsPage from "./pages/SettingsPage";
-import NotificationsPage from "./pages/NotificationsPage";
 
 // Lazy-loaded pages
 const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
@@ -96,16 +89,18 @@ const App = () => (
                   <Route path="/onboarding" element={<AuthLayout><OnboardingPage /></AuthLayout>} />
 
                   {/* All other pages wrapped in MainLayout with sidebar */}
-                  <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
-                  <Route path="/listings" element={<MainLayout><ListingsPage /></MainLayout>} />
+                  <Route element={<MainLayout><PersistentBottomTabs /></MainLayout>}>
+                    <Route path="/" element={null} />
+                    <Route path="/listings" element={null} />
+                    <Route path="/requests" element={null} />
+                    <Route path="/favorites" element={null} />
+                    <Route path="/notifications" element={null} />
+                    <Route path="/settings" element={null} />
+                  </Route>
                   <Route path="/listings/:id" element={<MainLayout><ListingDetailPage /></MainLayout>} />
-                  <Route path="/requests" element={<MainLayout><HousingRequestsPage /></MainLayout>} />
                   <Route path="/listing-requests" element={<MainLayout><AuthGuard><ListingRequestsPage /></AuthGuard></MainLayout>} />
                   <Route path="/requests/:id" element={<MainLayout><RequestDetailPage /></MainLayout>} />
                   <Route path="/profile/:id" element={<MainLayout><PublicProfilePage /></MainLayout>} />
-                  <Route path="/notifications" element={<MainLayout><AuthGuard><NotificationsPage /></AuthGuard></MainLayout>} />
-                  <Route path="/favorites" element={<MainLayout><AuthGuard><FavoritesPage /></AuthGuard></MainLayout>} />
-                  <Route path="/settings" element={<MainLayout><AuthGuard><SettingsPage /></AuthGuard></MainLayout>} />
                   <Route path="/change-password" element={<MainLayout><AuthGuard><ChangePasswordPage /></AuthGuard></MainLayout>} />
                   <Route path="/verify" element={<MainLayout><AuthGuard><VerificationPage /></AuthGuard></MainLayout>} />
                   <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
