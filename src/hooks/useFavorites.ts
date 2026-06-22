@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,20 +12,26 @@ import { toast } from 'sonner';
 export const useFavorites = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [favSet, setFavSet] = useState<Set<string>>(new Set());
-  const [loaded, setLoaded] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchFavorites = useCallback(async () => {
-    if (!user) { setFavSet(new Set()); setLoaded(true); return; }
+  const queryKey = useMemo(() => ['favorites', user?.id ?? 'guest'], [user?.id]);
+  const { data: favoriteIds = [], isLoading } = useQuery({
+    queryKey,
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    initialData: [] as string[],
+    queryFn: async () => {
+      if (!user) return [];
     const { data } = await supabase
       .from('favorites')
       .select('listing_id')
       .eq('user_id', user.id);
-    setFavSet(new Set((data ?? []).map(f => f.listing_id)));
-    setLoaded(true);
-  }, [user]);
+      return (data ?? []).map(f => f.listing_id);
+    },
+  });
 
-  useEffect(() => { fetchFavorites(); }, [fetchFavorites]);
+  const favSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
   const isFavorited = useCallback((listingId: string) => favSet.has(listingId), [favSet]);
 
@@ -36,12 +43,11 @@ export const useFavorites = () => {
 
     const was = favSet.has(listingId);
 
-    // Optimistic update
-    setFavSet(prev => {
+    queryClient.setQueryData<string[]>(queryKey, (prev = []) => {
       const next = new Set(prev);
       if (was) next.delete(listingId);
       else next.add(listingId);
-      return next;
+      return Array.from(next);
     });
 
     if (was) {
@@ -52,7 +58,7 @@ export const useFavorites = () => {
         .eq('listing_id', listingId);
       if (error) {
         toast.error('تعذر إزالة من المفضلة');
-        setFavSet(prev => { const n = new Set(prev); n.add(listingId); return n; });
+        queryClient.setQueryData<string[]>(queryKey, (prev = []) => Array.from(new Set([...prev, listingId])));
       }
     } else {
       const { error } = await supabase
@@ -60,10 +66,10 @@ export const useFavorites = () => {
         .insert({ user_id: user.id, listing_id: listingId });
       if (error) {
         toast.error('تعذر الإضافة للمفضلة');
-        setFavSet(prev => { const n = new Set(prev); n.delete(listingId); return n; });
+        queryClient.setQueryData<string[]>(queryKey, (prev = []) => prev.filter((id) => id !== listingId));
       }
     }
-  }, [user, favSet, navigate]);
+  }, [user, favSet, navigate, queryClient, queryKey]);
 
-  return { isFavorited, toggleFavorite, loaded };
+  return { isFavorited, toggleFavorite, loaded: !user || !isLoading };
 };
