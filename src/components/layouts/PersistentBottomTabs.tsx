@@ -111,8 +111,10 @@ export const PersistentBottomTabs = () => {
             aria-label={tab.label}
             aria-hidden={!isActive}
             className={cn(
-              'absolute inset-0 h-full min-h-0 w-full bg-background',
-              isActive ? 'block motion-safe:animate-tab-panel-in' : 'hidden',
+              'absolute inset-0 h-full min-h-0 w-full bg-background transition-opacity duration-150 ease-out',
+              isActive
+                ? 'visible z-10 opacity-100 motion-safe:animate-tab-panel-in'
+                : 'invisible z-0 opacity-0 pointer-events-none',
             )}
           >
             <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-contain">
