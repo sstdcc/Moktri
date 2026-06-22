@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { getCurrentScrollPoint, scheduleScrollReset, scrollAppTo, scrollAppToTop } from '@/lib/scroll';
+import { isPersistentBottomTabPath } from '@/lib/persistentTabs';
 
 const restoredScrollByKey = new Map<string, { top: number; left: number }>();
 
@@ -20,6 +21,8 @@ const ScrollToTop = () => {
   }, []);
 
   useEffect(() => {
+    if (isPersistentBottomTabPath(pathname)) return;
+
     if (navType === 'POP') {
       const saved = restoredScrollByKey.get(key);
       if (!saved) return;
