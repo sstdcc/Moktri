@@ -386,10 +386,6 @@ const SettingsPage = () => {
                 <button
                   key={value}
                   onClick={() => {
-                    if (value === 'en') {
-                      toast('قريباً سيتم توفير اللغة الإنجليزية');
-                      return;
-                    }
                     setAppLanguage(value);
                   }}
                   className={cn(
