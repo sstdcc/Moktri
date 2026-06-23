@@ -318,7 +318,7 @@ const SettingsPage = () => {
           <SectionLabel icon={UserCircle2}>{t('settings.sections.account')}</SectionLabel>
           <SettingsCard>
             <Row icon={User} label={t('settings.account.name')} subtext={fullName || '—'} onClick={() => setProfileOpen(true)} right={arrow} />
-            <Row icon={Mail} label={t('settings.account.email')} subtext={user.email || t('settings.account.emailMissing')} right={arrow} onClick={() => toast(t('settings.comingSoon'))} />
+            <Row icon={Mail} label={t('settings.account.email')} subtext={user.email || t('settings.account.emailMissing')} />
             <Row icon={Phone} label={t('settings.account.phone')} subtext={profile.phone} isLast />
           </SettingsCard>
         </section>
