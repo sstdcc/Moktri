@@ -169,12 +169,61 @@ const ConversationPage = () => {
   const myConfirmed = isOwnerSide ? !!ownerConfirmedAt : !!tenantConfirmedAt;
   const otherConfirmed = isOwnerSide ? !!tenantConfirmedAt : !!ownerConfirmedAt;
   const isRented = listingStatus === 'rented';
-  const showConfirmSection = (listingStatus === 'negotiating' || isRented) && (isOwnerSide || isTenantSide);
+  // Show Accept/Reject to the owner/broker in-conversation when a pending request exists
+  const showAcceptReject = isOwnerSide && !!pendingRequestId && listingStatus !== 'negotiating' && !isRented;
+  // Renter can confirm anytime during negotiating; owner only after renter has confirmed
+  const showConfirmButton =
+    !isRented && listingStatus === 'negotiating' && (
+      (isTenantSide && !myConfirmed) ||
+      (isOwnerSide && !!tenantConfirmedAt && !myConfirmed)
+    );
+  const showRentedChip = isRented && (isOwnerSide || isTenantSide);
+
+  const handleRequestAction = async (status: 'accepted' | 'rejected') => {
+    if (!user || !pendingRequestId || !listingId || actingRequest) return;
+    const confirmMsg = status === 'accepted' ? 'قبول هذا الطلب؟' : 'رفض هذا الطلب؟';
+    if (!confirm(confirmMsg)) return;
+    setActingRequest(status);
+    try {
+      const { error } = await supabase
+        .from('listing_requests')
+        .update({ status })
+        .eq('id', pendingRequestId);
+      if (error) throw error;
+
+      if (status === 'accepted') {
+        await supabase
+          .from('listings')
+          .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
+          .eq('id', listingId);
+        setListingStatus('negotiating');
+      }
+
+      // Notify the renter (the other party in this conversation)
+      const receiverId = user.id === ownerId ? userId : ownerId;
+      if (receiverId) {
+        await supabase.from('notifications').insert({
+          user_id: receiverId,
+          type: (status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected') as any,
+          title_ar: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
+          body_ar: `بشأن: ${listingTitle}`,
+          link: `/chat/${conversationId}`,
+        });
+      }
+
+      setPendingRequestId(null);
+      toast.success(status === 'accepted' ? 'تم القبول — بانتظار تأكيد المستأجر' : 'تم رفض الطلب');
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : 'حدث خطأ');
+    } finally {
+      setActingRequest(null);
+    }
+  };
 
   const handleConfirmDeal = async () => {
     if (!user || !listingId || !conversationId || confirmingDeal) return;
     if (myConfirmed) return;
-    const msg = isOwnerSide ? 'تأكيد التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
+    const msg = isOwnerSide ? 'تأكيد إتمام التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
     if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
