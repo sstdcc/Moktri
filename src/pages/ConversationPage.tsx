@@ -382,28 +382,49 @@ const ConversationPage = () => {
           </div>
         </button>
 
-        {showConfirmSection && (
-          isRented ? (
-            <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-bold px-3 py-2">
-              <CheckCircle2 className="h-3.5 w-3.5" /> تم التأجير
-            </span>
-          ) : (
+        {showRentedChip && (
+          <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-bold px-3 py-2">
+            <CheckCircle2 className="h-3.5 w-3.5" /> تم التأجير
+          </span>
+        )}
+
+        {showAcceptReject && (
+          <div className="shrink-0 flex items-center gap-1.5">
             <button
-              onClick={handleConfirmDeal}
-              disabled={confirmingDeal || myConfirmed}
-              className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+              onClick={() => handleRequestAction('accepted')}
+              disabled={!!actingRequest}
+              className="inline-flex items-center gap-1 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
             >
-              {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-              {myConfirmed ? 'بانتظار الطرف الآخر' : (isOwnerSide ? 'تم التأجير' : 'أؤكد الاتفاق')}
+              {actingRequest === 'accepted' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              قبول
             </button>
-          )
+            <button
+              onClick={() => handleRequestAction('rejected')}
+              disabled={!!actingRequest}
+              className="inline-flex items-center gap-1 rounded-full bg-danger text-white text-xs font-bold px-3 py-2 hover:bg-danger/90 disabled:opacity-60 transition-all active:scale-95"
+            >
+              {actingRequest === 'rejected' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
+              رفض
+            </button>
+          </div>
+        )}
+
+        {showConfirmButton && (
+          <button
+            onClick={handleConfirmDeal}
+            disabled={confirmingDeal}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+          >
+            {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            {isOwnerSide ? 'تم التأجير' : 'أؤكد الاتفاق'}
+          </button>
         )}
       </header>
 
-      {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
+      {!isRented && listingStatus === 'negotiating' && (myConfirmed || otherConfirmed) && (
         <div className="shrink-0 px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
           {myConfirmed && !otherConfirmed && 'تم تسجيل تأكيدك — بانتظار تأكيد الطرف الآخر'}
-          {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
+          {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك لإتمام التأجير' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
         </div>
       )}
 
