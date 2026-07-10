@@ -113,7 +113,7 @@ const ConversationPage = () => {
   useEffect(() => { loadData(); }, [loadData]);
 
   useEffect(() => {
-    if (!conversationId || !user) return;
+    if (!conversationId || !user || !listingId) return;
     const channel = supabase
       .channel(`conv-${channelRef.current}`)
       .on('postgres_changes', {
@@ -131,9 +131,34 @@ const ConversationPage = () => {
           supabase.from('listing_messages').update({ is_read: true }).eq('id', msg.id);
         }
       })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'listings',
+        filter: `id=eq.${listingId}`,
+      }, (payload) => {
+        const row = payload.new as { status?: string; owner_confirmed_at?: string | null; tenant_confirmed_at?: string | null };
+        if (row.status !== undefined) setListingStatus(row.status);
+        if ('owner_confirmed_at' in row) setOwnerConfirmedAt(row.owner_confirmed_at ?? null);
+        if ('tenant_confirmed_at' in row) setTenantConfirmedAt(row.tenant_confirmed_at ?? null);
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'listing_requests',
+        filter: `conversation_id=eq.${conversationId}`,
+      }, (payload) => {
+        const row = (payload.new ?? payload.old) as { id: string; status: string };
+        if (payload.eventType === 'DELETE') {
+          setPendingRequestId(prev => (prev === row.id ? null : prev));
+          return;
+        }
+        if (row.status === 'pending') setPendingRequestId(row.id);
+        else setPendingRequestId(prev => (prev === row.id ? null : prev));
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [conversationId, user]);
+  }, [conversationId, user, listingId]);
 
   useEffect(() => {
     scrollToBottom('smooth');
