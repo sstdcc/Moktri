@@ -262,6 +262,12 @@ export function AppSidebar() {
                               className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar"
                             />
                           )}
+                          {item.url.startsWith('/dashboard') && (
+                            <CountBadge
+                              count={dashboardNotifications}
+                              className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar"
+                            />
+                          )}
                         </div>
                         {!collapsed && <span>{item.title}</span>}
                       </SidebarMenuButton>
