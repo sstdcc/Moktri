@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { useUnreadChats } from '@/hooks/useUnreadChats';
 import { usePendingListingRequests } from '@/hooks/usePendingListingRequests';
+import { useDashboardNotifications } from '@/hooks/useDashboardNotifications';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
