@@ -386,6 +386,12 @@ const SettingsPage = () => {
                 <button
                   key={value}
                   onClick={() => {
+                    if (value === 'en') {
+                      toast(currentLang === 'ar'
+                        ? 'دعم اللغة الإنجليزية قريبًا'
+                        : 'English support is coming soon.');
+                      return;
+                    }
                     setAppLanguage(value);
                   }}
                   className={cn(
