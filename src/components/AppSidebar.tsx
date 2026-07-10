@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { useUnreadChats } from '@/hooks/useUnreadChats';
 import { usePendingListingRequests } from '@/hooks/usePendingListingRequests';
+import { useDashboardNotifications } from '@/hooks/useDashboardNotifications';
 import { cn } from '@/lib/utils';
 import {
   Home, Search, Heart, Bell, Settings, Plus, LayoutDashboard,
@@ -44,6 +45,7 @@ export function AppSidebar() {
   const unreadCount = useUnreadCount();
   const unreadChats = useUnreadChats();
   const pendingListingRequests = usePendingListingRequests();
+  const dashboardNotifications = useDashboardNotifications();
   const { t } = useTranslation();
   const dir = useDir();
   const isProvider = profile?.role === 'owner' || profile?.role === 'broker' || profile?.role === 'admin';
@@ -257,6 +259,12 @@ export function AppSidebar() {
                           {item.url === '/listing-requests' && (
                             <CountBadge
                               count={pendingListingRequests}
+                              className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar"
+                            />
+                          )}
+                          {item.url.startsWith('/dashboard') && (
+                            <CountBadge
+                              count={dashboardNotifications}
                               className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold text-destructive-foreground ring-2 ring-sidebar"
                             />
                           )}
