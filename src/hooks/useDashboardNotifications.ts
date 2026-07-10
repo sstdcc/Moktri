@@ -52,7 +52,7 @@ export const useDashboardNotifications = (): number => {
           const ids = reqs.map((r) => r.id);
           const { count: c, error } = await supabase
             .from('request_responses').select('id', { count: 'exact', head: true })
-            .in('request_id', ids).eq('status', 'pending');
+            .in('request_id', ids).eq('is_read', false);
           setCount(error ? 0 : (c ?? 0));
           return;
         }
