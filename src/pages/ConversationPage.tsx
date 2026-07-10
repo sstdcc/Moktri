@@ -54,6 +54,8 @@ const ConversationPage = () => {
   const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
+  const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
+  const [actingRequest, setActingRequest] = useState<null | 'accepted' | 'rejected'>(null);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { scrollToBottom, viewportHeight, viewportOffsetTop } = useKeyboardAwareChatViewport(messagesEndRef, messagesScrollRef);
