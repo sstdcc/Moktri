@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Send, Loader2, ArrowRight, CheckCircle2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { successToast } from '@/lib/successToast';
 import { cn } from '@/lib/utils';
@@ -54,6 +54,8 @@ const ConversationPage = () => {
   const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
+  const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
+  const [actingRequest, setActingRequest] = useState<null | 'accepted' | 'rejected'>(null);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { scrollToBottom, viewportHeight, viewportOffsetTop } = useKeyboardAwareChatViewport(messagesEndRef, messagesScrollRef);
@@ -76,10 +78,11 @@ const ConversationPage = () => {
 
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
-    const [profileRes, listingRes, msgsRes] = await Promise.all([
+    const [profileRes, listingRes, msgsRes, reqRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at').eq('id', conv.listing_id).single(),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
+      supabase.from('listing_requests').select('id, status').eq('conversation_id', conversationId).eq('status', 'pending').order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
@@ -88,6 +91,7 @@ const ConversationPage = () => {
     setListingStatus(listingRes.data?.status ?? '');
     setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
     setTenantConfirmedAt(listingRes.data?.tenant_confirmed_at ?? null);
+    setPendingRequestId(reqRes.data?.id ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -109,7 +113,7 @@ const ConversationPage = () => {
   useEffect(() => { loadData(); }, [loadData]);
 
   useEffect(() => {
-    if (!conversationId || !user) return;
+    if (!conversationId || !user || !listingId) return;
     const channel = supabase
       .channel(`conv-${channelRef.current}`)
       .on('postgres_changes', {
@@ -127,9 +131,34 @@ const ConversationPage = () => {
           supabase.from('listing_messages').update({ is_read: true }).eq('id', msg.id);
         }
       })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'listings',
+        filter: `id=eq.${listingId}`,
+      }, (payload) => {
+        const row = payload.new as { status?: string; owner_confirmed_at?: string | null; tenant_confirmed_at?: string | null };
+        if (row.status !== undefined) setListingStatus(row.status);
+        if ('owner_confirmed_at' in row) setOwnerConfirmedAt(row.owner_confirmed_at ?? null);
+        if ('tenant_confirmed_at' in row) setTenantConfirmedAt(row.tenant_confirmed_at ?? null);
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'listing_requests',
+        filter: `conversation_id=eq.${conversationId}`,
+      }, (payload) => {
+        const row = (payload.new ?? payload.old) as { id: string; status: string };
+        if (payload.eventType === 'DELETE') {
+          setPendingRequestId(prev => (prev === row.id ? null : prev));
+          return;
+        }
+        if (row.status === 'pending') setPendingRequestId(row.id);
+        else setPendingRequestId(prev => (prev === row.id ? null : prev));
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [conversationId, user]);
+  }, [conversationId, user, listingId]);
 
   useEffect(() => {
     scrollToBottom('smooth');
@@ -140,12 +169,61 @@ const ConversationPage = () => {
   const myConfirmed = isOwnerSide ? !!ownerConfirmedAt : !!tenantConfirmedAt;
   const otherConfirmed = isOwnerSide ? !!tenantConfirmedAt : !!ownerConfirmedAt;
   const isRented = listingStatus === 'rented';
-  const showConfirmSection = (listingStatus === 'negotiating' || isRented) && (isOwnerSide || isTenantSide);
+  // Show Accept/Reject to the owner/broker in-conversation when a pending request exists
+  const showAcceptReject = isOwnerSide && !!pendingRequestId && listingStatus !== 'negotiating' && !isRented;
+  // Renter can confirm anytime during negotiating; owner only after renter has confirmed
+  const showConfirmButton =
+    !isRented && listingStatus === 'negotiating' && (
+      (isTenantSide && !myConfirmed) ||
+      (isOwnerSide && !!tenantConfirmedAt && !myConfirmed)
+    );
+  const showRentedChip = isRented && (isOwnerSide || isTenantSide);
+
+  const handleRequestAction = async (status: 'accepted' | 'rejected') => {
+    if (!user || !pendingRequestId || !listingId || actingRequest) return;
+    const confirmMsg = status === 'accepted' ? 'قبول هذا الطلب؟' : 'رفض هذا الطلب؟';
+    if (!confirm(confirmMsg)) return;
+    setActingRequest(status);
+    try {
+      const { error } = await supabase
+        .from('listing_requests')
+        .update({ status })
+        .eq('id', pendingRequestId);
+      if (error) throw error;
+
+      if (status === 'accepted') {
+        await supabase
+          .from('listings')
+          .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
+          .eq('id', listingId);
+        setListingStatus('negotiating');
+      }
+
+      // Notify the renter (the other party in this conversation)
+      const receiverId = user.id === ownerId ? userId : ownerId;
+      if (receiverId) {
+        await supabase.from('notifications').insert({
+          user_id: receiverId,
+          type: (status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected') as any,
+          title_ar: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
+          body_ar: `بشأن: ${listingTitle}`,
+          link: `/chat/${conversationId}`,
+        });
+      }
+
+      setPendingRequestId(null);
+      toast.success(status === 'accepted' ? 'تم القبول — بانتظار تأكيد المستأجر' : 'تم رفض الطلب');
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : 'حدث خطأ');
+    } finally {
+      setActingRequest(null);
+    }
+  };
 
   const handleConfirmDeal = async () => {
     if (!user || !listingId || !conversationId || confirmingDeal) return;
     if (myConfirmed) return;
-    const msg = isOwnerSide ? 'تأكيد التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
+    const msg = isOwnerSide ? 'تأكيد إتمام التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
     if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
@@ -304,28 +382,49 @@ const ConversationPage = () => {
           </div>
         </button>
 
-        {showConfirmSection && (
-          isRented ? (
-            <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-bold px-3 py-2">
-              <CheckCircle2 className="h-3.5 w-3.5" /> تم التأجير
-            </span>
-          ) : (
+        {showRentedChip && (
+          <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success/15 text-success text-xs font-bold px-3 py-2">
+            <CheckCircle2 className="h-3.5 w-3.5" /> تم التأجير
+          </span>
+        )}
+
+        {showAcceptReject && (
+          <div className="shrink-0 flex items-center gap-1.5">
             <button
-              onClick={handleConfirmDeal}
-              disabled={confirmingDeal || myConfirmed}
-              className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+              onClick={() => handleRequestAction('accepted')}
+              disabled={!!actingRequest}
+              className="inline-flex items-center gap-1 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
             >
-              {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-              {myConfirmed ? 'بانتظار الطرف الآخر' : (isOwnerSide ? 'تم التأجير' : 'أؤكد الاتفاق')}
+              {actingRequest === 'accepted' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+              قبول
             </button>
-          )
+            <button
+              onClick={() => handleRequestAction('rejected')}
+              disabled={!!actingRequest}
+              className="inline-flex items-center gap-1 rounded-full bg-danger text-white text-xs font-bold px-3 py-2 hover:bg-danger/90 disabled:opacity-60 transition-all active:scale-95"
+            >
+              {actingRequest === 'rejected' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
+              رفض
+            </button>
+          </div>
+        )}
+
+        {showConfirmButton && (
+          <button
+            onClick={handleConfirmDeal}
+            disabled={confirmingDeal}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 disabled:opacity-60 transition-all active:scale-95"
+          >
+            {confirmingDeal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            {isOwnerSide ? 'تم التأجير' : 'أؤكد الاتفاق'}
+          </button>
         )}
       </header>
 
-      {showConfirmSection && !isRented && (myConfirmed || otherConfirmed) && (
+      {!isRented && listingStatus === 'negotiating' && (myConfirmed || otherConfirmed) && (
         <div className="shrink-0 px-3 sm:px-6 py-2 bg-success/10 border-b border-success/20 text-center text-xs font-medium text-success">
           {myConfirmed && !otherConfirmed && 'تم تسجيل تأكيدك — بانتظار تأكيد الطرف الآخر'}
-          {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
+          {!myConfirmed && otherConfirmed && (isOwnerSide ? 'أكد المستأجر الاتفاق — بانتظار تأكيدك لإتمام التأجير' : 'أكد المالك الاتفاق — بانتظار تأكيدك')}
         </div>
       )}
 
