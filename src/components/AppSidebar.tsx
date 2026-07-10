@@ -45,6 +45,7 @@ export function AppSidebar() {
   const unreadCount = useUnreadCount();
   const unreadChats = useUnreadChats();
   const pendingListingRequests = usePendingListingRequests();
+  const dashboardNotifications = useDashboardNotifications();
   const { t } = useTranslation();
   const dir = useDir();
   const isProvider = profile?.role === 'owner' || profile?.role === 'broker' || profile?.role === 'admin';
