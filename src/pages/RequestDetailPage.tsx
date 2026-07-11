@@ -24,6 +24,8 @@ import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
   Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home, Gift,
 } from 'lucide-react';
+import { getCategoryFields } from '@/lib/requestFieldsConfig';
+import type { ListingCategory } from '@/types/database';
 
 const categoryLabels: Record<string, string> = {
   room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
@@ -294,8 +296,14 @@ const RequestDetailPage = () => {
         {/* Request info card */}
         <Card className="overflow-hidden border-border/60 shadow-card">
           <CardContent className="p-0">
-            <div className="grid grid-cols-2">
-              {[
+            {(() => {
+              const cfg = getCategoryFields(request.category as ListingCategory);
+              const items: { icon: any; label: string; value: string }[] = [
+                {
+                  icon: Home,
+                  label: 'نوع العقار',
+                  value: categoryLabels[request.category] ?? request.category,
+                },
                 {
                   icon: MapPin,
                   label: 'الموقع',
@@ -304,58 +312,66 @@ const RequestDetailPage = () => {
                     const base = d ? (d.city ? `${d.city} • ${d.name_ar}` : d.name_ar) : '—';
                     return `${base}${request.neighborhood ? ` — ${request.neighborhood}` : ''}`;
                   })(),
-                  borderL: true, borderB: true,
                 },
                 {
                   icon: Wallet,
                   label: 'الميزانية',
                   value: budget ?? '—',
-                  borderL: false, borderB: true,
                 },
-                {
+              ];
+              if (cfg?.bedrooms) {
+                items.push({
                   icon: BedDouble,
                   label: 'عدد الغرف',
                   value: request.bedrooms_needed ? `${request.bedrooms_needed} غرف` : '—',
-                  borderL: true, borderB: true,
-                },
-                {
+                });
+              }
+              if (cfg?.forWhom || cfg?.forceForWhom) {
+                items.push({
                   icon: Users,
                   label: 'نوع الطلب',
                   value: request.for_whom ? (forWhomLabels[request.for_whom] ?? request.for_whom) : '—',
-                  borderL: false, borderB: true,
-                },
-                {
+                });
+              }
+              if (cfg?.furnishing) {
+                items.push({
                   icon: Sofa,
                   label: 'التأثيث',
                   value: request.furnishing_preference ? furnishingLabels[request.furnishing_preference] : '—',
-                  borderL: true, borderB: false,
-                },
-                {
-                  icon: Calendar,
-                  label: 'تاريخ الانتقال',
-                  value: request.move_in_date ? new Date(request.move_in_date).toLocaleDateString('en-GB') : '—',
-                  borderL: false, borderB: false,
-                },
-              ].map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      'flex items-center gap-3 p-5 min-w-0',
-                      item.borderB && 'border-b border-border/40',
-                      item.borderL && 'border-l border-border/40',
-                    )}
-                  >
-                    <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px]" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[11px] text-muted-foreground mb-1 font-normal tracking-tight">{item.label}</p>
-                      <p className="text-[13px] font-medium text-foreground truncate tracking-tight">{item.value}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                });
+              }
+              items.push({
+                icon: Calendar,
+                label: 'تاريخ الانتقال',
+                value: request.move_in_date ? new Date(request.move_in_date).toLocaleDateString('en-GB') : '—',
+              });
+
+              return (
+                <div className="grid grid-cols-2">
+                  {items.map((item, i) => {
+                    const Icon = item.icon;
+                    const isLeftCol = i % 2 === 0;
+                    const isLastRow = i >= items.length - (items.length % 2 === 0 ? 2 : 1);
+                    return (
+                      <div
+                        key={i}
+                        className={cn(
+                          'flex items-center gap-3 p-5 min-w-0',
+                          !isLastRow && 'border-b border-border/40',
+                          isLeftCol && i !== items.length - 1 && 'border-l border-border/40',
+                        )}
+                      >
+                        <Icon className="h-5 w-5 shrink-0 text-primary stroke-[2px]" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] text-muted-foreground mb-1 font-normal tracking-tight">{item.label}</p>
+                          <p className="text-[13px] font-medium text-foreground truncate tracking-tight">{item.value}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 
