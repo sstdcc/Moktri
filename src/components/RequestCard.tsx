@@ -64,7 +64,7 @@ interface RequestCardProps {
 
 export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: RequestCardProps) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [chatLoading, setChatLoading] = useState(false);
   const [fulfillOpen, setFulfillOpen] = useState(false);
 
@@ -73,6 +73,7 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
   const initials = name.slice(0, 2);
   const d = districts.find(d => d.id === r.district_id);
   const isOwner = user?.id === r.requester_id;
+  const isOwnerOrBroker = profile?.role === 'owner' || profile?.role === 'broker';
 
   const budget = r.min_price || r.max_price
     ? `${r.min_price ? formatPrice(Number(r.min_price)) : '—'} – ${r.max_price ? formatPrice(Number(r.max_price)) : '—'}`
