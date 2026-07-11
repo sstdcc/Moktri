@@ -216,6 +216,17 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
             مراسلة
           </Button>
         )}
+        {!isOwner && isOwnerOrBroker && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-xl gap-2 text-xs min-w-[110px]"
+            onClick={(e) => { e.stopPropagation(); navigate(`/requests/${r.id}`); }}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            عرض
+          </Button>
+        )}
         {isOwner && r.status === 'active' && (
           <Button
             variant="outline"
