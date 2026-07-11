@@ -64,7 +64,7 @@ interface RequestCardProps {
 
 export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: RequestCardProps) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [chatLoading, setChatLoading] = useState(false);
   const [fulfillOpen, setFulfillOpen] = useState(false);
 
@@ -73,6 +73,7 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
   const initials = name.slice(0, 2);
   const d = districts.find(d => d.id === r.district_id);
   const isOwner = user?.id === r.requester_id;
+  const isOwnerOrBroker = profile?.role === 'owner' || profile?.role === 'broker';
 
   const budget = r.min_price || r.max_price
     ? `${r.min_price ? formatPrice(Number(r.min_price)) : '—'} – ${r.max_price ? formatPrice(Number(r.max_price)) : '—'}`
@@ -213,6 +214,17 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
           >
             <MessageSquare className="h-3.5 w-3.5" />
             مراسلة
+          </Button>
+        )}
+        {!isOwner && isOwnerOrBroker && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-xl gap-2 text-xs min-w-[110px]"
+            onClick={(e) => { e.stopPropagation(); navigate(`/requests/${r.id}`); }}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            عرض
           </Button>
         )}
         {isOwner && r.status === 'active' && (
