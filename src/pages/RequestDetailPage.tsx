@@ -24,6 +24,8 @@ import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
   Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home, Gift,
 } from 'lucide-react';
+import { getCategoryFields } from '@/lib/requestFieldsConfig';
+import type { ListingCategory } from '@/types/database';
 
 const categoryLabels: Record<string, string> = {
   room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور',
