@@ -92,6 +92,7 @@ const OwnerDashboard = () => {
   });
 
   const handleAction = async (listingId: string, action: string, title?: string) => {
+    if (action === 'view') { navigate(`/listings/${listingId}`); return; }
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
     if (action === 'rented') {
       const l = listings.find(x => x.id === listingId);
@@ -194,7 +195,7 @@ const OwnerDashboard = () => {
               const imgUrl = getPrimaryImage(l);
               const isStale = l.status === 'active' && l.last_updated_at && (Date.now() - new Date(l.last_updated_at).getTime()) > 30 * 86400000;
               return (
-                <div key={l.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:shadow-md">
+                <div key={l.id} onClick={() => navigate(`/listings/${l.id}`)} className="flex gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer">
                   {/* Thumbnail */}
                   <div className="w-[72px] h-[72px] rounded-xl overflow-hidden shrink-0 bg-muted">
                     {imgUrl ? <img src={imgUrl} alt="" className="h-full w-full object-cover" />
@@ -207,11 +208,12 @@ const OwnerDashboard = () => {
                       <h3 className="text-sm font-semibold text-foreground line-clamp-1">{l.title}</h3>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="p-1 rounded-lg hover:bg-muted transition-all duration-200">
+                          <button onClick={(e) => e.stopPropagation()} className="p-1 rounded-lg hover:bg-muted transition-all duration-200">
                             <MoreVertical className="h-4 w-4 text-muted-foreground" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="font-tajawal">
+                          <DropdownMenuItem onClick={() => handleAction(l.id, 'view')}>عرض</DropdownMenuItem>
                           {l.status === 'reserved' && (
                             <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)} className="text-success font-bold">
                               تأكيد التسليم (تم الإيجار)
