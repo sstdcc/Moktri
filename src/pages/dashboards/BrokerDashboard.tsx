@@ -96,6 +96,7 @@ const BrokerDashboard = () => {
 
   const handleAction = async (listingId: string, action: string) => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
+    if (action === 'view') { navigate(`/listings/${listingId}`); return; }
     const statusMap: Record<string, string> = { pause: 'paused', rented: 'rented', renew: 'active' };
     const newStatus = statusMap[action];
     if (newStatus) {
