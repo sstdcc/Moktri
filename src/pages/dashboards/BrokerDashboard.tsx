@@ -164,7 +164,7 @@ const BrokerDashboard = () => {
             filteredListings.map(l => {
               const imgUrl = getPrimaryImage(l);
               return (
-                <div key={l.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:shadow-md">
+                <div key={l.id} onClick={() => navigate(`/listings/${l.id}`)} className="flex gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer">
                   <div className="w-[72px] h-[72px] rounded-xl overflow-hidden shrink-0 bg-muted">
                     {imgUrl ? <img src={imgUrl} alt="" className="h-full w-full object-cover" />
                       : <div className="h-full w-full flex items-center justify-center"><Building2 className="h-6 w-6 text-muted-foreground" /></div>}
@@ -174,9 +174,10 @@ const BrokerDashboard = () => {
                       <h3 className="text-sm font-semibold text-foreground line-clamp-1">{l.title}</h3>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="p-1 rounded-lg hover:bg-muted transition-all duration-200"><MoreVertical className="h-4 w-4 text-muted-foreground" /></button>
+                          <button onClick={(e) => e.stopPropagation()} className="p-1 rounded-lg hover:bg-muted transition-all duration-200"><MoreVertical className="h-4 w-4 text-muted-foreground" /></button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="font-tajawal">
+                          <DropdownMenuItem onClick={() => handleAction(l.id, 'view')}>عرض</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
                           {l.status !== 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
