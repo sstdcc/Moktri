@@ -1165,6 +1165,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      complete_housing_request_offer: {
+        Args: { _offer_id: string }
+        Returns: undefined
+      }
       confirm_rental_deal: {
         Args: { _conversation_id: string; _listing_id: string }
         Returns: Json
