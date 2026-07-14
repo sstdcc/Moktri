@@ -384,7 +384,8 @@ const RequestConversationPage = () => {
 
   // Only responder can send property offers (they are the owner/broker on this housing request)
   const canSendOffer = isResponder && requestStatus === 'active';
-  const hasAcceptedOffer = offers.some(o => o.status === 'accepted' && (o as any).listing_status !== 'rented');
+  const acceptedOffer = offers.find(o => o.status === 'accepted' && (o as any).listing_status !== 'rented');
+  const hasAcceptedOffer = !!acceptedOffer;
   const isFulfilled = requestStatus === 'fulfilled';
 
   // Merged chronological timeline of messages + offers
