@@ -605,7 +605,7 @@ const RequestConversationPage = () => {
           onOpenChange={setOfferDialogOpen}
           housingRequestId={requestId}
           requesterId={requesterId}
-          onSent={() => { /* realtime will insert the card */ }}
+          onSent={() => { postSystemMessage('📩 تم إرسال عرض عقار'); }}
         />
       )}
     </div>
