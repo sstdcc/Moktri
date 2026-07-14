@@ -304,12 +304,22 @@ const RequestConversationPage = () => {
     setSending(false);
   };
 
+  const postSystemMessage = async (text: string) => {
+    if (!user || !conversationId) return;
+    await supabase.from('request_messages').insert({
+      conversation_id: conversationId,
+      sender_id: user.id,
+      message: text,
+    });
+  };
+
   const handleAcceptOffer = async (o: OfferRow) => {
     if (actingOfferId) return;
     if (!confirm('قبول هذا العرض؟')) return;
     setActingOfferId(o.id);
     const { error } = await supabase.rpc('accept_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر قبول العرض'); setActingOfferId(null); return; }
+    await postSystemMessage(`✅ تم قبول عرض العقار: ${o.listing_title ?? ''}`);
     await supabase.from('notifications').insert({
       user_id: o.owner_id,
       type: 'private_offer_accepted' as any,
@@ -328,6 +338,7 @@ const RequestConversationPage = () => {
     setActingOfferId(o.id);
     const { error } = await supabase.rpc('reject_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر رفض العرض'); setActingOfferId(null); return; }
+    await postSystemMessage(`❌ تم رفض عرض العقار: ${o.listing_title ?? ''}`);
     await supabase.from('notifications').insert({
       user_id: o.owner_id,
       type: 'private_offer_rejected' as any,
@@ -346,6 +357,14 @@ const RequestConversationPage = () => {
     setActingOfferId(o.id);
     const { error } = await supabase.rpc('complete_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر إتمام التأجير'); setActingOfferId(null); return; }
+    await postSystemMessage(`🎉 تم إتمام عملية التأجير: ${o.listing_title ?? ''}`);
+    await supabase.from('notifications').insert({
+      user_id: o.requester_id,
+      type: 'system' as any,
+      title_ar: 'تم إتمام التأجير',
+      body_ar: `تم إتمام تأجير العقار: ${o.listing_title ?? ''}`,
+      link: `/request-chat/${conversationId}`,
+    });
     successToast('تم إتمام التأجير', { description: 'تم تحديث حالة الإعلان والطلب' });
     setActingOfferId(null);
     refreshOffer(o.id);
@@ -365,7 +384,8 @@ const RequestConversationPage = () => {
 
   // Only responder can send property offers (they are the owner/broker on this housing request)
   const canSendOffer = isResponder && requestStatus === 'active';
-  const hasAcceptedOffer = offers.some(o => o.status === 'accepted' && (o as any).listing_status !== 'rented');
+  const acceptedOffer = offers.find(o => o.status === 'accepted' && (o as any).listing_status !== 'rented');
+  const hasAcceptedOffer = !!acceptedOffer;
   const isFulfilled = requestStatus === 'fulfilled';
 
   // Merged chronological timeline of messages + offers
@@ -488,6 +508,16 @@ const RequestConversationPage = () => {
           </span>
         )}
 
+        {canSendOffer && hasAcceptedOffer && acceptedOffer && !isFulfilled && (
+          <button
+            onClick={() => handleCompleteRental(acceptedOffer)}
+            disabled={actingOfferId === acceptedOffer.id}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 transition-all active:scale-95 disabled:opacity-60"
+          >
+            {actingOfferId === acceptedOffer.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} تم التأجير
+          </button>
+        )}
+
         {canSendOffer && !hasAcceptedOffer && !isFulfilled && (
           <button
             onClick={() => setOfferDialogOpen(true)}
@@ -575,7 +605,7 @@ const RequestConversationPage = () => {
           onOpenChange={setOfferDialogOpen}
           housingRequestId={requestId}
           requesterId={requesterId}
-          onSent={() => { /* realtime will insert the card */ }}
+          onSent={() => { postSystemMessage('📩 تم إرسال عرض عقار'); }}
         />
       )}
     </div>
