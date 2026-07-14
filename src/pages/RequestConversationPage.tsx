@@ -508,6 +508,16 @@ const RequestConversationPage = () => {
           </span>
         )}
 
+        {canSendOffer && hasAcceptedOffer && acceptedOffer && !isFulfilled && (
+          <button
+            onClick={() => handleCompleteRental(acceptedOffer)}
+            disabled={actingOfferId === acceptedOffer.id}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-success text-white text-xs font-bold px-3 py-2 hover:bg-success/90 transition-all active:scale-95 disabled:opacity-60"
+          >
+            {actingOfferId === acceptedOffer.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} تم التأجير
+          </button>
+        )}
+
         {canSendOffer && !hasAcceptedOffer && !isFulfilled && (
           <button
             onClick={() => setOfferDialogOpen(true)}
