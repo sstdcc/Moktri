@@ -187,6 +187,15 @@ const ConversationPage = () => {
     );
   const showRentedChip = isRented && (isOwnerSide || isTenantSide);
 
+  const postSystemMessage = async (text: string) => {
+    if (!user || !conversationId) return;
+    await supabase.from('listing_messages').insert({
+      conversation_id: conversationId,
+      sender_id: user.id,
+      message: text,
+    });
+  };
+
   const handleRequestAction = async (status: 'accepted' | 'rejected') => {
     if (!user || !pendingRequestId || !listingId || actingRequest) return;
     const confirmMsg = status === 'accepted' ? 'قبول هذا الطلب؟' : 'رفض هذا الطلب؟';
