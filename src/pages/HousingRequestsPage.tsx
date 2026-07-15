@@ -1,15 +1,21 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { useDebounce } from '@/hooks/useDebounce';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Plus, Search as SearchIcon, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RequestCard, type RequestCardData } from '@/components/RequestCard';
+
+const categoryLabels: Record<string, string> = {
+  room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور', shop: 'محل',
+  office: 'مكتب', shared: 'مشترك', family: 'عائلي', student: 'طلابي',
+};
 
 const PAGE_SIZE = 20;
 
@@ -27,6 +33,8 @@ const HousingRequestsPage = () => {
   const [othersOpen, setOthersOpen] = useState(true);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 350);
 
   const isClosed = (s: string | null) => s === 'fulfilled' || s === 'completed' || s === 'cancelled' || s === 'expired';
 
@@ -36,7 +44,7 @@ const HousingRequestsPage = () => {
     const from = pageNum * PAGE_SIZE;
     const { data, error: err } = await supabase
       .from('housing_requests')
-      .select('id, category, neighborhood, district_id, min_price, max_price, currency, for_whom, notes, bedrooms_needed, responses_count, views_count, status, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
+      .select('id, category, neighborhood, district_id, city_name, governorate, min_price, max_price, currency, for_whom, notes, bedrooms_needed, responses_count, views_count, status, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
       .in('status', ['active', 'fulfilled', 'expired', 'cancelled', 'completed'])
       .order('created_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
@@ -61,6 +69,36 @@ const HousingRequestsPage = () => {
 
   useEffect(() => { setPage(0); fetchRequests(0); }, [fetchRequests]);
 
+  const matchesSearch = useCallback((r: RequestCardData, q: string) => {
+    if (!q.trim()) return true;
+    const term = q.trim().toLowerCase();
+    const category = categoryLabels[r.category] || r.category;
+    const district = districts.find(d => d.id === r.district_id);
+    const districtName = district?.name_ar ?? '';
+    const city = district?.city ?? '';
+    const haystack = [
+      category,
+      r.category,
+      r.city_name,
+      r.governorate,
+      r.neighborhood,
+      districtName,
+      city,
+      r.notes,
+    ].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(term);
+  }, [districts]);
+
+  const filteredMyRequests = useMemo(() => {
+    if (!debouncedSearch.trim()) return myRequests;
+    return myRequests.filter(r => matchesSearch(r, debouncedSearch));
+  }, [myRequests, debouncedSearch, matchesSearch]);
+
+  const filteredOtherRequests = useMemo(() => {
+    if (!debouncedSearch.trim()) return otherRequests;
+    return otherRequests.filter(r => matchesSearch(r, debouncedSearch));
+  }, [otherRequests, debouncedSearch, matchesSearch]);
+
   const loadMore = () => {
     const next = page + 1;
     setPage(next);
@@ -79,6 +117,17 @@ const HousingRequestsPage = () => {
       </div>
 
       <div className="px-4 pb-8 space-y-4">
+        <div className="relative">
+          <SearchIcon className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="ابحث في الطلبات..."
+            className="w-full rounded-lg border border-border bg-background py-2.5 pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+          />
+        </div>
+
         {loading && <LoadingSpinner />}
 
         {error && !loading && (
@@ -100,17 +149,17 @@ const HousingRequestsPage = () => {
                     <Plus className="h-3.5 w-3.5" /> طلب جديد
                   </Button>
                 </div>
-                {myRequests.length === 0 ? (
+                {filteredMyRequests.length === 0 ? (
                   <EmptyState
                     icon={SearchIcon}
-                    title="لم تنشر أي طلب سكن بعد"
-                    subtitle="انشر طلبك وسيتواصل معك الملاك"
-                    actionLabel="نشر طلب"
-                    onAction={() => navigate('/requests/new')}
+                    title={myRequests.length === 0 ? "لم تنشر أي طلب سكن بعد" : "لا توجد نتائج مطابقة"}
+                    subtitle={myRequests.length === 0 ? "انشر طلبك وسيتواصل معك الملاك" : "جرّب كلمات بحث مختلفة"}
+                    actionLabel={myRequests.length === 0 ? "نشر طلب" : undefined}
+                    onAction={myRequests.length === 0 ? () => navigate('/requests/new') : undefined}
                   />
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {myRequests.map((r, i) => (
+                    {filteredMyRequests.map((r, i) => (
                       <RequestCard key={r.id} index={i} request={r} districts={districts} />
                     ))}
                   </div>
@@ -126,11 +175,13 @@ const HousingRequestsPage = () => {
                 {othersOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
               </CollapsibleTrigger>
               <CollapsibleContent>
-                {otherRequests.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-6">لا توجد طلبات حالياً</p>
+                {filteredOtherRequests.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">
+                    {otherRequests.length === 0 ? 'لا توجد طلبات حالياً' : 'لا توجد نتائج مطابقة'}
+                  </p>
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-2">
-                    {otherRequests.map((r, i) => (
+                    {filteredOtherRequests.map((r, i) => (
                       <RequestCard key={r.id} index={i} request={r} districts={districts} />
                     ))}
                   </div>
