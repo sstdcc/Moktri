@@ -33,6 +33,8 @@ const HousingRequestsPage = () => {
   const [othersOpen, setOthersOpen] = useState(true);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 350);
 
   const isClosed = (s: string | null) => s === 'fulfilled' || s === 'completed' || s === 'cancelled' || s === 'expired';
 
