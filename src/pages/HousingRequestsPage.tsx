@@ -8,7 +8,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Plus, Search as SearchIcon, RefreshCw, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Plus, Search as SearchIcon, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RequestCard, type RequestCardData } from '@/components/RequestCard';
 
