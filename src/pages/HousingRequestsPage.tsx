@@ -184,11 +184,13 @@ const HousingRequestsPage = () => {
                 {othersOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
               </CollapsibleTrigger>
               <CollapsibleContent>
-                {otherRequests.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-6">لا توجد طلبات حالياً</p>
+                {filteredOtherRequests.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-6">
+                    {otherRequests.length === 0 ? 'لا توجد طلبات حالياً' : 'لا توجد نتائج مطابقة'}
+                  </p>
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-2">
-                    {otherRequests.map((r, i) => (
+                    {filteredOtherRequests.map((r, i) => (
                       <RequestCard key={r.id} index={i} request={r} districts={districts} />
                     ))}
                   </div>
