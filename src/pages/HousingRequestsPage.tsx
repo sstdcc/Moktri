@@ -1,15 +1,21 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { useDebounce } from '@/hooks/useDebounce';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Plus, Search as SearchIcon, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Search as SearchIcon, RefreshCw, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RequestCard, type RequestCardData } from '@/components/RequestCard';
+
+const categoryLabels: Record<string, string> = {
+  room: 'غرفة', apartment: 'شقة', house: 'بيت', floor: 'دور', shop: 'محل',
+  office: 'مكتب', shared: 'مشترك', family: 'عائلي', student: 'طلابي',
+};
 
 const PAGE_SIZE = 20;
 
