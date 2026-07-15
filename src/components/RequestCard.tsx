@@ -40,6 +40,8 @@ export interface RequestCardData {
   category: string;
   neighborhood: string | null;
   district_id: string | null;
+  city_name: string | null;
+  governorate: string | null;
   min_price: number | null;
   max_price: number | null;
   currency: string | null;
