@@ -479,6 +479,42 @@ const ConversationPage = () => {
       <div ref={messagesScrollRef} className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
 
         <div className="max-w-3xl mx-auto flex flex-col">
+          {/* Inline listing card — always shown at top of conversation */}
+          {listingId && (
+            <div className="flex justify-center mt-1 mb-2 animate-fade-in">
+              <button
+                type="button"
+                onClick={() => navigate(`/listings/${listingId}`)}
+                className="w-full max-w-md rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm hover:bg-muted/30 transition-colors text-right"
+              >
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border-b border-border/40">
+                  <Home className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[11px] font-bold text-primary">العقار المطلوب</span>
+                  {isRented && (
+                    <span className="mr-auto text-[10px] font-bold rounded-md px-2 py-0.5 bg-success/15 text-success">تم التأجير</span>
+                  )}
+                  {!isRented && listingStatus === 'negotiating' && (
+                    <span className="mr-auto text-[10px] font-bold rounded-md px-2 py-0.5 bg-warning/15 text-warning">قيد التفاوض</span>
+                  )}
+                </div>
+                <div className="flex gap-3 p-3">
+                  {listingImage ? (
+                    <img src={listingImage} alt={listingTitle} className="h-16 w-16 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <Home className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <p className="text-sm font-bold text-foreground line-clamp-2 leading-snug">{listingTitle}</p>
+                    {listingPrice !== null && (
+                      <p className="text-xs font-semibold text-primary mt-1">{formatPrice(listingPrice, (listingCurrency as any) ?? 'YER')}</p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            </div>
+          )}
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
           ) : (
