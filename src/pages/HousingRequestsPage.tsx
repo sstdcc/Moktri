@@ -124,17 +124,8 @@ const HousingRequestsPage = () => {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="ابحث في الطلبات..."
-            className="w-full rounded-lg border border-border bg-background py-2.5 pr-10 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full rounded-lg border border-border bg-background py-2.5 pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
           />
-          {searchInput && (
-            <button
-              onClick={() => setSearchInput('')}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label="مسح البحث"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
 
         {loading && <LoadingSpinner />}
