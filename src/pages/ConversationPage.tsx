@@ -82,9 +82,10 @@ const ConversationPage = () => {
 
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
-    const [profileRes, listingRes, msgsRes, reqRes] = await Promise.all([
+    const [profileRes, listingRes, imgRes, msgsRes, reqRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at').eq('id', conv.listing_id).single(),
+      supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at, price, currency').eq('id', conv.listing_id).single(),
+      supabase.from('listing_images').select('url, is_primary, sort_order').eq('listing_id', conv.listing_id).order('is_primary', { ascending: false }).order('sort_order', { ascending: true }).limit(1),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
       supabase.from('listing_requests').select('id, status').eq('conversation_id', conversationId).eq('status', 'pending').order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
@@ -93,6 +94,9 @@ const ConversationPage = () => {
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
     setListingStatus(listingRes.data?.status ?? '');
+    setListingPrice((listingRes.data as any)?.price ?? null);
+    setListingCurrency((listingRes.data as any)?.currency ?? null);
+    setListingImage(imgRes.data?.[0]?.url ?? null);
     setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
     setTenantConfirmedAt(listingRes.data?.tenant_confirmed_at ?? null);
     setPendingRequestId(reqRes.data?.id ?? null);
