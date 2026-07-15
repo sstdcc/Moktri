@@ -52,6 +52,9 @@ const ConversationPage = () => {
   const [userId, setUserId] = useState('');
   const [listingId, setListingId] = useState('');
   const [listingStatus, setListingStatus] = useState<string>('');
+  const [listingPrice, setListingPrice] = useState<number | null>(null);
+  const [listingCurrency, setListingCurrency] = useState<string | null>(null);
+  const [listingImage, setListingImage] = useState<string | null>(null);
   const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
