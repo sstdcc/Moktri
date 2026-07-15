@@ -158,17 +158,17 @@ const HousingRequestsPage = () => {
                     <Plus className="h-3.5 w-3.5" /> طلب جديد
                   </Button>
                 </div>
-                {myRequests.length === 0 ? (
+                {filteredMyRequests.length === 0 ? (
                   <EmptyState
                     icon={SearchIcon}
-                    title="لم تنشر أي طلب سكن بعد"
-                    subtitle="انشر طلبك وسيتواصل معك الملاك"
-                    actionLabel="نشر طلب"
-                    onAction={() => navigate('/requests/new')}
+                    title={myRequests.length === 0 ? "لم تنشر أي طلب سكن بعد" : "لا توجد نتائج مطابقة"}
+                    subtitle={myRequests.length === 0 ? "انشر طلبك وسيتواصل معك الملاك" : "جرّب كلمات بحث مختلفة"}
+                    actionLabel={myRequests.length === 0 ? "نشر طلب" : undefined}
+                    onAction={myRequests.length === 0 ? () => navigate('/requests/new') : undefined}
                   />
                 ) : (
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {myRequests.map((r, i) => (
+                    {filteredMyRequests.map((r, i) => (
                       <RequestCard key={r.id} index={i} request={r} districts={districts} />
                     ))}
                   </div>
