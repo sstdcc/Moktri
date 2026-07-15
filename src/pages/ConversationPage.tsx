@@ -259,8 +259,34 @@ const ConversationPage = () => {
       if (result?.both_confirmed) {
         setListingStatus('rented');
         successToast('تم تأكيد الاتفاق', { description: 'تم تأجير الإعلان بنجاح' });
+        await postSystemMessage(`🎉 تم إتمام عملية التأجير: ${listingTitle}`);
+        const receiverId = user.id === ownerId ? userId : ownerId;
+        if (receiverId) {
+          await supabase.from('notifications').insert({
+            user_id: receiverId,
+            type: 'system' as any,
+            title_ar: 'تم إتمام التأجير',
+            body_ar: `تم إتمام تأجير: ${listingTitle}`,
+            link: `/chat/${conversationId}`,
+          });
+        }
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
+        await postSystemMessage(isOwnerSide
+          ? `✅ أكد المالك الاتفاق — بانتظار تأكيد المستأجر`
+          : `✅ أكد المستأجر الاتفاق — بانتظار تأكيد المالك`);
+        const receiverId = user.id === ownerId ? userId : ownerId;
+        if (receiverId) {
+          await supabase.from('notifications').insert({
+            user_id: receiverId,
+            type: 'system' as any,
+            title_ar: 'تأكيد الاتفاق',
+            body_ar: isOwnerSide
+              ? `أكد المالك الاتفاق على: ${listingTitle}`
+              : `أكد المستأجر الاتفاق على: ${listingTitle}`,
+            link: `/chat/${conversationId}`,
+          });
+        }
       }
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'حدث خطأ');
