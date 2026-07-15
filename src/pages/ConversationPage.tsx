@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, ArrowRight, CheckCircle2, Check, X } from 'lucide-react';
+import { Send, Loader2, ArrowRight, CheckCircle2, Check, X, Home } from 'lucide-react';
+import { formatPrice } from '@/lib/format';
 import { toast } from 'sonner';
 import { successToast } from '@/lib/successToast';
 import { cn } from '@/lib/utils';
@@ -51,6 +52,9 @@ const ConversationPage = () => {
   const [userId, setUserId] = useState('');
   const [listingId, setListingId] = useState('');
   const [listingStatus, setListingStatus] = useState<string>('');
+  const [listingPrice, setListingPrice] = useState<number | null>(null);
+  const [listingCurrency, setListingCurrency] = useState<string | null>(null);
+  const [listingImage, setListingImage] = useState<string | null>(null);
   const [ownerConfirmedAt, setOwnerConfirmedAt] = useState<string | null>(null);
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
@@ -78,9 +82,10 @@ const ConversationPage = () => {
 
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
-    const [profileRes, listingRes, msgsRes, reqRes] = await Promise.all([
+    const [profileRes, listingRes, imgRes, msgsRes, reqRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
-      supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at').eq('id', conv.listing_id).single(),
+      supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at, price, currency').eq('id', conv.listing_id).single(),
+      supabase.from('listing_images').select('url, is_primary, sort_order').eq('listing_id', conv.listing_id).order('is_primary', { ascending: false }).order('sort_order', { ascending: true }).limit(1),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
       supabase.from('listing_requests').select('id, status').eq('conversation_id', conversationId).eq('status', 'pending').order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
@@ -89,6 +94,9 @@ const ConversationPage = () => {
     setOtherAvatar(profileRes.data?.avatar_url ?? null);
     setListingTitle(listingRes.data?.title ?? 'إعلان');
     setListingStatus(listingRes.data?.status ?? '');
+    setListingPrice((listingRes.data as any)?.price ?? null);
+    setListingCurrency((listingRes.data as any)?.currency ?? null);
+    setListingImage(imgRes.data?.[0]?.url ?? null);
     setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
     setTenantConfirmedAt(listingRes.data?.tenant_confirmed_at ?? null);
     setPendingRequestId(reqRes.data?.id ?? null);
@@ -179,6 +187,15 @@ const ConversationPage = () => {
     );
   const showRentedChip = isRented && (isOwnerSide || isTenantSide);
 
+  const postSystemMessage = async (text: string) => {
+    if (!user || !conversationId) return;
+    await supabase.from('listing_messages').insert({
+      conversation_id: conversationId,
+      sender_id: user.id,
+      message: text,
+    });
+  };
+
   const handleRequestAction = async (status: 'accepted' | 'rejected') => {
     if (!user || !pendingRequestId || !listingId || actingRequest) return;
     const confirmMsg = status === 'accepted' ? 'قبول هذا الطلب؟' : 'رفض هذا الطلب؟';
@@ -211,6 +228,10 @@ const ConversationPage = () => {
         });
       }
 
+      await postSystemMessage(status === 'accepted'
+        ? `✅ تم قبول الطلب — بانتظار تأكيد المستأجر`
+        : `❌ تم رفض الطلب`);
+
       setPendingRequestId(null);
       toast.success(status === 'accepted' ? 'تم القبول — بانتظار تأكيد المستأجر' : 'تم رفض الطلب');
     } catch (e: unknown) {
@@ -238,8 +259,34 @@ const ConversationPage = () => {
       if (result?.both_confirmed) {
         setListingStatus('rented');
         successToast('تم تأكيد الاتفاق', { description: 'تم تأجير الإعلان بنجاح' });
+        await postSystemMessage(`🎉 تم إتمام عملية التأجير: ${listingTitle}`);
+        const receiverId = user.id === ownerId ? userId : ownerId;
+        if (receiverId) {
+          await supabase.from('notifications').insert({
+            user_id: receiverId,
+            type: 'system' as any,
+            title_ar: 'تم إتمام التأجير',
+            body_ar: `تم إتمام تأجير: ${listingTitle}`,
+            link: `/chat/${conversationId}`,
+          });
+        }
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
+        await postSystemMessage(isOwnerSide
+          ? `✅ أكد المالك الاتفاق — بانتظار تأكيد المستأجر`
+          : `✅ أكد المستأجر الاتفاق — بانتظار تأكيد المالك`);
+        const receiverId = user.id === ownerId ? userId : ownerId;
+        if (receiverId) {
+          await supabase.from('notifications').insert({
+            user_id: receiverId,
+            type: 'system' as any,
+            title_ar: 'تأكيد الاتفاق',
+            body_ar: isOwnerSide
+              ? `أكد المالك الاتفاق على: ${listingTitle}`
+              : `أكد المستأجر الاتفاق على: ${listingTitle}`,
+            link: `/chat/${conversationId}`,
+          });
+        }
       }
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'حدث خطأ');
@@ -432,6 +479,42 @@ const ConversationPage = () => {
       <div ref={messagesScrollRef} className="flex-1 min-h-0 overflow-y-auto scroll-smooth overscroll-contain px-3 sm:px-6 py-3 bg-muted/30">
 
         <div className="max-w-3xl mx-auto flex flex-col">
+          {/* Inline listing card — always shown at top of conversation */}
+          {listingId && (
+            <div className="flex justify-center mt-1 mb-2 animate-fade-in">
+              <button
+                type="button"
+                onClick={() => navigate(`/listings/${listingId}`)}
+                className="w-full max-w-md rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm hover:bg-muted/30 transition-colors text-right"
+              >
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border-b border-border/40">
+                  <Home className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[11px] font-bold text-primary">العقار المطلوب</span>
+                  {isRented && (
+                    <span className="mr-auto text-[10px] font-bold rounded-md px-2 py-0.5 bg-success/15 text-success">تم التأجير</span>
+                  )}
+                  {!isRented && listingStatus === 'negotiating' && (
+                    <span className="mr-auto text-[10px] font-bold rounded-md px-2 py-0.5 bg-warning/15 text-warning">قيد التفاوض</span>
+                  )}
+                </div>
+                <div className="flex gap-3 p-3">
+                  {listingImage ? (
+                    <img src={listingImage} alt={listingTitle} className="h-16 w-16 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <Home className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <p className="text-sm font-bold text-foreground line-clamp-2 leading-snug">{listingTitle}</p>
+                    {listingPrice !== null && (
+                      <p className="text-xs font-semibold text-primary mt-1">{formatPrice(listingPrice, (listingCurrency as any) ?? 'YER')}</p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            </div>
+          )}
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center mt-8">ابدأ المحادثة...</p>
           ) : (
