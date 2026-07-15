@@ -69,6 +69,36 @@ const HousingRequestsPage = () => {
 
   useEffect(() => { setPage(0); fetchRequests(0); }, [fetchRequests]);
 
+  const matchesSearch = useCallback((r: RequestCardData, q: string) => {
+    if (!q.trim()) return true;
+    const term = q.trim().toLowerCase();
+    const category = categoryLabels[r.category] || r.category;
+    const district = districts.find(d => d.id === r.district_id);
+    const districtName = district?.name_ar ?? '';
+    const city = district?.city ?? '';
+    const haystack = [
+      category,
+      r.category,
+      r.city_name,
+      r.governorate,
+      r.neighborhood,
+      districtName,
+      city,
+      r.notes,
+    ].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(term);
+  }, [districts]);
+
+  const filteredMyRequests = useMemo(() => {
+    if (!debouncedSearch.trim()) return myRequests;
+    return myRequests.filter(r => matchesSearch(r, debouncedSearch));
+  }, [myRequests, debouncedSearch, matchesSearch]);
+
+  const filteredOtherRequests = useMemo(() => {
+    if (!debouncedSearch.trim()) return otherRequests;
+    return otherRequests.filter(r => matchesSearch(r, debouncedSearch));
+  }, [otherRequests, debouncedSearch, matchesSearch]);
+
   const loadMore = () => {
     const next = page + 1;
     setPage(next);
