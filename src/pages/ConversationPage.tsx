@@ -228,6 +228,10 @@ const ConversationPage = () => {
         });
       }
 
+      await postSystemMessage(status === 'accepted'
+        ? `✅ تم قبول الطلب — بانتظار تأكيد المستأجر`
+        : `❌ تم رفض الطلب`);
+
       setPendingRequestId(null);
       toast.success(status === 'accepted' ? 'تم القبول — بانتظار تأكيد المستأجر' : 'تم رفض الطلب');
     } catch (e: unknown) {
