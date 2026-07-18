@@ -28,7 +28,7 @@ const categoryChips = [
 ];
 
 const steps = [
-  { num: 1, icon: Search, title: 'ابحث عن العقار', subtitle: 'تصفح مئات الإعلانات في تعز' },
+  { num: 1, icon: Search, title: 'ابحث عن العقار', subtitle: 'تصفح مئات الإعلانات في ' },
   { num: 2, icon: Phone, title: 'تواصل مع المالك', subtitle: 'اتصل مباشرة أو عبر واتساب بدون وسيط' },
   { num: 3, icon: Home, title: 'انتقل لبيتك', subtitle: 'أتمم الاتفاق وانتقل لسكنك الجديد' },
 ];
@@ -133,9 +133,9 @@ const HomePage = () => {
             <h1 className="text-5xl font-black text-primary-foreground dark:text-white/95 tracking-tight">Moktari</h1>
             <p className="mt-1 text-base font-bold text-primary-foreground/90 dark:text-white/85 tracking-tight">مُكتري</p>
             <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
-              تعز • اليمن
+               • اليمن
             </span>
-            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 dark:text-white/95 tracking-tight">ابحث عن سكنك في تعز</p>
+            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 dark:text-white/95 tracking-tight">ابحث عن سكنك في </p>
             <p className="mt-1 text-sm text-primary-foreground/45 dark:text-white/70">آلاف الإعلانات من الملاك والدلالين</p>
           </div>
 
@@ -200,7 +200,7 @@ const HomePage = () => {
       <section className="px-5 py-7">
         <SectionTitle title="تصفح حسب المحافظة" />
         <div className="grid grid-cols-3 gap-3">
-          {['تعز', 'صنعاء', 'عدن', 'إب', 'الحديدة', 'حضرموت', 'ذمار', 'المكلا', 'مأرب'].map((gov) => (
+          {['', 'صنعاء', 'عدن', 'إب', 'الحديدة', 'حضرموت', 'ذمار', 'المكلا', 'مأرب'].map((gov) => (
             <button
               key={gov}
               onClick={() => navigate(`/listings?governorate=${encodeURIComponent(gov)}`)}
