@@ -509,10 +509,10 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
                   </button>
                 ))}
               </div>
-              <div className="flex items-center justify-between mt-3 rounded-xl border border-border p-3">
+              {/* <div className="flex items-center justify-between mt-3 rounded-xl border border-border p-3">
                 <span className="text-sm text-foreground font-tajawal">السعر قابل للتفاوض</span>
-                <Switch checked={form.is_negotiable} onCheckedChange={v => update('is_negotiable', v)} />
-              </div>
+                <Switch checked={form.is_negotiable} onCheckedChange={v => update('is_negotiable', v)} disabled />
+              </div> */}
             </div>
 
             <div className="space-y-3">
