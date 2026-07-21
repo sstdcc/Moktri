@@ -136,9 +136,13 @@ Deno.serve(async (req) => {
       To: phone,
       Body: `رمز التحقق الخاص بك في مفتاح: ${code}`,
     };
-    if (TWILIO_MESSAGING_SERVICE_SID) {
-      smsParams.MessagingServiceSid = TWILIO_MESSAGING_SERVICE_SID;
-    } else if (TWILIO_PHONE_NUMBER) {
+    // if (TWILIO_MESSAGING_SERVICE_SID) {
+    //   smsParams.MessagingServiceSid = TWILIO_MESSAGING_SERVICE_SID;
+    // } else if (TWILIO_PHONE_NUMBER) {
+    //   smsParams.From = TWILIO_PHONE_NUMBER;
+    // }
+    
+    if (TWILIO_PHONE_NUMBER) {
       smsParams.From = TWILIO_PHONE_NUMBER;
     }
 
