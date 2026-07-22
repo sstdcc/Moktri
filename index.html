@@ -28,12 +28,7 @@
         document.documentElement.classList.add(theme);
         document.documentElement.style.colorScheme = theme;
       } catch (e) {}
-      try {
-        var lng = localStorage.getItem('moktari_language');
-        if (lng !== 'ar' && lng !== 'en') lng = 'ar';
-        document.documentElement.setAttribute('lang', lng);
-        document.documentElement.setAttribute('dir', lng === 'ar' ? 'rtl' : 'ltr');
-      } catch (e) {}
+      // Language forced to Arabic until multilingual support is complete
     })();
   </script>
 </head>
