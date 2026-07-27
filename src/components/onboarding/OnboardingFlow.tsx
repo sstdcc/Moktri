@@ -5,11 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Home, Building2, Handshake, Loader2, ArrowLeft, User } from 'lucide-react';
+import { Home, Building2, Handshake, Loader2, ArrowLeft } from 'lucide-react';
 
-type OnboardingStep = 1 | 2 | 3;
+type OnboardingStep = 1 | 2;
 
 const roleCards = [
   {
@@ -35,27 +33,35 @@ const roleCards = [
 const OnboardingFlow = () => {
   const [step, setStep] = useState<OnboardingStep>(1);
   const [selectedRole, setSelectedRole] = useState<string>('');
-  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { retryProfile } = useAuth();
 
+  const pendingData = JSON.parse(sessionStorage.getItem('pending_signup_profile') || '{}');
+  const fullName = (pendingData.full_name || '').trim();
+  console.log('[DIAG] OnboardingFlow — sessionStorage pending_signup_profile:', pendingData);
+  console.log('[DIAG] OnboardingFlow — fullName from sessionStorage:', fullName);
+
   const handleSubmit = async () => {
-    if (!fullName.trim()) {
-      toast.error('أدخل اسمك الكامل');
+    if (!fullName) {
+      toast.error('خطأ في بيانات التسجيل');
       return;
     }
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('[DIAG] OnboardingFlow — auth.user before profile update:', { id: user?.id, email: user?.email, phone: user?.phone });
       if (!user) throw new Error('لم يتم العثور على المستخدم');
+
+      const { data: beforeProfile } = await supabase.from('profiles').select('id, full_name, role, phone').eq('id', user.id).maybeSingle();
+      console.log('[DIAG] OnboardingFlow — profile BEFORE update:', beforeProfile);
 
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: fullName.trim(),
+          full_name: fullName,
           role: selectedRole as 'renter' | 'owner' | 'broker' | 'admin' | 'moderator',
         })
         .eq('id', user.id);
@@ -64,6 +70,11 @@ const OnboardingFlow = () => {
         console.error('Profile save error:', JSON.stringify(error));
         throw error;
       }
+
+      const { data: afterProfile } = await supabase.from('profiles').select('id, full_name, role, phone').eq('id', user.id).maybeSingle();
+      console.log('[DIAG] OnboardingFlow — profile AFTER update:', afterProfile);
+
+      sessionStorage.removeItem('pending_signup_profile');
 
       toast.success('مرحباً بك في مُكتري!');
       retryProfile();
@@ -88,7 +99,7 @@ const OnboardingFlow = () => {
     <div className="w-full max-w-md mx-auto">
       {/* Progress dots */}
       <div className="flex items-center justify-center gap-2 mb-8">
-        {[1, 2, 3].map((s) => (
+        {[1, 2].map((s) => (
           <div
             key={s}
             className={cn(
@@ -157,58 +168,10 @@ const OnboardingFlow = () => {
         </Button>
       </div>
 
-      {/* ─── Step 2: Profile inputs ─── */}
+      {/* ─── Step 2: Confirm ─── */}
       <div className={cn('transition-all duration-300', step === 2 ? 'block' : 'hidden')}>
         <button
           onClick={() => setStep(1)}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 min-h-[44px]"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          رجوع
-        </button>
-
-        <h2 className="text-xl font-bold text-foreground text-center mb-1">عرّفنا بنفسك</h2>
-        <p className="text-sm text-muted-foreground text-center mb-6">معلومات بسيطة فقط للبدء</p>
-
-        <div className="space-y-4">
-          <div>
-            <Label className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              الاسم الكامل <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              placeholder="مثال: أحمد محمد"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="h-12"
-            />
-          </div>
-
-          {selectedRole === 'owner' && (
-            <p className="text-xs text-muted-foreground bg-muted/50 rounded-xl p-3">
-              💡 بعد التسجيل يمكنك نشر إعلانك الأول مباشرة من لوحة التحكم
-            </p>
-          )}
-          {selectedRole === 'broker' && (
-            <p className="text-xs text-muted-foreground bg-muted/50 rounded-xl p-3">
-              💡 يمكنك التقدم للتوثيق لاحقاً من الإعدادات لزيادة مصداقيتك
-            </p>
-          )}
-        </div>
-
-        <Button
-          onClick={() => setStep(3)}
-          disabled={!fullName.trim()}
-          className="w-full h-12 text-base mt-6"
-        >
-          التالي
-        </Button>
-      </div>
-
-      {/* ─── Step 3: Confirm ─── */}
-      <div className={cn('transition-all duration-300', step === 3 ? 'block' : 'hidden')}>
-        <button
-          onClick={() => setStep(2)}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 min-h-[44px]"
         >
           <ArrowLeft className="h-4 w-4" />

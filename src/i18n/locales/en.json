@@ -136,7 +136,10 @@
     "editData": "Edit details",
     "resend": "Resend code",
     "resendIn": "Resend ({{seconds}})",
+    "emailOrPhone": "Email or phone number",
+    "emailOrPhonePlaceholder": "Email or phone",
     "errors": {
+      "required": "This field is required",
       "invalidEmail": "Invalid email address",
       "passwordMin": "Password must be at least 6 characters",
       "passwordMismatch": "Passwords do not match",

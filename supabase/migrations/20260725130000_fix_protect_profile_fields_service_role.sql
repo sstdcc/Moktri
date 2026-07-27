@@ -1,4 +1,6 @@
 
+-- Allow service_role / Dashboard / SQL Editor to bypass protect_profile_fields()
+-- auth.uid() returns NULL when called from service_role context (Dashboard, SQL Editor, admin API)
 CREATE OR REPLACE FUNCTION public.protect_profile_fields()
  RETURNS trigger
  LANGUAGE plpgsql

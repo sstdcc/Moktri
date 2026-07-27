@@ -31,6 +31,12 @@ const normalizePhone = (raw: string) => {
   return digits;
 };
 
+const validYemeniPhone = (raw: string) => {
+  const normalized = normalizePhone(raw);
+  const local = normalized.replace('+967', '');
+  return /^7\d{8}$/.test(local);
+};
+
 const SignUpPage = () => {
   const { t } = useTranslation();
   const dir = useDir();
@@ -39,7 +45,7 @@ const SignUpPage = () => {
       firstName: z.string().trim().min(2, t('auth.errors.firstNameShort')).max(40),
       lastName: z.string().trim().min(2, t('auth.errors.lastNameShort')).max(40),
       email: z.string().trim().email(t('auth.errors.invalidEmail')).max(120),
-      phone: z.string().trim().min(8, t('auth.errors.phoneInvalid')),
+      phone: z.string().trim().min(1, t('auth.errors.required')),
       password: z.string().min(6, t('auth.errors.passwordMin')).max(72),
       confirmPassword: z.string(),
     })
@@ -111,15 +117,15 @@ const SignUpPage = () => {
       return;
     }
     setErrors({});
-    const normalized = normalizePhone(phoneRaw);
-    if (normalized.length < 12) {
+    if (!validYemeniPhone(phoneRaw)) {
       setErrors({ phone: t('auth.errors.phoneInvalid') });
       return;
     }
+    const normalized = normalizePhone(phoneRaw);
 
     setLoading(true);
     try {
-      await signInWithOtp(normalized);
+      await signInWithOtp(normalized, email.trim());
       // Stash profile data to apply after verification.
       sessionStorage.setItem(
         'pending_signup_profile',
@@ -204,28 +210,10 @@ const SignUpPage = () => {
     if (otpCode.length < 6) return;
     setLoading(true);
     try {
-      const result = await verifyOtp(phone, otpCode);
-
-      // Apply pending profile data (name, email, password) to the freshly created account
-      const pending = sessionStorage.getItem('pending_signup_profile');
-      if (pending) {
-        try {
-          const { full_name, email: pendingEmail, password: pendingPassword } = JSON.parse(pending);
-          const { data: { user: u } } = await supabase.auth.getUser();
-          if (u) {
-            if (pendingEmail || pendingPassword) {
-              await supabase.auth.updateUser({
-                ...(pendingEmail ? { email: pendingEmail } : {}),
-                ...(pendingPassword ? { password: pendingPassword } : {}),
-              });
-            }
-            if (full_name) {
-              await supabase.from('profiles').update({ full_name }).eq('id', u.id);
-            }
-          }
-        } catch {/* non-fatal */}
-        sessionStorage.removeItem('pending_signup_profile');
-      }
+      const pendingStr = sessionStorage.getItem('pending_signup_profile');
+      const pending = pendingStr ? JSON.parse(pendingStr) : {};
+      await verifyOtp(phone, otpCode, pending.email, pending.password);
+      // Keep sessionStorage for onboarding (full_name)
 
       toast.success(t('auth.success.accountCreated'));
       retryProfile();

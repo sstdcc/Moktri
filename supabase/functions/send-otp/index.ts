@@ -6,8 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
-
 // --- Hashing utility ---
 async function hashOtp(code: string, phone: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -24,7 +22,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone } = await req.json();
+    const { phone, email } = await req.json();
     if (!phone || typeof phone !== "string" || !/^\+\d{9,15}$/.test(phone)) {
       return new Response(
         JSON.stringify({ error: "رقم هاتف غير صالح" }),
@@ -32,10 +30,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("Missing server config");
-    const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
-    if (!TWILIO_API_KEY) throw new Error("Missing server config");
+    const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
+    if (!TWILIO_ACCOUNT_SID) throw new Error("Missing server config");
+    const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
+    if (!TWILIO_AUTH_TOKEN) throw new Error("Missing server config");
     const TWILIO_MESSAGING_SERVICE_SID = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
     const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER");
     if (!TWILIO_MESSAGING_SERVICE_SID && !TWILIO_PHONE_NUMBER) throw new Error("Missing server config");
@@ -43,6 +41,29 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // If email is provided (signup flow), check for duplicate phone/email before sending OTP
+    if (email && typeof email === "string") {
+      const { data: existingPhone } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("phone", phone)
+        .maybeSingle();
+      if (existingPhone) {
+        return new Response(
+          JSON.stringify({ error: "رقم الهاتف مستخدم مسبقًا" }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { data: emailExists } = await supabase.rpc("check_email_exists", { p_email: email.trim().toLowerCase() });
+      if (emailExists) {
+        return new Response(
+          JSON.stringify({ error: "البريد الإلكتروني مستخدم مسبقًا" }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // Extract client IP (best-effort)
     const ipHeader =
@@ -136,21 +157,20 @@ Deno.serve(async (req) => {
       To: phone,
       Body: `رمز التحقق الخاص بك في مفتاح: ${code}`,
     };
-    // if (TWILIO_MESSAGING_SERVICE_SID) {
-    //   smsParams.MessagingServiceSid = TWILIO_MESSAGING_SERVICE_SID;
-    // } else if (TWILIO_PHONE_NUMBER) {
-    //   smsParams.From = TWILIO_PHONE_NUMBER;
-    // }
-    
-    if (TWILIO_PHONE_NUMBER) {
+    if (TWILIO_MESSAGING_SERVICE_SID) {
+      smsParams.MessagingServiceSid = TWILIO_MESSAGING_SERVICE_SID;
+    } else if (TWILIO_PHONE_NUMBER) {
       smsParams.From = TWILIO_PHONE_NUMBER;
     }
 
-    const smsRes = await fetch(`${GATEWAY_URL}/Messages.json`, {
+    // Send via Twilio REST API directly
+    const twilioApiUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+    const basicAuth = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+    const smsRes = await fetch(twilioApiUrl, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": TWILIO_API_KEY,
+        Authorization: `Basic ${basicAuth}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams(smsParams),
@@ -159,7 +179,7 @@ Deno.serve(async (req) => {
     if (!smsRes.ok) {
       const errorBody = await smsRes.text();
       console.error("SMS send failed with status:", smsRes.status, "body:", errorBody);
-      
+
       // Parse Twilio error for user-friendly messages
       try {
         const twilioErr = JSON.parse(errorBody);
@@ -176,7 +196,7 @@ Deno.serve(async (req) => {
           );
         }
       } catch { /* ignore parse errors */ }
-      
+
       throw new Error("فشل إرسال الرسالة");
     }
 
@@ -185,7 +205,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("send-otp error");
+    console.error("send-otp error",error);
     return new Response(
       JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

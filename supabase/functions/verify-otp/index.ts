@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, code } = await req.json();
+    const { phone, code, email: providedEmail, password: providedPassword } = await req.json();
     console.log("[verify-otp] request received");
 
     if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
@@ -118,21 +118,52 @@ Deno.serve(async (req) => {
     }
 
     // ──────────────────────────────────────────────────────────
-    // TEMPORARY AUTH BRIDGE
-    // Uses deterministic email + admin API to create sessions.
-    // Avoids listUsers (which crashes on NULL email_change columns).
+    // AUTH BRIDGE
+    // New signups (email+password provided): create user with real email + password.
+    // Existing users / OTP-only: fall back to deterministic email + random password.
     // ──────────────────────────────────────────────────────────
 
-    const email = `${phone.replace("+", "")}@phone.miftah.app`;
+    const email = providedEmail || `${phone.replace("+", "")}@phone.miftah.app`;
+    const password = providedPassword || crypto.randomUUID() + crypto.randomUUID();
     let isNew = false;
+
+    // Duplicate check for new signups (email+password provided)
+    if (providedEmail && providedPassword) {
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("phone", phone)
+        .maybeSingle();
+      if (existingProfile) {
+        return new Response(
+          JSON.stringify({ error: "رقم الهاتف مستخدم مسبقًا" }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { data: emailExists } = await supabase.rpc("check_email_exists", { p_email: providedEmail.trim().toLowerCase() });
+      if (emailExists) {
+        return new Response(
+          JSON.stringify({ error: "البريد الإلكتروني مستخدم مسبقًا" }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // Strategy: try createUser first. If user already exists (422),
     // we know it's an existing user and skip to session generation.
     // This avoids the broken listUsers paginated scan entirely.
-    const randomPassword = crypto.randomUUID() + crypto.randomUUID();
+    console.log("[verify-otp] createUser payload:", JSON.stringify({
+      email,
+      password: password ? `${password.slice(0, 2)}...` : null,
+      phone,
+      phone_confirm: true,
+      email_confirm: true,
+      user_metadata: { phone, full_name: "" },
+    }));
     const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
       email,
-      password: randomPassword,
+      password,
       phone,
       phone_confirm: true,
       email_confirm: true,
@@ -140,6 +171,15 @@ Deno.serve(async (req) => {
     });
 
     if (createErr) {
+      // Log full error details for debugging
+      console.error("[verify-otp] createUser error:", {
+        message: createErr.message,
+        code: (createErr as any)?.code ?? null,
+        status: (createErr as any)?.status ?? null,
+        details: (createErr as any)?.details ?? null,
+        hint: (createErr as any)?.hint ?? null,
+        stack: (createErr as any)?.stack ?? null,
+      });
       // Check if user already exists
       const errMsg = createErr.message || "";
       if (errMsg.includes("already been registered") || errMsg.includes("already exists")) {
@@ -150,7 +190,7 @@ Deno.serve(async (req) => {
         throw createErr;
       }
     } else {
-      console.log("[verify-otp] new user created");
+      console.log("[verify-otp] new user created with email:", email);
       isNew = true;
     }
 
@@ -200,9 +240,14 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("[verify-otp] unhandled error:", error instanceof Error ? error.message : String(error));
+    console.error("[verify-otp] unhandled error:", error);
     return new Response(
-      JSON.stringify({ error: "تعذر إكمال العملية، حاول مرة أخرى" }),
+      JSON.stringify({
+        error: error instanceof Error ? error.message : String(error),
+        code: (error as any)?.code ?? null,
+        details: (error as any)?.details ?? null,
+        hint: (error as any)?.hint ?? null,
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

@@ -136,7 +136,10 @@
     "editData": "تعديل البيانات",
     "resend": "إعادة الإرسال",
     "resendIn": "إعادة الإرسال ({{seconds}})",
+    "emailOrPhone": "البريد الإلكتروني",
+    "emailOrPhonePlaceholder": "البريد الإلكتروني",
     "errors": {
+      "required": "هذا الحقل مطلوب",
       "invalidEmail": "البريد الإلكتروني غير صالح",
       "passwordMin": "كلمة المرور يجب ألا تقل عن 6 أحرف",
       "passwordMismatch": "كلمتا المرور غير متطابقتين",

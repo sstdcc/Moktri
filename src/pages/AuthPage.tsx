@@ -19,11 +19,11 @@ const AuthPage = () => {
   const dir = useDir();
 
   const loginSchema = z.object({
-    email: z.string().trim().email(t('auth.errors.invalidEmail')).max(120),
+    login: z.string().trim().min(1, t('auth.errors.required')).max(120),
     password: z.string().min(6, t('auth.errors.passwordMin')).max(72),
   });
 
-  const [email, setEmail] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -78,7 +78,7 @@ const AuthPage = () => {
       setErrors({ password: msg });
       return;
     }
-    const parsed = loginSchema.safeParse({ email, password });
+    const parsed = loginSchema.safeParse({ login, password });
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       parsed.error.issues.forEach((i) => { fieldErrors[i.path[0] as string] = i.message; });
@@ -102,7 +102,7 @@ const AuthPage = () => {
             apikey: anon,
             Authorization: `Bearer ${anon}`,
           },
-          body: JSON.stringify({ email: email.trim(), password }),
+          body: JSON.stringify({ email: login.trim().toLowerCase(), password }),
         });
         payload = await res.json().catch(() => null);
       } catch {
@@ -185,23 +185,25 @@ const AuthPage = () => {
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-[12.5px] font-medium text-foreground/90 block">{t('auth.email')}</Label>
+            <Label className="text-[12.5px] font-medium text-foreground/90 block">{t('auth.emailOrPhone')}</Label>
             <div className="relative">
               <Mail className={iconStartClass} strokeWidth={1.75} />
               <Input
                 type="email"
                 inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
+                autoComplete="username"
+                value={login}
+                onChange={(e) => {
+                  setLogin(e.target.value);
+                }}
+                placeholder={t('auth.emailOrPhonePlaceholder')}
                 className={cn(fieldClass, 'text-left')}
                 dir="ltr"
                 disabled={isLocked}
                 onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
             </div>
-            {errors.email && <p className="text-[11px] text-destructive">{errors.email}</p>}
+            {errors.login && <p className="text-[11px] text-destructive">{errors.login}</p>}
           </div>
 
           <div className="space-y-2">
