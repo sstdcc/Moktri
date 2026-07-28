@@ -41,9 +41,6 @@ const OnboardingFlow = () => {
 
   const pendingData = JSON.parse(sessionStorage.getItem('pending_signup_profile') || '{}');
   const fullName = (pendingData.full_name || '').trim();
-  console.log('[DIAG] OnboardingFlow — sessionStorage pending_signup_profile:', pendingData);
-  console.log('[DIAG] OnboardingFlow — fullName from sessionStorage:', fullName);
-
   const handleSubmit = async () => {
     if (!fullName) {
       toast.error('خطأ في بيانات التسجيل');
@@ -52,11 +49,9 @@ const OnboardingFlow = () => {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('[DIAG] OnboardingFlow — auth.user before profile update:', { id: user?.id, email: user?.email, phone: user?.phone });
       if (!user) throw new Error('لم يتم العثور على المستخدم');
 
       const { data: beforeProfile } = await supabase.from('profiles').select('id, full_name, role, phone').eq('id', user.id).maybeSingle();
-      console.log('[DIAG] OnboardingFlow — profile BEFORE update:', beforeProfile);
 
       const { error } = await supabase
         .from('profiles')
@@ -67,12 +62,10 @@ const OnboardingFlow = () => {
         .eq('id', user.id);
 
       if (error) {
-        console.error('Profile save error:', JSON.stringify(error));
         throw error;
       }
 
       const { data: afterProfile } = await supabase.from('profiles').select('id, full_name, role, phone').eq('id', user.id).maybeSingle();
-      console.log('[DIAG] OnboardingFlow — profile AFTER update:', afterProfile);
 
       sessionStorage.removeItem('pending_signup_profile');
 
@@ -88,7 +81,6 @@ const OnboardingFlow = () => {
         navigate('/dashboard', { replace: true });
       }
     } catch (err) {
-      console.error('Onboarding error:', err);
       toast.error('تعذر حفظ البيانات، حاول مرة أخرى');
     } finally {
       setLoading(false);
