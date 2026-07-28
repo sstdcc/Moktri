@@ -198,8 +198,6 @@ const ConversationPage = () => {
 
   const handleRequestAction = async (status: 'accepted' | 'rejected') => {
     if (!user || !pendingRequestId || !listingId || actingRequest) return;
-    const confirmMsg = status === 'accepted' ? 'قبول هذا الطلب؟' : 'رفض هذا الطلب؟';
-    if (!confirm(confirmMsg)) return;
     setActingRequest(status);
     try {
       const { error } = await supabase
@@ -244,8 +242,6 @@ const ConversationPage = () => {
   const handleConfirmDeal = async () => {
     if (!user || !listingId || !conversationId || confirmingDeal) return;
     if (myConfirmed) return;
-    const msg = isOwnerSide ? 'تأكيد إتمام التأجير لهذا المستأجر؟' : 'تأكيد الاتفاق على هذا الإعلان؟';
-    if (!confirm(msg)) return;
     setConfirmingDeal(true);
     try {
       const { data, error } = await supabase.rpc('confirm_rental_deal', {

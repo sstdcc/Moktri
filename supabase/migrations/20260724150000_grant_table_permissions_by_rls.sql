@@ -35,6 +35,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.listings TO authenticated;
 -- listing_images: "Anyone can read" → anon SELECT
 --                 "Owners can manage" → authenticated INSERT, UPDATE, DELETE
 GRANT SELECT ON public.listing_images TO anon;
+GRANT SELECT ON public.listing_images TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.listing_images TO authenticated;
 
 -- housing_requests: "Anyone can read active" → anon SELECT

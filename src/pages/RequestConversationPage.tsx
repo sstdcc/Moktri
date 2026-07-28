@@ -315,7 +315,6 @@ const RequestConversationPage = () => {
 
   const handleAcceptOffer = async (o: OfferRow) => {
     if (actingOfferId) return;
-    if (!confirm('قبول هذا العرض؟')) return;
     setActingOfferId(o.id);
     const { error } = await supabase.rpc('accept_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر قبول العرض'); setActingOfferId(null); return; }
@@ -334,7 +333,6 @@ const RequestConversationPage = () => {
 
   const handleRejectOffer = async (o: OfferRow) => {
     if (actingOfferId) return;
-    if (!confirm('رفض هذا العرض؟')) return;
     setActingOfferId(o.id);
     const { error } = await supabase.rpc('reject_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر رفض العرض'); setActingOfferId(null); return; }
@@ -353,7 +351,6 @@ const RequestConversationPage = () => {
 
   const handleCompleteRental = async (o: OfferRow) => {
     if (actingOfferId) return;
-    if (!confirm('تأكيد إتمام تأجير هذا العقار للمستأجر؟')) return;
     setActingOfferId(o.id);
     const { error } = await supabase.rpc('complete_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر إتمام التأجير'); setActingOfferId(null); return; }
