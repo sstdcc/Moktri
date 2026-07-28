@@ -74,18 +74,19 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
       body_ar: `قبل المستأجر عرضك على: ${o.listing?.title ?? ''}`,
       link: `/listings/${o.listing_id}`,
     });
-    // open / create chat
+    // open / create request_conversation
     const { data: existing } = await supabase
-      .from('listing_conversations')
+      .from('request_conversations')
       .select('id')
-      .eq('listing_id', o.listing_id)
-      .eq('user_id', user!.id)
+      .eq('request_id', o.housing_request_id)
+      .eq('requester_id', o.requester_id)
+      .eq('responder_id', o.owner_id)
       .maybeSingle();
     let convId = existing?.id as string | undefined;
     if (!convId) {
       const { data: created } = await supabase
-        .from('listing_conversations')
-        .insert({ listing_id: o.listing_id, owner_id: o.owner_id, user_id: user!.id })
+        .from('request_conversations')
+        .insert({ request_id: o.housing_request_id, requester_id: o.requester_id, responder_id: o.owner_id })
         .select('id')
         .single();
       convId = created?.id;
@@ -93,7 +94,7 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
     toast.success('تم قبول العرض');
     setActingId(null);
     onChange?.();
-    if (convId) navigate(`/chat/${convId}`); else fetchOffers();
+    if (convId) navigate(`/request-chat/${convId}`); else fetchOffers();
   };
 
   const reject = async (o: OfferRow) => {
@@ -116,21 +117,22 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
   const openChat = async (o: OfferRow) => {
     if (!user) return;
     const { data: existing } = await supabase
-      .from('listing_conversations')
+      .from('request_conversations')
       .select('id')
-      .eq('listing_id', o.listing_id)
-      .eq('user_id', o.requester_id)
+      .eq('request_id', o.housing_request_id)
+      .eq('requester_id', o.requester_id)
+      .eq('responder_id', o.owner_id)
       .maybeSingle();
     let convId = existing?.id as string | undefined;
     if (!convId && user.id === o.requester_id) {
       const { data: created } = await supabase
-        .from('listing_conversations')
-        .insert({ listing_id: o.listing_id, owner_id: o.owner_id, user_id: o.requester_id })
+        .from('request_conversations')
+        .insert({ request_id: o.housing_request_id, requester_id: o.requester_id, responder_id: o.owner_id })
         .select('id')
         .single();
       convId = created?.id;
     }
-    if (convId) navigate(`/chat/${convId}`);
+    if (convId) navigate(`/request-chat/${convId}`);
     else toast.error('تعذر فتح المحادثة');
   };
 
@@ -164,8 +166,8 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
               {o.created_at && <p className="text-[10px] text-muted-foreground">{timeAgo(o.created_at)}</p>}
               {canAct && (
                 <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
-                  <Button size="sm" onClick={(e) => { e.stopPropagation(); accept(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
-                    {actingId === o.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} بدء التفاوض
+                  <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openChat(o); }} className="flex-1 h-8 gap-1 text-xs">
+                    <MessageSquare className="h-3 w-3" /> بدء التفاوض
                   </Button>
                   <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); reject(o); }} disabled={actingId === o.id} className="flex-1 h-8 gap-1 text-xs">
                     <X className="h-3 w-3" /> رفض

@@ -458,7 +458,26 @@ const RequestDetailPage = () => {
               onOpenChange={setOfferOpen}
               housingRequestId={request.id}
               requesterId={request.requester_id}
-              onSent={fetchData}
+              onSent={async () => {
+                await fetchData();
+                const { data: existing } = await supabase
+                  .from('request_conversations')
+                  .select('id')
+                  .eq('request_id', request.id)
+                  .eq('requester_id', request.requester_id)
+                  .eq('responder_id', user!.id)
+                  .maybeSingle();
+                let convId = existing?.id;
+                if (!convId) {
+                  const { data: created } = await supabase
+                    .from('request_conversations')
+                    .insert({ request_id: request.id, requester_id: request.requester_id, responder_id: user!.id })
+                    .select('id')
+                    .single();
+                  convId = created?.id;
+                }
+                if (convId) navigate(`/request-chat/${convId}`);
+              }}
             />
           </>
         )}
