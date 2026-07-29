@@ -135,7 +135,7 @@ const HomePage = () => {
             <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
                • اليمن
             </span>
-            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 dark:text-white/95 tracking-tight">ابحث عن سكنك في </p>
+            <p className="mt-4 text-xl font-extrabold text-primary-foreground/95 dark:text-white/95 tracking-tight">ابحث عن سكنك في اليمن</p>
             <p className="mt-1 text-sm text-primary-foreground/45 dark:text-white/70">آلاف الإعلانات من الملاك والدلالين</p>
           </div>
 
@@ -200,7 +200,7 @@ const HomePage = () => {
       <section className="px-5 py-7">
         <SectionTitle title="تصفح حسب المحافظة" />
         <div className="grid grid-cols-3 gap-3">
-          {['', 'صنعاء', 'عدن', 'إب', 'الحديدة', 'حضرموت', 'ذمار', 'المكلا', 'مأرب'].map((gov) => (
+          {['تعز', 'صنعاء', 'عدن', 'إب', 'الحديدة', 'حضرموت', 'ذمار', 'المكلا', 'مأرب'].map((gov) => (
             <button
               key={gov}
               onClick={() => navigate(`/listings?governorate=${encodeURIComponent(gov)}`)}
