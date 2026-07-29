@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { scheduleScrollReset, scrollAppToTop } from '@/lib/scroll';
+import { createNotificationService } from '@/services';
 import {
   getDraftKey,
   loadDraft,
@@ -324,13 +325,11 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
 
       // If private offer: notify the renter
       if (isPrivateOffer && listing) {
-        await supabase.from('notifications').insert({
-          user_id: privateForUserId,
-          type: 'private_offer_created' as any,
-          title_ar: 'تم إنشاء عرض خاص لك',
-          body_ar: 'قام المالك بإنشاء إعلان خاص لطلب السكن. راجع التفاصيل وأكّد القبول.',
+        createNotificationService(supabase).create('private_offer_created', privateForUserId, {
+          titleAr: 'تم إنشاء عرض خاص لك',
+          bodyAr: 'قام المالك بإنشاء إعلان خاص لطلب السكن. راجع التفاصيل وأكّد القبول.',
           link: `/listings/${listing.id}`,
-        });
+        }).catch(console.error);
         clearDraft(draftKey);
         toast.success('تم إرسال العرض الخاص للمستأجر');
         navigate('/dashboard/owner');

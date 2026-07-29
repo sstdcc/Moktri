@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import { successToast } from '@/lib/successToast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -72,13 +73,11 @@ export const SendHousingOfferDialog = ({ open, onOpenChange, housingRequestId, r
       return;
     }
 
-    await supabase.from('notifications').insert({
-      user_id: requesterId,
-      type: 'private_offer_created' as any,
-      title_ar: 'لديك عرض جديد',
-      body_ar: `تم إرسال عرض على طلبك: ${listingTitle}`,
+    createNotificationService(supabase).create('private_offer_created', requesterId, {
+      titleAr: 'لديك عرض جديد',
+      bodyAr: `تم إرسال عرض على طلبك: ${listingTitle}`,
       link: `/requests/${housingRequestId}`,
-    });
+    }).catch(console.error);
 
     toast.dismiss(toastId);
     successToast('تم إرسال العرض', { description: 'سيتم إشعار المستأجر بعرضك' });

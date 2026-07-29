@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { createNotificationService } from '@/services';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Send, Loader2 } from 'lucide-react';
@@ -147,13 +148,11 @@ export const ChatModal = ({ open, onOpenChange, listingId, ownerId, listingTitle
         : ownerId;
       
       if (receiverId) {
-        await supabase.from('notifications').insert({
-          user_id: receiverId,
-          type: 'new_message' as any,
-          title_ar: `رسالة جديدة من ${user.user_metadata?.full_name || 'مستخدم'}`,
-          body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
+        createNotificationService(supabase).create('new_message', receiverId, {
+          titleAr: `رسالة جديدة من ${user.user_metadata?.full_name || 'مستخدم'}`,
+          bodyAr: text.length > 80 ? text.slice(0, 80) + '...' : text,
           link: `/chat/${conversationId}`,
-        });
+        }).catch(console.error);
       }
     }
     setSending(false);

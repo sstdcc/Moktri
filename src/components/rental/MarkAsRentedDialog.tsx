@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { createNotificationService } from '@/services';
 
 interface ProfileOption {
   id: string;
@@ -153,15 +154,17 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
           .select('id')
           .in('role', ['admin', 'moderator']);
         if (admins && admins.length) {
-          await supabase.from('notifications').insert(
+          createNotificationService(supabase).createMany(
             admins.map((a: any) => ({
-              user_id: a.id,
-              type: 'rental_pending_review' as any,
-              title_ar: 'إيجار عرض خاص بانتظار المراجعة',
-              body_ar: `طلب اعتماد إيجار للإعلان: ${listingTitle}.`,
-              link: '/dashboard/admin/rentals',
+              type: 'rental_pending_review' as const,
+              userId: a.id,
+              data: {
+                titleAr: 'إيجار عرض خاص بانتظار المراجعة',
+                bodyAr: `طلب اعتماد إيجار للإعلان: ${listingTitle}.`,
+                link: '/dashboard/admin/rentals',
+              },
             }))
-          );
+          ).catch(console.error);
         }
 
         toast({ title: 'تم رفع الإيجار للمراجعة', description: 'سيتم اعتماده من قبل الإدارة قريباً' });
@@ -179,13 +182,13 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
             .eq('id', sourceRequestId);
         }
 
-        const notifs: any[] = [
-          { user_id: finalRenterId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` },
+        const notifInputs = [
+          { type: 'system' as const, userId: finalRenterId, data: { titleAr: 'تم إكمال الإيجار', bodyAr: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` } },
         ];
         if (brokerId !== 'none') {
-          notifs.push({ user_id: brokerId, type: 'system', title_ar: 'تم إكمال الإيجار', body_ar: `تم تعيينك كوسيط في الإعلان: ${listingTitle}.`, link: `/profile/${finalRenterId}` });
+          notifInputs.push({ type: 'system' as const, userId: brokerId, data: { titleAr: 'تم إكمال الإيجار', bodyAr: `تم تعيينك كوسيط في الإعلان: ${listingTitle}.`, link: `/profile/${finalRenterId}` } });
         }
-        await supabase.from('notifications').insert(notifs);
+        createNotificationService(supabase).createMany(notifInputs).catch(console.error);
 
         toast({ title: 'تم تسجيل الإيجار', description: 'يمكن الآن للأطراف تقييم بعضهم' });
       }

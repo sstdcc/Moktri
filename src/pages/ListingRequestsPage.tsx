@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Inbox, MessageCircle, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 
 type Status = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'negotiating' | 'rented';
 
@@ -128,13 +129,15 @@ export default function ListingRequestsPage() {
     }
     // Mirror the working pattern (e.g. PrivateOffersForRenter): plain insert, no .select() chained,
     // since the SELECT RLS only allows owners of the notification (the requester) to read it back.
-    await supabase.from('notifications').insert({
-      user_id: req.requester_id,
-      type: status === 'accepted' ? 'private_offer_accepted' as any : 'private_offer_rejected' as any,
-      title_ar: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
-      body_ar: `بشأن: ${req.listing?.title || ''}`,
-      link: req.conversation_id ? `/chat/${req.conversation_id}` : `/listings/${req.listing_id}`,
-    });
+    createNotificationService(supabase).create(
+      status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected',
+      req.requester_id,
+      {
+        titleAr: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
+        bodyAr: `بشأن: ${req.listing?.title || ''}`,
+        link: req.conversation_id ? `/chat/${req.conversation_id}` : `/listings/${req.listing_id}`,
+      }
+    ).catch(console.error);
     toast.success(status === 'accepted' ? 'تم القبول — جاري التفاوض' : 'تم الرفض');
     setActingId(null);
   };

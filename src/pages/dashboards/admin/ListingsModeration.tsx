@@ -14,6 +14,7 @@ import { ar } from 'date-fns/locale';
 import { ExternalLink, Check, X, BadgeCheck, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { createNotificationService } from '@/services';
 
 const PAGE_SIZE = 30;
 
@@ -104,12 +105,10 @@ const ListingsModeration = () => {
       .from('listings')
       .update({ status: 'active' as any, published_at: new Date().toISOString(), expires_at: expiresAt })
       .eq('id', listing.id);
-    await supabase.from('notifications').insert({
-      type: 'listing_approved' as any,
-      user_id: listing.owner_id,
-      title_ar: 'تم قبول إعلانك',
-      body_ar: `تمت مراجعة إعلانك "${listing.title}" وتم نشره`,
-    });
+    createNotificationService(supabase).create('listing_approved', listing.owner_id, {
+      titleAr: 'تم قبول إعلانك',
+      bodyAr: `تمت مراجعة إعلانك "${listing.title}" وتم نشره`,
+    }).catch(console.error);
     toast.success('تم قبول الإعلان');
     fetchListings(0);
     fetchCounts();
@@ -120,12 +119,10 @@ const ListingsModeration = () => {
     const l = rejectModal.listing;
     const note = `${rejectReason}${rejectNote ? ' — ' + rejectNote : ''}`;
     await supabase.from('listings').update({ status: 'rejected' as any, moderation_note: note }).eq('id', l.id);
-    await supabase.from('notifications').insert({
-      type: 'listing_rejected' as any,
-      user_id: l.owner_id,
-      title_ar: 'تم رفض إعلانك',
-      body_ar: `تم رفض إعلانك "${l.title}" — السبب: ${rejectReason}`,
-    });
+    createNotificationService(supabase).create('listing_rejected', l.owner_id, {
+      titleAr: 'تم رفض إعلانك',
+      bodyAr: `تم رفض إعلانك "${l.title}" — السبب: ${rejectReason}`,
+    }).catch(console.error);
     toast.success('تم رفض الإعلان');
     setRejectModal({ open: false, listing: null });
     setRejectReason('');
@@ -280,13 +277,11 @@ const ListingsModeration = () => {
                     {activeTab === 'active' && (
                       <Button size="sm" variant="outline" className="h-8" onClick={async () => {
                         await supabase.from('listings').update({ status: 'paused' as any }).eq('id', l.id);
-                        await supabase.from('notifications').insert({
-                          type: 'system' as any,
-                          user_id: l.owner_id,
-                          title_ar: 'تم إيقاف إعلانك',
-                          body_ar: `تم إيقاف إعلانك "${l.title}" من قبل الإدارة`,
+                        createNotificationService(supabase).create('system', l.owner_id, {
+                          titleAr: 'تم إيقاف إعلانك',
+                          bodyAr: `تم إيقاف إعلانك "${l.title}" من قبل الإدارة`,
                           link: `/listings/${l.id}`,
-                        });
+                        }).catch(console.error);
                         toast.success('تم إيقاف الإعلان');
                         fetchListings(0);
                         fetchCounts();

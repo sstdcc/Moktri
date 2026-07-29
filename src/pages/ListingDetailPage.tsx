@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import type { Listing, Profile, District } from '@/types/database';
 import { ChatModal } from '@/components/chat/ChatModal';
 import { RatingDisplay } from '@/components/rating/RatingDisplay';
@@ -135,13 +136,11 @@ const ListingDetailPage = () => {
       });
 
       // 5) Notify owner
-      await supabase.from('notifications').insert({
-        user_id: listing.owner_id,
-        type: 'private_offer_request' as any,
-        title_ar: isNegotiate ? 'طلب تفاوض جديد' : 'طلب سكن جديد',
-        body_ar: `${user.user_metadata?.full_name || 'مستخدم'} ${isNegotiate ? 'يرغب بالتفاوض على' : 'قدّم طلب سكن لـ'} "${listing.title}"`,
+      createNotificationService(supabase).create('private_offer_request', listing.owner_id, {
+        titleAr: isNegotiate ? 'طلب تفاوض جديد' : 'طلب سكن جديد',
+        bodyAr: `${user.user_metadata?.full_name || 'مستخدم'} ${isNegotiate ? 'يرغب بالتفاوض على' : 'قدّم طلب سكن لـ'} "${listing.title}"`,
         link: convId ? `/chat/${convId}` : `/listings/${listing.id}`,
-      });
+      }).catch(console.error);
 
       toast.success(isNegotiate ? 'تم إرسال طلب التفاوض' : 'تم إرسال طلب السكن');
       if (convId) navigate(`/chat/${convId}`);

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { MessageCircle, Check, X, Inbox } from 'lucide-react';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import { cn } from '@/lib/utils';
 
 interface IncomingRequest {
@@ -63,13 +64,12 @@ export const IncomingListingRequests = () => {
       }
 
       // Notify requester
-      await supabase.from('notifications').insert({
-        user_id: req.requester_id,
-        type: status === 'accepted' ? 'private_offer_accepted' as any : 'private_offer_rejected' as any,
-        title_ar: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
-        body_ar: `بشأن: ${req.listing?.title || ''}`,
+      const notifType = status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected';
+      createNotificationService(supabase).create(notifType, req.requester_id, {
+        titleAr: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
+        bodyAr: `بشأن: ${req.listing?.title || ''}`,
         link: req.conversation_id ? `/chat/${req.conversation_id}` : `/listings/${req.listing_id}`,
-      });
+      }).catch(console.error);
       toast.success(status === 'accepted' ? 'تم القبول — جاري التفاوض' : 'تم الرفض');
     }
     setActingId(null);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
@@ -154,15 +155,13 @@ export const FulfillRequestDialog = ({
 
     // No listing yet → trigger private offer request flow
     if (!listingId) {
-      const { error: notifErr } = await supabase.from('notifications').insert({
-        user_id: ownerId,
-        type: 'private_offer_request' as any,
-        title_ar: 'طلب إنشاء إعلان خاص',
-        body_ar: 'مستأجر يريد إتمام صفقة معك. أنشئ إعلاناً خاصاً به لتأكيد التعامل.',
-        link: `/listings/new?private_for=${user.id}&from_request=${requestId}`,
-      });
-
-      if (notifErr) {
+      try {
+        await createNotificationService(supabase).create('private_offer_request', ownerId, {
+          titleAr: 'طلب إنشاء إعلان خاص',
+          bodyAr: 'مستأجر يريد إتمام صفقة معك. أنشئ إعلاناً خاصاً به لتأكيد التعامل.',
+          link: `/listings/new?private_for=${user.id}&from_request=${requestId}`,
+        });
+      } catch (notifErr) {
         console.error(notifErr);
         toast.error('تعذر إرسال طلب الإعلان للمالك');
         setSubmitting(false);
@@ -207,15 +206,17 @@ export const FulfillRequestDialog = ({
         .select('id')
         .in('role', ['admin', 'moderator']);
       if (admins?.length) {
-        await supabase.from('notifications').insert(
+        createNotificationService(supabase).createMany(
           admins.map((a: any) => ({
-            user_id: a.id,
-            type: 'rental_pending_review' as any,
-            title_ar: 'إيجار عرض خاص بانتظار المراجعة',
-            body_ar: 'طلب اعتماد إيجار عرض خاص بحاجة لمراجعتك.',
-            link: '/dashboard/admin/rentals',
+            type: 'rental_pending_review' as const,
+            userId: a.id,
+            data: {
+              titleAr: 'إيجار عرض خاص بانتظار المراجعة',
+              bodyAr: 'طلب اعتماد إيجار عرض خاص بحاجة لمراجعتك.',
+              link: '/dashboard/admin/rentals',
+            },
           }))
-        );
+        ).catch(console.error);
       }
 
       toast.success('تم رفع الإيجار للمراجعة من الإدارة. سيتم اعتماده قريباً.');

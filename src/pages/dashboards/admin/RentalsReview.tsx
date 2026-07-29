@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Check, X, ExternalLink, Home, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { successToast } from '@/lib/successToast';
+import { createNotificationService } from '@/services';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -79,14 +80,14 @@ const RentalsReview = () => {
 
       // 4) Notifications
       const title = r.listing?.title || 'الإعلان';
-      const notifs: any[] = [
-        { user_id: r.renter_id, type: 'system', title_ar: 'تم اعتماد الإيجار', body_ar: `تم اعتماد إيجارك للإعلان: ${title}. يمكنك الآن تقييم المالك.`, link: `/profile/${r.owner_id}` },
-        { user_id: r.owner_id, type: 'system', title_ar: 'تم اعتماد الإيجار', body_ar: `تم اعتماد إيجار إعلانك: ${title}.`, link: `/profile/${r.renter_id}` },
+      const notifInputs = [
+        { type: 'system' as const, userId: r.renter_id, data: { titleAr: 'تم اعتماد الإيجار', bodyAr: `تم اعتماد إيجارك للإعلان: ${title}. يمكنك الآن تقييم المالك.`, link: `/profile/${r.owner_id}` } },
+        { type: 'system' as const, userId: r.owner_id, data: { titleAr: 'تم اعتماد الإيجار', bodyAr: `تم اعتماد إيجار إعلانك: ${title}.`, link: `/profile/${r.renter_id}` } },
       ];
       if (r.broker_id) {
-        notifs.push({ user_id: r.broker_id, type: 'system', title_ar: 'تم اعتماد الإيجار', body_ar: `تم اعتماد الإيجار الذي شاركت فيه: ${title}.`, link: `/profile/${r.renter_id}` });
+        notifInputs.push({ type: 'system' as const, userId: r.broker_id, data: { titleAr: 'تم اعتماد الإيجار', bodyAr: `تم اعتماد الإيجار الذي شاركت فيه: ${title}.`, link: `/profile/${r.renter_id}` } });
       }
-      await supabase.from('notifications').insert(notifs);
+      createNotificationService(supabase).createMany(notifInputs).catch(console.error);
 
       successToast('تم اعتماد الإيجار');
       fetchRows();
@@ -121,14 +122,14 @@ const RentalsReview = () => {
       // 3) Notify both parties
       const note = rejectNote ? ` السبب: ${rejectNote}` : '';
       const title = r.listing?.title || 'الإعلان';
-      const notifs: any[] = [
-        { user_id: r.owner_id, type: 'system', title_ar: 'تم رفض اعتماد الإيجار', body_ar: `لم يتم اعتماد إيجار الإعلان: ${title}.${note}`, link: `/listings/${r.listing_id}` },
-        { user_id: r.renter_id, type: 'system', title_ar: 'تم رفض اعتماد الإيجار', body_ar: `لم يتم اعتماد إيجار الإعلان: ${title}.${note}`, link: `/listings/${r.listing_id}` },
+      const notifInputs = [
+        { type: 'system' as const, userId: r.owner_id, data: { titleAr: 'تم رفض اعتماد الإيجار', bodyAr: `لم يتم اعتماد إيجار الإعلان: ${title}.${note}`, link: `/listings/${r.listing_id}` } },
+        { type: 'system' as const, userId: r.renter_id, data: { titleAr: 'تم رفض اعتماد الإيجار', bodyAr: `لم يتم اعتماد إيجار الإعلان: ${title}.${note}`, link: `/listings/${r.listing_id}` } },
       ];
       if (r.broker_id) {
-        notifs.push({ user_id: r.broker_id, type: 'system', title_ar: 'تم رفض اعتماد الإيجار', body_ar: `لم يتم اعتماد الإيجار الذي شاركت فيه: ${title}.${note}`, link: `/listings/${r.listing_id}` });
+        notifInputs.push({ type: 'system' as const, userId: r.broker_id, data: { titleAr: 'تم رفض اعتماد الإيجار', bodyAr: `لم يتم اعتماد الإيجار الذي شاركت فيه: ${title}.${note}`, link: `/listings/${r.listing_id}` } });
       }
-      await supabase.from('notifications').insert(notifs);
+      createNotificationService(supabase).createMany(notifInputs).catch(console.error);
 
       toast.success('تم رفض الاعتماد وإعادة الحالة');
       setRejectModal({ open: false, rental: null });

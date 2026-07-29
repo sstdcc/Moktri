@@ -8,6 +8,7 @@ import { Send, Loader2, ArrowRight, Home, Check, X, CheckCircle2, ExternalLink }
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { successToast } from '@/lib/successToast';
+import { createNotificationService } from '@/services';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 import { Linkify } from '@/lib/linkify';
@@ -293,13 +294,11 @@ const RequestConversationPage = () => {
 
     const receiverId = user.id === requesterId ? responderId : requesterId;
     if (receiverId) {
-      await supabase.from('notifications').insert({
-        user_id: receiverId,
-        type: 'new_message',
-        title_ar: 'رسالة جديدة',
-        body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
+      createNotificationService(supabase).create('new_message', receiverId, {
+        titleAr: 'رسالة جديدة',
+        bodyAr: text.length > 80 ? text.slice(0, 80) + '...' : text,
         link: `/request-chat/${conversationId}`,
-      });
+      }).catch(console.error);
     }
     setSending(false);
   };
@@ -319,13 +318,11 @@ const RequestConversationPage = () => {
     const { error } = await supabase.rpc('accept_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر قبول العرض'); setActingOfferId(null); return; }
     await postSystemMessage(`✅ تم قبول عرض العقار: ${o.listing_title ?? ''}`);
-    await supabase.from('notifications').insert({
-      user_id: o.owner_id,
-      type: 'private_offer_accepted' as any,
-      title_ar: 'تم قبول عرضك',
-      body_ar: `قبل المستأجر عرضك على: ${o.listing_title ?? ''}`,
+    createNotificationService(supabase).create('private_offer_accepted', o.owner_id, {
+      titleAr: 'تم قبول عرضك',
+      bodyAr: `قبل المستأجر عرضك على: ${o.listing_title ?? ''}`,
       link: `/request-chat/${conversationId}`,
-    });
+    }).catch(console.error);
     successToast('تم قبول العرض', { description: 'يمكن للمالك الآن إتمام التأجير' });
     setActingOfferId(null);
     refreshOffer(o.id);
@@ -337,13 +334,11 @@ const RequestConversationPage = () => {
     const { error } = await supabase.rpc('reject_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر رفض العرض'); setActingOfferId(null); return; }
     await postSystemMessage(`❌ تم رفض عرض العقار: ${o.listing_title ?? ''}`);
-    await supabase.from('notifications').insert({
-      user_id: o.owner_id,
-      type: 'private_offer_rejected' as any,
-      title_ar: 'تم رفض عرضك',
-      body_ar: `بشأن: ${o.listing_title ?? ''}`,
+    createNotificationService(supabase).create('private_offer_rejected', o.owner_id, {
+      titleAr: 'تم رفض عرضك',
+      bodyAr: `بشأن: ${o.listing_title ?? ''}`,
       link: `/request-chat/${conversationId}`,
-    });
+    }).catch(console.error);
     toast.success('تم رفض العرض');
     setActingOfferId(null);
     refreshOffer(o.id);
@@ -355,13 +350,11 @@ const RequestConversationPage = () => {
     const { error } = await supabase.rpc('complete_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { toast.error(error.message || 'تعذر إتمام التأجير'); setActingOfferId(null); return; }
     await postSystemMessage(`🎉 تم إتمام عملية التأجير: ${o.listing_title ?? ''}`);
-    await supabase.from('notifications').insert({
-      user_id: o.requester_id,
-      type: 'system' as any,
-      title_ar: 'تم إتمام التأجير',
-      body_ar: `تم إتمام تأجير العقار: ${o.listing_title ?? ''}`,
+    createNotificationService(supabase).create('system', o.requester_id, {
+      titleAr: 'تم إتمام التأجير',
+      bodyAr: `تم إتمام تأجير العقار: ${o.listing_title ?? ''}`,
       link: `/request-chat/${conversationId}`,
-    });
+    }).catch(console.error);
     successToast('تم إتمام التأجير', { description: 'تم تحديث حالة الإعلان والطلب' });
     setActingOfferId(null);
     refreshOffer(o.id);

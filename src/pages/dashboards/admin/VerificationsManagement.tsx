@@ -11,6 +11,7 @@ import { ar } from 'date-fns/locale';
 import { Check, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { successToast } from '@/lib/successToast';
+import { createNotificationService } from '@/services';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -177,12 +178,10 @@ const VerificationsManagement = () => {
   const approve = async (app: any) => {
     await supabase.from('profiles').update({ is_verified: true, verification_badge: 'verified' as any }).eq('id', app.applicant_id);
     await supabase.from('verification_applications').update({ status: 'approved' as any, reviewed_by: user!.id }).eq('id', app.id);
-    await supabase.from('notifications').insert({
-      type: 'verification_update' as any,
-      user_id: app.applicant_id,
-      title_ar: 'تم توثيق حسابك ✓',
-      body_ar: 'تهانينا! تم التحقق من هويتك وأصبح حسابك موثقاً',
-    });
+    createNotificationService(supabase).create('verification_update', app.applicant_id, {
+      titleAr: 'تم توثيق حسابك ✓',
+      bodyAr: 'تهانينا! تم التحقق من هويتك وأصبح حسابك موثقاً',
+    }).catch(console.error);
     successToast('تم قبول التوثيق');
     fetchApps();
   };
@@ -196,12 +195,10 @@ const VerificationsManagement = () => {
       review_note: rejectReason,
       reviewed_by: user!.id,
     }).eq('id', app.id);
-    await supabase.from('notifications').insert({
-      type: 'verification_update' as any,
-      user_id: app.applicant_id,
-      title_ar: 'تم رفض طلب التوثيق',
-      body_ar: `للأسف، تم رفض طلب توثيق حسابك — السبب: ${rejectReason}`,
-    });
+    createNotificationService(supabase).create('verification_update', app.applicant_id, {
+      titleAr: 'تم رفض طلب التوثيق',
+      bodyAr: `للأسف، تم رفض طلب توثيق حسابك — السبب: ${rejectReason}`,
+    }).catch(console.error);
     toast.success('تم رفض التوثيق');
     setRejectModal({ open: false, app: null });
     setRejectReason('');

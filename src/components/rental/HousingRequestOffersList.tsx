@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -67,13 +68,11 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
     setActingId(o.id);
     const { error } = await supabase.rpc('accept_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { console.error(error); toast.error('تعذر قبول العرض'); setActingId(null); return; }
-    await supabase.from('notifications').insert({
-      user_id: o.owner_id,
-      type: 'private_offer_accepted' as any,
-      title_ar: 'تم قبول عرضك',
-      body_ar: `قبل المستأجر عرضك على: ${o.listing?.title ?? ''}`,
+    createNotificationService(supabase).create('private_offer_accepted', o.owner_id, {
+      titleAr: 'تم قبول عرضك',
+      bodyAr: `قبل المستأجر عرضك على: ${o.listing?.title ?? ''}`,
       link: `/listings/${o.listing_id}`,
-    });
+    }).catch(console.error);
     // open / create request_conversation
     const { data: existing } = await supabase
       .from('request_conversations')
@@ -101,13 +100,11 @@ export const HousingRequestOffersList = ({ housingRequestId, onChange }: { housi
     setActingId(o.id);
     const { error } = await supabase.rpc('reject_housing_request_offer' as any, { _offer_id: o.id });
     if (error) { console.error(error); toast.error('تعذر رفض العرض'); setActingId(null); return; }
-    await supabase.from('notifications').insert({
-      user_id: o.owner_id,
-      type: 'private_offer_rejected' as any,
-      title_ar: 'تم رفض عرضك',
-      body_ar: `بشأن: ${o.listing?.title ?? ''}`,
+    createNotificationService(supabase).create('private_offer_rejected', o.owner_id, {
+      titleAr: 'تم رفض عرضك',
+      bodyAr: `بشأن: ${o.listing?.title ?? ''}`,
       link: `/listings/${o.listing_id}`,
-    });
+    }).catch(console.error);
     toast.success('تم رفض العرض');
     setActingId(null);
     fetchOffers();

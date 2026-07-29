@@ -9,6 +9,7 @@ import { formatPrice } from '@/lib/format';
 import { toast } from 'sonner';
 import { successToast } from '@/lib/successToast';
 import { cn } from '@/lib/utils';
+import { createNotificationService } from '@/services';
 import { usePresence } from '@/contexts/PresenceContext';
 import { useKeyboardAwareChatViewport } from '@/hooks/useKeyboardAwareChatViewport';
 import { Linkify } from '@/lib/linkify';
@@ -217,13 +218,15 @@ const ConversationPage = () => {
       // Notify the renter (the other party in this conversation)
       const receiverId = user.id === ownerId ? userId : ownerId;
       if (receiverId) {
-        await supabase.from('notifications').insert({
-          user_id: receiverId,
-          type: (status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected') as any,
-          title_ar: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
-          body_ar: `بشأن: ${listingTitle}`,
-          link: `/chat/${conversationId}`,
-        });
+        createNotificationService(supabase).create(
+          status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected',
+          receiverId,
+          {
+            titleAr: status === 'accepted' ? 'تم قبول طلبك' : 'تم رفض طلبك',
+            bodyAr: `بشأن: ${listingTitle}`,
+            link: `/chat/${conversationId}`,
+          }
+        ).catch(console.error);
       }
 
       await postSystemMessage(status === 'accepted'
@@ -258,13 +261,11 @@ const ConversationPage = () => {
         await postSystemMessage(`🎉 تم إتمام عملية التأجير: ${listingTitle}`);
         const receiverId = user.id === ownerId ? userId : ownerId;
         if (receiverId) {
-          await supabase.from('notifications').insert({
-            user_id: receiverId,
-            type: 'system' as any,
-            title_ar: 'تم إتمام التأجير',
-            body_ar: `تم إتمام تأجير: ${listingTitle}`,
+          createNotificationService(supabase).create('system', receiverId, {
+            titleAr: 'تم إتمام التأجير',
+            bodyAr: `تم إتمام تأجير: ${listingTitle}`,
             link: `/chat/${conversationId}`,
-          });
+          }).catch(console.error);
         }
       } else {
         toast.success('تم تسجيل تأكيدك، بانتظار الطرف الآخر');
@@ -273,15 +274,13 @@ const ConversationPage = () => {
           : `✅ أكد المستأجر الاتفاق — بانتظار تأكيد المالك`);
         const receiverId = user.id === ownerId ? userId : ownerId;
         if (receiverId) {
-          await supabase.from('notifications').insert({
-            user_id: receiverId,
-            type: 'system' as any,
-            title_ar: 'تأكيد الاتفاق',
-            body_ar: isOwnerSide
+          createNotificationService(supabase).create('system', receiverId, {
+            titleAr: 'تأكيد الاتفاق',
+            bodyAr: isOwnerSide
               ? `أكد المالك الاتفاق على: ${listingTitle}`
               : `أكد المستأجر الاتفاق على: ${listingTitle}`,
             link: `/chat/${conversationId}`,
-          });
+          }).catch(console.error);
         }
       }
     } catch (e: unknown) {
@@ -337,13 +336,11 @@ const ConversationPage = () => {
 
     const receiverId = user.id === ownerId ? userId : ownerId;
     if (receiverId) {
-      await supabase.from('notifications').insert({
-        user_id: receiverId,
-        type: 'new_message',
-        title_ar: `رسالة جديدة`,
-        body_ar: text.length > 80 ? text.slice(0, 80) + '...' : text,
+      createNotificationService(supabase).create('new_message', receiverId, {
+        titleAr: `رسالة جديدة`,
+        bodyAr: text.length > 80 ? text.slice(0, 80) + '...' : text,
         link: `/chat/${conversationId}`,
-      });
+      }).catch(console.error);
     }
     setSending(false);
   };

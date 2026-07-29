@@ -13,6 +13,7 @@ import { useDistricts } from '@/contexts/DistrictsContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { ExternalLink, RotateCcw, CheckCircle, XCircle, Search, FileSearch, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import type { RequestStatus, ListingCategory } from '@/types/database';
 
 const categoryLabels: Record<ListingCategory, string> = {
@@ -125,13 +126,11 @@ const RequestsManagement = () => {
         expired: 'انتهت صلاحية طلب السكن الخاص بك',
         active: 'تم تجديد طلب السكن الخاص بك لمدة 30 يوماً إضافية',
       };
-      await supabase.from('notifications').insert({
-        type: 'system' as any,
-        user_id: req.requester_id,
-        title_ar: statusLabelsNotif[status] ?? 'تحديث على طلبك',
-        body_ar: bodyMap[status] ?? 'تم تحديث حالة طلب السكن الخاص بك',
+      createNotificationService(supabase).create('system', req.requester_id, {
+        titleAr: statusLabelsNotif[status] ?? 'تحديث على طلبك',
+        bodyAr: bodyMap[status] ?? 'تم تحديث حالة طلب السكن الخاص بك',
         link: `/requests/${id}`,
-      });
+      }).catch(console.error);
     }
 
     toast.success('تم التحديث بنجاح');

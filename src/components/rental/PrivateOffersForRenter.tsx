@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { createNotificationService } from '@/services';
 import { Button } from '@/components/ui/button';
 import { Loader2, Gift, Check, X } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
@@ -55,13 +56,11 @@ export const PrivateOffersForRenter = () => {
       return;
     }
 
-    await supabase.from('notifications').insert({
-      user_id: offer.owner_id,
-      type: 'private_offer_accepted' as any,
-      title_ar: 'تم قبول العرض الخاص',
-      body_ar: 'قبل المستأجر العرض. أكّد إتمام الإيجار من لوحة التحكم عند تسليم العقار.',
+    createNotificationService(supabase).create('private_offer_accepted', offer.owner_id, {
+      titleAr: 'تم قبول العرض الخاص',
+      bodyAr: 'قبل المستأجر العرض. أكّد إتمام الإيجار من لوحة التحكم عند تسليم العقار.',
       link: `/listings/${offer.id}`,
-    });
+    }).catch(console.error);
 
     toast.success('تم قبول العرض. ينتظر المالك تأكيد التسليم.');
     setActingId(null);
@@ -87,13 +86,11 @@ export const PrivateOffersForRenter = () => {
       return;
     }
 
-    await supabase.from('notifications').insert({
-      user_id: offer.owner_id,
-      type: 'private_offer_rejected' as any,
-      title_ar: 'تم رفض العرض الخاص',
-      body_ar: 'رفض المستأجر العرض. يمكنك تعديل الإعلان ونشره للجميع.',
+    createNotificationService(supabase).create('private_offer_rejected', offer.owner_id, {
+      titleAr: 'تم رفض العرض الخاص',
+      bodyAr: 'رفض المستأجر العرض. يمكنك تعديل الإعلان ونشره للجميع.',
       link: `/listings/${offer.id}/edit`,
-    });
+    }).catch(console.error);
 
     toast.success('تم رفض العرض.');
     setActingId(null);

@@ -11,6 +11,7 @@ import { ar } from 'date-fns/locale';
 import { MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { createNotificationService } from '@/services';
 
 const PAGE_SIZE = 30;
 
@@ -72,13 +73,11 @@ const ReportsManagement = () => {
   const resolve = async (id: string, reporterId?: string) => {
     await supabase.from('reports').update({ status: 'resolved' as any, resolved_by: user!.id }).eq('id', id);
     if (reporterId) {
-      await supabase.from('notifications').insert({
-        type: 'system' as any,
-        user_id: reporterId,
-        title_ar: 'تم حل البلاغ',
-        body_ar: 'تمت مراجعة بلاغك واتخاذ الإجراء المناسب',
+      createNotificationService(supabase).create('system', reporterId, {
+        titleAr: 'تم حل البلاغ',
+        bodyAr: 'تمت مراجعة بلاغك واتخاذ الإجراء المناسب',
         link: '/notifications',
-      });
+      }).catch(console.error);
     }
     toast.success('تم حل البلاغ');
     fetchReports(0);
@@ -87,13 +86,11 @@ const ReportsManagement = () => {
   const dismiss = async (id: string, reporterId?: string) => {
     await supabase.from('reports').update({ status: 'dismissed' as any, resolved_by: user!.id }).eq('id', id);
     if (reporterId) {
-      await supabase.from('notifications').insert({
-        type: 'system' as any,
-        user_id: reporterId,
-        title_ar: 'تحديث على بلاغك',
-        body_ar: 'تمت مراجعة بلاغك ولم يتم العثور على مخالفة',
+      createNotificationService(supabase).create('system', reporterId, {
+        titleAr: 'تحديث على بلاغك',
+        bodyAr: 'تمت مراجعة بلاغك ولم يتم العثور على مخالفة',
         link: '/notifications',
-      });
+      }).catch(console.error);
     }
     toast.success('تم رفض البلاغ');
     fetchReports(0);
@@ -105,13 +102,11 @@ const ReportsManagement = () => {
       // Notify the listing owner
       const { data: listing } = await supabase.from('listings').select('owner_id, title').eq('id', r.target_id).single();
       if (listing) {
-        await supabase.from('notifications').insert({
-          type: 'listing_rejected' as any,
-          user_id: listing.owner_id,
-          title_ar: 'تم إزالة إعلانك',
-          body_ar: `تم إزالة إعلانك "${listing.title}" بسبب بلاغ مقدم`,
+        createNotificationService(supabase).create('listing_rejected', listing.owner_id, {
+          titleAr: 'تم إزالة إعلانك',
+          bodyAr: `تم إزالة إعلانك "${listing.title}" بسبب بلاغ مقدم`,
           link: `/listings/${r.target_id}`,
-        });
+        }).catch(console.error);
       }
     }
     await resolve(r.id, r.reporter_id);
@@ -120,12 +115,10 @@ const ReportsManagement = () => {
   const warnUser = async (r: any) => {
     const targetUserId = r.target_type === 'user' ? r.target_id : null;
     if (targetUserId) {
-      await supabase.from('notifications').insert({
-        type: 'system' as any,
-        user_id: targetUserId,
-        title_ar: 'تحذير من الإدارة',
-        body_ar: 'تم تلقي بلاغ بخصوص حسابك. يرجى الالتزام بسياسة الاستخدام.',
-      });
+      createNotificationService(supabase).create('system', targetUserId, {
+        titleAr: 'تحذير من الإدارة',
+        bodyAr: 'تم تلقي بلاغ بخصوص حسابك. يرجى الالتزام بسياسة الاستخدام.',
+      }).catch(console.error);
     }
     toast.success('تم إرسال التحذير');
   };
@@ -134,12 +127,10 @@ const ReportsManagement = () => {
     const targetUserId = r.target_type === 'user' ? r.target_id : null;
     if (targetUserId) {
       await supabase.from('profiles').update({ is_active: false }).eq('id', targetUserId);
-      await supabase.from('notifications').insert({
-        type: 'system' as any,
-        user_id: targetUserId,
-        title_ar: 'تم تعليق حسابك',
-        body_ar: 'تم تعليق حسابك بسبب مخالفة سياسة الاستخدام. تواصل مع الإدارة للاستفسار.',
-      });
+      createNotificationService(supabase).create('system', targetUserId, {
+        titleAr: 'تم تعليق حسابك',
+        bodyAr: 'تم تعليق حسابك بسبب مخالفة سياسة الاستخدام. تواصل مع الإدارة للاستفسار.',
+      }).catch(console.error);
     }
     await resolve(r.id, r.reporter_id);
     toast.success('تم تعليق الحساب');
