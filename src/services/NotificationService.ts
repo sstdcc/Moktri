@@ -6,11 +6,26 @@ import {
   type NotificationPayload,
   type CreateNotificationInput,
   type NotificationResult,
+  type NotificationRecord,
+  type PaginatedResult,
+  type NotificationQueryParams,
+  type NotificationPreferences,
   type NotificationServiceConfig,
   type NotificationServiceInterface,
+  isValidPreferences,
 } from "@/types/notifications";
 
 const TABLE = "notifications";
+const PREFERENCES_KEY = "miftah_notif_prefs";
+const DEFAULT_PREFERENCES: NotificationPreferences = {
+  new_response: true,
+  listing_expiring: true,
+  listing_approved: true,
+  listing_rejected: true,
+  verification_update: true,
+  new_report: true,
+  system: true,
+};
 
 function classifyError(err: unknown, operation: string): NotificationError {
   if (err && typeof err === "object" && "code" in err) {
@@ -224,11 +239,170 @@ export function createNotificationService(
     console.debug("[NotificationService] Deleted", { id: notificationId });
   }
 
+  async function getNotifications(
+    params: NotificationQueryParams,
+  ): Promise<PaginatedResult<NotificationRecord>> {
+    if (params.page < 0) {
+      throw new NotificationError("INVALID_INPUT", "page must be >= 0", { operation: "getNotifications" });
+    }
+    const pageSize = params.pageSize ?? 30;
+    if (pageSize < 1) {
+      throw new NotificationError("INVALID_INPUT", "pageSize must be >= 1", { operation: "getNotifications" });
+    }
+    if (pageSize > 100) {
+      throw new NotificationError("INVALID_INPUT", "pageSize must be <= 100", { operation: "getNotifications" });
+    }
+
+    const from = params.page * pageSize;
+
+    try {
+      let query = supabase
+        .from(TABLE)
+        .select("id, type, user_id, title_ar, body_ar, link, is_read, created_at", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(from, from + pageSize - 1);
+
+      if (params.filter === "unread") {
+        query = query.eq("is_read", false);
+      }
+      if (params.type) {
+        query = query.eq("type", params.type);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) throw error;
+
+      const rows = data ?? [];
+      const records: NotificationRecord[] = rows.map((row: Record<string, unknown>) => ({
+        id: row.id as string,
+        type: row.type as NotificationType,
+        recipientId: row.user_id as string,
+        titleAr: (row.title_ar as string) ?? null,
+        bodyAr: (row.body_ar as string) ?? null,
+        link: (row.link as string) ?? null,
+        isRead: (row.is_read as boolean) ?? false,
+        createdAt: (row.created_at as string) ?? "",
+      }));
+
+      const total = count ?? 0;
+      const hasMore = from + pageSize < total;
+
+      console.debug("[NotificationService] getNotifications", { page: params.page, total, hasMore });
+
+      return { data: records, total, hasMore, page: params.page };
+    } catch (err) {
+      if (err instanceof NotificationError) throw err;
+      throw classifyError(err, "getNotifications");
+    }
+  }
+
+  async function getUnreadCount(): Promise<number> {
+    try {
+      const { error, count } = await supabase
+        .from(TABLE)
+        .select("*", { count: "exact", head: true })
+        .eq("is_read", false);
+
+      if (error) throw error;
+
+      console.debug("[NotificationService] getUnreadCount", { count });
+
+      return count ?? 0;
+    } catch (err) {
+      console.warn("[NotificationService] getUnreadCount failed, returning 0", err);
+      return 0;
+    }
+  }
+
+  async function getNotification(id: string): Promise<NotificationRecord> {
+    if (!id) {
+      throw new NotificationError("INVALID_INPUT", "id must be a non-empty string", { operation: "getNotification" });
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from(TABLE)
+        .select("id, type, user_id, title_ar, body_ar, link, is_read, created_at")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        throw new NotificationError("NOT_FOUND", `No notification found with id ${id}`, { operation: "getNotification" });
+      }
+
+      console.debug("[NotificationService] getNotification", { id });
+
+      return {
+        id: data.id,
+        type: data.type,
+        recipientId: data.user_id,
+        titleAr: data.title_ar ?? null,
+        bodyAr: data.body_ar ?? null,
+        link: data.link ?? null,
+        isRead: data.is_read ?? false,
+        createdAt: data.created_at ?? "",
+      };
+    } catch (err) {
+      if (err instanceof NotificationError) throw err;
+      throw classifyError(err, "getNotification");
+    }
+  }
+
+  async function getPreferences(): Promise<NotificationPreferences> {
+    try {
+      const raw = localStorage.getItem(PREFERENCES_KEY);
+      if (!raw) {
+        console.debug("[NotificationService] getPreferences: no saved preferences, returning defaults");
+        return { ...DEFAULT_PREFERENCES };
+      }
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        console.warn("[NotificationService] getPreferences: JSON parse failed, returning defaults");
+        return { ...DEFAULT_PREFERENCES };
+      }
+
+      if (!isValidPreferences(parsed)) {
+        console.warn("[NotificationService] getPreferences: invalid structure, returning defaults");
+        return { ...DEFAULT_PREFERENCES };
+      }
+
+      console.debug("[NotificationService] getPreferences: loaded saved preferences");
+      return parsed;
+    } catch (err) {
+      console.warn("[NotificationService] getPreferences: unexpected error, returning defaults", err);
+      return { ...DEFAULT_PREFERENCES };
+    }
+  }
+
+  async function setPreferences(prefs: NotificationPreferences): Promise<void> {
+    if (!isValidPreferences(prefs)) {
+      throw new NotificationError("INVALID_INPUT", "All 7 preference keys must be present with boolean values", { operation: "setPreferences" });
+    }
+
+    try {
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(prefs));
+      console.debug("[NotificationService] setPreferences: saved");
+    } catch (err) {
+      throw new NotificationError("DATABASE_ERROR", "Failed to save preferences to localStorage", { cause: err, operation: "setPreferences" });
+    }
+  }
+
   return {
     create,
     createMany,
     markAsRead,
     markAllAsRead,
     delete: deleteNotification,
+    getNotifications,
+    getUnreadCount,
+    getNotification,
+    getPreferences,
+    setPreferences,
   };
 }

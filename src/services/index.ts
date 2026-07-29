@@ -1,5 +1,5 @@
 export { createNotificationService } from "./NotificationService";
-export { NotificationError } from "@/types/notifications";
+export { NotificationError, isValidPreferences } from "@/types/notifications";
 export type {
   NotificationServiceInterface,
   NotificationErrorCode,
@@ -7,4 +7,8 @@ export type {
   NotificationPayload,
   CreateNotificationInput,
   NotificationResult,
+  NotificationRecord,
+  PaginatedResult,
+  NotificationQueryParams,
+  NotificationPreferences,
 } from "@/types/notifications";
