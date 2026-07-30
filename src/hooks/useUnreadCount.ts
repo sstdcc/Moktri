@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { createNotificationService } from '@/services';
 
 export const useUnreadCount = (): number => {
   const { user } = useAuth();
@@ -15,15 +16,7 @@ export const useUnreadCount = (): number => {
     staleTime: 60 * 1000,
     gcTime: 30 * 60 * 1000,
     initialData: 0,
-    queryFn: async () => {
-      if (!user) return 0;
-      const { count: c, error } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-      return !error && c != null ? c : 0;
-    },
+    queryFn: () => createNotificationService(supabase).getUnreadCount(),
   });
 
   useEffect(() => {

@@ -8,6 +8,9 @@ import { LoginRequired } from '@/components/ui/LoginRequired';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { useMarkAsRead, useMarkAllAsRead, useDeleteNotification } from '@/hooks/useNotificationMutations';
+import { createNotificationService } from '@/services';
+import type { NotificationRecord } from '@/types/notifications';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
   BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
@@ -140,21 +143,11 @@ const getDateGroup = (dateStr: string) => {
   return 'سابقاً';
 };
 
-type Notification = {
-  id: string;
-  type: string;
-  title_ar: string | null;
-  body_ar: string | null;
-  link: string | null;
-  is_read: boolean | null;
-  created_at: string | null;
-};
-
 /* ---------- Swipe-to-delete row ---------- */
 type RowProps = {
-  notif: Notification;
-  onOpen: (n: Notification) => void;
-  onDelete: (n: Notification) => void;
+  notif: NotificationRecord;
+  onOpen: (n: NotificationRecord) => void;
+  onDelete: (n: NotificationRecord) => void;
 };
 
 const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
@@ -164,7 +157,7 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
 
   const visual = getVisual(notif.type);
   const Icon = visual.icon;
-  const isUnread = !notif.is_read;
+  const isUnread = !notif.isRead;
 
   // RTL: swipe LEFT (negative dx) reveals the delete action on the LEFT side
   const onTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
@@ -223,7 +216,7 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        aria-label={notif.title_ar || 'إشعار'}
+        aria-label={notif.titleAr || 'إشعار'}
         style={{ transform: `translateX(${dragX}px)` }}
         className={cn(
           'group relative w-full text-right',
@@ -261,16 +254,16 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
               isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
             )}
           >
-            {notif.title_ar}
+            {notif.titleAr}
           </p>
-          {notif.body_ar && (
+          {notif.bodyAr && (
             <p
               className={cn(
                 'mt-1.5 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
                 isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
               )}
             >
-              {notif.body_ar}
+              {notif.bodyAr}
             </p>
           )}
         </div>
@@ -292,7 +285,7 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
 
         {/* Time — bottom-LEFT (visually) */}
         <span className="absolute bottom-3 left-4 text-[10px] font-medium text-muted-foreground/70 font-tajawal">
-          {getRelativeTime(notif.created_at ?? '')}
+          {getRelativeTime(notif.createdAt ?? '')}
         </span>
       </button>
     </div>
@@ -305,7 +298,7 @@ const PAGE_SIZE = 30;
 const NotificationsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
@@ -317,19 +310,12 @@ const NotificationsPage = () => {
     if (!user) return;
     if (append) setLoadingMore(true); else setLoading(true);
     setError(false);
-    const from = pageNum * PAGE_SIZE;
-    const { data, error: err } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .range(from, from + PAGE_SIZE - 1);
-    if (err) {
+    try {
+      const result = await createNotificationService(supabase).getNotifications({ page: pageNum, pageSize: PAGE_SIZE });
+      setNotifications(prev => append ? [...prev, ...result.data] : result.data);
+      setHasMore(result.hasMore);
+    } catch {
       setError(true);
-    } else {
-      const list = data ?? [];
-      setNotifications(prev => append ? [...prev, ...list] : list);
-      setHasMore(list.length === PAGE_SIZE);
     }
     setLoading(false);
     setLoadingMore(false);
@@ -351,50 +337,53 @@ const NotificationsPage = () => {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-        (payload) => setNotifications((prev) => [payload.new as Notification, ...prev]),
+        (payload) => setNotifications((prev) => [payload.new as NotificationRecord, ...prev]),
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  const markAsRead = async (notif: Notification) => {
-    if (!notif.is_read) {
-      await supabase.from('notifications').update({ is_read: true }).eq('id', notif.id);
-      setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, is_read: true } : n)));
+  const markAsReadMutation = useMarkAsRead();
+  const markAsRead = async (notif: NotificationRecord) => {
+    if (!notif.isRead) {
+      setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)));
+      markAsReadMutation.mutate(notif.id);
     }
     if (notif.link) navigate(notif.link);
   };
 
-  const markAllRead = async () => {
+  const markAllAsReadMutation = useMarkAllAsRead();
+  const markAllRead = () => {
     if (!user) return;
-    await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', user.id)
-      .eq('is_read', false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    markAllAsReadMutation.mutate(undefined, {
+      onError: () => toast.error('تعذر تحديد الكل كمقروء'),
+    });
     toast.success('تم تحديد الكل كمقروء');
   };
 
-  const deleteNotification = async (notif: Notification) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
-    const { error: err } = await supabase.from('notifications').delete().eq('id', notif.id);
-    if (err) {
-      toast.error('تعذر حذف الإشعار');
-      fetchNotifications(0);
-    }
+  const deleteNotificationMutation = useDeleteNotification();
+  const deleteNotification = (notif: NotificationRecord) => {
+    const prev = notifications;
+    setNotifications((prevState) => prevState.filter((n) => n.id !== notif.id));
+    deleteNotificationMutation.mutate(notif.id, {
+      onError: () => {
+        toast.error('تعذر حذف الإشعار');
+        setNotifications(prev);
+      },
+    });
   };
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const filtered = useMemo(
-    () => (filter === 'unread' ? notifications.filter((n) => !n.is_read) : notifications),
+    () => (filter === 'unread' ? notifications.filter((n) => !n.isRead) : notifications),
     [notifications, filter],
   );
 
   const groups = useMemo(() => {
-    return filtered.reduce<Record<string, Notification[]>>((acc, n) => {
-      const group = getDateGroup(n.created_at ?? '');
+    return filtered.reduce<Record<string, NotificationRecord[]>>((acc, n) => {
+      const group = getDateGroup(n.createdAt ?? '');
       (acc[group] ||= []).push(n);
       return acc;
     }, {});
