@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { createNotificationService } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
+import type { NotificationPreferences } from '@/types/notifications';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,18 +31,6 @@ import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { setAppLanguage, type AppLanguage } from '@/i18n';
-
-const NOTIF_PREFS_KEY = 'miftah_notif_prefs';
-
-const defaultNotifPrefs = {
-  new_response: true,
-  listing_expiring: true,
-  listing_approved: true,
-  listing_rejected: true,
-  verification_update: true,
-  new_report: true,
-  system: true,
-};
 
 const notifLabels: Record<string, string> = {
   new_response: 'ردود جديدة',
@@ -135,7 +125,7 @@ const SettingsPage = () => {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [notifPrefs, setNotifPrefs] = useState(defaultNotifPrefs);
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
@@ -144,10 +134,7 @@ const SettingsPage = () => {
       setBio(profile.bio || '');
       setAvatarUrl(profile.avatar_url || '');
     }
-    try {
-      const saved = localStorage.getItem(NOTIF_PREFS_KEY);
-      if (saved) setNotifPrefs(JSON.parse(saved));
-    } catch { /* ignore */ }
+    createNotificationService(supabase).getPreferences().then(setNotifPrefs);
   }, [profile]);
 
   const handleAvatarUpload = async (file: File) => {
@@ -214,10 +201,16 @@ const SettingsPage = () => {
     }
   };
 
-  const toggleNotifPref = (key: string) => {
-    const updated = { ...notifPrefs, [key]: !notifPrefs[key as keyof typeof notifPrefs] };
+  const toggleNotifPref = (key: keyof NotificationPreferences) => {
+    if (!notifPrefs) return;
+    const updated = { ...notifPrefs, [key]: !notifPrefs[key] };
     setNotifPrefs(updated);
-    localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(updated));
+    try {
+      createNotificationService(supabase).setPreferences(updated);
+    } catch {
+      setNotifPrefs(notifPrefs);
+      toast.error('تعذر حفظ التفضيلات');
+    }
   };
 
   const handleSignOut = async () => {
@@ -335,8 +328,8 @@ const SettingsPage = () => {
                 isLast={idx === arr.length - 1}
                 right={
                   <Switch
-                    checked={notifPrefs[key as keyof typeof notifPrefs]}
-                    onCheckedChange={() => toggleNotifPref(key)}
+                    checked={notifPrefs?.[key as keyof NotificationPreferences] ?? true}
+                    onCheckedChange={() => toggleNotifPref(key as keyof NotificationPreferences)}
                     aria-label={label}
                   />
                 }
