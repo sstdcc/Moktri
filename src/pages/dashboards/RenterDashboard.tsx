@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDistricts } from '@/contexts/DistrictsContext';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { PageHeader } from '@/components/ui/PageHeader';
 
@@ -28,23 +29,21 @@ const RenterDashboard = () => {
   const { districts } = useDistricts();
   const [myRequests, setMyRequests] = useState<any[]>([]);
   const [favCount, setFavCount] = useState(0);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const unreadCount = useUnreadCount();
 
   const districtName = (id: string | null) => districts.find(d => d.id === id)?.name_ar ?? '';
 
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [reqRes, favRes, notifRes] = await Promise.all([
+    const [reqRes, favRes] = await Promise.all([
       supabase.from('housing_requests').select('id, category, district_id, neighborhood, min_price, max_price, currency, for_whom, notes, bedrooms_needed, status, responses_count, views_count, created_at, expires_at, requester_id, requester:profiles!housing_requests_requester_id_fkey(full_name, avatar_url)')
         .eq('requester_id', user.id).order('created_at', { ascending: false }).limit(10),
       supabase.from('favorites').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_read', false),
     ]);
     setMyRequests(reqRes.data ?? []);
     setFavCount(favRes.count ?? 0);
-    setUnreadCount(notifRes.count ?? 0);
     setLoading(false);
   }, [user]);
 

@@ -211,11 +211,6 @@ export function createNotificationService(
       throw new NotificationError("INVALID_INPUT", "notificationId must be a non-empty string", { operation: "delete" });
     }
 
-    // Note: There is currently no FOR DELETE RLS policy on the notifications table.
-    // The existing policy only covers SELECT and UPDATE with auth.uid() = user_id.
-    // Until a FOR DELETE policy is added, this operation may fail with a FORBIDDEN
-    // error when called from the client side. This is a known database configuration gap
-    // that should be addressed separately from the application layer.
     let data: { id: string } | null;
     try {
       const response = await supabase

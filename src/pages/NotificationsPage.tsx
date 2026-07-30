@@ -347,7 +347,14 @@ const NotificationsPage = () => {
   const markAsRead = async (notif: NotificationRecord) => {
     if (!notif.isRead) {
       setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n)));
-      markAsReadMutation.mutate(notif.id);
+      markAsReadMutation.mutate(notif.id, {
+        onError: () => {
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === notif.id ? { ...n, isRead: false } : n)),
+          );
+          toast.error('تعذر تحديث الإشعار');
+        },
+      });
     }
     if (notif.link) navigate(notif.link);
   };
