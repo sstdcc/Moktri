@@ -112,7 +112,7 @@ const Row = ({
 /* ---------- Page ---------- */
 
 const SettingsPage = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, push } = useAuth();
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const currentLang = (i18n.language?.startsWith('en') ? 'en' : 'ar') as AppLanguage;
@@ -127,6 +127,7 @@ const SettingsPage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -201,8 +202,8 @@ const SettingsPage = () => {
     }
   };
 
-  const toggleNotifPref = (key: keyof NotificationPreferences) => {
-    if (!notifPrefs) return;
+  const toggleNotifPref = async (key: keyof NotificationPreferences) => {
+    if (!notifPrefs || !user) return;
     const updated = { ...notifPrefs, [key]: !notifPrefs[key] };
     setNotifPrefs(updated);
     try {
@@ -210,6 +211,51 @@ const SettingsPage = () => {
     } catch {
       setNotifPrefs(notifPrefs);
       toast.error('تعذر حفظ التفضيلات');
+      return;
+    }
+    const { error } = await supabase
+      .from('notification_preferences')
+      .upsert({ user_id: user.id, prefs: updated });
+    if (error) {
+      toast.error('تعذر مزامنة التفضيلات مع الخادم');
+    }
+  };
+
+  const pushEnabled = push.permission === 'granted' && !!push.token;
+
+  const pushStatusText = (() => {
+    if (!push.isSupported) return 'غير مدعوم على هذا المتصفح';
+    if (push.permission === 'granted') return push.token ? 'الإشعارات الفورية مفعلة' : 'جاري التفعيل...';
+    if (push.permission === 'denied') return 'مرفوض — فعّلها من إعدادات المتصفح';
+    return 'غير مفعل — اضغط للسماح بالإشعارات';
+  })();
+
+  const handlePushToggle = async (checked: boolean) => {
+    if (checked) {
+      if (push.permission === 'denied') {
+        toast.error('تم حظر إشعارات المتصفح. فعّلها من إعدادات المتصفح.');
+        return;
+      }
+      setPushBusy(true);
+      try {
+        if (push.permission === 'granted') {
+          await push.registerCurrentToken();
+        } else {
+          await push.requestPermission();
+        }
+        if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+          toast.error('لم يتم السماح بالإشعارات');
+        }
+      } finally {
+        setPushBusy(false);
+      }
+      return;
+    }
+    setPushBusy(true);
+    try {
+      await push.unregisterCurrentToken();
+    } finally {
+      setPushBusy(false);
     }
   };
 
@@ -320,6 +366,19 @@ const SettingsPage = () => {
         <section>
           <SectionLabel icon={BellRing}>{t('settings.sections.notifications')}</SectionLabel>
           <SettingsCard>
+            <Row
+              icon={BellRing}
+              label="الإشعارات الفورية"
+              subtext={pushStatusText}
+              right={
+                <Switch
+                  checked={pushEnabled}
+                  disabled={pushBusy || push.permission === 'denied' || !push.isSupported}
+                  onCheckedChange={handlePushToggle}
+                  aria-label="الإشعارات الفورية"
+                />
+              }
+            />
             {Object.entries(notifLabels).map(([key, label], idx, arr) => (
               <Row
                 key={key}

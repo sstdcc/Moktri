@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -10,7 +10,32 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -43,6 +68,38 @@ export type Database = {
           target_type?: string
         }
         Relationships: []
+      }
+      device_tokens: {
+        Row: {
+          created_at: string | null
+          id: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          platform: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          platform?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       districts: {
         Row: {
@@ -630,6 +687,32 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          prefs: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          prefs?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          prefs?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body_ar: string | null
@@ -716,7 +799,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_verified: boolean | null
-          phone: string
+          phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           total_listings: number | null
           total_responses: number | null
@@ -734,7 +817,7 @@ export type Database = {
           id: string
           is_active?: boolean | null
           is_verified?: boolean | null
-          phone: string
+          phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           total_listings?: number | null
           total_responses?: number | null
@@ -752,7 +835,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
-          phone?: string
+          phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           total_listings?: number | null
           total_responses?: number | null
@@ -1165,6 +1248,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      check_email_exists: { Args: { p_email: string }; Returns: boolean }
       complete_housing_request_offer: {
         Args: { _offer_id: string }
         Returns: undefined
@@ -1192,6 +1276,7 @@ export type Database = {
           rental_id: string
         }[]
       }
+      get_user_email_by_phone: { Args: { p_phone: string }; Returns: string }
       get_user_rating_stats: {
         Args: { p_user_id: string }
         Returns: {
@@ -1423,6 +1508,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       allowed_for_type: ["family", "bachelors", "students", "all"],

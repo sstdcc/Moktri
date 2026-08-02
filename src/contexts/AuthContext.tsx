@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { usePushNotifications, type PushNotificationsState } from '@/hooks/usePushNotifications';
+import DeviceTokenService from '@/services/DeviceTokenService';
 import type { Profile } from '@/types/database';
 
 interface AuthContextType {
@@ -11,7 +13,18 @@ interface AuthContextType {
   profileError: boolean;
   signOut: () => Promise<void>;
   retryProfile: () => void;
+  push: PushNotificationsState;
 }
+
+const noopPush: PushNotificationsState = {
+  permission: null,
+  token: null,
+  isSupported: false,
+  requestPermission: async () => {},
+  registerCurrentToken: async () => {},
+  unregisterCurrentToken: async () => {},
+  error: null,
+};
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -21,6 +34,7 @@ const AuthContext = createContext<AuthContextType>({
   profileError: false,
   signOut: async () => {},
   retryProfile: () => {},
+  push: noopPush,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -31,6 +45,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileError, setProfileError] = useState(false);
+
+  const push = usePushNotifications(user?.id ?? null);
 
   const fetchProfile = async (userId: string) => {
     setProfileError(false);
@@ -116,6 +132,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const handleSignOut = async () => {
+    if (user) {
+      const dts = new DeviceTokenService(supabase);
+      dts.unregisterAllForUser(user.id).catch(() => {});
+    }
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
@@ -124,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, profileError, signOut: handleSignOut, retryProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, profileError, signOut: handleSignOut, retryProfile, push }}>
       {children}
     </AuthContext.Provider>
   );
