@@ -114,25 +114,14 @@ describe("NotificationService.create", () => {
     const { supabase, state } = createMockChain();
     const service = createNotificationService(supabase);
 
-    const expectedId = "notif-1";
-    const expectedDate = "2026-07-29T12:00:00Z";
-    state.singleResult = {
-      data: {
-        id: expectedId,
-        type: "system",
-        title_ar: "إشعار تجريبي",
-        created_at: expectedDate,
-      },
-      error: null,
-    };
+    state.selectResult = { data: null, error: null };
 
     const result = await service.create("system", MOCK_UUID, buildValidPayload());
 
-    expect(result.id).toBe(expectedId);
     expect(result.type).toBe("system");
     expect(result.recipientId).toBe(MOCK_UUID);
     expect(result.titleAr).toBe("إشعار تجريبي");
-    expect(result.createdAt).toBe(expectedDate);
+    expect(result.createdAt).toBeTruthy();
   });
 
   it("should throw INVALID_INPUT for empty recipientId", async () => {
@@ -165,7 +154,7 @@ describe("NotificationService.create", () => {
     const { supabase, state } = createMockChain();
     const service = createNotificationService(supabase);
 
-    state.singleResult = {
+    state.selectResult = {
       data: null,
       error: { code: "42501", message: "permission denied for table notifications", details: "", hint: "" },
     };
@@ -179,7 +168,7 @@ describe("NotificationService.create", () => {
     const { supabase, state } = createMockChain();
     const service = createNotificationService(supabase);
 
-    state.singleResult = {
+    state.selectResult = {
       data: null,
       error: { code: "23503", message: "insert or update on table violates foreign key constraint", details: "", hint: "" },
     };
@@ -189,28 +178,11 @@ describe("NotificationService.create", () => {
     ).rejects.toMatchObject({ code: "DATABASE_ERROR" });
   });
 
-  it("should throw UNEXPECTED_RESPONSE when insert returns no data", async () => {
-    const { supabase, state } = createMockChain();
-    const service = createNotificationService(supabase);
-
-    state.singleResult = {
-      data: null,
-      error: null,
-    };
-
-    await expect(
-      service.create("system", MOCK_UUID, buildValidPayload()),
-    ).rejects.toMatchObject({ code: "UNEXPECTED_RESPONSE" });
-  });
-
   it("should create with bodyAr as null when not provided", async () => {
     const { supabase, state, insert } = createMockChain();
     const service = createNotificationService(supabase);
 
-    state.singleResult = {
-      data: { id: "n1", type: "system", title_ar: "test", created_at: "2026-01-01T00:00:00Z" },
-      error: null,
-    };
+    state.selectResult = { data: null, error: null };
 
     await service.create("system", MOCK_UUID, { titleAr: "test" });
 
@@ -223,10 +195,7 @@ describe("NotificationService.create", () => {
     const { supabase, state, insert } = createMockChain();
     const service = createNotificationService(supabase);
 
-    state.singleResult = {
-      data: { id: "n1", type: "system", title_ar: "test", created_at: "2026-01-01T00:00:00Z" },
-      error: null,
-    };
+    state.selectResult = { data: null, error: null };
 
     await service.create("system", MOCK_UUID, { titleAr: "test" });
 
@@ -246,21 +215,15 @@ describe("NotificationService.createMany", () => {
       buildValidInput({ recipientId: "user-2", payload: buildValidPayload({ titleAr: "ثاني" }) }),
     ];
 
-    state.selectResult = {
-      data: [
-        { id: "n1", type: "system", title_ar: "أول", created_at: "2026-01-01T00:00:00Z" },
-        { id: "n2", type: "system", title_ar: "ثاني", created_at: "2026-01-01T00:00:01Z" },
-      ],
-      error: null,
-    };
+    state.selectResult = { data: null, error: null };
 
     const results = await service.createMany(inputs);
 
     expect(results).toHaveLength(2);
-    expect(results[0].id).toBe("n1");
     expect(results[0].recipientId).toBe("user-1");
-    expect(results[1].id).toBe("n2");
     expect(results[1].recipientId).toBe("user-2");
+    expect(results[0].titleAr).toBe("أول");
+    expect(results[1].titleAr).toBe("ثاني");
   });
 
   it("should call insert once with an array matching input length", async () => {

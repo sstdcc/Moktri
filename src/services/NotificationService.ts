@@ -76,24 +76,26 @@ export function createNotificationService(
     };
 
     try {
-      const { data, error } = await supabase
+      // Do NOT chain .select().single() here: the notifications SELECT RLS only
+      // allows the recipient (auth.uid() = user_id) to read a row back, so a
+      // write that targets another user would always surface as PGRST116 even
+      // though the INSERT committed. Plain insert keeps the write visible.
+      // See the comment in ListingRequestsPage.tsx ("no .select() chained").
+      const { error } = await supabase
         .from(TABLE)
-        .insert(dbRow)
-        .select("id, type, title_ar, created_at")
-        .single();
+        .insert(dbRow);
 
       if (error) throw error;
-      if (!data) throw new NotificationError("UNEXPECTED_RESPONSE", "Insert returned no data", { operation: "create" });
 
       // Temporary Phase 1 logging. Will be replaced by LoggerService in a future phase.
-      console.debug("[NotificationService] Created", { type, recipientId, id: data.id });
+      console.debug("[NotificationService] Created", { type, recipientId });
 
       return {
-        id: data.id,
-        type: data.type,
+        id: "",
+        type,
         recipientId,
-        titleAr: data.title_ar,
-        createdAt: data.created_at,
+        titleAr: payload.titleAr,
+        createdAt: new Date().toISOString(),
       };
     } catch (err) {
       if (err instanceof NotificationError) throw err;
@@ -126,18 +128,20 @@ export function createNotificationService(
     }));
 
     try {
-      const { data, error } = await supabase
+      // Same as create(): do not chain .select() so RLS can't hide the newly
+      // inserted rows (recipients are usually different from the caller).
+      const { error } = await supabase
         .from(TABLE)
-        .insert(dbRows)
-        .select("id, type, title_ar, created_at");
+        .insert(dbRows);
+
       if (error) throw error;
 
-      const results: NotificationResult[] = (data ?? []).map((row, i) => ({
-        id: row.id,
-        type: row.type,
-        recipientId: notifications[i].recipientId,
-        titleAr: row.title_ar,
-        createdAt: row.created_at,
+      const results: NotificationResult[] = notifications.map((n, i) => ({
+        id: "",
+        type: n.type,
+        recipientId: n.recipientId,
+        titleAr: n.payload.titleAr,
+        createdAt: new Date().toISOString(),
       }));
 
       // Temporary Phase 1 logging. Will be replaced by LoggerService in a future phase.
