@@ -24,7 +24,9 @@ import { MarkAsRentedDialog } from '@/components/rental/MarkAsRentedDialog';
 import { cn } from '@/lib/utils';
 
 const RENTAL_REMINDER_TYPE = 'rental_reminder' as const;
+const REQUEST_REMINDER_TYPE = 'request_reminder' as const;
 const LISTING_LINK_RE = /^\/listings\/([0-9a-fA-F-]{36})$/;
+const REQUEST_LINK_RE = /^\/requests\/([0-9a-fA-F-]{36})$/;
 
 /* ---------- Notification visual config ---------- */
 type NotifVisual = {
@@ -115,6 +117,12 @@ const visualMap: Record<string, NotifVisual> = {
     fg: 'text-sky-600 dark:text-sky-300',
     bar: 'bg-sky-500',
   },
+  request_reminder: {
+    icon: Clock,
+    bg: 'bg-teal-100 dark:bg-teal-500/15',
+    fg: 'text-teal-600 dark:text-teal-300',
+    bar: 'bg-teal-500',
+  },
   system: {
     icon: Bell,
     bg: 'bg-primary/10',
@@ -161,12 +169,17 @@ type RowProps = {
   onDelete: (n: NotificationRecord) => void;
   onRented?: (n: NotificationRecord) => void;
   onStillAvailable?: (n: NotificationRecord) => void;
+  onFoundHousing?: (n: NotificationRecord) => void;
+  onStillSearching?: (n: NotificationRecord) => void;
 };
 
 const isRentalReminder = (n: NotificationRecord): boolean =>
   (n.type as string) === RENTAL_REMINDER_TYPE;
 
-const NotificationRow = ({ notif, onOpen, onDelete, onRented, onStillAvailable }: RowProps) => {
+const isRequestReminder = (n: NotificationRecord): boolean =>
+  (n.type as string) === REQUEST_REMINDER_TYPE;
+
+const NotificationRow = ({ notif, onOpen, onDelete, onRented, onStillAvailable, onFoundHousing, onStillSearching }: RowProps) => {
   const [dragX, setDragX] = useState(0);
   const [startX, setStartX] = useState<number | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -174,7 +187,8 @@ const NotificationRow = ({ notif, onOpen, onDelete, onRented, onStillAvailable }
   const visual = getVisual(notif.type);
   const Icon = visual.icon;
   const isUnread = !notif.isRead;
-  const reminder = isRentalReminder(notif);
+  const reminder = isRentalReminder(notif) || isRequestReminder(notif);
+  const requestReminder = isRequestReminder(notif);
 
   // RTL: swipe LEFT (negative dx) reveals the delete action on the LEFT side
   const onTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
@@ -276,27 +290,48 @@ const NotificationRow = ({ notif, onOpen, onDelete, onRented, onStillAvailable }
       )}
     </div>
   );
-  // Only the weekly rental reminder gets the two inline actions.
+  // Only the weekly reminders get the two inline actions.
   const reminderActions = reminder && (
     <div
       className="mt-1 flex items-center gap-2 border-t border-border/50 pt-3"
       onClick={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onRented?.(notif); }}
-        className="flex-1 rounded-xl bg-success px-3 py-2.5 text-[13px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
-      >
-        تم التأجير
-      </button>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onStillAvailable?.(notif); }}
-        className="flex-1 rounded-xl bg-muted px-3 py-2.5 text-[13px] font-bold text-foreground transition-all hover:bg-muted/70 active:scale-[0.98]"
-      >
-        ما زال متاحًا
-      </button>
+      {requestReminder ? (
+        <>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onFoundHousing?.(notif); }}
+            className="flex-1 rounded-xl bg-success px-3 py-2.5 text-[13px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+          >
+            وجدت السكن
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onStillSearching?.(notif); }}
+            className="flex-1 rounded-xl bg-muted px-3 py-2.5 text-[13px] font-bold text-foreground transition-all hover:bg-muted/70 active:scale-[0.98]"
+          >
+            ما زلت أبحث
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onRented?.(notif); }}
+            className="flex-1 rounded-xl bg-success px-3 py-2.5 text-[13px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+          >
+            تم التأجير
+          </button>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onStillAvailable?.(notif); }}
+            className="flex-1 rounded-xl bg-muted px-3 py-2.5 text-[13px] font-bold text-foreground transition-all hover:bg-muted/70 active:scale-[0.98]"
+          >
+            ما زال متاحًا
+          </button>
+        </>
+      )}
     </div>
   );
 
@@ -506,6 +541,52 @@ const NotificationsPage = () => {
     toast.success('سنتذكر تذكيرك بعد 7 أيام');
   };
 
+  // ---- Weekly housing-request reminders (only for request_reminder cards) ----
+  const getRequestIdFromNotification = (notif: NotificationRecord): string | null => {
+    if (!notif.link) return null;
+    const match = notif.link.match(REQUEST_LINK_RE);
+    return match ? match[1] : null;
+  };
+
+  // "وجدت السكن" — reuse the existing fulfilled workflow (status: 'fulfilled').
+  const handleFoundHousing = async (notif: NotificationRecord) => {
+    const requestId = getRequestIdFromNotification(notif);
+    if (!requestId || !user) {
+      toast.error('تعذر التعرف على الطلب');
+      deleteNotification(notif);
+      return;
+    }
+    const { error } = await supabase
+      .from('housing_requests')
+      .update({ status: 'fulfilled' })
+      .eq('id', requestId)
+      .eq('requester_id', user.id);
+    if (error) {
+      toast.error('تعذر إتمام العملية، حاول مرة أخرى');
+      return;
+    }
+    deleteNotification(notif);
+    toast.success('تم تأكيد إيجاد السكن');
+  };
+
+  // "ما زلت أبحث" — keep the request ACTIVE, defer the next reminder by 7 days.
+  const handleStillSearching = async (notif: NotificationRecord) => {
+    const requestId = getRequestIdFromNotification(notif);
+    if (requestId && user) {
+      const { error } = await supabase
+        .from('housing_requests')
+        .update({ last_request_reminder_at: new Date().toISOString() } as unknown as Database['public']['Tables']['housing_requests']['Update'])
+        .eq('id', requestId)
+        .eq('requester_id', user.id);
+      if (error) {
+        toast.error('تعذر تحديث الطلب');
+        return;
+      }
+    }
+    deleteNotification(notif);
+    toast.success('سنتذكر تذكيرك بعد 7 أيام');
+  };
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const filtered = useMemo(
@@ -652,6 +733,8 @@ const NotificationsPage = () => {
                         onDelete={deleteNotification}
                         onRented={handleRented}
                         onStillAvailable={handleStillAvailable}
+                        onFoundHousing={handleFoundHousing}
+                        onStillSearching={handleStillSearching}
                       />
                     ))}
                   </div>
