@@ -9,10 +9,14 @@ import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
 import { RatingDisplay } from '@/components/rating/RatingDisplay';
-import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   MapPin, MessageSquare, Eye, Users, BedDouble, Wallet,
-  Home, Clock, CheckCircle2,
+  Home, Clock, CheckCircle2, Loader2,
 } from 'lucide-react';
 
 const categoryLabels: Record<string, string> = {
@@ -68,7 +72,8 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [chatLoading, setChatLoading] = useState(false);
-  const [fulfillOpen, setFulfillOpen] = useState(false);
+  const [foundOpen, setFoundOpen] = useState(false);
+  const [foundLoading, setFoundLoading] = useState(false);
 
   const name = (r.requester as any)?.full_name ?? 'مستخدم';
   const avatarUrl = (r.requester as any)?.avatar_url ?? null;
@@ -119,6 +124,28 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
       toast.error('لا يمكن بدء محادثة حالياً');
     } finally {
       setChatLoading(false);
+    }
+  };
+
+  const handleConfirmFoundHousing = async () => {
+    if (foundLoading) return;
+    setFoundLoading(true);
+    try {
+      const { error } = await supabase
+        .from('housing_requests')
+        .update({ status: 'fulfilled' })
+        .eq('id', r.id);
+
+      if (error) throw error;
+
+      toast.success('تم تأكيد إيجاد السكن');
+      setFoundOpen(false);
+      onFulfilled?.();
+    } catch (err) {
+      console.error(err);
+      toast.error('تعذر إتمام العملية، حاول مرة أخرى');
+    } finally {
+      setFoundLoading(false);
     }
   };
 
@@ -234,25 +261,39 @@ export const RequestCard = ({ request: r, districts, onFulfilled, index = 0 }: R
             variant="outline"
             size="sm"
             className="rounded-xl gap-1.5 text-xs border-success/30 text-success hover:bg-success/10"
-            onClick={(e) => { e.stopPropagation(); setFulfillOpen(true); }}
+            onClick={(e) => { e.stopPropagation(); setFoundOpen(true); }}
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
-            تأكيد تنفيذ الطلب
+            لقد وجدت سكناً
           </Button>
         )}
       </div>
 
     </div>
-    {/* Fulfill Dialog - rendered outside clickable card to avoid click bubbling */}
+    {/* Found housing dialog - rendered outside clickable card to avoid click bubbling */}
     {isOwner && (
       <div onClick={(e) => e.stopPropagation()}>
-        <FulfillRequestDialog
-          open={fulfillOpen}
-          onOpenChange={setFulfillOpen}
-          requestId={r.id}
-          requestCategory={r.category}
-          onCompleted={onFulfilled}
-        />
+        <AlertDialog open={foundOpen} onOpenChange={setFoundOpen}>
+          <AlertDialogContent dir="rtl" className="font-tajawal">
+            <AlertDialogHeader>
+              <AlertDialogTitle>هل وجدت سكناً بالفعل؟</AlertDialogTitle>
+              <AlertDialogDescription className="text-xs text-muted-foreground">
+                سيتم إغلاق طلب السكن ولن يظهر في نتائج البحث. يمكنك إنشاء طلب جديد في أي وقت.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogAction
+                onClick={(e) => { e.preventDefault(); handleConfirmFoundHousing(); }}
+                disabled={foundLoading}
+                className="gap-1"
+              >
+                {foundLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                نعم، وجدته
+              </AlertDialogAction>
+              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     )}
     </>

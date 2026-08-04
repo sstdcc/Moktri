@@ -17,12 +17,16 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatPrice, timeAgo } from '@/lib/format';
 import { toast } from 'sonner';
-import { FulfillRequestDialog } from '@/components/rental/FulfillRequestDialog';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { SendHousingOfferDialog } from '@/components/rental/SendHousingOfferDialog';
 import { HousingRequestOffersList } from '@/components/rental/HousingRequestOffersList';
 import {
   MapPin, MessageSquare, Eye, Users, Calendar, RefreshCw,
-  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home, Gift,
+  Send, FileQuestion, Clock, CheckCircle2, Wallet, BedDouble, Sofa, FileText, Hash, Home, Gift, Loader2,
 } from 'lucide-react';
 import { getCategoryFields } from '@/lib/requestFieldsConfig';
 import type { ListingCategory } from '@/types/database';
@@ -86,7 +90,8 @@ const RequestDetailPage = () => {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [fulfillOpen, setFulfillOpen] = useState(false);
+  const [foundOpen, setFoundOpen] = useState(false);
+  const [foundLoading, setFoundLoading] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
 
   const districtName = (dId: string | null) => districts.find(d => d.id === dId)?.name_ar ?? '';
@@ -142,6 +147,28 @@ const RequestDetailPage = () => {
       fetchData();
     }
     setSubmitting(false);
+  };
+
+  const handleConfirmFoundHousing = async () => {
+    if (!request || foundLoading) return;
+    setFoundLoading(true);
+    try {
+      const { error } = await supabase
+        .from('housing_requests')
+        .update({ status: 'fulfilled' })
+        .eq('id', request.id);
+
+      if (error) throw error;
+
+      toast.success('تم تأكيد إيجاد السكن');
+      setFoundOpen(false);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error('تعذر إتمام العملية، حاول مرة أخرى');
+    } finally {
+      setFoundLoading(false);
+    }
   };
 
   const openChatWithResponder = async (resp: ResponseRow) => {
@@ -511,24 +538,38 @@ const RequestDetailPage = () => {
           </>
         )}
 
-        {/* Fulfill action for requester */}
+        {/* Found housing action for requester */}
         {isRequester && request.status === 'active' && (
           <>
             <Button
-              onClick={() => setFulfillOpen(true)}
+              onClick={() => setFoundOpen(true)}
               size="lg"
               className="w-full gap-2 h-12 rounded-xl bg-success text-success-foreground hover:bg-success/90 shadow-md font-bold"
             >
               <CheckCircle2 className="h-4 w-4" />
-              تأكيد تنفيذ الطلب
+              لقد وجدت سكناً
             </Button>
-            <FulfillRequestDialog
-              open={fulfillOpen}
-              onOpenChange={setFulfillOpen}
-              requestId={request.id}
-              requestCategory={request.category}
-              onCompleted={fetchData}
-            />
+            <AlertDialog open={foundOpen} onOpenChange={setFoundOpen}>
+              <AlertDialogContent dir="rtl" className="font-tajawal">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>هل وجدت سكناً بالفعل؟</AlertDialogTitle>
+                  <AlertDialogDescription className="text-xs text-muted-foreground">
+                    سيتم إغلاق طلب السكن ولن يظهر في نتائج البحث. يمكنك إنشاء طلب جديد في أي وقت.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="gap-2">
+                  <AlertDialogAction
+                    onClick={(e) => { e.preventDefault(); handleConfirmFoundHousing(); }}
+                    disabled={foundLoading}
+                    className="gap-1"
+                  >
+                    {foundLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    نعم، وجدته
+                  </AlertDialogAction>
+                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </>
         )}
 
