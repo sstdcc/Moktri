@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useMarkAsRead, useMarkAllAsRead, useDeleteNotification } from '@/hooks/useNotificationMutations';
 import { createNotificationService } from '@/services';
 import type { NotificationRecord } from '@/types/notifications';
+import type { Database } from '@/integrations/supabase/types';
 import {
   Bell, MessageCircle, Clock, CheckCircle2, XCircle,
   BadgeCheck, ShieldAlert, RefreshCw, Sparkles, Trash2, Check,
@@ -19,7 +20,11 @@ import {
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
+import { MarkAsRentedDialog } from '@/components/rental/MarkAsRentedDialog';
 import { cn } from '@/lib/utils';
+
+const RENTAL_REMINDER_TYPE = 'rental_reminder' as const;
+const LISTING_LINK_RE = /^\/listings\/([0-9a-fA-F-]{36})$/;
 
 /* ---------- Notification visual config ---------- */
 type NotifVisual = {
@@ -104,6 +109,12 @@ const visualMap: Record<string, NotifVisual> = {
     fg: 'text-amber-600 dark:text-amber-300',
     bar: 'bg-amber-500',
   },
+  rental_reminder: {
+    icon: Clock,
+    bg: 'bg-sky-100 dark:bg-sky-500/15',
+    fg: 'text-sky-600 dark:text-sky-300',
+    bar: 'bg-sky-500',
+  },
   system: {
     icon: Bell,
     bg: 'bg-primary/10',
@@ -148,9 +159,14 @@ type RowProps = {
   notif: NotificationRecord;
   onOpen: (n: NotificationRecord) => void;
   onDelete: (n: NotificationRecord) => void;
+  onRented?: (n: NotificationRecord) => void;
+  onStillAvailable?: (n: NotificationRecord) => void;
 };
 
-const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
+const isRentalReminder = (n: NotificationRecord): boolean =>
+  (n.type as string) === RENTAL_REMINDER_TYPE;
+
+const NotificationRow = ({ notif, onOpen, onDelete, onRented, onStillAvailable }: RowProps) => {
   const [dragX, setDragX] = useState(0);
   const [startX, setStartX] = useState<number | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -158,6 +174,7 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
   const visual = getVisual(notif.type);
   const Icon = visual.icon;
   const isUnread = !notif.isRead;
+  const reminder = isRentalReminder(notif);
 
   // RTL: swipe LEFT (negative dx) reveals the delete action on the LEFT side
   const onTouchStart = (e: React.TouchEvent) => setStartX(e.touches[0].clientX);
@@ -190,6 +207,99 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
     onOpen(notif);
   };
 
+  const cardClasses = cn(
+    'group relative w-full text-right',
+    'rounded-2xl bg-card',
+    'pr-4 pl-5 py-4 sm:py-5',
+    'shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]',
+    'transition-all duration-200 ease-out',
+    'hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(16,24,40,0.06),0_2px_4px_rgba(16,24,40,0.04)]',
+    'active:scale-[0.99]',
+  );
+
+  // Shared inner pieces (identical markup to the pre-existing card).
+  const accentBar = (
+    <span
+      aria-hidden
+      className={cn(
+        'absolute left-0 top-2 bottom-2 w-[4px] rounded-r-full transition-opacity',
+        visual.bar,
+        isUnread ? 'opacity-100' : 'opacity-0',
+      )}
+    />
+  );
+  const unreadDot = isUnread && (
+    <span
+      aria-hidden
+      className="absolute left-3 top-3 h-2 w-2 rounded-full bg-primary"
+    />
+  );
+  const iconCircle = (
+    <div
+      className={cn(
+        'flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-105',
+        isUnread ? visual.bg : 'bg-muted',
+      )}
+    >
+      <Icon
+        className={cn(
+          'h-[20px] w-[20px] stroke-[1.8px]',
+          isUnread ? visual.fg : 'text-muted-foreground',
+        )}
+      />
+    </div>
+  );
+  const timeLabel = (
+    <span className="absolute bottom-3 left-4 text-[10px] font-medium text-muted-foreground/70 font-tajawal">
+      {getRelativeTime(notif.createdAt ?? '')}
+    </span>
+  );
+  const contentCol = (
+    <div className="flex-1 min-w-0 pb-5">
+      <p
+        className={cn(
+          'text-[15px] leading-tight text-foreground font-tajawal',
+          isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
+        )}
+      >
+        {notif.titleAr}
+      </p>
+      {notif.bodyAr && (
+        <p
+          className={cn(
+            'mt-1.5 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
+            isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
+          )}
+        >
+          {notif.bodyAr}
+        </p>
+      )}
+    </div>
+  );
+  // Only the weekly rental reminder gets the two inline actions.
+  const reminderActions = reminder && (
+    <div
+      className="mt-1 flex items-center gap-2 border-t border-border/50 pt-3"
+      onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onRented?.(notif); }}
+        className="flex-1 rounded-xl bg-success px-3 py-2.5 text-[13px] font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+      >
+        تم التأجير
+      </button>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onStillAvailable?.(notif); }}
+        className="flex-1 rounded-xl bg-muted px-3 py-2.5 text-[13px] font-bold text-foreground transition-all hover:bg-muted/70 active:scale-[0.98]"
+      >
+        ما زال متاحًا
+      </button>
+    </div>
+  );
+
   return (
     <div
       className={cn(
@@ -210,84 +320,51 @@ const NotificationRow = ({ notif, onOpen, onDelete }: RowProps) => {
         <Trash2 className="h-5 w-5" />
       </button>
 
-      <button
-        type="button"
-        onClick={handleOpen}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        aria-label={notif.titleAr || 'إشعار'}
-        style={{ transform: `translateX(${dragX}px)` }}
-        className={cn(
-          'group relative w-full text-right',
-          'flex items-start gap-3 rounded-2xl bg-card',
-          'pr-4 pl-5 py-4 sm:py-5',
-          'shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]',
-          'transition-all duration-200 ease-out',
-          'hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(16,24,40,0.06),0_2px_4px_rgba(16,24,40,0.04)]',
-          'active:scale-[0.99]',
-        )}
-      >
-        {/* Accent bar — visually LEFT side of card (as in reference image) */}
-        <span
-          aria-hidden
-          className={cn(
-            'absolute left-0 top-2 bottom-2 w-[4px] rounded-r-full transition-opacity',
-            visual.bar,
-            isUnread ? 'opacity-100' : 'opacity-0',
-          )}
-        />
-
-        {/* Unread dot — top-LEFT (visually) */}
-        {isUnread && (
-          <span
-            aria-hidden
-            className="absolute left-3 top-3 h-2 w-2 rounded-full bg-primary"
-          />
-        )}
-
-        {/* Content (right side in RTL) */}
-        <div className="flex-1 min-w-0 pb-5">
-          <p
-            className={cn(
-              'text-[15px] leading-tight text-foreground font-tajawal',
-              isUnread ? 'font-bold' : 'font-semibold text-foreground/85',
-            )}
-          >
-            {notif.titleAr}
-          </p>
-          {notif.bodyAr && (
-            <p
-              className={cn(
-                'mt-1.5 text-[13px] leading-relaxed line-clamp-2 font-tajawal',
-                isUnread ? 'text-muted-foreground' : 'text-muted-foreground/80',
-              )}
-            >
-              {notif.bodyAr}
-            </p>
-          )}
-        </div>
-
-        {/* Icon circle — visually right (start of row in RTL) */}
+      {reminder ? (
         <div
-          className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-105',
-            isUnread ? visual.bg : 'bg-muted',
-          )}
+          role="button"
+          tabIndex={0}
+          onClick={handleOpen}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleOpen();
+            }
+          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          aria-label={notif.titleAr || 'إشعار'}
+          style={{ transform: `translateX(${dragX}px)` }}
+          className={cn(cardClasses, 'flex flex-col gap-3')}
         >
-          <Icon
-            className={cn(
-              'h-[20px] w-[20px] stroke-[1.8px]',
-              isUnread ? visual.fg : 'text-muted-foreground',
-            )}
-          />
+          {accentBar}
+          {unreadDot}
+          <div className="flex w-full items-start gap-3">
+            {contentCol}
+            {iconCircle}
+          </div>
+          {timeLabel}
+          {reminderActions}
         </div>
-
-        {/* Time — bottom-LEFT (visually) */}
-        <span className="absolute bottom-3 left-4 text-[10px] font-medium text-muted-foreground/70 font-tajawal">
-          {getRelativeTime(notif.createdAt ?? '')}
-        </span>
-      </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleOpen}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          aria-label={notif.titleAr || 'إشعار'}
+          style={{ transform: `translateX(${dragX}px)` }}
+          className={cn(cardClasses, 'flex items-start gap-3')}
+        >
+          {accentBar}
+          {unreadDot}
+          {contentCol}
+          {iconCircle}
+          {timeLabel}
+        </button>
+      )}
     </div>
   );
 };
@@ -379,6 +456,54 @@ const NotificationsPage = () => {
         setNotifications(prev);
       },
     });
+  };
+
+  // ---- Weekly rental reminder interactions (only for rental_reminder cards) ----
+  const getListingIdFromNotification = (notif: NotificationRecord): string | null => {
+    if (!notif.link) return null;
+    const match = notif.link.match(LISTING_LINK_RE);
+    return match ? match[1] : null;
+  };
+
+  const [rentDialog, setRentDialog] = useState<{
+    notif: NotificationRecord;
+    listingId: string;
+    title: string;
+  } | null>(null);
+
+  // "تم التأجير" — reuse the existing Mark-as-Rented workflow, nothing else.
+  const handleRented = (notif: NotificationRecord) => {
+    const listingId = getListingIdFromNotification(notif);
+    if (!listingId) {
+      toast.error('تعذر التعرف على الإعلان');
+      deleteNotification(notif);
+      return;
+    }
+    setRentDialog({ notif, listingId, title: notif.titleAr ?? '' });
+  };
+
+  // After the Mark-as-Rented dialog completes, dismiss this reminder.
+  const handleRentedCompleted = (notif: NotificationRecord) => {
+    setRentDialog(null);
+    deleteNotification(notif);
+  };
+
+  // "ما زال متاحًا" — keep the listing ACTIVE, defer the next reminder by 7 days.
+  const handleStillAvailable = async (notif: NotificationRecord) => {
+    const listingId = getListingIdFromNotification(notif);
+    if (listingId && user) {
+      const { error } = await supabase
+        .from('listings')
+        .update({ last_rental_reminder_at: new Date().toISOString() } as unknown as Database['public']['Tables']['listings']['Update'])
+        .eq('id', listingId)
+        .eq('owner_id', user.id);
+      if (error) {
+        toast.error('تعذر تحديث الإعلان');
+        return;
+      }
+    }
+    deleteNotification(notif);
+    toast.success('سنتذكر تذكيرك بعد 7 أيام');
   };
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -525,6 +650,8 @@ const NotificationsPage = () => {
                         notif={notif}
                         onOpen={markAsRead}
                         onDelete={deleteNotification}
+                        onRented={handleRented}
+                        onStillAvailable={handleStillAvailable}
                       />
                     ))}
                   </div>
@@ -543,6 +670,16 @@ const NotificationsPage = () => {
           </div>
         )}
       </div>
+
+      {rentDialog && (
+        <MarkAsRentedDialog
+          open
+          onOpenChange={(open) => { if (!open) setRentDialog(null); }}
+          listingId={rentDialog.listingId}
+          listingTitle={rentDialog.title}
+          onCompleted={() => handleRentedCompleted(rentDialog.notif)}
+        />
+      )}
 
     </div>
   );
