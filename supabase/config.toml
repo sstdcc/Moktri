@@ -1,1 +1,9 @@
 project_id = "mplctfygsizzchwewqbh"
+
+# send-fcm is invoked by the trg_fcm_delivery database trigger via pg_net,
+# which does not send a Supabase user JWT in the Authorization header.
+# Auth is handled inside the function via the X-FCM-Secret header.
+# Without this, redeploying without --no-verify-jwt would flip the platform
+# check back to true and break the pg_net -> send-fcm delivery path.
+[functions.send-fcm]
+verify_jwt = false

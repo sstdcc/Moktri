@@ -245,7 +245,15 @@ const SignUpPage = () => {
         setGoogleLoading(false);
         return;
       }
-      if (result.redirected) return;
+      if (result.redirected) {
+        // Android: tab opened in the system browser. Re-enable the button once
+        // the browser closes (success navigates away via the deep link; cancel
+        // just re-enables the button).
+        if (result.browserClosed) {
+          void result.browserClosed.finally(() => setGoogleLoading(false));
+        }
+        return;
+      }
       // Tokens received directly — check if profile has phone
       navigate('/complete-profile', { replace: true });
     } catch {

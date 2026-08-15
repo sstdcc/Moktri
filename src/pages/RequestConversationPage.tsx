@@ -467,7 +467,7 @@ const RequestConversationPage = () => {
       style={{ height: viewportHeight ? `${viewportHeight}px` : '100dvh', top: `${viewportOffsetTop}px` }}
       dir="rtl"
     >
-      <header className="relative shrink-0 z-40 flex items-center gap-3 h-16 px-3 border-b border-border/50 bg-card/90 backdrop-blur-xl">
+      <header className="relative shrink-0 z-40 flex items-center gap-3 h-16 px-3 pt-safe border-b border-border/50 bg-card/90 backdrop-blur-xl">
 
         <button type="button" onClick={() => navigate(-1)} aria-label="رجوع"
           className="relative z-10 shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-muted active:scale-95 transition">

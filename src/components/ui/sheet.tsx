@@ -4,8 +4,12 @@ import { X } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useModalLayer } from "@/lib/modalRegistry";
 
-const Sheet = SheetPrimitive.Root;
+const Sheet = (props: React.ComponentProps<typeof SheetPrimitive.Root>) => {
+  const layer = useModalLayer(props);
+  return <SheetPrimitive.Root {...props} open={layer.open} onOpenChange={layer.onOpenChange} />;
+};
 
 const SheetTrigger = SheetPrimitive.Trigger;
 
@@ -33,12 +37,12 @@ const sheetVariants = cva(
   {
     variants: {
       side: {
-        top: "inset-x-0 top-0 border-b data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        top: "inset-x-0 top-0 border-b pt-safe data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
           "inset-x-0 bottom-0 border-t data-[state=open]:animate-sheet-up data-[state=closed]:animate-sheet-down",
-        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=open]:animate-sidebar-left-in data-[state=closed]:animate-sidebar-left-out sm:max-w-sm",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r pt-safe data-[state=open]:animate-sidebar-left-in data-[state=closed]:animate-sidebar-left-out sm:max-w-sm",
         right:
-          "inset-y-0 right-0 h-full w-3/4 border-l data-[state=open]:animate-sidebar-right-in data-[state=closed]:animate-sidebar-right-out sm:max-w-sm",
+          "inset-y-0 right-0 h-full w-3/4 border-l pt-safe data-[state=open]:animate-sidebar-right-in data-[state=closed]:animate-sidebar-right-out sm:max-w-sm",
       },
     },
     defaultVariants: {
@@ -59,7 +63,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       <SheetOverlay className={overlayClassName} />
       <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
         {children}
-        <SheetPrimitive.Close className="absolute top-5 ltr:right-5 rtl:left-5 inline-flex h-7 w-7 items-center justify-center rounded-md opacity-70 ring-offset-background transition-opacity hover:opacity-100 hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <SheetPrimitive.Close className="absolute top-[calc(1.25rem+env(safe-area-inset-top,0px))] ltr:right-5 rtl:left-5 inline-flex h-7 w-7 items-center justify-center rounded-md opacity-70 ring-offset-background transition-opacity hover:opacity-100 hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>

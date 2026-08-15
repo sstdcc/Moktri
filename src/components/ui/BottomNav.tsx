@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
 import { CountBadge } from '@/components/ui/CountBadge';
 import { cn } from '@/lib/utils';
-import { getPersistentTabHref } from '@/lib/persistentTabs';
+import { getPersistentTabHref, isPersistentBottomTabPath } from '@/lib/persistentTabs';
 
 type NavItem = { label: string; icon: typeof Home; path: string };
 
@@ -32,10 +32,19 @@ export const BottomNav = () => {
 
   const isNotifActive = location.pathname === '/notifications';
 
+  // Avoid piling up history when switching between persistent bottom tabs:
+  // tab→tab switches use replace (Back won't randomly walk tab history), while
+  // navigating into a tab from a detail/other page keeps a normal push so Back
+  // returns to that page.
+  const isOnTab = isPersistentBottomTabPath(location.pathname);
+  const navigateTab = (href: string) => {
+    navigate(href, isOnTab ? { replace: true } : undefined);
+  };
+
   const renderNavButton = (item: NavItem, isActive: boolean) => (
     <button
       key={item.path}
-      onClick={() => navigate(getPersistentTabHref(item.path))}
+      onClick={() => navigateTab(getPersistentTabHref(item.path))}
       className={cn(
         'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
         isActive
@@ -111,7 +120,7 @@ export const BottomNav = () => {
 
           {/* Notifications */}
           <button
-            onClick={() => navigate(getPersistentTabHref('/notifications'))}
+            onClick={() => navigateTab(getPersistentTabHref('/notifications'))}
             className={cn(
               'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
               isNotifActive

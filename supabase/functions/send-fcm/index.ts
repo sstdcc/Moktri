@@ -100,6 +100,19 @@ function buildFcmMessage(
         title_ar: payload.title_ar ?? "",
         body_ar: payload.body_ar ?? "",
       },
+      android: {
+        notification: {
+          // Must match the channel created by the app via
+          // @capacitor/push-notifications createChannel() (id "default",
+          // IMPORTANCE_HIGH) so the notification shows as heads-up/banner
+          // with sound + vibration instead of the silent FCM fallback channel.
+          channel_id: "default",
+          sound: "default",
+          notification_priority: "PRIORITY_HIGH",
+          default_sound: true,
+          default_vibrate_timings: true,
+        },
+      },
       webpush: {
         fcm_options: { link: "/notifications" },
       },

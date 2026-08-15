@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
+import { getResetPasswordUrl } from '@/lib/authLinks';
 import { toast } from 'sonner';
 import { Loader2, Mail, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -36,7 +37,7 @@ const ForgotPasswordPage = () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: getResetPasswordUrl(),
       });
       if (error) {
         toast.error(t('auth.errors.resetSendFailed'));

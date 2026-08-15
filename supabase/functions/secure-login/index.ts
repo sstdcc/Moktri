@@ -9,6 +9,10 @@ const corsHeaders = {
 const MAX_FAILED_ATTEMPTS = 5;
 const FIRST_LOCKOUT_MINUTES = 15;
 const SECOND_LOCKOUT_HOURS = 24;
+// Rolling window for failed-attempt accumulation. If the last failed attempt
+// is older than this window, the counter resets to 0 (stale attempts from
+// previous days/weeks must not pile up into a lockout).
+const FAILED_WINDOW_MS = FIRST_LOCKOUT_MINUTES * 60 * 1000;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -46,7 +50,7 @@ Deno.serve(async (req) => {
     // Check lockout
     const { data: attempt } = await admin
       .from("login_attempts")
-      .select("failed_count, lockout_count, locked_until")
+      .select("failed_count, lockout_count, locked_until, last_failed_at")
       .eq("email", email)
       .maybeSingle();
 
@@ -71,9 +75,17 @@ Deno.serve(async (req) => {
     });
 
     if (signInErr || !signInData?.session) {
-      // Record failure
-      const prevFailed = attempt?.failed_count ?? 0;
-      const prevLockouts = attempt?.lockout_count ?? 0;
+      // Rolling-window aware failure recording.
+      // If the last failed attempt is older than FAILED_WINDOW_MS, treat the
+      // counter AND the lockout escalation as fresh: stale attempts from
+      // previous days/weeks must never accumulate into a lockout, and an old
+      // lockout never triggers a permanent 24h escalation.
+      const lastFailedMs = attempt?.last_failed_at
+        ? new Date(attempt.last_failed_at).getTime()
+        : 0;
+      const inWindow = lastFailedMs > 0 && now - lastFailedMs <= FAILED_WINDOW_MS;
+      const prevFailed = inWindow ? (attempt?.failed_count ?? 0) : 0;
+      const prevLockouts = inWindow ? (attempt?.lockout_count ?? 0) : 0;
       const newFailed = prevFailed + 1;
 
       let newLockedUntil: string | null = null;

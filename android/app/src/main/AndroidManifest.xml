@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+                Android App Links — password recovery (STAGE A).
+                host is a PLACEHOLDER. Replace with the REAL production HTTPS
+                domain once deployed, e.g. android:host="app.example.com".
+                assetlinks.json must be served at https://<host>/.well-known/assetlinks.json
+                for autoVerify to succeed (STAGE B — requires release SHA-256).
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="app.example.com" />
+                <data android:pathPrefix="/reset-password" />
+            </intent-filter>
+
+            <!--
+                Google OAuth callback (STAGE: Android auth).
+                After the user completes Google sign-in in the Chrome Custom Tab
+                (opened via @capacitor/browser), the browser redirects to this
+                custom scheme: com.moktari.app://complete-profile#access_token=...
+                The intent re-opens/foregrounds the app and @capacitor/app
+                surfaces the URL through appUrlOpen / getLaunchUrl.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.moktari.app" />
+                <data android:host="complete-profile" />
+            </intent-filter>
+
+            <!--
+                Password recovery callback (STAGE A).
+                On Android the reset link uses the same custom-scheme pattern as
+                Google OAuth: com.moktari.app://reset-password#access_token=...
+                (see src/lib/authLinks.ts getResetPasswordUrl). STAGE B replaces
+                this with a verified HTTPS App Link once a real domain exists.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.moktari.app" />
+                <data android:host="reset-password" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+
+    <!-- Permissions -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Required on Android 13+ (API 33) to display push notifications.
+         Requested at runtime via the @capacitor/push-notifications plugin. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+</manifest>

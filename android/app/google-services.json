@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "592333922936",
+    "project_id": "moktari-39d66",
+    "storage_bucket": "moktari-39d66.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592333922936:android:013a7b9edbeffaa788038d",
+        "android_client_info": {
+          "package_name": "com.moktari.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKylSZ7x3sLe2PJPvN8bp0s5pMwDg-5-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -113,7 +113,7 @@
     "forgotPasswordTitle": "Forgot your password?",
     "forgotPasswordSubtitle": "Enter your email to receive a reset link",
     "sendResetLink": "Send reset link",
-    "resetSent": "A password reset link has been sent to your email",
+    "resetSent": "If this email address is associated with an account, a password reset link will be sent to it.",
     "resetCheckInbox": "Check your inbox and spam folder",
     "backToLogin": "Back to sign in",
     "rememberedPassword": "Remembered your password?",
@@ -131,6 +131,8 @@
     "resetSubtitle": "Enter a new password for your account",
     "updatePassword": "Update password",
     "openViaEmailLink": "Open this page via the link sent to your email",
+    "googleAccountNoticeTitle": "This account was created with Google",
+    "googleAccountNoticeText": "Please sign in with Google to continue.",
     "otpSentTo": "Code sent to",
     "verifyAndCreate": "Verify and create account",
     "editData": "Edit details",
@@ -162,7 +164,7 @@
       "otpSent": "Verification code sent",
       "otpResent": "Code resent",
       "accountCreated": "Account created successfully",
-      "resetSent": "Reset link sent to your email",
+      "resetSent": "If this email address is associated with an account, a password reset link will be sent to it.",
       "passwordUpdated": "Password updated successfully, you can sign in now"
     }
   }

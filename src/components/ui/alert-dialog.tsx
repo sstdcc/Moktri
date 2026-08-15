@@ -3,8 +3,14 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { useModalLayer } from "@/lib/modalRegistry";
 
-const AlertDialog = AlertDialogPrimitive.Root;
+const AlertDialog = (props: React.ComponentProps<typeof AlertDialogPrimitive.Root>) => {
+  const layer = useModalLayer(props);
+  return (
+    <AlertDialogPrimitive.Root {...props} open={layer.open} onOpenChange={layer.onOpenChange} />
+  );
+};
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 

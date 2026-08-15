@@ -19,12 +19,10 @@ BEGIN
     );
   END IF;
 
-  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'fcm_function_secret') THEN
-    PERFORM vault.create_secret(
-      'c0c084c3767ead3ef65528fef410fe8aacd5464160b8c59ecb56ec4360efdbe3',
-      'fcm_function_secret'
-    );
-  END IF;
+  -- fcm_function_secret is intentionally NOT created here to keep the shared
+  -- secret out of the repository. Create it manually at deploy time via
+  -- SELECT vault.create_secret('<value>', 'fcm_function_secret'); so that it
+  -- matches FCM_FUNCTION_SECRET in Supabase Secrets.
 END;
 $$;
 

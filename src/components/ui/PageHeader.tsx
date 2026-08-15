@@ -45,7 +45,8 @@ export const PageHeader = ({ title, showBack = false, fallbackPath, action }: Pa
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-[56px] items-center justify-between border-b border-border/50 bg-card/80 backdrop-blur-xl backdrop-saturate-150 px-4">
+    <header className="sticky top-0 z-40 pt-safe border-b border-border/50 bg-card/80 backdrop-blur-xl backdrop-saturate-150 px-4">
+      <div className="flex h-[56px] items-center justify-between">
       <div className="w-10">
         {showBack && (
           <button
@@ -59,6 +60,7 @@ export const PageHeader = ({ title, showBack = false, fallbackPath, action }: Pa
       </div>
       <h1 className="text-[15px] font-bold text-foreground font-tajawal">{title}</h1>
       <div className="flex shrink-0 justify-start">{action}</div>
+      </div>
     </header>
   );
 };

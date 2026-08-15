@@ -3,8 +3,12 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useModalLayer } from "@/lib/modalRegistry";
 
-const Dialog = DialogPrimitive.Root;
+const Dialog = ({ open, defaultOpen, onOpenChange, ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) => {
+  const layer = useModalLayer({ open, defaultOpen, onOpenChange });
+  return <DialogPrimitive.Root {...props} open={layer.open} onOpenChange={layer.onOpenChange} />;
+};
 
 const DialogTrigger = DialogPrimitive.Trigger;
 

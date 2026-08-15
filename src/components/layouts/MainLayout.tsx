@@ -34,10 +34,10 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
           {showAppHeader && (
-            <header className="shrink-0 h-14 border-b border-border/40 bg-card/80 backdrop-blur-xl z-40"
+            <header className="shrink-0 pt-safe border-b border-border/40 bg-card/80 backdrop-blur-xl z-40"
               style={{ boxShadow: '0 1px 8px -4px rgba(0,0,0,0.06)' }}
             >
-              <div className="flex h-full w-full items-center justify-between px-2 md:px-6 lg:px-8">
+              <div className="flex h-14 w-full items-center justify-between px-2 md:px-6 lg:px-8">
                 <SidebarTrigger className="h-11 w-11 [&_svg]:!size-6 text-foreground md:hidden" />
                 {!user ? (
                   <button

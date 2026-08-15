@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Moktari</string>
+    <string name="title_activity_main">Moktari</string>
+    <string name="package_name">com.moktari.app</string>
+    <string name="custom_url_scheme">com.moktari.app</string>
+</resources>

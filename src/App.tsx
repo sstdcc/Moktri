@@ -17,6 +17,8 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { PersistentBottomTabs } from "@/components/layouts/PersistentBottomTabs";
 import ScrollToTop from "@/components/ScrollToTop";
 import WelcomeTourModal from "@/components/onboarding/WelcomeTourModal";
+import DeepLinkHandler from "@/components/DeepLinkHandler";
+import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
 
 // Lazy-loaded pages
 const ListingDetailPage = lazy(() => import("./pages/ListingDetailPage"));
@@ -67,6 +69,12 @@ const queryClient = new QueryClient({
 
 const LazyFallback = () => <LazyRouteFallback />;
 
+// Must live inside <BrowserRouter> so it can use useNavigate.
+const AndroidBackButtonHandler = () => {
+  useAndroidBackButton();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -74,6 +82,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <DeepLinkHandler />
+          <AndroidBackButtonHandler />
           <ScrollToTop />
           <WelcomeTourModal />
           <DistrictsProvider>
