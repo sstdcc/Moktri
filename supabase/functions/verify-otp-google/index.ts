@@ -44,7 +44,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { phone, code } = await req.json();
+    let body: { phone?: string; code?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "صيغة الطلب غير صالحة" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const { phone, code } = body;
     if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
       return new Response(
         JSON.stringify({ error: "رقم الهاتف والرمز مطلوبان" }),

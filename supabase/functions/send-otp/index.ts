@@ -22,7 +22,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, email } = await req.json();
+    let body: { phone?: string; email?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "صيغة الطلب غير صالحة" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const { phone, email } = body;
     if (!phone || typeof phone !== "string" || !/^\+\d{9,15}$/.test(phone)) {
       return new Response(
         JSON.stringify({ error: "رقم هاتف غير صالح" }),

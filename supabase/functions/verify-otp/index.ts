@@ -24,7 +24,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone, code, email: providedEmail, password: providedPassword } = await req.json();
+    let body: { phone?: string; code?: string; email?: string; password?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "صيغة الطلب غير صالحة" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const { phone, code, email: providedEmail, password: providedPassword } = body;
     console.log("[verify-otp] request received");
 
     if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {

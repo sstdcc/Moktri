@@ -7,3 +7,10 @@ project_id = "mplctfygsizzchwewqbh"
 # check back to true and break the pg_net -> send-fcm delivery path.
 [functions.send-fcm]
 verify_jwt = false
+
+# verify-otp is a PRE-AUTHENTICATION endpoint: the client calls it (with only
+# the anon/publishable key, no user JWT) to verify an OTP and receive a fresh
+# session. Requiring a user JWT would break the legitimate OTP login flow.
+# Aligned with send-otp (P7-FIND-01 remediation).
+[functions.verify-otp]
+verify_jwt = false

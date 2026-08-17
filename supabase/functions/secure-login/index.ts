@@ -36,7 +36,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email: rawEmail, password } = await req.json();
+    let body: { email?: string; password?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return json({ error: "صيغة الطلب غير صالحة" }, 400);
+    }
+    const { email: rawEmail, password } = body;
     if (!rawEmail || !password || typeof rawEmail !== "string" || typeof password !== "string") {
       return json({ error: "البريد الإلكتروني وكلمة المرور مطلوبان" }, 400);
     }
