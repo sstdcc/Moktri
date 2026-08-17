@@ -46,7 +46,7 @@ const PublicProfilePage = () => {
     // 1. Fetch profile first (critical)
     const profileRes = await supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, role, bio, is_verified, verification_badge, is_active, total_listings, total_responses, created_at, updated_at')
+      .select('id, full_name, avatar_url, role, bio, is_verified, verification_badge, total_listings, total_responses, created_at')
       .eq('id', id)
       .maybeSingle();
 
