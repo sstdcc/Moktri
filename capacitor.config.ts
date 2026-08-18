@@ -5,6 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Moktari',
   webDir: 'dist',
   androidScheme: 'https',
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 0,
+      launchAutoHide: true,
+    },
+  },
 };
 
 export default config;
