@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -44,7 +44,7 @@ const ListingsPage = () => {
     if (isActiveListingsRoute) setListingsSearch(location.search);
   }, [isActiveListingsRoute, location.search]);
 
-  const searchParams = new URLSearchParams(listingsSearch);
+  const searchParams = useMemo(() => new URLSearchParams(listingsSearch), [listingsSearch]);
   const setSearchParams = useCallback((params: URLSearchParams, options?: { replace?: boolean }) => {
     const search = params.toString();
     navigate({ pathname: '/listings', search: search ? `?${search}` : '' }, { replace: options?.replace });
@@ -60,6 +60,24 @@ const ListingsPage = () => {
 
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
   const debouncedSearch = useDebounce(searchInput, 380);
+  const searchInputRef = useRef(searchInput);
+  useEffect(() => {
+    searchInputRef.current = searchInput;
+  }, [searchInput]);
+  const hasUserTypedRef = useRef(false);
+
+  // Keep the local input and the URL `q` in sync. When the URL changes with a
+  // value that differs from what the user is currently editing (external
+  // navigation, e.g. HomePage search), adopt the URL value and drop the
+  // typing state so the URL query is never clobbered afterwards.
+  useEffect(() => {
+    const urlQ = searchParams.get('q') || '';
+    const inputQ = searchInputRef.current.trim();
+    if (urlQ !== inputQ) {
+      hasUserTypedRef.current = false;
+      setSearchInput(urlQ);
+    }
+  }, [searchParams]);
 
   const getFiltersFromParams = useCallback((): FilterValues => ({
     category: searchParams.get('category') || undefined,
@@ -130,8 +148,10 @@ const ListingsPage = () => {
     fetchListings(0);
   }, [listingsSearch, sortBy]);
 
-  // Auto-search on debounced input change
+  // Auto-search on debounced input change — only sync input -> URL while the
+  // user is typing, never clobber a `q` that arrived from the URL
   useEffect(() => {
+    if (!hasUserTypedRef.current) return;
     const currentQ = searchParams.get('q') || '';
     if (debouncedSearch.trim() !== currentQ) {
       const params = new URLSearchParams(searchParams);
@@ -139,7 +159,7 @@ const ListingsPage = () => {
       else params.delete('q');
       setSearchParams(params, { replace: true });
     }
-  }, [debouncedSearch, listingsSearch, setSearchParams]);
+  }, [debouncedSearch, listingsSearch, setSearchParams, searchParams]);
 
   const loadMore = () => {
     const nextPage = page + 1;
@@ -149,6 +169,7 @@ const ListingsPage = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    hasUserTypedRef.current = false;
     const params = new URLSearchParams(searchParams);
     if (searchInput.trim()) params.set('q', searchInput.trim());
     else params.delete('q');
@@ -202,7 +223,7 @@ const ListingsPage = () => {
             <input
               type="text"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(e) => { hasUserTypedRef.current = true; setSearchInput(e.target.value); }}
               placeholder="ابحث في الإعلانات..."
               className="w-full rounded-lg border border-border bg-background py-2.5 pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
             />
