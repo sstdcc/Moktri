@@ -1,4 +1,4 @@
-import logoSrc from '@/assets/moktari-logo.png';
+import logoSrc from '@/assets/moktari-logo_new.png';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
