@@ -7,9 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useFavorites } from '@/hooks/useFavorites';
 
-import heroImg1 from '@/assets/hero-1.jpg';
-import heroImg2 from '@/assets/hero-2.jpg';
-import heroImg3 from '@/assets/hero-3.jpg';
+import heroImg1 from '@/assets/hero-1.webp';
+import heroImg2 from '@/assets/hero-2.webp';
+import heroImg3 from '@/assets/hero-3.webp';
 
 const heroImages = [heroImg1, heroImg2, heroImg3];
 
