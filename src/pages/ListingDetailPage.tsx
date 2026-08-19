@@ -17,6 +17,8 @@ import { toast } from 'sonner';
 import { createNotificationService } from '@/services';
 import type { Listing, Profile, District } from '@/types/database';
 import { useSeo } from '@/hooks/useSeo';
+import { useJsonLd } from '@/hooks/useJsonLd';
+import { buildBreadcrumbJsonLd, buildListingJsonLd, getListingPrimaryImage } from '@/lib/structuredData';
 import { ChatModal } from '@/components/chat/ChatModal';
 import { RatingDisplay } from '@/components/rating/RatingDisplay';
 
@@ -257,6 +259,8 @@ const ListingDetailPage = () => {
   };
 
   const seoLocation = [listing?.governorate, listing?.city_name, listing?.neighborhood].filter(Boolean).join(' — ');
+  const origin = window.location.origin;
+  const listingOgImage = listing ? getListingPrimaryImage(listing) ?? `${origin}/og-image.webp` : undefined;
   useSeo({
     title: listing ? `${listing.title} | مُكتري` : 'تفاصيل الإعلان | مُكتري',
     description: listing
@@ -264,7 +268,13 @@ const ListingDetailPage = () => {
       : undefined,
     canonicalPath: id ? `/listings/${id}` : undefined,
     noindex: !listing && !loading,
+    ogImage: listingOgImage,
   });
+
+  useJsonLd(
+    listing ? buildBreadcrumbJsonLd(origin, listing) : null,
+    listing ? buildListingJsonLd(origin, listing, getListingPrimaryImage(listing)) : null,
+  );
 
   if (loading) return <LoadingSpinner />;
   if (!listing) {

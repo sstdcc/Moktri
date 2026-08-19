@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Home, Building2, DoorOpen, Layers, Store, Briefcase, MapPin, Phone, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useJsonLd } from '@/hooks/useJsonLd';
+import { buildOrganizationJsonLd } from '@/lib/structuredData';
 
 import heroImg1 from '@/assets/hero-1.webp';
 import heroImg2 from '@/assets/hero-2.webp';
@@ -39,9 +41,11 @@ interface ListingWithImage extends Listing {
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { user } = useAuth();
   
   usePageTitle();
+  useJsonLd(pathname === '/' ? buildOrganizationJsonLd(window.location.origin) : null);
   const { isFavorited, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredListings, setFeaturedListings] = useState<ListingWithImage[]>([]);

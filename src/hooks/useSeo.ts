@@ -7,6 +7,8 @@ interface SeoOptions {
   description?: string;
   canonicalPath?: string;
   noindex?: boolean;
+  /** Absolute URL used for og:image + twitter:image. Omit to leave the default. */
+  ogImage?: string;
 }
 
 const setOrCreateMeta = (selector: string, attribute: 'name' | 'property', name: string, content: string) => {
@@ -49,21 +51,38 @@ const setRobots = (noindex: boolean) => {
     .forEach((el) => el.remove());
 };
 
-export const useSeo = ({ title, description, canonicalPath, noindex }: SeoOptions) => {
+export const useSeo = ({
+  title,
+  description,
+  canonicalPath,
+  noindex,
+  ogImage,
+}: SeoOptions) => {
   useEffect(() => {
+    const canonical = canonicalPath
+      ? `${window.location.origin}${canonicalPath === '/' ? '' : canonicalPath}`
+      : undefined;
+
     if (title) {
       document.title = title;
       setOrCreateMeta('meta[property="og:title"]', 'property', 'og:title', title);
+      setOrCreateMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
     }
     if (description) {
       setOrCreateMeta('meta[name="description"]', 'name', 'description', description);
       setOrCreateMeta('meta[property="og:description"]', 'property', 'og:description', description);
+      setOrCreateMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
     }
-    if (canonicalPath) {
-      setOrCreateCanonical(`${window.location.origin}${canonicalPath === '/' ? '' : canonicalPath}`);
+    if (canonical) {
+      setOrCreateCanonical(canonical);
+      setOrCreateMeta('meta[property="og:url"]', 'property', 'og:url', canonical);
+    }
+    if (ogImage) {
+      setOrCreateMeta('meta[property="og:image"]', 'property', 'og:image', ogImage);
+      setOrCreateMeta('meta[name="twitter:image"]', 'name', 'twitter:image', ogImage);
     }
     if (typeof noindex === 'boolean') {
       setRobots(noindex);
     }
-  }, [title, description, canonicalPath, noindex]);
+  }, [title, description, canonicalPath, noindex, ogImage]);
 };
