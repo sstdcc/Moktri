@@ -16,6 +16,7 @@ import { AuthLayout } from "@/components/layouts/AuthLayout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { PersistentBottomTabs } from "@/components/layouts/PersistentBottomTabs";
 import ScrollToTop from "@/components/ScrollToTop";
+import { IndexabilityTracker } from "@/components/seo/IndexabilityTracker";
 import WelcomeTourModal from "@/components/onboarding/WelcomeTourModal";
 import DeepLinkHandler from "@/components/DeepLinkHandler";
 import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
@@ -85,6 +86,7 @@ const App = () => (
           <DeepLinkHandler />
           <AndroidBackButtonHandler />
           <ScrollToTop />
+          <IndexabilityTracker />
           <WelcomeTourModal />
           <DistrictsProvider>
             <PresenceProvider>

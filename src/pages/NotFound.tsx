@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Home, SearchX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSeo } from '@/hooks/useSeo';
 
 const NotFound = () => {
   const navigate = useNavigate();
+  useSeo({ title: 'الصفحة غير موجودة | مُكتري', noindex: true });
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background font-tajawal px-4">

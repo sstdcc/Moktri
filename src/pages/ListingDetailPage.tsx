@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { createNotificationService } from '@/services';
 import type { Listing, Profile, District } from '@/types/database';
+import { useSeo } from '@/hooks/useSeo';
 import { ChatModal } from '@/components/chat/ChatModal';
 import { RatingDisplay } from '@/components/rating/RatingDisplay';
 
@@ -255,6 +256,16 @@ const ListingDetailPage = () => {
     setReportOpen(true);
   };
 
+  const seoLocation = [listing?.governorate, listing?.city_name, listing?.neighborhood].filter(Boolean).join(' — ');
+  useSeo({
+    title: listing ? `${listing.title} | مُكتري` : 'تفاصيل الإعلان | مُكتري',
+    description: listing
+      ? `${listing.title}${seoLocation ? ` — ${seoLocation}` : ''} — بسعر ${Number(listing.price).toLocaleString('en-GB')} ريال`
+      : undefined,
+    canonicalPath: id ? `/listings/${id}` : undefined,
+    noindex: !listing && !loading,
+  });
+
   if (loading) return <LoadingSpinner />;
   if (!listing) {
     return (
@@ -264,7 +275,6 @@ const ListingDetailPage = () => {
       </div>
     );
   }
-
   const images = listing.listing_images?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
   const owner = listing.profiles;
   const lastUpdatedDays = listing.last_updated_at ? getDaysDiff(listing.last_updated_at) : 0;
