@@ -119,6 +119,7 @@ const PrivacyPage = () => {
               <li>التواصل مع SSTD بشأن الخصوصية عبر وسائل التواصل أدناه</li>
             </ul>
           </section>
+          
 
           <section>
             <h2 className="text-base font-bold mb-2">10. التواصل بخصوص الخصوصية</h2>
