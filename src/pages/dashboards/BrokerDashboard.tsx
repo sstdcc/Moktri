@@ -12,7 +12,9 @@ import { SectionTitle } from '@/components/ui/SectionTitle';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { IncomingListingRequests } from '@/components/rental/IncomingListingRequests';
+import { MarkAsRentedDialog } from '@/components/rental/MarkAsRentedDialog';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import type { Listing, HousingRequest } from '@/types/database';
 
 const statusTabs = [
@@ -53,6 +55,7 @@ const BrokerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [stats, setStats] = useState({ total: 0, active: 0, views: 0, clicks: 0, responses: 0 });
+  const [rentDialog, setRentDialog] = useState<{ open: boolean; listingId: string; title: string; reservedRenterId?: string | null }>({ open: false, listingId: '', title: '', reservedRenterId: null });
 
   useEffect(() => {
     if (!user) return;
@@ -94,13 +97,25 @@ const BrokerDashboard = () => {
     return `منذ ${days} يوم`;
   };
 
-  const handleAction = async (listingId: string, action: string) => {
+  const handleAction = async (listingId: string, action: string, title?: string) => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
     if (action === 'view') { navigate(`/listings/${listingId}`); return; }
-    const statusMap: Record<string, string> = { pause: 'paused', rented: 'rented', renew: 'active' };
+    if (action === 'rented') {
+      const l = listings.find(x => x.id === listingId);
+      // Defense in depth: never open the dialog for a currently-rented listing
+      // (a future rental requires re-listing first).
+      if (!l || l.status === 'rented') return;
+      setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: l.reserved_for_user_id || null });
+      return;
+    }
+    const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
     const newStatus = statusMap[action];
     if (newStatus) {
-      await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
+      const { error } = await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
+      if (error) {
+        toast.error('تعذر تنفيذ الإجراء، حاول مجدداً');
+        return;
+      }
       setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: newStatus as any } : l));
     }
   };
@@ -176,12 +191,12 @@ const BrokerDashboard = () => {
                         <DropdownMenuTrigger asChild>
                           <button onClick={(e) => e.stopPropagation()} className="p-1 rounded-lg hover:bg-muted transition-all duration-200"><MoreVertical className="h-4 w-4 text-muted-foreground" /></button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="font-tajawal">
+                        <DropdownMenuContent align="end" className="font-tajawal" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'view')}>عرض</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
                           {l.status !== 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
-                          <DropdownMenuItem onClick={() => handleAction(l.id, 'rented')}>تعيين كمؤجر</DropdownMenuItem>
+                          {l.status !== 'rented' && <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -257,7 +272,16 @@ const BrokerDashboard = () => {
         إضافة إعلان
       </button>
 
-      
+      <MarkAsRentedDialog
+        open={rentDialog.open}
+        onOpenChange={(o) => setRentDialog(prev => ({ ...prev, open: o }))}
+        listingId={rentDialog.listingId}
+        listingTitle={rentDialog.title}
+        reservedRenterId={rentDialog.reservedRenterId || undefined}
+        onCompleted={() => {
+          setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented', last_updated_at: new Date().toISOString() } : l));
+        }}
+      />
     </div>
   );
 };

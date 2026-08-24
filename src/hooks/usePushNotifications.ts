@@ -27,6 +27,23 @@ const MAX_RECENT_IDS = 50;
 // is displayed (channels cannot change importance after creation).
 const ANDROID_CHANNEL_ID = 'default';
 
+// Web-only toggle intent flag: remembers an explicit OFF per user in this
+// browser so the settings row never shows a permanent «جاري التفعيل...» and
+// auto-registration respects the user's choice across refreshes. Purely
+// client-side; no FCM/schema involvement.
+function pushDisabledKey(uid: string): string {
+  return `push_disabled:${uid}`;
+}
+
+function readPushDisabled(uid: string | null): boolean {
+  if (!uid) return false;
+  try {
+    return localStorage.getItem(pushDisabledKey(uid)) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export interface PushNotificationsState {
   permission: NotificationPermission | null;
   token: string | null;
@@ -35,6 +52,7 @@ export interface PushNotificationsState {
   registerCurrentToken: () => Promise<void>;
   unregisterCurrentToken: () => Promise<void>;
   error: string | null;
+  userDisabled: boolean;
 }
 
 function toErrorMessage(e: unknown): string {
@@ -69,6 +87,7 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
   const [token, setToken] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userDisabled, setUserDisabled] = useState(false);
 
   // Platform support detection.
   useEffect(() => {
@@ -102,6 +121,11 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
     window.addEventListener('focus', sync);
     return () => window.removeEventListener('focus', sync);
   }, []);
+
+  // Reflect the persisted explicit-OFF intent for the current user.
+  useEffect(() => {
+    setUserDisabled(readPushDisabled(userId));
+  }, [userId]);
 
   // Native: reflect the plugin permission state.
   useEffect(() => {
@@ -170,13 +194,17 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
       };
     }
     if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    if (readPushDisabled(uid)) {
+      setUserDisabled(true);
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
         const newToken = await getTokenForRegistration(VAPID_KEY);
-        if (cancelled) return;
+        if (cancelled || readPushDisabled(uid)) return;
         await dts.current.register(uid, newToken, PLATFORM);
-        if (cancelled) return;
+        if (cancelled || readPushDisabled(uid)) return;
         tokenRef.current = newToken;
         setToken(newToken);
         setError(null);
@@ -291,6 +319,9 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
       const uid = userIdRef.current;
       if (!uid) return;
       if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+      // Explicit OFF during a slow registration: drop the late token instead
+      // of re-activating push behind the user's back.
+      if (readPushDisabled(uid)) return;
       try {
         await dts.current.register(uid, newToken, PLATFORM);
         tokenRef.current = newToken;
@@ -308,6 +339,15 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
 
   const requestPermission = useCallback(async () => {
     setError(null);
+    const curUid = userIdRef.current;
+    if (curUid) {
+      try {
+        localStorage.removeItem(pushDisabledKey(curUid));
+      } catch {
+        // ignore storage failures — flag is best-effort
+      }
+      setUserDisabled(false);
+    }
     try {
       if (IS_NATIVE) {
         const status = await PushNotifications.requestPermissions();
@@ -341,6 +381,12 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
     if (!uid) return;
     setError(null);
     try {
+      localStorage.removeItem(pushDisabledKey(uid));
+    } catch {
+      // ignore storage failures — flag is best-effort
+    }
+    setUserDisabled(false);
+    try {
       if (IS_NATIVE) {
         await PushNotifications.register();
         return;
@@ -371,6 +417,12 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
       } else {
         await dts.current.unregisterAllForUser(uid);
       }
+      try {
+        localStorage.setItem(pushDisabledKey(uid), '1');
+      } catch {
+        // ignore storage failures — flag is best-effort
+      }
+      setUserDisabled(true);
       tokenRef.current = null;
       setToken(null);
     } catch (e) {
@@ -386,5 +438,6 @@ export function usePushNotifications(userId: string | null): PushNotificationsSt
     registerCurrentToken,
     unregisterCurrentToken,
     error: userId ? error : null,
+    userDisabled,
   };
 }

@@ -852,10 +852,12 @@ export type Database = {
           broker_id: string | null
           completed_at: string | null
           created_at: string
+          external_tenant_name: string | null
+          external_tenant_phone: string | null
           id: string
           listing_id: string
           owner_id: string
-          renter_id: string
+          renter_id: string | null
           started_at: string
           status: Database["public"]["Enums"]["rental_status"]
           updated_at: string
@@ -864,10 +866,12 @@ export type Database = {
           broker_id?: string | null
           completed_at?: string | null
           created_at?: string
+          external_tenant_name?: string | null
+          external_tenant_phone?: string | null
           id?: string
           listing_id: string
           owner_id: string
-          renter_id: string
+          renter_id?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["rental_status"]
           updated_at?: string
@@ -876,10 +880,12 @@ export type Database = {
           broker_id?: string | null
           completed_at?: string | null
           created_at?: string
+          external_tenant_name?: string | null
+          external_tenant_phone?: string | null
           id?: string
           listing_id?: string
           owner_id?: string
-          renter_id?: string
+          renter_id?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["rental_status"]
           updated_at?: string
@@ -1252,6 +1258,10 @@ export type Database = {
       complete_housing_request_offer: {
         Args: { _offer_id: string }
         Returns: undefined
+      }
+      accept_listing_request: {
+        Args: { _request_id: string }
+        Returns: Json
       }
       confirm_rental_deal: {
         Args: { _conversation_id: string; _listing_id: string }

@@ -11,10 +11,11 @@ import { MiftahBadge } from '@/components/ui/MiftahBadge';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MarkAsRentedDialog } from '@/components/rental/MarkAsRentedDialog';
+import { MarkAsRentedDialog, canShowMarkRentedAction } from '@/components/rental/MarkAsRentedDialog';
 import { PendingRatings } from '@/components/rating/PendingRatings';
 import { IncomingListingRequests } from '@/components/rental/IncomingListingRequests';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import type { Listing } from '@/types/database';
 
 const statusTabs = [
@@ -96,13 +97,20 @@ const OwnerDashboard = () => {
     if (action === 'edit') { navigate(`/listings/${listingId}/edit`); return; }
     if (action === 'rented') {
       const l = listings.find(x => x.id === listingId);
-      setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: (l as any)?.reserved_for_user_id || null });
+      // Defense in depth: never open the dialog for a currently-rented listing
+      // (a future rental requires re-listing first).
+      if (!l || l.status === 'rented') return;
+      setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: l.reserved_for_user_id || null });
       return;
     }
     const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
     const newStatus = statusMap[action];
     if (newStatus) {
-      await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
+      const { error } = await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
+      if (error) {
+        toast.error('تعذر تنفيذ الإجراء، حاول مجدداً');
+        return;
+      }
       setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: newStatus as any, last_updated_at: new Date().toISOString() } : l));
     }
   };
@@ -212,7 +220,7 @@ const OwnerDashboard = () => {
                             <MoreVertical className="h-4 w-4 text-muted-foreground" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="font-tajawal">
+                        <DropdownMenuContent align="end" className="font-tajawal" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'view')}>عرض</DropdownMenuItem>
                           {l.status === 'reserved' && (
                             <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)} className="text-success font-bold">
@@ -222,7 +230,7 @@ const OwnerDashboard = () => {
                           <DropdownMenuItem onClick={() => handleAction(l.id, 'edit')}>تعديل</DropdownMenuItem>
                           {l.status === 'active' && <DropdownMenuItem onClick={() => handleAction(l.id, 'pause')}>إيقاف</DropdownMenuItem>}
                           {l.status !== 'active' && l.status !== 'reserved' && l.status !== 'private_offer' && <DropdownMenuItem onClick={() => handleAction(l.id, 'renew')}>تجديد</DropdownMenuItem>}
-                          {l.status !== 'reserved' && <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>}
+                          {canShowMarkRentedAction(l.status) && <DropdownMenuItem onClick={() => handleAction(l.id, 'rented', l.title)}>تعيين كمؤجر</DropdownMenuItem>}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -274,7 +282,7 @@ const OwnerDashboard = () => {
         listingTitle={rentDialog.title}
         reservedRenterId={rentDialog.reservedRenterId || undefined}
         onCompleted={() => {
-          setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented' as any, last_updated_at: new Date().toISOString() } : l));
+          setListings(prev => prev.map(l => l.id === rentDialog.listingId ? { ...l, status: 'rented', last_updated_at: new Date().toISOString() } : l));
         }}
       />
     </div>

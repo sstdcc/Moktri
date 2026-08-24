@@ -24,6 +24,7 @@ const noopPush: PushNotificationsState = {
   registerCurrentToken: async () => {},
   unregisterCurrentToken: async () => {},
   error: null,
+  userDisabled: false,
 };
 
 const AuthContext = createContext<AuthContextType>({

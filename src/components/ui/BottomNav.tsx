@@ -1,9 +1,7 @@
-import { Home, Search, FileText, Heart, User, Plus, Bell } from 'lucide-react';
+import { Home, Search, FileText, Heart, User, Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUnreadCount } from '@/hooks/useUnreadCount';
-import { CountBadge } from '@/components/ui/CountBadge';
 import { cn } from '@/lib/utils';
 import { getPersistentTabHref, isPersistentBottomTabPath } from '@/lib/persistentTabs';
 
@@ -13,7 +11,6 @@ export const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const unreadCount = useUnreadCount();
   const { t } = useTranslation();
   const isProvider = profile?.role === 'owner' || profile?.role === 'broker' || profile?.role === 'admin';
 
@@ -29,8 +26,6 @@ export const BottomNav = () => {
 
   const isItemActive = (item: NavItem) =>
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-
-  const isNotifActive = location.pathname === '/notifications';
 
   // Avoid piling up history when switching between persistent bottom tabs:
   // tab→tab switches use replace (Back won't randomly walk tab history), while
@@ -117,46 +112,6 @@ export const BottomNav = () => {
 
             return renderNavButton(item, isActive);
           })}
-
-          {/* Notifications */}
-          <button
-            onClick={() => navigateTab(getPersistentTabHref('/notifications'))}
-            className={cn(
-              'relative flex flex-col items-center justify-center gap-0.5 py-2 transition-all duration-300 min-w-[44px] flex-1',
-              isNotifActive
-                ? 'text-primary'
-                : 'text-muted-foreground/60 active:scale-95'
-            )}
-            aria-label={t('nav.notifications')}
-          >
-            <div className={cn(
-              'relative flex items-center justify-center w-10 h-9 rounded-2xl transition-all duration-300',
-              isNotifActive
-                ? 'bg-primary/12'
-                : 'hover:bg-muted/40'
-            )}>
-              <Bell
-                key={isNotifActive ? 'a' : 'i'}
-                className={cn(
-                  'h-[20px] w-[20px] transition-all duration-300',
-                  isNotifActive ? 'stroke-[2.5px] animate-nav-icon-pop' : 'stroke-[1.8px]'
-                )}
-              />
-              <CountBadge
-                count={unreadCount}
-                className="absolute -top-1 -left-1 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[8px] font-bold text-destructive-foreground ring-2 ring-card/80"
-              />
-            </div>
-            <span className={cn(
-              'text-[10px] font-tajawal leading-tight transition-all duration-300',
-              isNotifActive ? 'font-bold text-primary' : 'font-medium'
-            )}>
-              {t('nav.notificationsShort')}
-            </span>
-            {isNotifActive && (
-              <span className="absolute bottom-0.5 left-1/2 w-1 h-1 rounded-full bg-primary animate-nav-dot-in" />
-            )}
-          </button>
         </div>
       </div>
     </nav>

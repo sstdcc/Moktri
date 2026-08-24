@@ -365,6 +365,13 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* OPERATOR */}
+      <footer className="px-5 pb-10">
+        <p className="mx-auto max-w-md text-center text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-5">
+          مكتري تابع لشركة <span className="font-bold text-foreground">SSTD</span> ويتم تشغيله وإدارته بواسطة شركة SSTD.
+        </p>
+      </footer>
+
       
     </div>
   );

@@ -31,14 +31,43 @@ export const IncomingListingRequests = () => {
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      const { data } = await (supabase as any)
+      // Simple query without embedded joins: no FK is declared between
+      // listing_requests and profiles/listings, so PostgREST embeds fail
+      // (same reason ListingRequestsPage enriches manually).
+      const { data, error } = await supabase
         .from('listing_requests')
-        .select('*, requester:profiles!requester_id(full_name, avatar_url), listing:listings!listing_id(title)')
+        .select('*')
         .eq('owner_id', user.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
-      console.log('listing_requests fetched:', data);
-      setRequests((data || []) as IncomingRequest[]);
+      if (error) {
+        console.error('listing_requests fetch failed:', error);
+        setRequests([]);
+        setLoading(false);
+        return;
+      }
+      const rows = (data || []) as unknown as IncomingRequest[];
+
+      const requesterIds = Array.from(new Set(rows.map(r => r.requester_id).filter(Boolean)));
+      const listingIds = Array.from(new Set(rows.map(r => r.listing_id).filter(Boolean)));
+
+      const [profilesRes, listingsRes] = await Promise.all([
+        requesterIds.length
+          ? supabase.from('profiles').select('id, full_name, avatar_url').in('id', requesterIds)
+          : Promise.resolve({ data: [] } as { data: { id: string; full_name: string | null; avatar_url: string | null }[] }),
+        listingIds.length
+          ? supabase.from('listings').select('id, title').in('id', listingIds)
+          : Promise.resolve({ data: [] } as { data: { id: string; title: string }[] }),
+      ]);
+
+      const profileMap = new Map((profilesRes.data || []).map(p => [p.id, p]));
+      const listingMap = new Map((listingsRes.data || []).map(l => [l.id, l]));
+
+      setRequests(rows.map(r => ({
+        ...r,
+        requester: profileMap.get(r.requester_id) || null,
+        listing: listingMap.get(r.listing_id) || null,
+      })));
       setLoading(false);
     };
     load();
@@ -46,12 +75,17 @@ export const IncomingListingRequests = () => {
 
   const updateStatus = async (req: IncomingRequest, status: 'accepted' | 'rejected') => {
     setActingId(req.id);
-    const { error } = await (supabase as any)
-      .from('listing_requests')
-      .update({ status })
-      .eq('id', req.id);
+    // Accept is atomic via RPC (single accepted tenant per listing, auto-rejects others).
+    const { error } = status === 'accepted'
+      ? await supabase.rpc('accept_listing_request' as any, { _request_id: req.id })
+      : await (supabase as any)
+          .from('listing_requests')
+          .update({ status })
+          .eq('id', req.id);
     if (error) {
-      toast.error('حدث خطأ');
+      toast.error(error.message || 'حدث خطأ');
+      setActingId(null);
+      return;
     } else {
       setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status } : r));
 

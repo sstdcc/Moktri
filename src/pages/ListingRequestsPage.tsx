@@ -111,12 +111,17 @@ export default function ListingRequestsPage() {
 
   const updateStatus = async (req: ListingRequest, status: 'accepted' | 'rejected') => {
     setActingId(req.id);
-    const { error } = await (supabase as any)
-      .from('listing_requests')
-      .update({ status })
-      .eq('id', req.id);
+    // Accept is atomic via RPC: accepts this request and auto-rejects all
+    // other pending requests of the same listing; fails safely if another
+    // tenant was already accepted (DB-enforced single-accepted guarantee).
+    const { error } = status === 'accepted'
+      ? await supabase.rpc('accept_listing_request' as any, { _request_id: req.id })
+      : await (supabase as any)
+          .from('listing_requests')
+          .update({ status })
+          .eq('id', req.id);
     if (error) {
-      toast.error('حدث خطأ');
+      toast.error(error.message || 'حدث خطأ');
       setActingId(null);
       return;
     }

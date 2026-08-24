@@ -14,3 +14,9 @@ verify_jwt = false
 # Aligned with send-otp (P7-FIND-01 remediation).
 [functions.verify-otp]
 verify_jwt = false
+
+# contact-support backs the PUBLIC /contact page (no AuthGuard), so requests
+# may arrive without a Supabase user JWT. The function verifies the JWT
+# manually when present and attaches Reply-To only for confirmed emails.
+[functions.contact-support]
+verify_jwt = false

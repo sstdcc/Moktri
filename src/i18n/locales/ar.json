@@ -8,6 +8,7 @@
       "appearance": "المظهر",
       "language": "اللغة",
       "security": "الأمان",
+      "about": "عن التطبيق",
       "support": "الدعم والمساعدة"
     },
     "account": {
@@ -22,8 +23,12 @@
       "changePassword": "تغيير كلمة المرور",
       "changePasswordHint": "تحديث كلمة المرور الخاصة بك"
     },
+    "aboutUs": {
+      "label": "من نحن",
+      "version": "الإصدار 1.0.0"
+    },
     "support": {
-      "contact": "تواصل مع الدعم",
+      "contact": "تواصل معنا",
       "contactHint": "عبر واتساب",
       "terms": "الشروط والأحكام",
       "privacy": "سياسة الخصوصية",

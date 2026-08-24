@@ -225,7 +225,12 @@ const SettingsPage = () => {
 
   const pushStatusText = (() => {
     if (!push.isSupported) return 'غير مدعوم على هذا المتصفح';
-    if (push.permission === 'granted') return push.token ? 'الإشعارات الفورية مفعلة' : 'جاري التفعيل...';
+    if (push.permission === 'granted') {
+      if (push.userDisabled) return 'الإشعارات موقوفة';
+      if (pushBusy) return 'جاري التفعيل...';
+      if (push.error) return 'تعذر تفعيل الإشعارات';
+      return push.token ? 'الإشعارات الفورية مفعلة' : 'غير مفعل — اضغط للسماح بالإشعارات';
+    }
     if (push.permission === 'denied') return 'مرفوض — فعّلها من إعدادات المتصفح';
     return 'غير مفعل — اضغط للسماح بالإشعارات';
   })();
@@ -379,6 +384,13 @@ const SettingsPage = () => {
                 />
               }
             />
+            {push.error && !push.userDisabled && (
+              <p className="px-1 pt-1 text-sm text-destructive">
+                {push.error === 'token-timeout'
+                  ? 'استغرق تفعيل الإشعارات وقتًا أطول من المسموح. أعد المحاولة.'
+                  : 'تعذر تفعيل الإشعارات. حاول مرة أخرى.'}
+              </p>
+            )}
             {Object.entries(notifLabels).map(([key, label], idx, arr) => (
               <Row
                 key={key}
@@ -479,6 +491,21 @@ const SettingsPage = () => {
           </SettingsCard>
         </section>
 
+        {/* About */}
+        <section>
+          <SectionLabel icon={Info}>{t('settings.sections.about')}</SectionLabel>
+          <SettingsCard>
+            <Row
+              icon={Info}
+              label={t('settings.aboutUs.label')}
+              subtext={t('settings.aboutUs.version')}
+              right={arrow}
+              onClick={() => navigate('/about')}
+              isLast
+            />
+          </SettingsCard>
+        </section>
+
         {/* Support */}
         <section>
           <SectionLabel icon={LifeBuoy}>{t('settings.sections.support')}</SectionLabel>
@@ -486,13 +513,11 @@ const SettingsPage = () => {
             <Row
               icon={MessageCircle}
               label={t('settings.support.contact')}
-              subtext={t('settings.support.contactHint')}
               right={arrow}
-              onClick={() => window.open('https://wa.me/967772867128', '_blank')}
+              onClick={() => navigate('/contact')}
             />
             <Row icon={FileText} label={t('settings.support.terms')} right={arrow} onClick={() => navigate('/terms')} />
-            <Row icon={Shield} label={t('settings.support.privacy')} right={arrow} onClick={() => navigate('/privacy')} />
-            <Row icon={Info} label={t('settings.support.about')} subtext={t('settings.support.version')} isLast />
+            <Row icon={Shield} label={t('settings.support.privacy')} right={arrow} onClick={() => navigate('/privacy')} isLast />
           </SettingsCard>
         </section>
 

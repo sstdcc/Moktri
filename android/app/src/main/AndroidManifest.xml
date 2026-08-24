@@ -31,18 +31,20 @@
             android:launchMode="singleTask"
             android:exported="true">
             <!--
-                Android App Links — password recovery (STAGE A).
-                host is a PLACEHOLDER. Replace with the REAL production HTTPS
-                domain once deployed, e.g. android:host="app.example.com".
-                assetlinks.json must be served at https://<host>/.well-known/assetlinks.json
-                for autoVerify to succeed (STAGE B — requires release SHA-256).
+                Android App Links — password recovery (STAGE B).
+                Production host: https://moktari.app
+                assetlinks.json is served at
+                https://moktari.app/.well-known/assetlinks.json for autoVerify.
+                Fingerprint note: currently the local release-keystore SHA-256
+                (direct-APK installs only). If Google Play App Signing is used,
+                add the Play-managed SHA-256 as an additional entry.
             -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
-                <data android:host="app.example.com" />
+                <data android:host="moktari.app" />
                 <data android:pathPrefix="/reset-password" />
             </intent-filter>
 

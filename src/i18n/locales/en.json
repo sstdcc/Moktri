@@ -8,6 +8,7 @@
       "appearance": "Appearance",
       "language": "Language",
       "security": "Security",
+      "about": "About",
       "support": "Support & Help"
     },
     "account": {
@@ -22,8 +23,12 @@
       "changePassword": "Change password",
       "changePasswordHint": "Update your account password"
     },
+    "aboutUs": {
+      "label": "About us",
+      "version": "Version 1.0.0"
+    },
     "support": {
-      "contact": "Contact support",
+      "contact": "Contact us",
       "contactHint": "Via WhatsApp",
       "terms": "Terms & Conditions",
       "privacy": "Privacy Policy",

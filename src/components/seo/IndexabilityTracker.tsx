@@ -25,6 +25,7 @@ const PUBLIC_PATHS = [
   '/requests',
   '/terms',
   '/privacy',
+  '/about',
 ];
 
 const isPrivatePath = (pathname: string) =>

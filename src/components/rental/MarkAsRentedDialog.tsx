@@ -7,13 +7,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
-import { createNotificationService } from '@/services';
+import { toast } from 'sonner';
+import { createNotificationService, type CreateNotificationInput } from '@/services';
 
 interface ProfileOption {
   id: string;
   full_name: string;
 }
+
+// UI guard for the generic «تعيين كمؤجر» action: hidden while the listing is
+// CURRENTLY rented (one active rental at a time) or reserved (the dedicated
+// confirm-delivery flow covers reserved). Re-listing the listing later brings
+// the action back, enabling future rentals of the same listing.
+export const canShowMarkRentedAction = (status?: string | null): boolean =>
+  status !== 'rented' && status !== 'reserved';
 
 interface MarkAsRentedDialogProps {
   open: boolean;
@@ -33,7 +40,9 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
   const [renterId, setRenterId] = useState<string>('');
   const [brokerId, setBrokerId] = useState<string>('none');
   const [manualPhone, setManualPhone] = useState('');
-  const [mode, setMode] = useState<'chat' | 'manual'>('chat');
+  const [extName, setExtName] = useState('');
+  const [extPhone, setExtPhone] = useState('');
+  const [mode, setMode] = useState<'chat' | 'manual' | 'external'>('chat');
 
   useEffect(() => {
     if (!open || !user) return;
@@ -98,57 +107,65 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
     if (!user) return;
     setSubmitting(true);
     try {
-      let finalRenterId = renterId;
-      if (mode === 'manual') {
-        const found = await resolveRenterByPhone(manualPhone);
-        if (!found) {
-          toast({ title: 'لم يتم العثور على المستأجر', description: 'تأكد من رقم الهاتف المسجّل في التطبيق', variant: 'destructive' });
-          setSubmitting(false);
+      const isExternal = mode === 'external';
+
+      // Client-side pre-validation (the RPC re-validates authoritatively).
+      let externalName = '';
+      let externalPhone = '';
+      if (isExternal) {
+        externalName = extName.trim();
+        externalPhone = extPhone.trim();
+        if (!externalName || !/^[+0-9][0-9\s-]{6,19}$/.test(externalPhone)) {
+          toast.error('أدخل اسم المستأجر ورقم جوال صحيح');
           return;
         }
-        finalRenterId = found;
-      }
-      if (!finalRenterId) {
-        toast({ title: 'اختر المستأجر', variant: 'destructive' });
-        setSubmitting(false);
-        return;
-      }
-      if (finalRenterId === user.id) {
-        toast({ title: 'لا يمكن تعيين نفسك كمستأجر', variant: 'destructive' });
-        setSubmitting(false);
-        return;
       }
 
-      // Determine if this is a private offer (needs admin review before completion)
-      const { data: listingRow } = await supabase
-        .from('listings')
-        .select('source_request_id, status, reserved_for_user_id')
-        .eq('id', listingId)
-        .maybeSingle();
-      const isPrivateOffer = !!(listingRow as any)?.reserved_for_user_id
-        && ((listingRow as any)?.status === 'private_offer' || (listingRow as any)?.status === 'reserved');
-      const sourceRequestId = (listingRow as any)?.source_request_id as string | null | undefined;
+      let finalRenterId: string | null = renterId;
+      if (!isExternal) {
+        if (mode === 'manual') {
+          const found = await resolveRenterByPhone(manualPhone);
+          if (!found) {
+            toast.error('لم يتم العثور على المستأجر', { description: 'تأكد من رقم الهاتف المسجّل في التطبيق' });
+            return;
+          }
+          finalRenterId = found;
+        }
+        if (!finalRenterId) {
+          toast.error('اختر المستأجر');
+          return;
+        }
+        if (finalRenterId === user.id) {
+          toast.error('لا يمكن تعيين نفسك كمستأجر');
+          return;
+        }
+      } else {
+        finalRenterId = null;
+      }
 
-      const rentalStatus = isPrivateOffer ? 'pending_review' : 'completed';
-
-      // Insert rental
-      const { error: insertError } = await supabase.from('rentals').insert({
-        listing_id: listingId,
-        owner_id: user.id,
-        renter_id: finalRenterId,
-        broker_id: brokerId !== 'none' ? brokerId : null,
-        status: rentalStatus as any,
+      // Single ATOMIC call: the rental INSERT and the listings.status='rented'
+      // UPDATE happen in ONE database transaction (mark_listing_rented RPC).
+      // Any validation/ownership/status failure rolls back both writes, so a
+      // completed rental can never be left on an ACTIVE listing.
+      const rpc = supabase.rpc as unknown as (
+        fn: 'mark_listing_rented',
+        args: Record<string, unknown>,
+      ) => Promise<{ data: unknown; error: { message?: string } | null }>;
+      const { data: rpcData, error: rpcError } = await rpc('mark_listing_rented', {
+        p_listing_id: listingId,
+        p_renter_id: isExternal ? null : finalRenterId,
+        p_broker_id: brokerId !== 'none' ? brokerId : null,
+        p_external_tenant_name: isExternal ? externalName : null,
+        p_external_tenant_phone: isExternal ? externalPhone : null,
       });
-      if (insertError) throw insertError;
+      if (rpcError) throw new Error(rpcError.message || 'تعذر إكمال العملية');
+      const result = rpcData as { ok?: boolean; rental_id?: string; rental_status?: string; listing_status?: string } | null;
+      if (!result?.ok) throw new Error('تعذر إكمال العملية');
 
-      if (isPrivateOffer) {
-        // Keep listing as reserved; do NOT close housing request yet
-        await supabase
-          .from('listings')
-          .update({ status: 'reserved', last_updated_at: new Date().toISOString() })
-          .eq('id', listingId);
+      const pendingReview = result.rental_status === 'pending_review';
 
-        // Notify admins/moderators for review
+      if (pendingReview) {
+        // Private offer: keep listing reserved; notify admins for review.
         const { data: admins } = await supabase
           .from('profiles')
           .select('id')
@@ -157,8 +174,8 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
           createNotificationService(supabase).createMany(
             admins.map((a: any) => ({
               type: 'rental_pending_review' as const,
-              userId: a.id,
-              data: {
+              recipientId: a.id,
+              payload: {
                 titleAr: 'إيجار عرض خاص بانتظار المراجعة',
                 bodyAr: `طلب اعتماد إيجار للإعلان: ${listingTitle}.`,
                 link: '/dashboard/admin/rentals',
@@ -167,37 +184,36 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
           ).catch(console.error);
         }
 
-        toast({ title: 'تم رفع الإيجار للمراجعة', description: 'سيتم اعتماده من قبل الإدارة قريباً' });
+        toast.success('تم رفع الإيجار للمراجعة', { description: 'سيتم اعتماده من قبل الإدارة قريباً' });
       } else {
-        // Normal flow: complete immediately
-        await supabase
-          .from('listings')
-          .update({ status: 'rented', last_updated_at: new Date().toISOString() })
-          .eq('id', listingId);
-
-        if (sourceRequestId) {
-          await supabase
-            .from('housing_requests')
-            .update({ status: 'completed' as any })
-            .eq('id', sourceRequestId);
+        // Normal flow: complete immediately. External tenants have no account
+        // to notify — only an optional broker.
+        const notifInputs: CreateNotificationInput[] = [];
+        if (!isExternal && finalRenterId) {
+          notifInputs.push({ type: 'system' as const, recipientId: finalRenterId, payload: { titleAr: 'تم إكمال الإيجار', bodyAr: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` } });
         }
-
-        const notifInputs = [
-          { type: 'system' as const, userId: finalRenterId, data: { titleAr: 'تم إكمال الإيجار', bodyAr: `تم تعيينك كمستأجر للإعلان: ${listingTitle}. يمكنك الآن تقييم المالك.`, link: `/profile/${user.id}` } },
-        ];
         if (brokerId !== 'none') {
-          notifInputs.push({ type: 'system' as const, userId: brokerId, data: { titleAr: 'تم إكمال الإيجار', bodyAr: `تم تعيينك كوسيط في الإعلان: ${listingTitle}.`, link: `/profile/${finalRenterId}` } });
+          notifInputs.push({ type: 'system' as const, recipientId: brokerId, payload: { titleAr: 'تم إكمال الإيجار', bodyAr: isExternal ? `تم تسجيل إيجار (مستأجر خارجي) للإعلان: ${listingTitle}.` : `تم تعيينك كوسيط في الإعلان: ${listingTitle}.`, link: isExternal ? `/listings/${listingId}` : `/profile/${finalRenterId}` } });
         }
-        createNotificationService(supabase).createMany(notifInputs).catch(console.error);
+        if (notifInputs.length) {
+          createNotificationService(supabase).createMany(notifInputs).catch(console.error);
+        }
 
-        toast({ title: 'تم تسجيل الإيجار', description: 'يمكن الآن للأطراف تقييم بعضهم' });
+        toast.success('تم تسجيل الإيجار', {
+          description: isExternal
+            ? 'حُفظت بيانات المستأجر الخارجي مع الإيجار فقط، دون إنشاء حساب'
+            : 'يمكن الآن للأطراف تقييم بعضهم',
+        });
       }
+
+      // SUCCESS ONLY: caller dismisses/cleans up the reminder notification.
       onCompleted?.();
       onOpenChange(false);
-      // reset
-      setRenterId(''); setBrokerId('none'); setManualPhone(''); setMode('chat');
+      setRenterId(''); setBrokerId('none'); setManualPhone(''); setMode('chat'); setExtName(''); setExtPhone('');
     } catch (e: any) {
-      toast({ title: 'خطأ', description: e.message || 'تعذر إكمال العملية', variant: 'destructive' });
+      // FAILURE: no success message, dialog stays open, reminder notification
+      // intentionally kept available.
+      toast.error(e.message || 'تعذر إكمال العملية');
     } finally {
       setSubmitting(false);
     }
@@ -223,20 +239,27 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
         ) : (
           <div className="space-y-4">
             {/* Mode toggle */}
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <button
                 type="button"
                 onClick={() => setMode('chat')}
-                className={`flex-1 rounded-xl px-3 py-2 text-xs font-bold transition-all ${mode === 'chat' ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'}`}
+                className={`flex-1 rounded-xl px-1 py-2 text-[11px] font-bold transition-all ${mode === 'chat' ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'}`}
               >
                 من المحادثات
               </button>
               <button
                 type="button"
                 onClick={() => setMode('manual')}
-                className={`flex-1 rounded-xl px-3 py-2 text-xs font-bold transition-all ${mode === 'manual' ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'}`}
+                className={`flex-1 rounded-xl px-1 py-2 text-[11px] font-bold transition-all ${mode === 'manual' ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'}`}
               >
                 برقم الهاتف
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('external')}
+                className={`flex-1 rounded-xl px-1 py-2 text-[11px] font-bold transition-all ${mode === 'external' ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'}`}
+              >
+                تم التأجير من خارج مكتري
               </button>
             </div>
 
@@ -260,7 +283,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
                   </Select>
                 )}
               </div>
-            ) : (
+            ) : mode === 'manual' ? (
               <div className="space-y-2">
                 <Label className="text-right block">رقم هاتف المستأجر *</Label>
                 <Input
@@ -272,6 +295,29 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
                   className="text-left"
                 />
                 <p className="text-[11px] text-muted-foreground text-right">يجب أن يكون المستأجر مسجلاً في التطبيق بنفس الرقم.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label className="text-right block">اسم المستأجر *</Label>
+                <Input
+                  type="text"
+                  placeholder="الاسم الكامل"
+                  value={extName}
+                  onChange={(e) => setExtName(e.target.value)}
+                  className="text-right"
+                />
+                <Label className="text-right block">رقم جوال المستأجر *</Label>
+                <Input
+                  type="tel"
+                  dir="ltr"
+                  placeholder="+967xxxxxxxxx"
+                  value={extPhone}
+                  onChange={(e) => setExtPhone(e.target.value)}
+                  className="text-left"
+                />
+                <p className="text-[11px] text-muted-foreground text-right">
+                  يُحفظ الاسم والرقم كبيانات لهذا الإيجار فقط، دون إنشاء حساب في مكتري. يمكن للمستأجر التسجيل لاحقاً بنفس الرقم بشكل طبيعي.
+                </p>
               </div>
             )}
 

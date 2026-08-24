@@ -201,10 +201,13 @@ const ConversationPage = () => {
     if (!user || !pendingRequestId || !listingId || actingRequest) return;
     setActingRequest(status);
     try {
-      const { error } = await supabase
-        .from('listing_requests')
-        .update({ status })
-        .eq('id', pendingRequestId);
+      // Accept is atomic via RPC (single accepted tenant per listing, auto-rejects others).
+      const { error } = status === 'accepted'
+        ? await supabase.rpc('accept_listing_request' as any, { _request_id: pendingRequestId })
+        : await supabase
+            .from('listing_requests')
+            .update({ status })
+            .eq('id', pendingRequestId);
       if (error) throw error;
 
       if (status === 'accepted') {

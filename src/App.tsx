@@ -52,6 +52,8 @@ const PublicProfilePage = lazy(() => import("./pages/PublicProfilePage"));
 const VerificationPage = lazy(() => import("./pages/VerificationPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 const ChatPage = lazy(() => import("./pages/ChatPage"));
 const ChatUserPage = lazy(() => import("./pages/ChatUserPage"));
 const ConversationPage = lazy(() => import("./pages/ConversationPage"));
@@ -117,6 +119,8 @@ const App = () => (
                   <Route path="/verify" element={<MainLayout><AuthGuard><VerificationPage /></AuthGuard></MainLayout>} />
                   <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
                   <Route path="/privacy" element={<MainLayout><PrivacyPage /></MainLayout>} />
+                  <Route path="/about" element={<MainLayout><AboutPage /></MainLayout>} />
+                  <Route path="/contact" element={<MainLayout><ContactPage /></MainLayout>} />
                   <Route path="/chat" element={<MainLayout><AuthGuard><ChatPage /></AuthGuard></MainLayout>} />
                   <Route path="/chat/user/:userId" element={<MainLayout><AuthGuard><ChatUserPage /></AuthGuard></MainLayout>} />
                   <Route path="/chat/:id" element={<MainLayout><AuthGuard><ConversationPage /></AuthGuard></MainLayout>} />

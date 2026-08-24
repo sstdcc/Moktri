@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.moktari.app",
+      "sha256_cert_fingerprints": [
+        "56:C6:CC:E2:83:EC:AB:84:27:68:AD:56:ED:8D:05:B8:6A:B3:A6:32:8D:4F:97:6A:9E:ED:70:FB:BB:88:6A:60"
+      ]
+    }
+  }
+]
