@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Home, Search, FileText, Heart, User, Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,17 +13,22 @@ export const BottomNav = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { t } = useTranslation();
-  const isProvider = profile?.role === 'owner' || profile?.role === 'broker' || profile?.role === 'admin';
-
-  const navItems: NavItem[] = [
-    { label: t('nav.home'), icon: Home, path: '/' },
-    { label: t('nav.search'), icon: Search, path: '/listings' },
-    { label: isProvider ? t('nav.marketRequests') : t('nav.myRequests'), icon: FileText, path: '/requests' },
-    { label: t('nav.favorites'), icon: Heart, path: '/favorites' },
-    { label: t('nav.account'), icon: User, path: '/settings' },
-  ];
-
   const showFab = profile?.role === 'owner' || profile?.role === 'broker';
+
+  const navItems: NavItem[] = showFab
+    ? [
+        { label: t('nav.home'), icon: Home, path: '/' },
+        { label: t('nav.marketRequests'), icon: FileText, path: '/requests' },
+        { label: t('nav.search'), icon: Search, path: '/listings' },
+        { label: t('nav.account'), icon: User, path: '/settings' },
+      ]
+    : [
+        { label: t('nav.home'), icon: Home, path: '/' },
+        { label: t('nav.search'), icon: Search, path: '/listings' },
+        { label: t('nav.myRequests'), icon: FileText, path: '/requests' },
+        { label: t('nav.favorites'), icon: Heart, path: '/favorites' },
+        { label: t('nav.account'), icon: User, path: '/settings' },
+      ];
 
   const isItemActive = (item: NavItem) =>
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
@@ -87,30 +93,26 @@ export const BottomNav = () => {
         }}
       >
         <div className="flex h-[64px] items-center justify-around px-1">
-          {navItems.map((item, i) => {
+          {navItems.flatMap((item, i) => {
             const isActive = isItemActive(item);
+            const nodes: ReactNode[] = [];
 
-            // Insert FAB in the middle
-            if (i === 2 && showFab) {
-              return (
-                <div key="fab-wrapper" className="flex items-center gap-0 flex-1">
-                  <div className="flex-1">
-                    {renderNavButton(item, isActive)}
-                  </div>
-                  <div className="flex flex-col items-center px-1">
-                    <button
-                      onClick={() => navigate('/listings/new')}
-                      className="w-[48px] h-[48px] rounded-2xl bg-accent flex items-center justify-center -translate-y-4 transition-all duration-200 hover:brightness-105 active:scale-95"
-                      aria-label={t('nav.addListingNew')}
-                    >
-                      <Plus className="h-5.5 w-5.5 text-accent-foreground stroke-[2.5px]" />
-                    </button>
-                  </div>
+            if (showFab && i === 2) {
+              nodes.push(
+                <div key="fab-slot" className="flex flex-1 items-center justify-center px-1">
+                  <button
+                    onClick={() => navigate('/listings/new')}
+                    className="w-[48px] h-[48px] rounded-2xl bg-accent flex items-center justify-center -translate-y-4 transition-all duration-200 hover:brightness-105 active:scale-95"
+                    aria-label={t('nav.addListingNew')}
+                  >
+                    <Plus className="h-5.5 w-5.5 text-accent-foreground stroke-[2.5px]" />
+                  </button>
                 </div>
               );
             }
 
-            return renderNavButton(item, isActive);
+            nodes.push(renderNavButton(item, isActive));
+            return nodes;
           })}
         </div>
       </div>
