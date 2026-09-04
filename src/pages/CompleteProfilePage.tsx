@@ -73,7 +73,7 @@ const CompleteProfilePage = () => {
   }, [authLoading, user]);
 
   useEffect(() => {
-    if (profile?.phone && profile?.full_name) {
+    if (profile?.full_name) {
       const returnUrl = searchParams.get('returnUrl') || '/';
       navigate(returnUrl, { replace: true });
     }
@@ -94,7 +94,7 @@ const CompleteProfilePage = () => {
     }
     setLoading(true);
     try {
-      await signInWithOtp(normalized);
+      await signInWithOtp({ email: user?.email, phone: normalized });
       setPhone(normalized);
       setStep('otp');
       startCooldown();
@@ -110,7 +110,7 @@ const CompleteProfilePage = () => {
     if (cooldown > 0 || !phone) return;
     setLoading(true);
     try {
-      await signInWithOtp(phone);
+      await signInWithOtp({ email: user?.email });
       startCooldown();
       toast.success('تم إعادة إرسال الرمز');
     } catch {
@@ -169,8 +169,8 @@ const CompleteProfilePage = () => {
     if (otpCode.length < 6 || !phone) return;
     setLoading(true);
     try {
-      await verifyGoogleOtp(phone, otpCode);
-      toast.success('تم التحقق من الرقم');
+      await verifyGoogleOtp(otpCode);
+      toast.success('تم التحقق من البريد الإلكتروني');
       setStep('role');
     } catch {
       toast.error('الرمز غير صحيح أو منتهي الصلاحية');
@@ -218,8 +218,8 @@ const CompleteProfilePage = () => {
           <Logo framed className="mx-auto mb-3 h-28 w-28" />
           <h1 className="text-2xl font-black text-primary">أكمل حسابك</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {step === 'phone' && 'أدخل رقم هاتفك للتحقق'}
-            {step === 'otp' && 'أدخل رمز التحقق المرسل إلى هاتفك'}
+            {step === 'phone' && 'أدخل رقم هاتفك للتواصل'}
+            {step === 'otp' && 'أدخل رمز التحقق المرسل إلى بريدك الإلكتروني'}
             {step === 'role' && 'اختر نوع الحساب'}
           </p>
         </div>
@@ -273,7 +273,7 @@ const CompleteProfilePage = () => {
             <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-2">
               <KeyRound className="h-4 w-4 text-accent shrink-0" />
               <p className="text-xs text-muted-foreground">
-                تم إرسال الرمز إلى <span className="font-semibold text-foreground inline-block" dir="ltr">{phone}</span>
+                تم إرسال الرمز إلى <span className="font-semibold text-foreground inline-block" dir="ltr">{user?.email}</span>
               </p>
             </div>
             <div className="flex gap-2 justify-center" dir="ltr" onPaste={handleOtpPaste}>

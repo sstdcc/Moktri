@@ -18,8 +18,9 @@ export const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children })
     );
   }
 
-  // Google OAuth users must complete onboarding before accessing protected pages
-  if (profile && (!profile.phone || !profile.full_name)) {
+  // Users must complete onboarding (full name) before accessing protected pages.
+  // Phone is stored as user data but is no longer a completion gate.
+  if (profile && !profile.full_name) {
     return <Navigate to="/complete-profile" replace />;
   }
 

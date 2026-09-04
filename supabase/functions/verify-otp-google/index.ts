@@ -8,9 +8,12 @@ const corsHeaders = {
 
 const MAX_VERIFY_ATTEMPTS = 5;
 
-async function hashOtp(code: string, phone: string): Promise<string> {
+// --- Hashing utility (must match send-otp) ---
+// v2 binds the OTP to channel + identifier so the Google verification only
+// matches OTPs sent to the authenticated user's own email/channel.
+async function hashOtp(code: string, channel: string, identifier: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(`otp:${phone}:${code}`);
+  const data = encoder.encode(`otp:${channel}:${identifier}:${code}`);
   const hash = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -44,7 +47,17 @@ Deno.serve(async (req) => {
       );
     }
 
-    let body: { phone?: string; code?: string };
+    // The email is taken from the authenticated session — never from client
+    // input — so the OTP can only be verified for the signed-in account.
+    const identifier = (user.email ?? "").toLowerCase().trim();
+    if (!identifier) {
+      return new Response(
+        JSON.stringify({ error: "حساب Google بلا بريد إلكتروني" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    let body: { code?: string };
     try {
       body = await req.json();
     } catch {
@@ -53,17 +66,10 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    const { phone, code } = body;
-    if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
+    const { code } = body;
+    if (!code || typeof code !== "string") {
       return new Response(
-        JSON.stringify({ error: "رقم الهاتف والرمز مطلوبان" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!/^\+\d{9,15}$/.test(phone)) {
-      return new Response(
-        JSON.stringify({ error: "رقم هاتف غير صالح" }),
+        JSON.stringify({ error: "الرمز مطلوب" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -75,12 +81,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const submittedHash = await hashOtp(code, phone);
+    const channel = "email";
+    const submittedHash = await hashOtp(code, channel, identifier);
 
+    // Lookup bound to BOTH identifier and channel (email)
     const { data: otpRecord, error: fetchErr } = await supabase
       .from("otp_codes")
       .select("id, otp_hash, attempts")
-      .eq("phone", phone)
+      .eq("identifier", identifier)
+      .eq("channel", channel)
       .eq("verified", false)
       .gte("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
@@ -117,6 +126,19 @@ Deno.serve(async (req) => {
     }
 
     await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
+
+    // Block banned users
+    const { data: bannedProfile } = await supabase
+      .from("profiles")
+      .select("is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (bannedProfile && bannedProfile.is_active === false) {
+      return new Response(
+        JSON.stringify({ error: "تم حظر حسابك. تواصل مع الإدارة." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     return new Response(
       JSON.stringify({ success: true }),

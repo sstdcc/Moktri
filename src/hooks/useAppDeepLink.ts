@@ -25,7 +25,7 @@ export const useAppDeepLink = () => {
 
     let active = true;
 
-    const handleRoute = (url: string) => {
+    const handleRoute = async (url: string) => {
       if (!active) return;
 
       // The same URL can arrive twice: once for the cold start (getLaunchUrl)
@@ -48,11 +48,28 @@ export const useAppDeepLink = () => {
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
 
-        if (accessToken && refreshToken) {
-          void supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
+        // A callback URL without both tokens carries no session to restore —
+        // treat it as a failed OAuth/recovery handoff and fall back to the
+        // auth entry screen instead of navigating as if sign-in had succeeded.
+        if (!accessToken || !refreshToken) {
+          console.error('[deep-link] incoming URL missing Supabase tokens');
+          navigate(isResetPassword ? '/auth' : '/signup', { replace: true });
+          return;
+        }
+
+        // Await session creation before routing so navigation never races ahead
+        // of the auth state: CompleteProfilePage/AuthContext read `user` right
+        // after onAuthStateChange, so the session must exist before we navigate.
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (!active) return;
+
+        if (error) {
+          console.error('[deep-link] setSession failed for incoming URL');
+          navigate(isResetPassword ? '/auth' : '/signup', { replace: true });
+          return;
         }
 
         navigate(isOAuthCallback ? '/complete-profile' : '/reset-password', { replace: true });
@@ -64,12 +81,12 @@ export const useAppDeepLink = () => {
 
     // Cold start: URL that launched the app.
     void App.getLaunchUrl().then((res) => {
-      if (active && res?.url) handleRoute(res.url);
+      if (active && res?.url) void handleRoute(res.url);
     });
 
     // Warm start: app already running or resumed from background.
     const listener = App.addListener('appUrlOpen', (event) => {
-      handleRoute(event.url);
+      void handleRoute(event.url);
     });
 
     return () => {

@@ -7,11 +7,26 @@ const corsHeaders = {
 };
 
 const MAX_VERIFY_ATTEMPTS = 5;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // --- Hashing utility (must match send-otp) ---
-async function hashOtp(code: string, phone: string): Promise<string> {
+// v2 binds the OTP to BOTH channel and identifier. A code generated for
+// channel=email can only be verified against an email-channel record, and vice
+// versa, even if the identifier string is identical in another context.
+async function hashOtp(code: string, channel: string, identifier: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(`otp:${phone}:${code}`);
+  const data = encoder.encode(`otp:${channel}:${identifier}:${code}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// v1 fallback for phone-channel rows that predate the channel-aware hash, so
+// in-flight SMS OTPs remain verifiable during the transition.
+async function legacyHashOtp(code: string, identifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`otp:${identifier}:${code}`);
   const hash = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -24,7 +39,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    let body: { phone?: string; code?: string; email?: string; password?: string };
+    let body: { email?: string; phone?: string; code?: string; password?: string; channel?: string };
     try {
       body = await req.json();
     } catch {
@@ -33,21 +48,38 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    const { phone, code, email: providedEmail, password: providedPassword } = body;
-    console.log("[verify-otp] request received");
+    const { email, phone, code, password: providedPassword } = body;
+    const channel: "email" | "phone" = body.channel === "phone" ? "phone" : "email";
 
-    if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
-      return new Response(
-        JSON.stringify({ error: "رقم الهاتف والرمز مطلوبان" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!/^\+\d{9,15}$/.test(phone)) {
-      return new Response(
-        JSON.stringify({ error: "رقم هاتف غير صالح" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let identifier: string;
+    if (channel === "phone") {
+      if (!phone || !code || typeof phone !== "string" || typeof code !== "string") {
+        return new Response(
+          JSON.stringify({ error: "رقم الهاتف والرمز مطلوبان" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (!/^\+\d{9,15}$/.test(phone)) {
+        return new Response(
+          JSON.stringify({ error: "رقم هاتف غير صالح" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      identifier = phone;
+    } else {
+      if (!email || !code || typeof email !== "string" || typeof code !== "string") {
+        return new Response(
+          JSON.stringify({ error: "البريد الإلكتروني والرمز مطلوبان" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      identifier = email.toLowerCase().trim();
+      if (!EMAIL_REGEX.test(identifier)) {
+        return new Response(
+          JSON.stringify({ error: "البريد الإلكتروني غير صالح" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     if (!/^\d{6}$/.test(code)) {
@@ -62,13 +94,17 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     // Hash the submitted code and compare against stored hash
-    const submittedHash = await hashOtp(code, phone);
+    const submittedHash = await hashOtp(code, channel, identifier);
+    const submittedLegacyHash = channel === "phone" ? await legacyHashOtp(code, identifier) : null;
 
-    // Find the latest unverified, non-expired OTP for this phone
+    // Find the latest unverified, non-expired OTP for this (identifier, channel).
+    // Lookup is bound to BOTH keys — an email-channel OTP can never collide
+    // with a phone-channel record.
     const { data: otpRecord, error: fetchErr } = await supabase
       .from("otp_codes")
       .select("id, otp_hash, attempts")
-      .eq("phone", phone)
+      .eq("identifier", identifier)
+      .eq("channel", channel)
       .eq("verified", false)
       .gte("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
@@ -100,48 +136,77 @@ Deno.serve(async (req) => {
       .update({ attempts: otpRecord.attempts + 1 })
       .eq("id", otpRecord.id);
 
-    // Compare hashes
-    if (otpRecord.otp_hash !== submittedHash) {
+    // Compare hashes (v2, plus the v1 fallback for legacy phone rows)
+    const matched =
+      otpRecord.otp_hash === submittedHash ||
+      (submittedLegacyHash !== null && otpRecord.otp_hash === submittedLegacyHash);
+    if (!matched) {
       return new Response(
         JSON.stringify({ error: "الرمز غير صحيح أو منتهي الصلاحية" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // OTP verified — mark as used
+    // OTP verified — mark as used (replay protection)
     await supabase.from("otp_codes").update({ verified: true }).eq("id", otpRecord.id);
     console.log("[verify-otp] OTP hash matched, proceeding to auth bridge");
 
-    // Block banned users from logging in
-    const { data: bannedProfile } = await supabase
-      .from("profiles")
-      .select("id, is_active")
-      .eq("phone", phone)
-      .maybeSingle();
-    if (bannedProfile && bannedProfile.is_active === false) {
-      console.log("[verify-otp] banned user attempted login");
-      return new Response(
-        JSON.stringify({ error: "تم حظر حسابك. تواصل مع الإدارة." }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // Block banned phone-channel users from logging in
+    if (channel === "phone") {
+      const { data: bannedProfile } = await supabase
+        .from("profiles")
+        .select("id, is_active")
+        .eq("phone", identifier)
+        .maybeSingle();
+      if (bannedProfile && bannedProfile.is_active === false) {
+        console.log("[verify-otp] banned user attempted login");
+        return new Response(
+          JSON.stringify({ error: "تم حظر حسابك. تواصل مع الإدارة." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // ──────────────────────────────────────────────────────────
-    // AUTH BRIDGE
-    // New signups (email+password provided): create user with real email + password.
-    // Existing users / OTP-only: fall back to deterministic email + random password.
+    // AUTH BRIDGE (channel-aware)
+    // Email channel: user signs up with a real email (+ optional phone data).
+    // Phone channel: existing users fall back to deterministic email.
     // ──────────────────────────────────────────────────────────
-
-    const email = providedEmail || `${phone.replace("+", "")}@phone.miftah.app`;
+    const isEmailChannel = channel === "email";
+    const authEmail = isEmailChannel
+      ? identifier
+      : phoneChannelEmail(body.email, identifier);
     const password = providedPassword || crypto.randomUUID() + crypto.randomUUID();
     let isNew = false;
 
-    // Duplicate check for new signups (email+password provided)
-    if (providedEmail && providedPassword) {
+    // Duplicate checks for email signups (anonymous; binds identifier+channel)
+    if (isEmailChannel) {
+      const { data: emailExists } = await supabase.rpc("check_email_exists", { p_email: identifier });
+      if (emailExists) {
+        return new Response(
+          JSON.stringify({ error: "البريد الإلكتروني مستخدم مسبقًا" }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (body.phone && typeof body.phone === "string") {
+        const { data: existingPhone } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("phone", body.phone)
+          .maybeSingle();
+        if (existingPhone) {
+          return new Response(
+            JSON.stringify({ error: "رقم الهاتف مستخدم مسبقًا" }),
+            { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    } else if (body.email && providedPassword) {
+      // Legacy phone signup with explicit email+password
       const { data: existingProfile } = await supabase
         .from("profiles")
         .select("id")
-        .eq("phone", phone)
+        .eq("phone", identifier)
         .maybeSingle();
       if (existingProfile) {
         return new Response(
@@ -150,7 +215,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      const { data: emailExists } = await supabase.rpc("check_email_exists", { p_email: providedEmail.trim().toLowerCase() });
+      const { data: emailExists } = await supabase.rpc("check_email_exists", { p_email: body.email.trim().toLowerCase() });
       if (emailExists) {
         return new Response(
           JSON.stringify({ error: "البريد الإلكتروني مستخدم مسبقًا" }),
@@ -159,35 +224,37 @@ Deno.serve(async (req) => {
       }
     }
 
+    const createUserPayload: Record<string, unknown> = {
+      email: authEmail,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: "",
+        phone: isEmailChannel ? (typeof body.phone === "string" ? body.phone : "") : identifier,
+      },
+    };
+    if (isEmailChannel) {
+      // Phone remains pure user data on email-channel signups.
+      if (typeof body.phone === "string" && body.phone) {
+        createUserPayload.phone = body.phone;
+        createUserPayload.phone_confirm = true;
+      }
+    } else {
+      createUserPayload.phone = identifier;
+      createUserPayload.phone_confirm = true;
+    }
+
     // Strategy: try createUser first. If user already exists (422),
     // we know it's an existing user and skip to session generation.
-    // This avoids the broken listUsers paginated scan entirely.
-    console.log("[verify-otp] createUser payload:", JSON.stringify({
-      email,
-      password: password ? `${password.slice(0, 2)}...` : null,
-      phone,
-      phone_confirm: true,
-      email_confirm: true,
-      user_metadata: { phone, full_name: "" },
-    }));
-    const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      phone,
-      phone_confirm: true,
-      email_confirm: true,
-      user_metadata: { phone, full_name: "" },
-    });
+    const { data: newUser, error: createErr } = await supabase.auth.admin.createUser(createUserPayload);
 
     if (createErr) {
-      // Log full error details for debugging
       console.error("[verify-otp] createUser error:", {
         message: createErr.message,
         code: (createErr as any)?.code ?? null,
         status: (createErr as any)?.status ?? null,
         details: (createErr as any)?.details ?? null,
         hint: (createErr as any)?.hint ?? null,
-        stack: (createErr as any)?.stack ?? null,
       });
       // Check if user already exists
       const errMsg = createErr.message || "";
@@ -199,15 +266,14 @@ Deno.serve(async (req) => {
         throw createErr;
       }
     } else {
-      console.log("[verify-otp] new user created with email:", email);
+      console.log("[verify-otp] new user created with email:", authEmail);
       isNew = true;
     }
 
     // Generate a magic link and extract the token to create a session
-    console.log("[verify-otp] generating magic link for:", email);
     const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
       type: "magiclink",
-      email,
+      email: authEmail,
     });
 
     if (linkErr) {
@@ -219,8 +285,6 @@ Deno.serve(async (req) => {
       console.error("[verify-otp] VERIFY_STEP_GENERATE_LINK_NO_TOKEN");
       throw new Error("Session generation failed — no hashed_token");
     }
-
-    console.log("[verify-otp] magic link generated, verifying token");
 
     // Verify the magic link token server-side to get a session
     const { data: sessionData, error: verifyErr } = await supabase.auth.verifyOtp({
@@ -237,8 +301,6 @@ Deno.serve(async (req) => {
       console.error("[verify-otp] VERIFY_STEP_NO_SESSION_RETURNED");
       throw new Error("Session verification failed — no session");
     }
-
-    console.log("[verify-otp] session created successfully, isNew:", isNew);
 
     return new Response(
       JSON.stringify({
@@ -261,3 +323,11 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+// Phone-channel keeps the legacy deterministic-email logic.
+// body.email is the destructured alias used by the legacy phone flow only.
+function phoneChannelEmail(bodyEmail: string | undefined, identifier: string): string {
+  const provided = typeof bodyEmail === "string" && bodyEmail ? bodyEmail.trim().toLowerCase() : "";
+  if (provided) return provided;
+  return `${identifier.replace("+", "")}@phone.miftah.app`;
+}

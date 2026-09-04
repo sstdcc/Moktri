@@ -125,7 +125,7 @@ const SignUpPage = () => {
 
     setLoading(true);
     try {
-      await signInWithOtp(normalized, email.trim());
+      await signInWithOtp({ email: email.trim(), phone: normalized });
       // Stash profile data to apply after verification.
       sessionStorage.setItem(
         'pending_signup_profile',
@@ -150,7 +150,7 @@ const SignUpPage = () => {
     if (cooldown > 0) return;
     setLoading(true);
     try {
-      await signInWithOtp(phone);
+      await signInWithOtp({ email });
       startCooldown();
       toast.success(t('auth.success.otpResent'));
     } catch {
@@ -212,7 +212,7 @@ const SignUpPage = () => {
     try {
       const pendingStr = sessionStorage.getItem('pending_signup_profile');
       const pending = pendingStr ? JSON.parse(pendingStr) : {};
-      await verifyOtp(phone, otpCode, pending.email, pending.password);
+      await verifyOtp({ token: otpCode, email: pending.email, phone, password: pending.password });
       // Keep sessionStorage for onboarding (full_name)
 
       toast.success(t('auth.success.accountCreated'));
@@ -480,7 +480,7 @@ const SignUpPage = () => {
             <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-2">
               <KeyRound className="h-4 w-4 text-accent shrink-0" />
               <p className="text-xs text-muted-foreground">
-                {t('auth.otpSentTo')} <span className="font-semibold text-foreground inline-block" dir="ltr">{phone}</span>
+                {t('auth.otpSentTo')} <span className="font-semibold text-foreground inline-block" dir="ltr">{email}</span>
               </p>
             </div>
             <div className="flex gap-2 justify-center" dir="ltr" onPaste={handleOtpPaste}>
