@@ -86,6 +86,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
           {showBottomNav && <BottomNav />}
         </div>
       </div>
+      
     </SidebarProvider>
   );
 };
