@@ -168,7 +168,7 @@ export const ChatModal = ({ open, onOpenChange, listingId, ownerId, listingTitle
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="font-tajawal max-w-md h-[90dvh] max-h-[90dvh] flex flex-col p-0 gap-0 fixed bottom-0 top-auto left-1/2 -translate-x-1/2 translate-y-0 rounded-b-none sm:rounded-b-lg bg-background"
+        className="font-tajawal w-[95vw] max-w-[95vw] h-[85dvh] max-h-[85dvh] sm:w-[90vw] sm:max-w-[600px] sm:h-[80dvh] sm:max-h-[80dvh] lg:w-[720px] lg:max-w-[720px] lg:h-[75dvh] lg:max-h-[700px] flex flex-col p-0 gap-0 rounded-2xl bg-background"
         dir="rtl"
       >
         <DialogHeader className="p-4 border-b border-border shrink-0 bg-background">
@@ -192,7 +192,7 @@ export const ChatModal = ({ open, onOpenChange, listingId, ownerId, listingTitle
               return (
                 <div key={msg.id} className={cn('flex', isMine ? 'justify-start' : 'justify-end')}>
                   <div className={cn(
-                    'max-w-[75%] rounded-2xl px-4 py-2.5',
+                    'max-w-[80%] sm:max-w-[75%] rounded-2xl px-4 py-2.5',
                     isMine
                       ? 'bg-accent text-white rounded-br-sm'
                       : 'bg-muted text-foreground rounded-bl-sm'

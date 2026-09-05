@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const pageTitles: Record<string, string> = {
-  '/': 'Moktari (مُكتري) - سوق الإيجارات في تعز',
+  '/': 'Moktari (مُكتري) - سوق الإيجارات في اليمن',
   '/listings': 'الإعلانات | مُكتري',
   '/requests': 'طلبات السكن | مُكتري',
   '/favorites': 'المفضلة | مُكتري',
@@ -35,7 +35,7 @@ export const usePageTitle = () => {
     } else if (pathname.startsWith('/dashboard/admin')) {
       document.title = 'لوحة الإدارة | مُكتري';
     } else {
-      document.title = 'Moktari (مُكتري) - سوق الإيجارات في تعز';
+      document.title = 'Moktari (مُكتري) - سوق الإيجارات في اليمن';
     }
   }, [pathname]);
 };

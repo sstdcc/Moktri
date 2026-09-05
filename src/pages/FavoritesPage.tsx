@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -30,6 +31,8 @@ interface FavListing {
 const FavoritesPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
   const [items, setItems] = useState<FavListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -87,6 +90,13 @@ const FavoritesPage = () => {
 
   useEffect(() => { fetchFavorites(); }, [fetchFavorites]);
 
+  // Refetch when navigating to /favorites (component is persistently mounted via PersistentBottomTabs)
+  useEffect(() => {
+    if (location.pathname === '/favorites') {
+      fetchFavorites();
+    }
+  }, [location.pathname, fetchFavorites]);
+
   // Realtime subscription
   useEffect(() => {
     if (!user) return;
@@ -103,12 +113,23 @@ const FavoritesPage = () => {
   }, [user, fetchFavorites]);
 
   const removeFavorite = async (favoriteId: string) => {
-    // Optimistic removal
+    // Resolve listingId before optimistic update to sync shared cache
+    const target = items.find(i => i.favoriteId === favoriteId);
+    const listingId = target?.id;
+    // Optimistic removal for local list
     setItems(prev => prev.filter(i => i.favoriteId !== favoriteId));
+    // Sync shared TanStack Query cache used by ListingsPage / useFavorites (same queryKey)
+    if (listingId && user) {
+      queryClient.setQueryData<string[]>(['favorites', user.id], (prev = []) => prev.filter(id => id !== listingId));
+    }
     const { error } = await supabase.from('favorites').delete().eq('id', favoriteId);
     if (error) {
       toast.error('تعذر إزالة العنصر');
       fetchFavorites();
+      // Revert shared cache on failure
+      if (listingId && user) {
+        queryClient.setQueryData<string[]>(['favorites', user.id], (prev = []) => Array.from(new Set([...prev, listingId])));
+      }
     }
   };
 

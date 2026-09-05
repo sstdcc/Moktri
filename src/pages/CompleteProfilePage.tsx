@@ -264,6 +264,9 @@ const CompleteProfilePage = () => {
             <Button onClick={handleSendOtp} disabled={loading || !phoneRaw.trim()} className="w-full h-12 text-base">
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'إرسال رمز التحقق'}
             </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              سيتم إرسال رمز التحقق إلى بريدك الإلكتروني المرتبط بحساب Google.
+            </p>
           </div>
         )}
 

@@ -1,6 +1,6 @@
 export const ORG_NAME = 'Moktari (مُكتري)';
 export const ORG_DESCRIPTION =
-  'مُكتري هو سوق الإيجارات الأول في تعز، اليمن. ابحث عن شقق، غرف، ومنازل للإيجار بسهولة.';
+  'مُكتري هو سوق الإيجارات في اليمن. ابحث عن شقق، غرف، ومنازل للإيجار بسهولة.';
 
 type JsonLdObject = Record<string, unknown>;
 

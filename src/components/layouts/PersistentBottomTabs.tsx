@@ -87,7 +87,7 @@ export const PersistentBottomTabs = () => {
   useEffect(() => {
     if (!activeTab) return;
     const titleByTab: Record<PersistentTabId, string> = {
-      home: 'Moktari (مُكتري) - سوق الإيجارات في تعز',
+      home: 'Moktari (مُكتري) - سوق الإيجارات في اليمن',
       listings: 'الإعلانات | مُكتري',
       requests: 'طلبات السكن | مُكتري',
       favorites: 'المفضلة | مُكتري',
