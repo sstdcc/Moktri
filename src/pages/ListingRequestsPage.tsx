@@ -126,12 +126,7 @@ export default function ListingRequestsPage() {
       return;
     }
     setItems(prev => prev.map(r => r.id === req.id ? { ...r, status } : r));
-    if (status === 'accepted') {
-      await supabase
-        .from('listings')
-        .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
-        .eq('id', req.listing_id);
-    }
+    // listings.status → negotiating is now handled atomically inside accept_listing_request RPC
     // Mirror the working pattern (e.g. PrivateOffersForRenter): plain insert, no .select() chained,
     // since the SELECT RLS only allows owners of the notification (the requester) to read it back.
     createNotificationService(supabase).create(

@@ -269,11 +269,9 @@ const CreateListingPage = ({ initialData, initialImages, isEditing, listingId, o
 
       const finalStatus = isPrivateOffer
         ? 'private_offer'
-        : status === 'active' && profile?.is_verified
-          ? 'active'
-          : status === 'active'
-            ? 'pending_review'
-            : 'draft';
+        : status === 'active'
+          ? 'pending_review'
+          : 'draft';
 
       const { data: listing, error } = await supabase.from('listings').insert({
         owner_id: user.id,

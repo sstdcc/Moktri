@@ -26,6 +26,7 @@ import {
   User, Camera, Phone, Mail, LogOut, MessageCircle, Shield,
   Info, FileText, Bell, Sun, Moon, Monitor, ChevronLeft, ChevronRight,
   Lock, ArrowRight, ArrowLeft, UserCircle2, BellRing, Palette, ShieldCheck, LifeBuoy, Languages,
+  Trash2, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme, type ThemeMode } from '@/contexts/ThemeContext';
@@ -128,6 +129,8 @@ const SettingsPage = () => {
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -267,6 +270,94 @@ const SettingsPage = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth', { replace: true });
+  };
+
+  /**
+   * Permanent account deletion.
+   * The user identity is taken from the verified JWT (attached by the caller as
+   * `Authorization: Bearer <access_token>`), never from client-supplied ids.
+   * On success the local session is cleared (signOut tolerates a revoked token)
+   * and the user is returned to the login screen.
+   */
+  const handleDeleteAccount = async () => {
+    if (!user || deletingAccount) return;
+    setDeletingAccount(true);
+    try {
+      // Resolve a FRESH access token. getSession() alone can return a stale
+      // localStorage token that the Functions gateway (verify_jwt=true) rejects
+      // with 401 before the request ever reaches delete-account. getUser()
+      // verifies the stored session against the auth server and auto-refreshes
+      // it when the stored token is expired.
+      const { error: verifyError } = await supabase.auth.getUser();
+      let { data: { session } } = await supabase.auth.getSession();
+      let accessToken = session?.access_token ?? null;
+
+      // If the stored session is missing/expired and the automatic attempt
+      // failed, try a SINGLE explicit refresh before giving up. Never send a
+      // delete request without a valid JWT.
+      if (verifyError || !accessToken) {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        accessToken = refreshed?.session?.access_token ?? null;
+        if (!accessToken) {
+          toast.error('انتهت جلستك. سجّل الدخول مرة أخرى.');
+          return;
+        }
+      }
+
+      // Direct fetch (same convention as AuthPage) so the JSON error body can be
+      // read on non-2xx responses — supabase.functions.invoke hides it.
+      const callDelete = () =>
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({}),
+        });
+
+      let res: Response;
+      try {
+        res = await callDelete();
+      } catch {
+        toast.error('تعذر حذف الحساب حاليًا. تأكد من الاتصال ثم حاول مرة أخرى.');
+        return;
+      }
+
+      // A 401 from the gateway means the JWT was invalid/expired. Refresh
+      // exactly once and retry once — never more, to avoid a retry loop.
+      if (res.status === 401) {
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError && refreshed?.session?.access_token) {
+          accessToken = refreshed.session.access_token;
+          res = await callDelete();
+        }
+      }
+
+      const payload = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error('انتهت جلستك. سجّل الدخول مرة أخرى.');
+        } else if (payload?.code === 'rentals_linked') {
+          toast.error(payload?.error || 'تعذر حذف الحساب لوجود عقد إيجار مرتبط به. تواصل مع الدعم.');
+        } else {
+          toast.error('تعذر حذف الحساب حاليًا. حاول مرة أخرى لاحقًا.');
+        }
+        return;
+      }
+
+      toast.success('تم حذف الحساب نهائيًا.');
+      setDeleteDialogOpen(false);
+      // Clears the local session and ignores the revoked/expired token error.
+      await supabase.auth.signOut();
+      navigate('/auth', { replace: true });
+    } catch {
+      toast.error('تعذر حذف الحساب حاليًا. تأكد من الاتصال ثم حاول مرة أخرى.');
+    } finally {
+      setDeletingAccount(false);
+    }
   };
 
   const getInitials = (name: string) =>
@@ -547,6 +638,52 @@ const SettingsPage = () => {
                     className="font-tajawal bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     {t('settings.logout')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </SettingsCard>
+        </section>
+
+        {/* Delete account — permanent, irreversible */}
+        <section className="pt-2">
+          <SettingsCard>
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="w-full flex items-center justify-center gap-2 px-4 py-4 text-[14.5px] font-medium text-destructive hover:bg-destructive/5 active:bg-destructive/10 transition-colors duration-150"
+                >
+                  <Trash2 className="h-[17px] w-[17px]" strokeWidth={1.75} />
+                  {t('settings.deleteAccount')}
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent dir={dir}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="font-tajawal">{t('settings.deleteAccount')}</AlertDialogTitle>
+                  <AlertDialogDescription className="font-tajawal">
+                    {t('settings.deleteAccountConfirm')}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-row-reverse gap-2">
+                  <AlertDialogCancel className="font-tajawal" disabled={deletingAccount}>
+                    {t('settings.cancel')}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteAccount();
+                    }}
+                    disabled={deletingAccount}
+                    className="font-tajawal bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {deletingAccount ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t('settings.deletingAccount')}
+                      </>
+                    ) : (
+                      t('settings.deleteAccountLabel')
+                    )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

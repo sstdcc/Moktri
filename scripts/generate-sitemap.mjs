@@ -14,6 +14,7 @@ const PUBLIC_STATIC_PATHS = [
   "/requests",
   "/terms",
   "/privacy",
+  "/account-deletion",
 ];
 
 const LISTINGS_ENDPOINT =

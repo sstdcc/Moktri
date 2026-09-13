@@ -36,12 +36,13 @@ interface ListingCardProps {
   isFeatured?: boolean;
   ownerId?: string;
   index?: number;
+  status?: string | null;
   onFavoriteToggle?: () => void;
 }
 
 export const ListingCard = ({
   id, imageUrl, category, price, city, district, bedrooms, furnishing,
-  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, index = 0, onFavoriteToggle,
+  createdAt, isFavorited, isVerifiedOwner, isUrgent, isFeatured, ownerId, index = 0, status, onFavoriteToggle,
 }: ListingCardProps) => {
   const daysSince = getDaysSincePublished(createdAt);
   const [pop, setPop] = useState(0);
@@ -120,6 +121,17 @@ export const ListingCard = ({
         <span className="absolute bottom-3 right-3 rounded-lg bg-black/50 backdrop-blur-md text-white text-[11px] px-2.5 py-1 font-semibold font-tajawal">
           {categoryLabels[category] || category}
         </span>
+
+        {/* Status badge for favorites — rented/paused/expired/negotiating */}
+        {status && ['rented', 'paused', 'expired', 'negotiating'].includes(status) && (
+          <span className={cn('absolute bottom-3 left-3 rounded-lg border backdrop-blur-md px-2.5 py-1 text-[11px] font-bold font-tajawal',
+            status === 'rented' ? 'bg-primary/90 text-white border-primary/20' :
+            status === 'negotiating' ? 'bg-accent/90 text-white border-accent/20' :
+            'bg-black/50 text-white border-white/20'
+          )}>
+            {status === 'rented' ? 'تم التأجير' : status === 'paused' ? 'موقوف' : status === 'expired' ? 'منتهي' : 'قيد التفاوض'}
+          </span>
+        )}
       </div>
 
       {/* BODY */}

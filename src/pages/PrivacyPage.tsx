@@ -111,18 +111,45 @@ const PrivacyPage = () => {
           </section>
 
           <section>
-            <h2 className="text-base font-bold mb-2">9. حقوقك</h2>
+            <h2 className="text-base font-bold mb-2">9. حذف الحساب والبيانات</h2>
+            <p>
+              يمكنك حذف حسابك نهائيًا في أي وقت من داخل التطبيق: الإعدادات ← حذف الحساب.
+            </p>
+            <ul className="list-disc pr-5 space-y-1 mt-2">
+              <li>
+                عند تأكيد الحذف يُحذف الحساب نهائيًا، وتُحذف جميع البيانات المرتبطة به: بيانات
+                الملف الشخصي، الإعلانات وصورها، طلبات السكن والردود والعروض، المفضلة، المحادثات
+                والرسائل، الإشعارات، رموز الأجهزة المستخدمة للإشعارات، التقييمات، البلاغات، وطلبات
+                التوثيق وملفات صورها المرفوعة.
+              </li>
+              <li>العملية نهائية ولا يمكن التراجع عنها، ولا يمكن استعادة الحساب أو بياناته.</li>
+              <li>
+                استثناء: إذا كان الحساب مرتبطًا بعقد إيجار نشط بصفة مالك أو مستأجر، فلا يمكن حذف
+                الحساب تلقائيًا من التطبيق حفاظًا على حقوق جميع الأطراف. في هذه الحالة تُعرض رسالة
+                توضح ذلك، ويجب إنهاء العقد أو التواصل مع الدعم لإتمام الحذف يدويًا.
+              </li>
+              <li>
+                إذا تعذّر عليك تسجيل الدخول، يمكنك طلب حذف الحساب من صفحة «حذف الحساب» على
+                <a href="/account-deletion" className="underline decoration-primary/40 underline-offset-4 hover:text-primary transition-colors"> {''}moktari.app</a>
+                ، أو عبر التواصل على <a href="mailto:support@sstd.cc" className="underline decoration-primary/40 underline-offset-4 hover:text-primary transition-colors">{''}support@sstd.cc</a>.
+                تُعالَج هذه الطلبات يدويًا من قبل فريق الدعم خلال مدة معقولة.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-base font-bold mb-2">10. حقوقك</h2>
             <ul className="list-disc pr-5 space-y-1">
               <li>طلب الاطلاع على بياناتك وفق ما تسمح به الأنظمة</li>
               <li>تصحيح أو تحديث بياناتك</li>
-              <li>طلب حذف حسابك وبياناتك عندما يكون ذلك ممكنًا</li>
+              <li>حذف حسابك وبياناتك نهائيًا (راجع القسم 9 أعلاه)</li>
               <li>التواصل مع SSTD بشأن الخصوصية عبر وسائل التواصل أدناه</li>
             </ul>
           </section>
-          
+
 
           <section>
-            <h2 className="text-base font-bold mb-2">10. التواصل بخصوص الخصوصية</h2>
+            <h2 className="text-base font-bold mb-2">11. التواصل بخصوص الخصوصية</h2>
             <p>لأي استفسار أو طلب يتعلق بالخصوصية، تواصل معنا عبر:</p>
             <ul className="mt-1 space-y-1">
               <li dir="ltr">

@@ -88,14 +88,7 @@ export const IncomingListingRequests = () => {
       return;
     } else {
       setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status } : r));
-
-      // On accept: move listing to "negotiating" (not rented yet)
-      if (status === 'accepted') {
-        await supabase
-          .from('listings')
-          .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
-          .eq('id', req.listing_id);
-      }
+      // listings.status → negotiating is now handled atomically inside accept_listing_request RPC
 
       // Notify requester
       const notifType = status === 'accepted' ? 'private_offer_accepted' : 'private_offer_rejected';

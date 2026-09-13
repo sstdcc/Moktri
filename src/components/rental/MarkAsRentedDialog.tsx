@@ -147,11 +147,7 @@ export const MarkAsRentedDialog = ({ open, onOpenChange, listingId, listingTitle
       // UPDATE happen in ONE database transaction (mark_listing_rented RPC).
       // Any validation/ownership/status failure rolls back both writes, so a
       // completed rental can never be left on an ACTIVE listing.
-      const rpc = supabase.rpc as unknown as (
-        fn: 'mark_listing_rented',
-        args: Record<string, unknown>,
-      ) => Promise<{ data: unknown; error: { message?: string } | null }>;
-      const { data: rpcData, error: rpcError } = await rpc('mark_listing_rented', {
+      const { data: rpcData, error: rpcError } = await supabase.rpc('mark_listing_rented', {
         p_listing_id: listingId,
         p_renter_id: isExternal ? null : finalRenterId,
         p_broker_id: brokerId !== 'none' ? brokerId : null,

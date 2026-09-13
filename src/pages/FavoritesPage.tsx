@@ -26,6 +26,7 @@ interface FavListing {
   imageUrl?: string;
   isUrgent?: boolean;
   isFeatured?: boolean;
+  status?: string | null;
 }
 
 const FavoritesPage = () => {
@@ -78,6 +79,7 @@ const FavoritesPage = () => {
             imageUrl: primaryImg,
             isUrgent: l.is_urgent,
             isFeatured: l.is_featured,
+            status: l.status,
           };
         });
       setItems(mapped);
@@ -184,6 +186,7 @@ const FavoritesPage = () => {
                 isUrgent={item.isUrgent}
                 isFeatured={item.isFeatured}
                 ownerId={item.ownerId}
+                status={item.status}
                 onFavoriteToggle={() => removeFavorite(item.favoriteId)}
               />
             ))}

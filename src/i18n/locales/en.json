@@ -49,7 +49,11 @@
       "save": "Save",
       "saving": "Saving..."
     },
-    "noName": "No name"
+    "noName": "No name",
+    "deleteAccount": "Delete account",
+    "deleteAccountLabel": "Delete account permanently",
+    "deleteAccountConfirm": "Your account and all associated data will be permanently deleted (listings, requests, favorites, conversations, notifications and more). This action is permanent and cannot be undone.",
+    "deletingAccount": "Deleting..."
   },
   "common": {
     "loading": "Loading...",

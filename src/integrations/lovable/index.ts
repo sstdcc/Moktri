@@ -51,7 +51,11 @@ export const lovable = {
         options: {
           redirectTo: isAndroid ? ANDROID_OAUTH_REDIRECT_URI : opts?.redirect_uri,
           skipBrowserRedirect: isAndroid,
-          ...(opts?.extraParams ? { queryParams: opts.extraParams } : {}),
+          ...(provider === 'google'
+            ? { queryParams: { prompt: 'select_account', ...(opts?.extraParams || {}) } }
+            : opts?.extraParams
+              ? { queryParams: opts.extraParams }
+              : {}),
         },
       });
 

@@ -108,7 +108,59 @@ const BrokerDashboard = () => {
       setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: l.reserved_for_user_id || null });
       return;
     }
-    const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
+    if (action === 'renew') {
+      const old = listings.find(x => x.id === listingId) as any;
+      if (!old) { toast.error('تعذر العثور على الإعلان'); return; }
+      const { data: oldImages } = await supabase.from('listing_images').select('url, is_primary, sort_order').eq('listing_id', listingId).order('sort_order');
+      const { data: newListing, error: insertError } = await supabase.from('listings').insert({
+        owner_id: old.owner_id,
+        category: old.category,
+        title: old.title,
+        governorate: old.governorate,
+        city_name: old.city_name,
+        district_id: old.district_id,
+        neighborhood: old.neighborhood,
+        price: old.price,
+        currency: old.currency,
+        billing_period: old.billing_period,
+        is_negotiable: old.is_negotiable,
+        bedrooms: old.bedrooms,
+        bathrooms: old.bathrooms,
+        kitchens: old.kitchens,
+        floor_number: old.floor_number,
+        property_size: old.property_size,
+        furnishing: old.furnishing,
+        allowed_for: old.allowed_for,
+        has_water: old.has_water,
+        has_electricity: old.has_electricity,
+        has_parking: old.has_parking,
+        has_internet: old.has_internet,
+        description: old.description,
+        is_urgent: old.is_urgent,
+        map_url: old.map_url,
+        status: 'active' as any,
+        published_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 90 * 86400000).toISOString(),
+      } as any).select('id').single();
+      if (insertError || !newListing) {
+        toast.error('تعذر إنشاء الإعلان الجديد، حاول مجدداً');
+        return;
+      }
+      if (oldImages && (oldImages as any[]).length > 0) {
+        await supabase.from('listing_images').insert(
+          (oldImages as any[]).map((img: any, i: number) => ({
+            listing_id: (newListing as any).id,
+            url: img.url,
+            is_primary: i === 0,
+            sort_order: i,
+          }))
+        );
+      }
+      toast.success('تم تجديد الإعلان وهو الآن نشط');
+      navigate(`/listings/${(newListing as any).id}`);
+      return;
+    }
+    const statusMap: Record<string, string> = { pause: 'paused' };
     const newStatus = statusMap[action];
     if (newStatus) {
       const { error } = await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);

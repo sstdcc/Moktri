@@ -60,6 +60,7 @@ const ConversationPage = () => {
   const [tenantConfirmedAt, setTenantConfirmedAt] = useState<string | null>(null);
   const [confirmingDeal, setConfirmingDeal] = useState(false);
   const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
+  const [acceptedRequestId, setAcceptedRequestId] = useState<string | null>(null);
   const [actingRequest, setActingRequest] = useState<null | 'accepted' | 'rejected'>(null);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -83,12 +84,13 @@ const ConversationPage = () => {
 
     const other = conv.owner_id === user.id ? conv.user_id : conv.owner_id;
     setOtherId(other);
-    const [profileRes, listingRes, imgRes, msgsRes, reqRes] = await Promise.all([
+    const [profileRes, listingRes, imgRes, msgsRes, reqRes, acceptedRes] = await Promise.all([
       supabase.from('profiles').select('full_name, avatar_url').eq('id', other).single(),
       supabase.from('listings').select('title, status, owner_confirmed_at, tenant_confirmed_at, price, currency').eq('id', conv.listing_id).single(),
       supabase.from('listing_images').select('url, is_primary, sort_order').eq('listing_id', conv.listing_id).order('is_primary', { ascending: false }).order('sort_order', { ascending: true }).limit(1),
       supabase.from('listing_messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true }),
       supabase.from('listing_requests').select('id, status').eq('conversation_id', conversationId).eq('status', 'pending').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('listing_requests').select('id').eq('conversation_id', conversationId).eq('status', 'accepted').limit(1).maybeSingle(),
     ]);
 
     setOtherName(profileRes.data?.full_name ?? 'مستخدم');
@@ -101,6 +103,7 @@ const ConversationPage = () => {
     setOwnerConfirmedAt(listingRes.data?.owner_confirmed_at ?? null);
     setTenantConfirmedAt(listingRes.data?.tenant_confirmed_at ?? null);
     setPendingRequestId(reqRes.data?.id ?? null);
+    setAcceptedRequestId((acceptedRes.data as any)?.id ?? null);
     setMessages(msgsRes.data ?? []);
     setLoading(false);
 
@@ -180,9 +183,9 @@ const ConversationPage = () => {
   const isRented = listingStatus === 'rented';
   // Show Accept/Reject to the owner/broker in-conversation when a pending request exists
   const showAcceptReject = isOwnerSide && !!pendingRequestId && listingStatus !== 'negotiating' && !isRented;
-  // Renter can confirm anytime during negotiating; owner only after renter has confirmed
+  // Renter/Owner can confirm only if THIS conversation's request was accepted and listing is negotiating
   const showConfirmButton =
-    !isRented && listingStatus === 'negotiating' && (
+    !isRented && !!acceptedRequestId && listingStatus === 'negotiating' && (
       (isTenantSide && !myConfirmed) ||
       (isOwnerSide && !!tenantConfirmedAt && !myConfirmed)
     );
@@ -211,11 +214,9 @@ const ConversationPage = () => {
       if (error) throw error;
 
       if (status === 'accepted') {
-        await supabase
-          .from('listings')
-          .update({ status: 'negotiating' as any, last_updated_at: new Date().toISOString() })
-          .eq('id', listingId);
+        // listings.status → negotiating is now handled atomically inside accept_listing_request RPC
         setListingStatus('negotiating');
+        setAcceptedRequestId(pendingRequestId);
       }
 
       // Notify the renter (the other party in this conversation)
@@ -239,7 +240,8 @@ const ConversationPage = () => {
       setPendingRequestId(null);
       toast.success(status === 'accepted' ? 'تم القبول — بانتظار تأكيد المستأجر' : 'تم رفض الطلب');
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'حدث خطأ');
+      const msg = (e as any)?.message || 'حدث خطأ';
+      toast.error(msg);
     } finally {
       setActingRequest(null);
     }
@@ -287,7 +289,8 @@ const ConversationPage = () => {
         }
       }
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'حدث خطأ');
+      const msg = (e as any)?.message || 'حدث خطأ';
+      toast.error(msg);
     } finally {
       setConfirmingDeal(false);
     }

@@ -103,7 +103,59 @@ const OwnerDashboard = () => {
       setRentDialog({ open: true, listingId, title: title || '', reservedRenterId: l.reserved_for_user_id || null });
       return;
     }
-    const statusMap: Record<string, string> = { pause: 'paused', renew: 'active' };
+    if (action === 'renew') {
+      const old = listings.find(x => x.id === listingId);
+      if (!old) { toast.error('تعذر العثور على الإعلان'); return; }
+      const { data: oldImages } = await supabase.from('listing_images').select('url, is_primary, sort_order').eq('listing_id', listingId).order('sort_order');
+      const { data: newListing, error: insertError } = await supabase.from('listings').insert({
+        owner_id: (old as any).owner_id,
+        category: (old as any).category,
+        title: (old as any).title,
+        governorate: (old as any).governorate,
+        city_name: (old as any).city_name,
+        district_id: (old as any).district_id,
+        neighborhood: (old as any).neighborhood,
+        price: (old as any).price,
+        currency: (old as any).currency,
+        billing_period: (old as any).billing_period,
+        is_negotiable: (old as any).is_negotiable,
+        bedrooms: (old as any).bedrooms,
+        bathrooms: (old as any).bathrooms,
+        kitchens: (old as any).kitchens,
+        floor_number: (old as any).floor_number,
+        property_size: (old as any).property_size,
+        furnishing: (old as any).furnishing,
+        allowed_for: (old as any).allowed_for,
+        has_water: (old as any).has_water,
+        has_electricity: (old as any).has_electricity,
+        has_parking: (old as any).has_parking,
+        has_internet: (old as any).has_internet,
+        description: (old as any).description,
+        is_urgent: (old as any).is_urgent,
+        map_url: (old as any).map_url,
+        status: 'active' as any,
+        published_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 90 * 86400000).toISOString(),
+      } as any).select('id').single();
+      if (insertError || !newListing) {
+        toast.error('تعذر إنشاء الإعلان الجديد، حاول مجدداً');
+        return;
+      }
+      if (oldImages && oldImages.length > 0) {
+        await supabase.from('listing_images').insert(
+          (oldImages as any[]).map((img: any, i: number) => ({
+            listing_id: (newListing as any).id,
+            url: img.url,
+            is_primary: i === 0,
+            sort_order: i,
+          }))
+        );
+      }
+      toast.success('تم تجديد الإعلان وهو الآن نشط');
+      navigate(`/listings/${(newListing as any).id}`);
+      return;
+    }
+    const statusMap: Record<string, string> = { pause: 'paused' };
     const newStatus = statusMap[action];
     if (newStatus) {
       const { error } = await supabase.from('listings').update({ status: newStatus as any, last_updated_at: new Date().toISOString() }).eq('id', listingId);
