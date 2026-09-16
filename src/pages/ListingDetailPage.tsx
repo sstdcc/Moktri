@@ -47,6 +47,7 @@ const reportReasons = [
   { value: 'inappropriate', label: 'صور مضللة' },
   { value: 'already_rented', label: 'تم التأجير' },
   { value: 'spam', label: 'محتوى مسيء' },
+  { value: 'duplicate', label: 'إعلان مكرر' },
   { value: 'other', label: 'أخرى' },
 ];
 
@@ -74,6 +75,7 @@ const ListingDetailPage = () => {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
+  const [reportNotes, setReportNotes] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [similarListings, setSimilarListings] = useState<any[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -213,16 +215,48 @@ const ListingDetailPage = () => {
   const submitReport = async () => {
     if (!user) { navigate('/auth'); return; }
     if (!reportReason || !id) return;
+    if (reportReason === 'other' && reportNotes.trim().length < 10) {
+      toast.error('يرجى كتابة وصف لا يقل عن 10 أحرف عند اختيار "أخرى"');
+      return;
+    }
     setReportSubmitting(true);
-    await supabase.from('reports').insert({
-      reporter_id: user.id,
-      target_type: 'listing' as any,
-      target_id: id,
-      reason: reportReason as any,
-    });
-    setReportSubmitting(false);
-    setReportOpen(false);
-    toast.success('تم إرسال البلاغ بنجاح');
+    try {
+      const { error } = await supabase.from('reports').insert({
+        reporter_id: user.id,
+        target_type: 'listing' as any,
+        target_id: id,
+        reason: reportReason as any,
+        notes: reportReason === 'other' ? reportNotes.trim() : null,
+      } as any);
+      if (error) {
+        if ((error as any).code === '23505') {
+          toast.error('لقد أبلغت عن هذا الإعلان مسبقًا.');
+        } else {
+          const msg = (error as any).message || '';
+          // Map DB trigger errors to friendly Arabic messages
+          if (msg.includes('listing_not_active') || msg.includes('غير نشط')) {
+            toast.error('لا يمكن الإبلاغ عن إعلان غير نشط');
+          } else if (msg.includes('self_report') || msg.includes('لا يمكنك الإبلاغ عن إعلانك')) {
+            toast.error('لا يمكنك الإبلاغ عن إعلانك الخاص');
+          } else if (msg.includes('listing_not_found') || msg.includes('غير موجود')) {
+            toast.error('الإعلان غير موجود');
+          } else {
+            toast.error('فشل إرسال البلاغ، حاول مرة أخرى');
+          }
+        }
+        setReportSubmitting(false);
+        return;
+      }
+      setReportSubmitting(false);
+      setReportOpen(false);
+      setReportReason('');
+      setReportNotes('');
+      toast.success('تم إرسال البلاغ بنجاح');
+    } catch (err: any) {
+      console.error('submitReport error', err);
+      toast.error('حدث خطأ غير متوقع، حاول مرة أخرى');
+      setReportSubmitting(false);
+    }
   };
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -502,11 +536,11 @@ const ListingDetailPage = () => {
           >
             <Pencil className="h-3 w-3" /> تعديل الإعلان
           </button>
-        ) : (
+        ) : listing.status === 'active' ? (
           <button onClick={handleReportClick} className="mt-4 text-xs text-muted-foreground hover:text-danger inline-flex items-center gap-1">
             <Flag className="h-3 w-3" /> الإبلاغ عن هذا الإعلان
           </button>
-        )}
+        ) : null}
 
         {/* Similar listings */}
         {similarListings.length > 0 && (
@@ -587,9 +621,23 @@ const ListingDetailPage = () => {
                 <span className="text-sm text-foreground">{r.label}</span>
               </label>
             ))}
+            {reportReason === 'other' && (
+              <div className="space-y-1">
+                <textarea
+                  value={reportNotes}
+                  onChange={(e) => setReportNotes(e.target.value)}
+                  placeholder="اكتب وصفًا للسبب (10 أحرف على الأقل)"
+                  rows={3}
+                  className="w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                {reportNotes.trim().length > 0 && reportNotes.trim().length < 10 && (
+                  <p className="text-xs text-danger">الوصف يجب أن يكون 10 أحرف على الأقل ({reportNotes.trim().length}/10)</p>
+                )}
+              </div>
+            )}
             <Button
               onClick={submitReport}
-              disabled={!reportReason || reportSubmitting}
+              disabled={!reportReason || reportSubmitting || (reportReason === 'other' && reportNotes.trim().length < 10)}
               className="w-full"
               variant="destructive"
             >
