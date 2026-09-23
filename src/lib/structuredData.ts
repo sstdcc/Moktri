@@ -32,6 +32,23 @@ export const buildOrganizationJsonLd = (origin: string): JsonLdObject =>
     description: ORG_DESCRIPTION,
   });
 
+export const buildWebsiteJsonLd = (origin: string): JsonLdObject => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: ORG_NAME,
+  alternateName: ['مكتري', 'Moktari'],
+  url: `${origin}/`,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${origin}/listings?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: ORG_NAME,
+  },
+});
+
 export const buildBreadcrumbJsonLd = (
   origin: string,
   listing: { id: string; title: string }

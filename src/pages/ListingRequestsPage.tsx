@@ -52,7 +52,6 @@ export default function ListingRequestsPage() {
     if (!user) return;
     const load = async () => {
       setLoading(true);
-      console.log('user.id:', user.id);
 
       // Step 1: simple query without joins (no FK declared between listing_requests and profiles/listings)
       const { data, error } = await supabase
@@ -60,9 +59,6 @@ export default function ListingRequestsPage() {
         .select('*')
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
-
-      console.log('listing_requests error:', error);
-      console.log('listing_requests data:', data);
 
       if (error) {
         toast.error('تعذر تحميل الطلبات');
@@ -84,9 +80,6 @@ export default function ListingRequestsPage() {
           ? supabase.from('listings').select('id, title').in('id', listingIds)
           : Promise.resolve({ data: [], error: null } as any),
       ]);
-
-      console.log('profiles error:', profilesRes.error, 'data:', profilesRes.data);
-      console.log('listings error:', listingsRes.error, 'data:', listingsRes.data);
 
       const profileMap = new Map((profilesRes.data || []).map((p: any) => [p.id, p]));
       const listingMap = new Map((listingsRes.data || []).map((l: any) => [l.id, l]));

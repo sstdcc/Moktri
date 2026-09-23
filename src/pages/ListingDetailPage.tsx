@@ -381,7 +381,7 @@ const ListingDetailPage = () => {
               <div className="flex">
                 {images.map((img) => (
                   <div key={img.id} className="min-w-0 shrink-0 grow-0 basis-full">
-                    <img src={img.url} alt="" className="aspect-[4/3] w-full object-cover" />
+                    <img src={img.url} alt={`${listing.title} - صورة ${currentImageIndex + 1}`} className="aspect-[4/3] w-full object-cover" />
                   </div>
                 ))}
               </div>

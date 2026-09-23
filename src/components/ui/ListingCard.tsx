@@ -69,7 +69,7 @@ export const ListingCard = ({
       <div className="relative h-48 w-full overflow-hidden">
         <SmartImage
           src={imageUrl}
-          alt=""
+          alt={categoryLabels[category] ? `${categoryLabels[category]} للإيجار` : 'عقار للإيجار'}
           wrapperClassName="absolute inset-0"
           className="transition-transform duration-500 group-hover:scale-105"
           fallback={

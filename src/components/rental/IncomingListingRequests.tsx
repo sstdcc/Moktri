@@ -177,7 +177,7 @@ export const IncomingListingRequests = () => {
                   disabled={actingId === req.id}
                   className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-success text-white py-2 text-xs font-bold hover:bg-success/90 disabled:opacity-50"
                 >
-                  <Check className="h-3.5 w-3.5" /> فتح التفاوض
+                  <Check className="h-3.5 w-3.5" /> قبول التفاوض
                 </button>
                 <button
                   onClick={() => updateStatus(req, 'rejected')}

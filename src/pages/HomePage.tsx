@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useJsonLd } from '@/hooks/useJsonLd';
-import { buildOrganizationJsonLd } from '@/lib/structuredData';
+import { buildOrganizationJsonLd, buildWebsiteJsonLd } from '@/lib/structuredData';
 
 import heroImg1 from '@/assets/hero-1.webp';
 import heroImg2 from '@/assets/hero-2.webp';
@@ -45,7 +45,10 @@ const HomePage = () => {
   const { user } = useAuth();
   
   usePageTitle();
-  useJsonLd(pathname === '/' ? buildOrganizationJsonLd(window.location.origin) : null);
+  useJsonLd(
+    pathname === '/' ? buildOrganizationJsonLd(window.location.origin) : null,
+    pathname === '/' ? buildWebsiteJsonLd(window.location.origin) : null,
+  );
   const { isFavorited, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredListings, setFeaturedListings] = useState<ListingWithImage[]>([]);
@@ -134,8 +137,8 @@ const HomePage = () => {
 
         <div className="relative z-10 [&_h1]:dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.55)] [&_p]:dark:[text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
           <div className="animate-fade-in">
-            <h1 className="text-5xl font-black text-primary-foreground dark:text-white/95 tracking-tight">Moktari</h1>
-            <p className="mt-1 text-base font-bold text-primary-foreground/90 dark:text-white/85 tracking-tight">مُكتري</p>
+            <h1 className="text-5xl font-black text-primary-foreground dark:text-white/95 tracking-tight">مُكتري - سوق الإيجارات في اليمن</h1>
+            <p className="mt-1 text-base font-bold text-primary-foreground/90 dark:text-white/85 tracking-tight">Moktari</p>
             <span className="mt-3 inline-block rounded-xl bg-accent/20 backdrop-blur-md text-accent text-xs px-4 py-1.5 font-bold border border-accent/25">
                • اليمن
             </span>

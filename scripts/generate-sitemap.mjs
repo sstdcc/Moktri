@@ -14,6 +14,8 @@ const PUBLIC_STATIC_PATHS = [
   "/requests",
   "/terms",
   "/privacy",
+  "/about",
+  "/contact",
   "/account-deletion",
 ];
 
